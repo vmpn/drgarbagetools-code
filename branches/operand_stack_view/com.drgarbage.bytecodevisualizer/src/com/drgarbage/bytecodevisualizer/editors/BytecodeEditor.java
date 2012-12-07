@@ -169,6 +169,7 @@ import com.drgarbage.bytecodevisualizer.actions.ActivateBytecodeGraphViewAction;
 import com.drgarbage.bytecodevisualizer.actions.ExportGraphAndOpenWithControlflowgraphFactoryAction;
 import com.drgarbage.bytecodevisualizer.actions.ToggleBytecodeBreakpointAction;
 import com.drgarbage.bytecodevisualizer.preferences.BytecodeVisualizerPreferenceConstats;
+import com.drgarbage.bytecodevisualizer.view.OperandStackView;
 import com.drgarbage.core.CoreConstants;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.core.CorePlugin;
@@ -281,6 +282,11 @@ public class BytecodeEditor extends JavaEditor
 	 * Outline page of the class file editor.
 	 */
 	protected BytecodeOutlinePage fOutlinePage = null;
+	
+	/**
+	 * Operand Stack View reference
+	 */
+	private OperandStackView operandStackView = null;
 
 	/**
 	 * Used to generate annotations for stack frames
@@ -1278,6 +1284,10 @@ public class BytecodeEditor extends JavaEditor
 		if(fOutlinePage != null){
 			fOutlinePage.setInput(byteCodeDocumentProvider.getClassFileOutlineElement());
 		}
+		
+		if(operandStackView != null){
+			operandStackView.setInput(null);
+		}
 	}
 
 
@@ -1292,6 +1302,10 @@ public class BytecodeEditor extends JavaEditor
 				if(m!= null){
 					if(fOutlinePage!= null) {
 						fOutlinePage.setSelection(m);
+					}
+					
+					if(operandStackView != null){
+						operandStackView.setInput(m);
 					}
 					
 					updateLineSectionListener(line/* changed to 0-based */, m);
@@ -1326,7 +1340,6 @@ public class BytecodeEditor extends JavaEditor
 	protected void doRestoreState(IMemento memento) {
 			setHandleCursorPositionChanged(true);
 			super.doRestoreState(memento);
-			setHandleCursorPositionChanged(false);
 	}
 
 	/* (non-Javadoc)
@@ -1390,7 +1403,6 @@ public class BytecodeEditor extends JavaEditor
 	 * @see com.drgarbage.bytecodevisualizer.core.editors.ClassFileEditor#getAdapter(java.lang.Class)
 	 */
 	public Object getAdapter(Class required) {
-		
 		if (IContentOutlinePage.class.equals(required)) {
 			if (fOutlinePage == null){
 				fOutlinePage = createBytecodeVisualizerOutlinePage();
@@ -1558,6 +1570,24 @@ public class BytecodeEditor extends JavaEditor
 	 */
 	public BytecodeOutlinePage getOutlinePage() {			
 		return fOutlinePage;
+	}
+	
+	/**
+	 * Returns the OperandStackView reference assigned to the editor.
+	 * @return operandStackView
+	 */
+	public OperandStackView getOperandStackView() {
+		return operandStackView;
+	}
+	
+	/**
+	 * Set the OperandStackView reference.
+	 * @param operandStackView
+	 */
+	public void setOperandStackView(OperandStackView osv) {
+		if(!osv.equals(operandStackView)){
+			operandStackView = osv;
+		}
 	}
 
 	/**
@@ -1894,7 +1924,7 @@ public class BytecodeEditor extends JavaEditor
 			IViewReference[] views = page.getViewReferences();
 			for(IViewReference ref: views){
 				if(ref.getId().equals(CoreConstants.CONTROL_FLOW_VIEW_ID)){
-					IViewPart viewPart = ref.getView(true);
+					IViewPart viewPart = ref.getView(false);
 					if(viewPart instanceof ControlFlowGraphView){
 						ControlFlowGraphView cfgView = (ControlFlowGraphView) viewPart;
 						return cfgView.getCurrentPage().getControl().isVisible();
