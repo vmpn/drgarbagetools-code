@@ -117,6 +117,9 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String DebugFunctionalityInfoDialog_lbl_ii_opened_using_0_1_or_similar_feature_of_2_;
 	public static String DebugFunctionalityInfoDialog_link_Please_read_0_this_tutorial_for_more_details_;
 	
-	public static String Operand_Stack;
-
+	/* OperandStackView ColumnNames */
+	public static String OperandStackView_Opcode_Mnemonic;
+	public static String OperandStackView_Opcode;
+	public static String OperandStackView_Offset;
+	public static String OperandStackView_Unknown;
 }
