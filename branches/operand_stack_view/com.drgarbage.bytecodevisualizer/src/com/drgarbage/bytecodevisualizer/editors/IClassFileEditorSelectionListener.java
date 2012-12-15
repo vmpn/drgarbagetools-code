@@ -20,7 +20,7 @@ package com.drgarbage.bytecodevisualizer.editors;
  * Interface for Line Selection Listener.
  * 
  * @author Sergej Alekseev
- * @version $Revision$
+ * @version $Revision: 26 $
  * $Id$
  */
 public interface IClassFileEditorSelectionListener {

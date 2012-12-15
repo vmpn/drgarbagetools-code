@@ -34,8 +34,8 @@ import com.drgarbage.core.preferences.LabelField;
  * An empty wrapper class. It necessary for plug-in activation. 
  * 
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: GeneralPreferencePage.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class GeneralPreferencePage
 		extends

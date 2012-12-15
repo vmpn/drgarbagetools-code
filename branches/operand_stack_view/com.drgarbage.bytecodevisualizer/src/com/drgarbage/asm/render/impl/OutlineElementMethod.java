@@ -39,8 +39,8 @@ import com.drgarbage.bytecode.ByteCodeConstants;
  * Outline structure for methods.
  *
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: OutlineElementMethod.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class OutlineElementMethod extends OutlineElement implements IMethod {
 	

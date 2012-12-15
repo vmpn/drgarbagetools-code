@@ -61,8 +61,8 @@ import com.drgarbage.asm.render.intf.IOutlineElementField;
  * ClassFile -> IType-> IField, IMethod ...
  * 
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: BytecodeOutlinePage.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class BytecodeOutlinePage extends Page implements IContentOutlinePage {
 

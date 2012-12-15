@@ -42,8 +42,8 @@ import com.sun.jdi.request.StepRequest;
  * Debug support routines.
  * 
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: DebugSupport.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 @SuppressWarnings("restriction")
 public class DebugSupport {

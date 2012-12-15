@@ -36,8 +36,8 @@ import com.drgarbage.asm.render.intf.IOutlineElementField;
  * Outline structure for fields.
  *
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: OutlineElementField.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class OutlineElementField extends OutlineElement implements IField, IOutlineElementField {
 	/**

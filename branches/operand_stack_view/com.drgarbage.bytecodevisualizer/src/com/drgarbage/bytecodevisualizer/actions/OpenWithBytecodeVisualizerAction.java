@@ -34,8 +34,8 @@ import com.drgarbage.utils.Messages;
  * Action for opening the bytecode visualizer.
  *
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: OpenWithBytecodeVisualizerAction.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class OpenWithBytecodeVisualizerAction implements IObjectActionDelegate {
 

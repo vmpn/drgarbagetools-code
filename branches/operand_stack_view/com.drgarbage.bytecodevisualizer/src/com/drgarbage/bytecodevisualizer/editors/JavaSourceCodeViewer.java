@@ -35,8 +35,8 @@ import org.eclipse.ui.IEditorInput;
  * Sourcecode Viewer for the class files.
  * 
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: JavaSourceCodeViewer.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class JavaSourceCodeViewer extends CompilationUnitEditor implements
 		ISourceCodeViewer {

@@ -19,7 +19,7 @@ package com.drgarbage.bytecodevisualizer.operandstack;
  * Operand Stack View.
  * 
  * @author Andreas Karoly
- * @version $Revision$
+ * @version $Revision: 26 $
  * $Id$
  */
 public class OperandStack {

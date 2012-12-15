@@ -40,8 +40,8 @@ import com.drgarbage.bytecodevisualizer.editors.IClassFileEditor;
  * ActionBar Contributor.
  *
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: BytecodevizualizerActionBarContributor.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public class BytecodevizualizerActionBarContributor extends BasicTextEditorActionContributor{
 	
