@@ -53,7 +53,7 @@ import com.sun.org.apache.bcel.internal.generic.ISTORE;
  * Operand Stack View.
  * 
  * @author Sergej Alekseev
- * @version $Revision$
+ * @version $Revision: 26 $
  * $Id$
  */
 public class OperandStackView extends /*VariablesView */ ExpressionView implements Opcodes{

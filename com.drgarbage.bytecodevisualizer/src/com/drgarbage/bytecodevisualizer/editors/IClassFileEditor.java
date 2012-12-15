@@ -20,8 +20,8 @@ package com.drgarbage.bytecodevisualizer.editors;
  * Interface to the class file editor.
  * 
  * @author Sergej Alekseev
- * @version $Revision$
- * $Id: IClassFileEditor.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * @version $Revision: 26 $
+ * $Id$
  */
 public interface IClassFileEditor {
 	
