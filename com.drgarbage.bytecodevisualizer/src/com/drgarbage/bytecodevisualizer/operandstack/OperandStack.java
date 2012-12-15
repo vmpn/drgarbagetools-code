@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.drgarbage.bytecodevisualizer.editors;
+package com.drgarbage.bytecodevisualizer.operandstack;
 
 /**
- * Interface for synchronization of views.
+ * Operand Stack View.
  * 
- * @author Sergej Alekseev
+ * @author Andreas Karoly
  * @version $Revision$
- * $Id: ISynchronizable.java 1523 2012-04-13 14:34:24Z Sergej Alekseev $
+ * $Id$
  */
-public interface ISynchronizable {
+public class OperandStack {
 
-	/**
-	 * Returns if the cursor update handler is active.
-	 * @return true or false
-	 */
-	public boolean isHandleCursorPositionChanged();
-	
-	/**
-	 * Enable or disable the cursor update handler.
-	 * @param true or false
-	 */
-	public void setHandleCursorPositionChanged(boolean b);
 }
