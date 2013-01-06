@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.draw2d.AbstractLocator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.osgi.framework.Bundle;
 
@@ -3180,6 +3181,10 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 
 	public int getCommentOffset() {
 		return commentOffset;
+	}
+	
+	public AbstractConstantPoolEntry[] getConstantPool(){
+		return constantPool;
 	}
 
 	/* (non-Javadoc)
