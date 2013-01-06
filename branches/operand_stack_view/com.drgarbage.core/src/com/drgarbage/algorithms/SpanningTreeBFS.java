@@ -33,6 +33,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
 public class SpanningTreeBFS extends BFSBase {
 
 	List<IEdgeExt> spanningTreeEdges;
+	List<INodeExt> spanningTreeNodes;
 
 	/**
 	 * Return spanning tree edges.
@@ -42,14 +43,28 @@ public class SpanningTreeBFS extends BFSBase {
 		return spanningTreeEdges;
 	}
 	
+	public List<INodeExt> getSpanningTreeNodes() {
+		return spanningTreeNodes;
+	}
+	
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
 		spanningTreeEdges = new ArrayList<IEdgeExt>();
+		spanningTreeNodes = new ArrayList<INodeExt>();
 		
 		INodeListExt nodeList = graph.getNodeList();
+		
+		if(nodeList != null) {
+			System.out.println("NODES:");
+			
+			System.out.println(nodeList.toString());
+		}
 		
 		/* mark start node as visited */
 		for(int i = 0; i < nodeList.size(); i++ ){
 			INodeExt node= nodeList.getNodeExt(i);
+			
+			//TODO data in the node is missing. node.setData() is never called in the ControlFlowGraphGenerator. Therefore it throws a NPE here.
+			
 			List<INodeExt> list  = (List<INodeExt>)node.getData();
 
 			/* for all original equivalenceClassList from the equivalence class node */
@@ -101,6 +116,9 @@ public class SpanningTreeBFS extends BFSBase {
 	 */
 	@Override
 	protected void visitedNode(INodeExt node) {
+		if(node.isVisited()){
+			spanningTreeNodes.add(node);
+		}
 	}
 
 }
