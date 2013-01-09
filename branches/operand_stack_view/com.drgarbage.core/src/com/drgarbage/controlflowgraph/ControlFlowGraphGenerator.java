@@ -81,11 +81,24 @@ public class ControlFlowGraphGenerator  implements Opcodes{
 	}  
 
 	/** 
-	 * Generates a control flow graph from a synchronized instruction list.
-	 * @param List of synchronized instructions
+	 * Generates a control flow graph whose nodes are synchronized 
+	 * with the line numbers in the bytecode view.
+	 * @param instructions - list of synchronized instructions
 	 * @return the control flow graph 
 	 */    
 	public static IDirectedGraphExt generateSynchronizedControlFlowGraphFrom (List<IInstructionLine> instructions){
+		return generateSynchronizedControlFlowGraphFrom(instructions, false);
+	}
+
+	/** 
+	 * Generates a control flow graph whose nodes are synchronized 
+	 * with the line numbers in the bytecode view.
+	 * @param instructions - list of synchronized instructions
+	 * @param setReferenceToIntsrutionList - flag if a reference to the original instruction object has to be set
+	 * @return the control flow graph 
+	 */    
+	public static IDirectedGraphExt generateSynchronizedControlFlowGraphFrom (List<IInstructionLine> instructions,
+			boolean setReferenceToIntsrutionList){
 		AbstractInstruction currentInstruction = null;
 		HashMap<Integer, INodeExt> hashTable = new HashMap<Integer, INodeExt>();
 		List<AbstractInstruction> instructionList = new ArrayList<AbstractInstruction>();
@@ -111,7 +124,9 @@ public class ControlFlowGraphGenerator  implements Opcodes{
 			instrVerbose = currentInstruction.getOpcodeMnemonic();
 
 			/* add vertex */
-			INodeExt  node= GraphExtentionFactory.createNodeExtention(null);
+			INodeExt  node= setReferenceToIntsrutionList ?
+					GraphExtentionFactory.createNodeExtention(instrLine) :
+						GraphExtentionFactory.createNodeExtention(null);
 			node.setY(instrLine.getLine() +1);
 			node.setByteCodeOffset(currentInstruction.getOffset());
 			node.setByteCodeString(instrVerbose);
