@@ -41,32 +41,32 @@ public class Algorithms {
 	private static KnuthStevensonTransformation fKnuthStevensonTransformation = new KnuthStevensonTransformation();
 	private static SpanningTreeBFS fSpanningTreeBFS = new SpanningTreeBFS();
 
-	public static List<INodeExt> doKnuthstevensonAlgorithm(IDirectedGraphExt graph){
-		IDirectedGraphExt transformedGraph = doKnuthStevensonTransformation(graph);
-
-		if(debug)log("-- doKnuthStevensonTransformation ---");
-		if(debug)printTransformedGraph(transformedGraph);
-		if(debug)log("-------------------------------------");
-
-		List<IEdgeExt> edges = doSpaningTreeAlgorithm(transformedGraph);
-		if(debug)log("--- doSpaningTreeAlgorithm ---");
-		if(debug)log(" edges.size()=" + edges.size());
-		if(debug)log("------------------------------");
-
-		/* get original nodes, they are assigned to the edges */
-		List<INodeExt> nodes = new ArrayList<INodeExt>();
-		for(IEdgeExt edge: edges){
-			INodeExt originalNode = (INodeExt)edge.getData();
-			nodes.add(originalNode);	
-		}
-
-		if(debug)log("--- original nodes ---");
-		if(debug)log(" nodes.size()=" + nodes.size());
-		if(debug)log("----------------------");
-
-
-		return nodes;
-	}
+//	public static List<INodeExt> doKnuthstevensonAlgorithm(IDirectedGraphExt graph){
+//		IDirectedGraphExt transformedGraph = doKnuthStevensonTransformation(graph);
+//
+//		if(debug)log("-- doKnuthStevensonTransformation ---");
+//		if(debug)printTransformedGraph(transformedGraph);
+//		if(debug)log("-------------------------------------");
+//
+//		List<IEdgeExt> edges = doSpanningTreeAlgorithm(transformedGraph);
+//		if(debug)log("--- doSpaningTreeAlgorithm ---");
+//		if(debug)log(" edges.size()=" + edges.size());
+//		if(debug)log("------------------------------");
+//
+//		/* get original nodes, they are assigned to the edges */
+//		List<INodeExt> nodes = new ArrayList<INodeExt>();
+//		for(IEdgeExt edge: edges){
+//			INodeExt originalNode = (INodeExt)edge.getData();
+//			nodes.add(originalNode);	
+//		}
+//
+//		if(debug)log("--- original nodes ---");
+//		if(debug)log(" nodes.size()=" + nodes.size());
+//		if(debug)log("----------------------");
+//
+//
+//		return nodes;
+//	}
 
 	public static IDirectedGraphExt doKnuthStevensonTransformation(IDirectedGraphExt graph){
 
@@ -80,7 +80,7 @@ public class Algorithms {
 		return fKnuthStevensonTransformation.getTransformedGraph();
 	}
 
-	public static List<IEdgeExt> doSpaningTreeAlgorithm(IDirectedGraphExt graph){
+	public static IDirectedGraphExt doSpanningTreeAlgorithm(IDirectedGraphExt graph){
 		try {
 			fSpanningTreeBFS.start(graph);
 		} catch (ControlFlowGraphException e) {
@@ -88,7 +88,7 @@ public class Algorithms {
 			e.printStackTrace();
 		}
 
-		return fSpanningTreeBFS.getSpanningTreeEdges();
+		return fSpanningTreeBFS.getSpanningTree();
 	}
 
 	/**
