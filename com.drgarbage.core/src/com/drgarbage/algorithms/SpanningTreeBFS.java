@@ -16,6 +16,7 @@
 
 package com.drgarbage.algorithms;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -67,7 +68,7 @@ public class SpanningTreeBFS extends BFSBase {
 	@Override
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
 		spanningTree = GraphExtentionFactory.createDirectedGraphExtention();
-		mapNodeList = new TreeMap<INodeExt, INodeExt>();
+		mapNodeList = new HashMap<INodeExt, INodeExt>();
 		
 		INodeListExt oldNodeList = graph.getNodeList();
 		INodeListExt newNodeList = spanningTree.getNodeList();
@@ -77,6 +78,10 @@ public class SpanningTreeBFS extends BFSBase {
 			INodeExt oldNode = oldNodeList.getNodeExt(i);
 			INodeExt newNode = GraphExtentionFactory.createNodeExtention(oldNode.getData());
 			mapNodeList.put(oldNode,  newNode);
+			
+			/* copy node property */
+			newNode.setByteCodeOffset(oldNode.getByteCodeOffset());
+			
 			
 			/* copy the list of the new nodes to the new graph */
 			newNodeList.add(newNode);

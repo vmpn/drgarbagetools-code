@@ -36,7 +36,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  */
 public abstract class BFSBase {
 
-	protected  static boolean debug = true;
+	protected  static boolean debug = false;
 
 	/* log method */
 	protected static void log(String msg){
