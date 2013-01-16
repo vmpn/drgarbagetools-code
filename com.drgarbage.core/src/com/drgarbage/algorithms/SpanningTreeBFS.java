@@ -18,7 +18,6 @@ package com.drgarbage.algorithms;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
@@ -28,7 +27,7 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 /**
- * 	Finds a spanning tree for the given graph. A new graph is created.
+ * 	Finds a spanning tree for the given graph.
  * 
  *  @author Andreas Karoly, Sergej Alekseev  
  *  @version $Revision$
@@ -39,13 +38,28 @@ public class SpanningTreeBFS extends BFSBase {
 	/**
 	 * Spanning tree graph.
 	 */
-	IDirectedGraphExt spanningTree;
+	private IDirectedGraphExt spanningTree;
 	
 	/**
 	 * Map of nodes <b>old graph</b> <-> <b>new graph</b>
 	 */
-	Map<INodeExt, INodeExt> mapNodeList;
+	private Map<INodeExt, INodeExt> mapNodeList;
 	
+	/**
+	 * If the variable is true a new graph for the spanning tree is created.
+	 * Otherwise the original graph is modified to the spanning tree.
+	 */
+	private boolean createNewGraph = true;
+	
+	/**
+	 * Set true if a new graph for the spanning tree has to be created.
+	 * Otherwise the original graph is modified to the spanning tree. 
+	 * @param createNewGraph - true or false
+	 */
+	public void setCreateNewGraph(boolean createNewGraph) {
+		this.createNewGraph = createNewGraph;
+	}
+
 	/**
 	 * Returns the spanning tree graph.
 	 * @return the spanning tree graph
@@ -53,42 +67,50 @@ public class SpanningTreeBFS extends BFSBase {
 	public IDirectedGraphExt getSpanningTree(){
 		return spanningTree;
 	}
-
-	/* (non-Javadoc)
-	 * @see com.drgarbage.algorithms.BFSBase#visitedNode(com.drgarbage.controlflowgraph.intf.INodeExt)
-	 */
-	@Override
-	protected void visitedNode(INodeExt node) {
-		/* nothing to do */
-	}
 	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.algorithms.BFSBase#start(com.drgarbage.controlflowgraph.intf.IDirectedGraphExt)
 	 */
 	@Override
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
-		spanningTree = GraphExtentionFactory.createDirectedGraphExtention();
-		mapNodeList = new HashMap<INodeExt, INodeExt>();
-		
-		INodeListExt oldNodeList = graph.getNodeList();
-		INodeListExt newNodeList = spanningTree.getNodeList();
-		
-		/* create a map of the old nodes to the new nodes */
-		for (int i = 0; i < oldNodeList.size(); i++){
-			INodeExt oldNode = oldNodeList.getNodeExt(i);
-			INodeExt newNode = GraphExtentionFactory.createNodeExtention(oldNode.getData());
-			mapNodeList.put(oldNode,  newNode);
-			
-			/* copy node property */
-			newNode.setByteCodeOffset(oldNode.getByteCodeOffset());
-			
-			
-			/* copy the list of the new nodes to the new graph */
-			newNodeList.add(newNode);
+		if(createNewGraph){
+			spanningTree = GraphExtentionFactory.createDirectedGraphExtention();
+			mapNodeList = new HashMap<INodeExt, INodeExt>();
+
+			INodeListExt oldNodeList = graph.getNodeList();
+			INodeListExt newNodeList = spanningTree.getNodeList();
+
+			/* create a map of the old nodes to the new nodes */
+			for (int i = 0; i < oldNodeList.size(); i++){
+				INodeExt oldNode = oldNodeList.getNodeExt(i);
+				INodeExt newNode = GraphExtentionFactory.createNodeExtention(oldNode.getData());
+				mapNodeList.put(oldNode,  newNode);
+
+				/* copy node property */
+				copyNodeProperties(oldNode, newNode);
+
+				/* copy the list of the new nodes to the new graph */
+				newNodeList.add(newNode);
+			}
+		}
+		else{
+			spanningTree = graph;
+			mapNodeList = null;
 		}
 		
 		/* start algorithm */
 		super.start(graph);
+	}
+
+	/**
+	 * Copies all properties of the old node to the new node
+	 * @param oldNode - the old node
+	 * @param newNode - the new node
+	 */
+	private void copyNodeProperties(INodeExt oldNode, INodeExt newNode){
+		newNode.setByteCodeOffset(oldNode.getByteCodeOffset());
+		newNode.setByteCodeString(oldNode.getByteCodeString());
+		//TODO: copy all properties
 	}
 
 	/* (non-Javadoc)
@@ -97,12 +119,29 @@ public class SpanningTreeBFS extends BFSBase {
 	@Override
 	protected void visitedEdge(IEdgeExt edge) {
 		if(!edge.getTarget().isVisited()){
-			/* find the source and target node, create new edge */
-			INodeExt source = mapNodeList.get(edge.getSource());
-			INodeExt target = mapNodeList.get(edge.getTarget());
-			IEdgeExt newedge = GraphExtentionFactory.createEdgeExtention(source, target);
-			spanningTree.getEdgeList().add(newedge);
+			if(createNewGraph){
+				/* find the source and target node, create new edge */
+				INodeExt source = mapNodeList.get(edge.getSource());
+				INodeExt target = mapNodeList.get(edge.getTarget());
+				IEdgeExt newedge = GraphExtentionFactory.createEdgeExtention(source, target);
+				spanningTree.getEdgeList().add(newedge);
+			}
 		}
+		else{
+			if(!createNewGraph){
+				edge.getSource().getOutgoingEdgeList().remove(edge);
+				edge.getTarget().getIncomingEdgeList().remove(edge);
+				spanningTree.getEdgeList().remove(edge);
+			}
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.drgarbage.algorithms.BFSBase#visitedNode(com.drgarbage.controlflowgraph.intf.INodeExt)
+	 */
+	@Override
+	protected void visitedNode(INodeExt node) {
+		/* nothing to do */
 	}
 
 	/* (non-Javadoc)
