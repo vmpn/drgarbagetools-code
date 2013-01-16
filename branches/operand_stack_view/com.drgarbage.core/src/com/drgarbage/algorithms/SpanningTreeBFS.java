@@ -43,7 +43,7 @@ public class SpanningTreeBFS extends BFSBase {
 	/**
 	 * Map of nodes <b>old graph</b> <-> <b>new graph</b>
 	 */
-	Map<INodeExt, INodeExt> mapNodeList = new TreeMap<INodeExt, INodeExt>();
+	Map<INodeExt, INodeExt> mapNodeList;
 	
 	/**
 	 * Returns the spanning tree graph.
@@ -67,6 +67,7 @@ public class SpanningTreeBFS extends BFSBase {
 	@Override
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
 		spanningTree = GraphExtentionFactory.createDirectedGraphExtention();
+		mapNodeList = new TreeMap<INodeExt, INodeExt>();
 		
 		INodeListExt oldNodeList = graph.getNodeList();
 		INodeListExt newNodeList = spanningTree.getNodeList();
