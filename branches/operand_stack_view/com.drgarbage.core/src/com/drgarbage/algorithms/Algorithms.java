@@ -414,7 +414,7 @@ public class Algorithms {
 		System.out.println(" nodes := {");
 		INodeListExt nodes = graph.getNodeList();
 		for(int i = 0; i < nodes.size(); i++){
-			System.out.println("  " + nodes.getNodeExt(i));
+			System.out.println("  " + nodes.getNodeExt(i).getByteCodeOffset());
 		}
 		System.out.println(" }");
 
