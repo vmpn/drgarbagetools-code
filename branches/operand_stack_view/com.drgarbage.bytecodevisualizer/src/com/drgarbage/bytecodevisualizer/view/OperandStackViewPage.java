@@ -374,11 +374,9 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
      * @param instructions list of instructions
      * @return the tree structure
      */
-    @SuppressWarnings("restriction")
     public  Object  generateInput(List<IInstructionLine> instructions)
     {
 		IDirectedGraphExt graph = ControlFlowGraphGenerator.generateSynchronizedControlFlowGraphFrom(instructions, true);
-//		Algorithms.printGraph(graph);
 
 		/* 
 		 * Mark nodes and create spanning tree.
@@ -387,11 +385,17 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 		 * of the spanning tree algorithm.
 		 */
 		markNodes(graph);
+		Algorithms.resetVisitFlags(graph);
+		
+		//TODO: remove back (loops) edges from the graph
+		
 		Algorithms.doSpanningTreeAlgorithm(graph, false);
 		Algorithms.resetVisitFlags(graph);
 				
 		Node root = new Node();
 		parseGraph(root, graph.getNodeList().getNodeExt(0));
+		//TODO: start parsing from all nodes with incoming degree = 0
+		
 		return root;
     }
     
@@ -400,27 +404,87 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
      * greater than 1 (end of block).
      * @param graph control flow graph
      */
-    @SuppressWarnings("restriction")
     private void markNodes(IDirectedGraphExt graph){
     	INodeListExt graphNodelist = graph.getNodeList();
     	
     	for(int i = 0; i < graphNodelist.size(); i++){
-    		if(graphNodelist.getNodeExt(i).getIncomingEdgeList().size() > 1){
-    			/* end of block */
-    			graphNodelist.getNodeExt(i).setMark(MarkEnum.RED);
+    		INodeExt node = graphNodelist.getNodeExt(i);
+
+    		if(node.isVisited()){
+    			if(node.getOutgoingEdgeList().size() == 0){
+    				/* last node has been reached */
+    				return;
+    			}
+    			
+    			IEdgeExt e = node.getOutgoingEdgeList().getEdgeExt(0);
+    			e.setVisited(true);
+    			node = e.getTarget();
+    			continue;
     		}
     		
-    		int out = graphNodelist.getNodeExt(i).getOutgoingEdgeList().size();
+    		if(node.getIncomingEdgeList().size() > 1){
+    			/* end of block */
+    			node.setMark(MarkEnum.RED);
+    		}
+    		
+    		int out = node.getOutgoingEdgeList().size();
     		if(out == 2){ /* if */
-    			graphNodelist.getNodeExt(i).setMark(MarkEnum.GREEN);
+    			node.setMark(MarkEnum.GREEN);
     			IEdgeListExt outEdges = graphNodelist.getNodeExt(i).getOutgoingEdgeList();
     			outEdges.getEdgeExt(1).setMark(MarkEnum.BLACK); /* true */
     			outEdges.getEdgeExt(0).setMark(MarkEnum.WHITE); /* false */
     		}
     		if(out > 2){ /* switch */
-    			graphNodelist.getNodeExt(i).setMark(MarkEnum.ORANGE);
+    			node.setMark(MarkEnum.ORANGE);
+    			markSwitchNodes(graphNodelist, i, node.getOutgoingEdgeList().size());
     		}
+    		
+    		node.setVisited(true);
     	}
+    }
+    
+    /**
+     * @param graphNodelist
+     * @param nodeIndex
+     * @param count
+     * @return
+     */
+    private int markSwitchNodes(INodeListExt graphNodelist, int nodeIndex, int count){
+    	for(int i = (nodeIndex + 1); i < graphNodelist.size(); i++){
+    		INodeExt node = graphNodelist.getNodeExt(i);
+
+    		if(node.isVisited()){
+    			continue;
+    		}
+    		
+    		int out = node.getOutgoingEdgeList().size();
+    		if(out > 1){ /* new switch block found */
+    			node.setMark(MarkEnum.ORANGE);
+    			count -= markSwitchNodes(graphNodelist, i, node.getOutgoingEdgeList().size()) + 1;
+    		}
+    		
+    		int inc = node.getIncomingEdgeList().size();
+    		
+    		int res = (count - inc);
+    		if(res == 0){
+    			/* end of block */
+    			node.setMark(MarkEnum.RED);
+    			node.setVisited(true);
+    			return res;
+    		}
+    		
+    		if(res < 0){		
+    			return res;
+    		}
+
+    		if(inc > 1){
+    			count -= inc -1;
+    		}
+
+    		node.setVisited(true);
+    	}
+    	
+    	return 0;
     }
 
     
@@ -429,12 +493,10 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
      * @param work parent node
      * @param node current node or start node
      */
-    @SuppressWarnings("restriction")
 	private void parseGraph(Node work, INodeExt node){
 
     	int out = 0;
     	do{
-//    		System.out.println(node.getByteCodeOffset());
     		IEdgeExt e;
     		
     		if(node.isVisited()){
@@ -446,10 +508,8 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 
     		/* end of the block (if or switch ) */
     		if(node.getMark() == MarkEnum.RED){
-//    			System.out.println(node.getByteCodeOffset() + " RED -> return");
     			if(work.getParent() != null){
     				work = work.getParent().getParent();
-    					System.out.println(node.getByteCodeOffset() + " ?" + work.getObject());
     			}
     		}
     		
@@ -519,7 +579,6 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
     		
     		/* switch block */
     		if(node.getMark() == MarkEnum.ORANGE) { 
-//    			System.out.println(node.getByteCodeOffset() + " SWITCH");
     			IEdgeListExt edgeList = node.getOutgoingEdgeList();
     			for(int j = 0; j < edgeList.size(); j++){
     				e = node.getOutgoingEdgeList().getEdgeExt(j);
