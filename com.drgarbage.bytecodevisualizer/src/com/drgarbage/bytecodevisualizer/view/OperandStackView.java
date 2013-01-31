@@ -73,10 +73,7 @@ public class OperandStackView extends PageBookView {
 			return;
 		}
 		
-		//TODO: adapt the input to OperandStack input
-		Object input = page.generateInput(m.getInstructionLines());
-    	page.getTreeView().setInput(input);
-    	page.getTreeView().expandAll();
+		page.setInput(m.getInstructionLines());
 	}
 	
 	
@@ -94,6 +91,9 @@ public class OperandStackView extends PageBookView {
         	
 			initPage((IPageBookViewPage) page);
             page.createControl(getPageBook());
+            
+            /* set reference to the active editor */
+            page.setEditor(be);
             
             return new PageRec(part, page);
         	
