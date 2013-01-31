@@ -18,6 +18,8 @@ package com.drgarbage.bytecodevisualizer.view;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.jdt.ui.JavaUI;
@@ -26,14 +28,21 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.ITreeViewerListener;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeExpansionEvent;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
@@ -42,12 +51,16 @@ import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.bytecode.instructions.Opcodes;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
+import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
+import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
+import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
+import com.drgarbage.controlflowgraph.intf.INodeType;
 import com.drgarbage.controlflowgraph.intf.MarkEnum;
 
 /**
@@ -59,8 +72,21 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  */
 public class OperandStackViewPage extends Page implements IPage, Opcodes{
 	
+	/**
+	 * Tree Viewer of the OperandStack view Page.
+	 */
 	protected TreeViewer treeViewer;
 	
+    /**
+     * Map of the tree items to the byte code line numbers in the editor.
+     */
+    private Map<Integer, TreeItem> treeMap;
+    
+	/**
+	 * Reference to the active byte code editor.
+	 */
+	private BytecodeEditor editor;
+
 	/**
 	 * Constructs an outline.
 	 * @param editor
@@ -78,6 +104,30 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 		
 	}
 	
+	/**
+	 * Set the reference to the active byte code editor.
+	 * @param editor byte code editor
+	 */
+	public void setEditor(BytecodeEditor editor) {
+		this.editor = editor;
+		
+		/* Synchronize tree selection with lines in the editor */
+		editor.addtLineSelectionListener(new IClassFileEditorSelectionListener(){
+
+			/* (non-Javadoc)
+			 * @see com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener#lineSelectionChanged(int, java.lang.Object)
+			 */
+			@Override
+			public void lineSelectionChanged(int newLine, Object o) {
+				TreeItem item = treeMap.get(newLine);
+				if(item != null){
+					treeViewer.getTree().setSelection(item);
+					treeViewer.refresh(true);
+				}
+			}
+		});
+	}
+
 	/* (non-Javadoc)
 	 * Method declared on Page
 	 */
@@ -140,77 +190,56 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 		Tree tree = treeViewer.getTree();
 		TreeColumn column = new TreeColumn(tree, SWT.LEFT, 0);
 		column.setMoveable(true);
-		column.setText("C1");
+		column.setText("Bytecode Instruction"); //TODO: define constant
 		column.setWidth(200);
-		
 		
 		column = new TreeColumn(tree, SWT.LEFT, 1);
 		column.setMoveable(true);
-		column.setText("C2");
+		column.setText("Offset");//TODO: define constant
 		column.setWidth(40);
-		
 		
 		TreeColumn column3 = new TreeColumn(tree, SWT.RIGHT);
 	    column3.setAlignment(SWT.LEFT);
-	    column3.setText("C3");
+	    column3.setText("Operand Stack");//TODO: define constant
 	    column3.setWidth(100);
 		
+	    TreeColumn column4 = new TreeColumn(tree, SWT.RIGHT);
+	    column4.setAlignment(SWT.LEFT);
+	    column4.setText("Description");//TODO: define constant
+	    column4.setWidth(100);
+	    
 		tree.setHeaderVisible(true);
     	tree.setLinesVisible(true);
     	
-    	int order[] = {1, 0, 2 };//tree.getColumnOrder();
+    	int order[] = {1, 0, 2, 3 };//tree.getColumnOrder();
     	tree.setColumnOrder(order);
     	
     	treeViewer.setContentProvider(new TreeViewContentProvider());
     	treeViewer.setLabelProvider(new TreeTableLabelProvider());
-
+    	
         treeViewer.expandAll();
+        
+        /* selection listener for line synchronization */
+        treeViewer.addSelectionChangedListener(new ISelectionChangedListener(){
+
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers.SelectionChangedEvent)
+			 */
+			@Override
+			public void selectionChanged(SelectionChangedEvent arg0) {
+				ISelection sel =  arg0.getSelection();
+				if(!sel.isEmpty()){
+					TreeSelection treeSel = (TreeSelection) sel;
+					Node n = (Node)treeSel.getFirstElement();
+					Object o = n.getObject();
+					if(o instanceof IInstructionLine){
+						IInstructionLine i = (IInstructionLine)o;
+						editor.selectLineAndRevaluate2(i.getLine());
+					}
+				}
+			}
+        });
      }
-
-	/**
-	 * Element of the operand stack view structure.
-	 */
-	public  class Node {		  
-		Node parent = null;
-		List<Node> children = new ArrayList<Node>();
-		Object obj;
-
-		public Object getObject() {
-			return obj;
-		}
-
-		public void setObject(Object obj) {
-			this.obj = obj;
-		}
-
-		public Node getParent() {
-			return parent;
-		}
-
-		public void setParent(Node parent) {
-			this.parent = parent;
-		}
-
-		public boolean hasParent() {
-			return parent != null ;
-		}
-
-		public List<Node> getChildren() {
-			return children;
-		}
-
-		public void setChildren(List<Node> children) {
-			this.children = children;
-		}
-
-		public void addhild(Node child) {
-			children.add(child);
-		}
-
-		public boolean hasChildren() {
-			return children.size() > 0 ;
-		}
-	}
 	
     /**
      * Content provider for the operand stack view.
@@ -279,34 +308,34 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
          * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
          */
         public Image getColumnImage(Object element, int columnIndex){
-        	//TODO: this is just a sample implementation, has to be changed.
         	if (columnIndex == 0) {
         		if(element instanceof Node){
         			Object o = ((Node)element).getObject();
         			if(o != null && o instanceof IInstructionLine){
         				IInstructionLine i = (IInstructionLine)o;
-
-        				if(i.getInstruction().getOpcode() == OPCODE_IF_ACMPEQ
-        						|| i.getInstruction().getOpcode() == OPCODE_IF_ACMPNE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IF_ICMPEQ
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IF_ICMPNE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IF_ICMPLT
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IF_ICMPGE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IF_ICMPGT
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IF_ICMPLE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFEQ
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFNE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFLT
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFGE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFGT
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFLE
-        						|| i.getInstruction().getOpcode() ==  OPCODE_IFNONNULL
-        						){
-        					return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_CLASS);
+        				
+        				//TODO: create new symbols
+        				switch(ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode())){
+        					case INodeType.NODE_TYPE_SIMPLE:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        					case INodeType.NODE_TYPE_IF:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_INTERFACE);
+        					case INodeType.NODE_TYPE_RETURN:
+        					case INodeType.NODE_TYPE_GOTO_JUMP:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PUBLIC);
+        					case INodeType.NODE_TYPE_SWITCH:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_INTERFACE);
+        					case INodeType.NODE_TYPE_INVOKE:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PUBLIC);
+        					case INodeType.NODE_TYPE_GET:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        					default:
+        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        							
         				}
         			}
         			if(o instanceof String){
-        				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_FIELD_PRIVATE);
+        				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PROTECTED);
         			}
         		}
         		
@@ -361,20 +390,60 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
         public void dispose(){
         }
    
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
+         */
         public boolean isLabelProperty(Object element, String property){
            return false;
         }
    
+        /* (non-Javadoc)
+         * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
+         */
         public void removeListener(ILabelProviderListener listener){
         }
      }		
+    
+    /**
+     * Sets input of the tree viewer.
+     * @param instructions list of byte code instructions
+     */
+    public void setInput(List<IInstructionLine> instructions){
+    	Object input = generateInput(instructions);		
+    	treeViewer.setInput(input);
+    	treeViewer.expandAll();
+
+    	treeMap = new TreeMap<Integer, TreeItem>();
+    	fillTreeMap(treeViewer.getTree().getItems());
+    	
+    }
+    
+    /**
+     * Fill the map for synchronization with lines in the editor.
+     * @param treeItems
+     */
+    private void fillTreeMap(TreeItem treeItems[]){
+		for(TreeItem item: treeItems){
+			fillTreeMap(item.getItems());
+			Object data = item.getData();
+
+			if(data instanceof Node){
+				Node node = (Node) data;
+				Object nodeObj = node.getObject();
+				if(nodeObj instanceof IInstructionLine){
+					IInstructionLine i = (IInstructionLine) nodeObj;				
+					treeMap.put(i.getLine(), item);
+				}
+			}
+		}
+    }
     
     /**
      * Creates the tree structure for the operand stack view.
      * @param instructions list of instructions
      * @return the tree structure
      */
-    public  Object  generateInput(List<IInstructionLine> instructions)
+    private  Object  generateInput(List<IInstructionLine> instructions)
     {
 		IDirectedGraphExt graph = ControlFlowGraphGenerator.generateSynchronizedControlFlowGraphFrom(instructions, true);
 
@@ -387,16 +456,57 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 		markNodes(graph);
 		Algorithms.resetVisitFlags(graph);
 		
-		//TODO: remove back (loops) edges from the graph
+		/* remove back edges (loops) from the graph */
+		removeBackEdges(graph);
 		
 		Algorithms.doSpanningTreeAlgorithm(graph, false);
 		Algorithms.resetVisitFlags(graph);
 				
 		Node root = new Node();
-		parseGraph(root, graph.getNodeList().getNodeExt(0));
-		//TODO: start parsing from all nodes with incoming degree = 0
+		List<INodeExt> listOfStartNodes = getAllStartNodes(graph);
+		for(INodeExt n: listOfStartNodes)
+			parseGraph(root, n);
+		
 		
 		return root;
+    }
+    
+    /**
+     * Removes all back edges from the edge list and 
+     * incidence lists of nodes.
+     * @param graph control flow graph
+     */
+    private void removeBackEdges(IDirectedGraphExt graph){
+    	IEdgeListExt edges = graph.getEdgeList();
+    	for(int i = 0; i < edges.size(); i++){
+    		IEdgeExt e = edges.getEdgeExt(i);
+    		INodeExt source = e.getSource(); 
+    		INodeExt target = e.getTarget();
+    		if(source.getByteCodeOffset() > target.getByteCodeOffset()){
+    			source.getOutgoingEdgeList().remove(e);
+    			target.getIncomingEdgeList().remove(e);
+    			edges.remove(i);
+    		}
+    	}
+    }
+    
+
+    /**
+     * Returns the list of all nodes with incoming degree of 0.
+     * @param graph control flow graph
+     * @return list of start nodes
+     */
+    private List<INodeExt> getAllStartNodes(IDirectedGraphExt graph){
+    	List<INodeExt> listOfStartNodes= new ArrayList<INodeExt>();
+    	INodeListExt nodes = graph.getNodeList();
+    	for(int i = 0; i < nodes.size(); i++){
+    		INodeExt n = nodes.getNodeExt(i);
+    		if(n.getIncomingEdgeList().size() == 0){
+    			listOfStartNodes.add(n);
+    		}
+    	}
+    	
+    	return listOfStartNodes;
     }
     
     /**
@@ -605,4 +715,50 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
     	} while(out != 0);
     }
 
+	/**
+	 * Element of the operand stack view structure.
+	 */
+	class Node {		  
+		Node parent = null;
+		List<Node> children = new ArrayList<Node>();
+		Object obj;
+
+		public Object getObject() {
+			return obj;
+		}
+
+		public void setObject(Object obj) {
+			this.obj = obj;
+		}
+
+		public Node getParent() {
+			return parent;
+		}
+
+		public void setParent(Node parent) {
+			this.parent = parent;
+		}
+
+		public boolean hasParent() {
+			return parent != null ;
+		}
+
+		public List<Node> getChildren() {
+			return children;
+		}
+
+		public void setChildren(List<Node> children) {
+			this.children = children;
+		}
+
+		public void addhild(Node child) {
+			children.add(child);
+		}
+
+		public boolean hasChildren() {
+			return children.size() > 0 ;
+		}
+	}
 }
+
+
