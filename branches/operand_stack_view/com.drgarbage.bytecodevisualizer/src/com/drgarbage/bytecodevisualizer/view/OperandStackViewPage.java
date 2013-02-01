@@ -28,15 +28,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.ITreeViewerListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.TreeExpansionEvent;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.TreeEvent;
-import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -82,6 +78,19 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
      */
     private Map<Integer, TreeItem> treeMap;
     
+    /**
+     * Use the mutex variable to avoid call backs from the editor view. 
+     */
+     private boolean treeViewerSelectionMutex = false; 
+    
+	private synchronized boolean isTreeViewerSelectionMutex() {
+		return treeViewerSelectionMutex;
+	}
+
+	private synchronized void setTreeViewerSelectionMutex(boolean b) {
+		treeViewerSelectionMutex = b;
+	}
+
 	/**
 	 * Reference to the active byte code editor.
 	 */
@@ -119,6 +128,15 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 			 */
 			@Override
 			public void lineSelectionChanged(int newLine, Object o) {
+				if(isTreeViewerSelectionMutex()){
+					setTreeViewerSelectionMutex(false);
+					return;
+				}
+				
+				if(treeMap == null){
+					return;
+				}
+				
 				TreeItem item = treeMap.get(newLine);
 				if(item != null){
 					treeViewer.getTree().setSelection(item);
@@ -229,11 +247,20 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 			public void selectionChanged(SelectionChangedEvent arg0) {
 				ISelection sel =  arg0.getSelection();
 				if(!sel.isEmpty()){
+					/* set a mutex to avoid the call back from the editor */
+					setTreeViewerSelectionMutex(true);
+					
 					TreeSelection treeSel = (TreeSelection) sel;
 					Node n = (Node)treeSel.getFirstElement();
 					Object o = n.getObject();
+					
 					if(o instanceof IInstructionLine){
 						IInstructionLine i = (IInstructionLine)o;
+						editor.selectLineAndRevaluate2(i.getLine());
+					}
+					
+					if(o instanceof String){ /* use parent of the true, false odr switch value nodes */
+						IInstructionLine i = (IInstructionLine)n.getParent().getObject();
 						editor.selectLineAndRevaluate2(i.getLine());
 					}
 				}
@@ -554,10 +581,15 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
     }
     
     /**
+     * Recursive method for marking nodes in the switch block.
+     * A token is initialized with the number of the outgoing
+     * edges. The token value is reduced by the nodes with the 
+     * number of incoming edges > 1. The recursion ends if the
+     * token value reaches 0. 
      * @param graphNodelist
      * @param nodeIndex
-     * @param count
-     * @return
+     * @param count - token
+     * @return token value
      */
     private int markSwitchNodes(INodeListExt graphNodelist, int nodeIndex, int count){
     	for(int i = (nodeIndex + 1); i < graphNodelist.size(); i++){
@@ -631,80 +663,32 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
     		if(out == 0){ /* last node */
     			return;
     		}
-
-    		/* if block */
-    		if(node.getMark() == MarkEnum.GREEN) {
-
-    			/* create two pseudo nodes 'true' and 'false' */
-    			Node child1 = new Node();
-    			child1.setParent(child);
-    			child1.setObject("true");
-    			child.addhild(child1);
-    			
-    			Node child2 = new Node();
-    			child2.setParent(child);
-    			child2.setObject("false");
-    			child.addhild(child2);
-
-    			IEdgeListExt outEdges =  node.getOutgoingEdgeList();
-    			
-    			switch(outEdges.size()){
-    			case 2: {
-    				IEdgeExt e1 = outEdges.getEdgeExt(0);
-    				IEdgeExt e2 = outEdges.getEdgeExt(1);
-
-    				/*  start parsing with the 'true' edge */
-    				if(e1.getMark() == MarkEnum.BLACK){ /* true */
-    					e1.setVisited(true);
-    					parseGraph(child1, e1.getTarget());
-
-    					e2.setVisited(true);
-    					parseGraph(child2, e2.getTarget());
-    				}
-    				else{
-    					e2.setVisited(true);
-    					parseGraph(child1, e2.getTarget());
-
-    					e1.setVisited(true);
-    					parseGraph(child2, e1.getTarget());
-    				}
-    			}
-    			break;
-    			
-    			case 1: {
-    				IEdgeExt e1 = outEdges.getEdgeExt(0);
-
-    				if(e1.getMark() == MarkEnum.BLACK){ /* true */
-    					e1.setVisited(true);
-    					parseGraph(child1, e1.getTarget());   	    			
-    				}
-    				else{
-    					e1.setVisited(true);
-    					parseGraph(child2, e1.getTarget());
-    				}
-    			}
-    			break;
-    			}
-    		}
     		
-    		/* switch block */
-    		if(node.getMark() == MarkEnum.ORANGE) { 
+    		/* switch or if block block */
+    		if(node.getMark() == MarkEnum.ORANGE || node.getMark() == MarkEnum.GREEN) { 
     			IEdgeListExt edgeList = node.getOutgoingEdgeList();
+    			
+    			/* sort edges in the increasing order of the target offset */
+    			Map<Integer, IEdgeExt> sortedEdgeList = new TreeMap<Integer, IEdgeExt>();
     			for(int j = 0; j < edgeList.size(); j++){
     				e = node.getOutgoingEdgeList().getEdgeExt(j);
-    				
+    				sortedEdgeList.put(e.getTarget().getByteCodeOffset(), e);
+    			}
+    			
+    			/* for all edges from the sorted list */
+    			for(IEdgeExt e1: sortedEdgeList.values()){
     				Node switchChild = new Node();
         			switchChild.setParent(child);
-        			if(e.getData()!=null){
-        				switchChild.setObject(e.getData().toString());
+        			if(e1.getData()!=null){
+        				switchChild.setObject(e1.getData().toString());
         			}
         			else{
-        				switchChild.setObject("ERROR");
+        				switchChild.setObject("ERROR");//TODO: define constant and text
         			}
         			child.addhild(switchChild);
         			
-        			e.setVisited(true);
-        			parseGraph(switchChild, e.getTarget());
+        			e1.setVisited(true);
+        			parseGraph(switchChild, e1.getTarget());
     			}
     		}
 
