@@ -879,7 +879,7 @@ public class BytecodeEditor extends JavaEditor
 							}
 						}
 
-						int line = method.getSourceCodeLine(newLine +  1/* changed to 0-based */);
+						int line = method.getSourceCodeLine(newLine -  1/* changed to 0-based */);
 						if (line != ByteCodeConstants.INVALID_LINE){
 							sourceCodeViewer.selectSourceCodeLine(line - 1 /* changed to 0-based */, false);
 						}
