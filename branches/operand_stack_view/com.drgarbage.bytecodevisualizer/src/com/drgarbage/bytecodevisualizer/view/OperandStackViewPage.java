@@ -23,6 +23,9 @@ import java.util.TreeMap;
 
 import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -33,56 +36,81 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.TreeEvent;
+import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.part.IPage;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 
-import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.asm.render.intf.IInstructionLine;
-import com.drgarbage.bytecode.instructions.Opcodes;
+import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
-import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
-import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
-import com.drgarbage.controlflowgraph.intf.IEdgeExt;
-import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
-import com.drgarbage.controlflowgraph.intf.INodeExt;
-import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeType;
-import com.drgarbage.controlflowgraph.intf.MarkEnum;
+import com.drgarbage.core.img.CoreImg;
 
 /**
- * The implementation of the OPerand Stackh View Page.
+ * The abstract Operand Stack View Page.
  * 
  * @author Sergej Alekseev
  * @version $Revision$
  * $Id$
  */
-public class OperandStackViewPage extends Page implements IPage, Opcodes{
+public abstract class OperandStackViewPage extends Page {
 	
 	/**
 	 * Tree Viewer of the OperandStack view Page.
 	 */
-	protected TreeViewer treeViewer;
+	private TreeViewer treeViewer;
 	
-    /**
+	/**
+	 * Reference to the selected method instance.
+	 */
+	private IMethodSection methodInput;
+	
+	/* Menu actions */
+	private IAction showTreeViewAction, showBasicBlockViewAction, showInstructioneListViewAction;
+	
+	static enum OperandStackView_ID{
+		TREE_VIEW,
+		BASICBKLOCK_VIEW,
+		INSTR_LIST_VIEW;
+	};
+	
+	/**
+	 * Kind of the view. The value is one of the  REE_VIEW, 
+	 * BASICBKLOCK_VIEW or INSTR_LIST_VIEW.
+	 */
+	OperandStackView_ID view_ID = OperandStackView_ID.TREE_VIEW;
+
+	/**
      * Map of the tree items to the byte code line numbers in the editor.
      */
     private Map<Integer, TreeItem> treeMap;
+    
+    /**
+     * Listener for synchronization of lines with the BCV.
+     */
+    private IClassFileEditorSelectionListener classFileEditorSelectionListener;
     
     /**
      * Use the mutex variable to avoid call backs from the editor view. 
      */
      private boolean treeViewerSelectionMutex = false; 
     
+ 	/**
+ 	 * Reference to the active byte code editor.
+ 	 */
+ 	private BytecodeEditor editor;
+     
 	private synchronized boolean isTreeViewerSelectionMutex() {
 		return treeViewerSelectionMutex;
 	}
@@ -90,11 +118,6 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 	private synchronized void setTreeViewerSelectionMutex(boolean b) {
 		treeViewerSelectionMutex = b;
 	}
-
-	/**
-	 * Reference to the active byte code editor.
-	 */
-	private BytecodeEditor editor;
 
 	/**
 	 * Constructs an outline.
@@ -113,6 +136,131 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 		
 	}
 	
+    /**
+     * Returns the current view id, one of the REE_VIEW, BASICBKLOCK_VIEW, INSTR_LIST_VIEW. 
+     * @return view_ID
+     */
+    public OperandStackView_ID getView_ID() {
+		return view_ID;
+	}
+
+	/**
+	 * Sets the view id, one of the REE_VIEW, BASICBKLOCK_VIEW, INSTR_LIST_VIEW.
+	 * @param view_ID
+	 */
+	public void setView_ID(OperandStackView_ID view_ID) {
+		this.view_ID = view_ID;
+	}
+	
+	private void configureToolBar(IActionBars bars){
+
+		IToolBarManager tbm = bars.getToolBarManager();
+		
+		showTreeViewAction = new Action() {
+			public void run() {
+				activateView(OperandStackView_ID.TREE_VIEW);
+			}
+		};
+		showTreeViewAction
+				.setImageDescriptor(CoreImg.bytecodeViewer_16x16); //$NON-NLS-1$ //TODo: make new icon
+		tbm.add(showTreeViewAction);
+		showTreeViewAction.setChecked(true);
+		
+		showBasicBlockViewAction = new Action() {
+			public void run() {
+				activateView(OperandStackView_ID.BASICBKLOCK_VIEW);
+			}
+		};
+		showBasicBlockViewAction
+				.setImageDescriptor(CoreImg.basicblockViewIcon_16x16); //$NON-NLS-1$ //TODO: make new icon
+		tbm.add(showBasicBlockViewAction);
+		showBasicBlockViewAction.setChecked(false);
+		
+		showInstructioneListViewAction = new Action() {
+			public void run() {
+				activateView(OperandStackView_ID.INSTR_LIST_VIEW);
+			}
+		};
+		showInstructioneListViewAction
+				.setImageDescriptor(CoreImg.hideMethodAction_16x16); //$NON-NLS-1$ //TODO: make new icon
+		tbm.add(showInstructioneListViewAction);
+		showInstructioneListViewAction.setChecked(false);
+		
+		enableActions(false);
+		
+		tbm.update(true);
+
+	}
+	
+	/**
+	 * Enables or disables the actions.
+	 * @param b true or false
+	 */
+	private void enableActions(boolean b){
+		showTreeViewAction.setEnabled(b);
+		showBasicBlockViewAction.setEnabled(b);
+		showInstructioneListViewAction.setEnabled(b);
+	}
+	
+	/**
+	 * Activates selected view
+	 * @param id - id of the view
+	 */
+	private void activateView(OperandStackView_ID id) {
+
+		if (id == OperandStackView_ID.TREE_VIEW) {
+			showTreeViewAction.setChecked(true);
+			showBasicBlockViewAction.setChecked(false);
+			showInstructioneListViewAction.setChecked(false);
+		} 
+		else if (id == OperandStackView_ID.BASICBKLOCK_VIEW) {
+			showTreeViewAction.setChecked(false);
+			showBasicBlockViewAction.setChecked(true);
+			showInstructioneListViewAction.setChecked(false);
+		}
+		else if( id == OperandStackView_ID.INSTR_LIST_VIEW){
+			showTreeViewAction.setChecked(false);
+			showBasicBlockViewAction.setChecked(false);
+			showInstructioneListViewAction.setChecked(true);
+		}
+		
+		/* update input */
+		if(methodInput != null){
+			setView_ID(id);
+			setInput(methodInput.getInstructionLines());
+		}
+	}
+	
+	/**
+	 * Sets the input - the list of the byte code instructions
+	 * for the table Viewer. 
+	 * @param methodSection
+	 */
+	public void setInput(IMethodSection m) {
+		if(m == null && methodInput == null){
+			return;
+		}
+		
+		if(m!= null && m.equals(methodInput)){
+			return;
+		}
+		
+		methodInput = m;
+		//TODO: implement OperandStack here
+		/* when the methodInput changes, a new stack is generated */
+		/* later, we can add the reference to the previous stack to the new stack */
+		//stack = new OperandStack(null, fContextMenuManagers);
+
+		if(methodInput == null){
+			enableActions(false);
+			getTreeView().setInput(null);
+		}
+		else{
+			setInput(methodInput.getInstructionLines());
+			enableActions(true);
+		}
+	}
+	
 	/**
 	 * Set the reference to the active byte code editor.
 	 * @param editor byte code editor
@@ -120,8 +268,8 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 	public void setEditor(BytecodeEditor editor) {
 		this.editor = editor;
 		
-		/* Synchronize tree selection with lines in the editor */
-		editor.addtLineSelectionListener(new IClassFileEditorSelectionListener(){
+		/* Synchronize tree selection with lines in the editor */		
+		classFileEditorSelectionListener = new IClassFileEditorSelectionListener(){
 
 			/* (non-Javadoc)
 			 * @see com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener#lineSelectionChanged(int, java.lang.Object)
@@ -143,7 +291,9 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 					treeViewer.refresh(true);
 				}
 			}
-		});
+		};
+		editor.addtLineSelectionListener(classFileEditorSelectionListener);
+
 	}
 
 	/* (non-Javadoc)
@@ -158,6 +308,8 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 	 */
 	public void createControl(Composite parent) {		
 		createTreeViewer(parent);
+		IActionBars bars = getSite().getActionBars();
+		configureToolBar(bars);
 	}
 	
 	/* (non-Javadoc)
@@ -166,12 +318,16 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 	public void dispose() {
 		super.dispose();
 		treeViewer = null;
+		editor.removeLineSelectionListener(classFileEditorSelectionListener);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.Page#getControl()
 	 */
 	public Control getControl() {
+		if(treeViewer == null){
+			return null;
+		}
 		return treeViewer.getControl();	
 	}
 
@@ -259,13 +415,44 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
 						editor.selectLineAndRevaluate2(i.getLine());
 					}
 					
-					if(o instanceof String){ /* use parent of the true, false odr switch value nodes */
+					if(o instanceof String){ /* use parent of the true, false or switch value nodes */
 						IInstructionLine i = (IInstructionLine)n.getParent().getObject();
-						editor.selectLineAndRevaluate2(i.getLine());
+						if(i != null){
+							editor.selectLineAndRevaluate2(i.getLine());
+						}
 					}
 				}
 			}
         });
+        
+        
+    	treeViewer.getTree().addTreeListener(new TreeListener(){
+
+			@Override
+			public void treeCollapsed(TreeEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println("treeCollapsed:");
+				TreeItem i  = (TreeItem) arg0.item;
+				printChildren(i, "");
+				
+			}
+
+			@Override
+			public void treeExpanded(TreeEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println("treeExpanded:");
+				TreeItem i  = (TreeItem) arg0.item;
+				printChildren(i, "");
+			}
+    	
+			private void printChildren(TreeItem item, String s){
+	    		System.out.println(s + item + " " + item.hashCode());
+	    		for(int i = 0; i < item.getItemCount(); i++){
+	    			printChildren(item.getItem(i), s.concat(" "));
+	    		}
+	    	}
+    	});
+    	
      }
 	
     /**
@@ -434,15 +621,15 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
     /**
      * Sets input of the tree viewer.
      * @param instructions list of byte code instructions
+     * @param id kind of the view
      */
-    public void setInput(List<IInstructionLine> instructions){
-    	Object input = generateInput(instructions);		
+    private void setInput(List<IInstructionLine> instructions){
+    	Object input = generateInput(instructions, view_ID);		
     	treeViewer.setInput(input);
     	treeViewer.expandAll();
 
     	treeMap = new TreeMap<Integer, TreeItem>();
     	fillTreeMap(treeViewer.getTree().getItems());
-    	
     }
     
     /**
@@ -468,236 +655,10 @@ public class OperandStackViewPage extends Page implements IPage, Opcodes{
     /**
      * Creates the tree structure for the operand stack view.
      * @param instructions list of instructions
+     * @param id kind of the view
      * @return the tree structure
      */
-    private  Object  generateInput(List<IInstructionLine> instructions)
-    {
-		IDirectedGraphExt graph = ControlFlowGraphGenerator.generateSynchronizedControlFlowGraphFrom(instructions, true);
-
-		/* 
-		 * Mark nodes and create spanning tree.
-		 * Marking should be done before the spanning tree is created, 
-		 * because some information gets to be missing after execution 
-		 * of the spanning tree algorithm.
-		 */
-		markNodes(graph);
-		Algorithms.resetVisitFlags(graph);
-		
-		/* remove back edges (loops) from the graph */
-		removeBackEdges(graph);
-		
-		Algorithms.doSpanningTreeAlgorithm(graph, false);
-		Algorithms.resetVisitFlags(graph);
-				
-		Node root = new Node();
-		List<INodeExt> listOfStartNodes = getAllStartNodes(graph);
-		for(INodeExt n: listOfStartNodes)
-			parseGraph(root, n);
-		
-		
-		return root;
-    }
-    
-    /**
-     * Removes all back edges from the edge list and 
-     * incidence lists of nodes.
-     * @param graph control flow graph
-     */
-    private void removeBackEdges(IDirectedGraphExt graph){
-    	IEdgeListExt edges = graph.getEdgeList();
-    	for(int i = 0; i < edges.size(); i++){
-    		IEdgeExt e = edges.getEdgeExt(i);
-    		INodeExt source = e.getSource(); 
-    		INodeExt target = e.getTarget();
-    		if(source.getByteCodeOffset() > target.getByteCodeOffset()){
-    			source.getOutgoingEdgeList().remove(e);
-    			target.getIncomingEdgeList().remove(e);
-    			edges.remove(i);
-    		}
-    	}
-    }
-    
-
-    /**
-     * Returns the list of all nodes with incoming degree of 0.
-     * @param graph control flow graph
-     * @return list of start nodes
-     */
-    private List<INodeExt> getAllStartNodes(IDirectedGraphExt graph){
-    	List<INodeExt> listOfStartNodes= new ArrayList<INodeExt>();
-    	INodeListExt nodes = graph.getNodeList();
-    	for(int i = 0; i < nodes.size(); i++){
-    		INodeExt n = nodes.getNodeExt(i);
-    		if(n.getIncomingEdgeList().size() == 0){
-    			listOfStartNodes.add(n);
-    		}
-    	}
-    	
-    	return listOfStartNodes;
-    }
-    
-    /**
-     * Mark following nodes: if, switch and nodes with incoming degree
-     * greater than 1 (end of block).
-     * @param graph control flow graph
-     */
-    private void markNodes(IDirectedGraphExt graph){
-    	INodeListExt graphNodelist = graph.getNodeList();
-    	
-    	for(int i = 0; i < graphNodelist.size(); i++){
-    		INodeExt node = graphNodelist.getNodeExt(i);
-
-    		if(node.isVisited()){
-    			if(node.getOutgoingEdgeList().size() == 0){
-    				/* last node has been reached */
-    				return;
-    			}
-    			
-    			IEdgeExt e = node.getOutgoingEdgeList().getEdgeExt(0);
-    			e.setVisited(true);
-    			node = e.getTarget();
-    			continue;
-    		}
-    		
-    		if(node.getIncomingEdgeList().size() > 1){
-    			/* end of block */
-    			node.setMark(MarkEnum.RED);
-    		}
-    		
-    		int out = node.getOutgoingEdgeList().size();
-    		if(out == 2){ /* if */
-    			node.setMark(MarkEnum.GREEN);
-    			IEdgeListExt outEdges = graphNodelist.getNodeExt(i).getOutgoingEdgeList();
-    			outEdges.getEdgeExt(1).setMark(MarkEnum.BLACK); /* true */
-    			outEdges.getEdgeExt(0).setMark(MarkEnum.WHITE); /* false */
-    		}
-    		if(out > 2){ /* switch */
-    			node.setMark(MarkEnum.ORANGE);
-    			markSwitchNodes(graphNodelist, i, node.getOutgoingEdgeList().size());
-    		}
-    		
-    		node.setVisited(true);
-    	}
-    }
-    
-    /**
-     * Recursive method for marking nodes in the switch block.
-     * A token is initialized with the number of the outgoing
-     * edges. The token value is reduced by the nodes with the 
-     * number of incoming edges > 1. The recursion ends if the
-     * token value reaches 0. 
-     * @param graphNodelist
-     * @param nodeIndex
-     * @param count - token
-     * @return token value
-     */
-    private int markSwitchNodes(INodeListExt graphNodelist, int nodeIndex, int count){
-    	for(int i = (nodeIndex + 1); i < graphNodelist.size(); i++){
-    		INodeExt node = graphNodelist.getNodeExt(i);
-
-    		if(node.isVisited()){
-    			continue;
-    		}
-    		
-    		int out = node.getOutgoingEdgeList().size();
-    		if(out > 1){ /* new switch block found */
-    			node.setMark(MarkEnum.ORANGE);
-    			count -= markSwitchNodes(graphNodelist, i, node.getOutgoingEdgeList().size()) + 1;
-    		}
-    		
-    		int inc = node.getIncomingEdgeList().size();
-    		
-    		int res = (count - inc);
-    		if(res == 0){
-    			/* end of block */
-    			node.setMark(MarkEnum.RED);
-    			node.setVisited(true);
-    			return res;
-    		}
-    		
-    		if(res < 0){		
-    			return res;
-    		}
-
-    		if(inc > 1){
-    			count -= inc -1;
-    		}
-
-    		node.setVisited(true);
-    	}
-    	
-    	return 0;
-    }
-
-    
-    /**
-     * Creates a tree structure for operand stack view.
-     * @param work parent node
-     * @param node current node or start node
-     */
-	private void parseGraph(Node work, INodeExt node){
-
-    	int out = 0;
-    	do{
-    		IEdgeExt e;
-    		
-    		if(node.isVisited()){
-    			return;
-    		}
-    		
-    		Node child = new Node();
-    		child.setObject(node.getData());
-
-    		/* end of the block (if or switch ) */
-    		if(node.getMark() == MarkEnum.RED){
-    			if(work.getParent() != null){
-    				work = work.getParent().getParent();
-    			}
-    		}
-    		
-    		child.setParent(work);
-        	work.addhild(child);
-    		node.setVisited(true);
-    		
-    		out = node.getOutgoingEdgeList().size();
-    		if(out == 0){ /* last node */
-    			return;
-    		}
-    		
-    		/* switch or if block block */
-    		if(node.getMark() == MarkEnum.ORANGE || node.getMark() == MarkEnum.GREEN) { 
-    			IEdgeListExt edgeList = node.getOutgoingEdgeList();
-    			
-    			/* sort edges in the increasing order of the target offset */
-    			Map<Integer, IEdgeExt> sortedEdgeList = new TreeMap<Integer, IEdgeExt>();
-    			for(int j = 0; j < edgeList.size(); j++){
-    				e = node.getOutgoingEdgeList().getEdgeExt(j);
-    				sortedEdgeList.put(e.getTarget().getByteCodeOffset(), e);
-    			}
-    			
-    			/* for all edges from the sorted list */
-    			for(IEdgeExt e1: sortedEdgeList.values()){
-    				Node switchChild = new Node();
-        			switchChild.setParent(child);
-        			if(e1.getData()!=null){
-        				switchChild.setObject(e1.getData().toString());
-        			}
-        			else{
-        				switchChild.setObject("ERROR");//TODO: define constant and text
-        			}
-        			child.addhild(switchChild);
-        			
-        			e1.setVisited(true);
-        			parseGraph(switchChild, e1.getTarget());
-    			}
-    		}
-
-    		e = node.getOutgoingEdgeList().getEdgeExt(0);
-    		e.setVisited(true);
-    		node = e.getTarget();
-    		
-    	} while(out != 0);
-    }
+    protected abstract  Object  generateInput(List<IInstructionLine> instructions, OperandStackView_ID id);
 
 	/**
 	 * Element of the operand stack view structure.
