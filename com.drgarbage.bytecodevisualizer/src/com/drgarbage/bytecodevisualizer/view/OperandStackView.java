@@ -27,6 +27,7 @@ import org.eclipse.ui.part.PageBookView;
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 
+
 /**
  * Operand Stack View.
  * 
@@ -36,69 +37,38 @@ import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
  */
 public class OperandStackView extends PageBookView {
 
-
 	/**
-	 * Refrence to the selected method instance.
-	 */
-	private IMethodSection methodInput;
-	
-	/**
-	 * The page of the View
-	 */
-	private OperandStackViewPage page;
-	
-
-	/**
-	 * Sets the input - the list of the bytecode instructions
-	 * for the table Viewer. 
+	 * Sets the input - the list of the byte code instructions
+	 * for the table Viewer of the current page.
 	 * @param methodSection
 	 */
-	public void setInput(IMethodSection m) {		
-		if(m!= null && m.equals(methodInput)){
-			return;
-		}
-		else{
-			methodInput = m;
-			/* when the methodInput changes, a new stack is generated */
-			/* later, we can add the reference to the previous stack to the new stack */
-	    	//stack = new OperandStack(null, fContextMenuManagers);
-		}
-		
-		if (page == null){
-			return;
-		}
-		
-		if(m == null){
-			page.getTreeView().setInput(null);
-			return;
-		}
-		
-		page.setInput(m.getInstructionLines());
+	public void setInput(IMethodSection m) {
+		OperandStackViewPage page;
+		IWorkbenchPart part = getBootstrapPart();
+		if(part instanceof BytecodeEditor){
+			page = (OperandStackViewPage) getPageRec(part).page;
+			page.setInput(m);
+		}		
 	}
-	
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.PageBookView#doCreatePage(org.eclipse.ui.IWorkbenchPart)
 	 */
 	protected PageRec doCreatePage(IWorkbenchPart part) {
-
+		
 		/* set reference in the editor */
         if(part instanceof BytecodeEditor){
         	BytecodeEditor be = (BytecodeEditor) part;
         	be.setOperandStackView(this);
         	
-        	page = new OperandStackViewPage();
-        	
+        	OperandStackViewPage page = new OperandStackViewPageIml();        	
 			initPage((IPageBookViewPage) page);
             page.createControl(getPageBook());
-            
-            /* set reference to the active editor */
             page.setEditor(be);
             
             return new PageRec(part, page);
-        	
         }
-        
+
         return null;
 	}
 
@@ -120,14 +90,8 @@ public class OperandStackView extends PageBookView {
 	 */
 	@Override
 	protected boolean isImportant(IWorkbenchPart part) {
-		boolean b = false;
-		
 		/* we are interested only on an editor */
-		if(part instanceof IEditorPart){
-			b = true;
-		}
-		
-        return b;
+		return part instanceof IEditorPart ? true : false;
 	}
 	
 	/* (non-Javadoc)
@@ -135,9 +99,11 @@ public class OperandStackView extends PageBookView {
 	 */
 	protected IPage createDefaultPage(PageBook book) {
         MessagePage page = new MessagePage();
+		page = new MessagePage();
         initPage(page);
         page.createControl(book);
         page.setMessage("OperandStack View is not avaliable");//TODO: define constant for default page
+        
         return page;
 	}
 
@@ -146,9 +112,6 @@ public class OperandStackView extends PageBookView {
 	 */
 	@Override
 	protected void doDestroyPage(IWorkbenchPart part, PageRec rec) {
-        rec.dispose();
-        page.dispose();
-        page = null;
+        rec.page.dispose();
 	}
-
 }

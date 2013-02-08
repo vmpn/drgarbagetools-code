@@ -134,6 +134,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsole;
@@ -1320,6 +1321,11 @@ public class BytecodeEditor extends JavaEditor
 						fOutlinePage.setSelection(f);
 					}
 					
+					/* set input null for operand stack if the line not in the method */
+					if(operandStackView != null){
+						operandStackView.setInput(null);
+					}
+					
 					updateLineSectionListener(line/* changed to 0-based */, f);
 					return;
 				}
@@ -1329,6 +1335,12 @@ public class BytecodeEditor extends JavaEditor
 			if(fOutlinePage!= null){
 				fOutlinePage.setSelection(doc);		
 			}
+			
+			/* set input null for operand stack if the line not in the method */
+			if(operandStackView != null){
+				operandStackView.setInput(null);
+			}
+			
 			updateLineSectionListener(line/* changed to 0-based */, doc);
 		}
 	
@@ -1919,7 +1931,11 @@ public class BytecodeEditor extends JavaEditor
 	 * @return true or false
 	 */
 	private boolean isControlFlowgraphViewVisible(){
-		IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+		IWorkbenchWindow workbench = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if(workbench == null){
+			return false;
+		}
+		IWorkbenchPage page = workbench.getActivePage();
 		if(page != null){
 			IViewReference[] views = page.getViewReferences();
 			for(IViewReference ref: views){
