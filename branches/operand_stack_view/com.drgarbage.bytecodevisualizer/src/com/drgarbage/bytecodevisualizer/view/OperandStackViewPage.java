@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
@@ -94,7 +95,8 @@ public abstract class OperandStackViewPage extends Page {
 	/**
      * Map of the tree items to the byte code line numbers in the editor.
      */
-    private Map<Integer, TreeItem> treeMap;
+    //private Map<Integer, TreeItem> treeMap;
+	private Map<Integer, Node> treeMap;
     
     /**
      * Listener for synchronization of lines with the BCV.
@@ -285,11 +287,16 @@ public abstract class OperandStackViewPage extends Page {
 					return;
 				}
 				
-				TreeItem item = treeMap.get(newLine);
-				if(item != null){
-					treeViewer.getTree().setSelection(item);
-					treeViewer.refresh(true);
-				}
+				Node node  = treeMap.get(newLine);
+		    	if(node != null){
+		    		treeViewer.expandToLevel(node, 1);
+		    		Widget w = treeViewer.testFindItem(node);
+		    		if(w != null){
+		    			TreeItem t = (TreeItem)w;
+		    			treeViewer.getTree().select(t);
+		    			treeViewer.refresh(true);
+		    		}
+		    	}
 			}
 		};
 		editor.addtLineSelectionListener(classFileEditorSelectionListener);
@@ -409,34 +416,6 @@ public abstract class OperandStackViewPage extends Page {
 				}
 			}
         });
-        
-        
-    	treeViewer.getTree().addTreeListener(new TreeListener(){
-
-			@Override
-			public void treeCollapsed(TreeEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("treeCollapsed:");
-				TreeItem i  = (TreeItem) arg0.item;
-				printChildren(i, "");
-				
-			}
-
-			@Override
-			public void treeExpanded(TreeEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("treeExpanded:");
-				TreeItem i  = (TreeItem) arg0.item;
-				printChildren(i, "");
-			}
-    	
-			private void printChildren(TreeItem item, String s){
-	    		System.out.println(s + item + " " + item.hashCode());
-	    		for(int i = 0; i < item.getItemCount(); i++){
-	    			printChildren(item.getItem(i), s.concat(" "));
-	    		}
-	    	}
-    	});
     	
      }
 	
@@ -611,40 +590,40 @@ public abstract class OperandStackViewPage extends Page {
     private void setInput(List<IInstructionLine> instructions){
     	Object input = generateInput(instructions, view_ID);		
     	treeViewer.setInput(input);
+    	
+    	if(input == null){
+    		return;
+    	}
+    	
     	treeViewer.expandAll();
 
-    	treeMap = new TreeMap<Integer, TreeItem>();
-    	fillTreeMap(treeViewer.getTree().getItems());
-    	
+    	/* fill tree map for synchronization */
+    	treeMap = new TreeMap<Integer, Node>();
+    	fillTreeMap((Node)input);
     	
     	/* set current selection */
     	int newLine = editor.getSelectedLine();
-    	TreeItem item = treeMap.get(newLine);
-		if(item != null){
-			treeViewer.getTree().setSelection(item);
-			treeViewer.refresh(true);
-		}
+    	Node node  = treeMap.get(newLine);
+    	if(node != null){
+    		Widget w = treeViewer.testFindItem(node);
+    		if(w != null){
+    			TreeItem t = (TreeItem)w;
+    			treeViewer.getTree().select(t);
+    			treeViewer.refresh(true);
+    		}
+    	}
     }
     
-    /**
-     * Fill the map for synchronization with lines in the editor.
-     * @param treeItems
-     */
-    private void fillTreeMap(TreeItem treeItems[]){
-		for(TreeItem item: treeItems){
-			fillTreeMap(item.getItems());
-			Object data = item.getData();
-
-			if(data instanceof Node){
-				Node node = (Node) data;
-				Object nodeObj = node.getObject();
-				if(nodeObj instanceof IInstructionLine){
-					IInstructionLine i = (IInstructionLine) nodeObj;				
-					treeMap.put(i.getLine(), item);
-				}
+    private void fillTreeMap(Node root){
+    	for(Node n: root.getChildren()){
+    		fillTreeMap(n);
+    		Object nodeObj = n.getObject();
+			if(nodeObj instanceof IInstructionLine){
+				IInstructionLine i = (IInstructionLine) nodeObj;				
+				treeMap.put(i.getLine(), n);
 			}
-		}
-    }
+    	}
+      }
     
     /**
      * Creates the tree structure for the operand stack view.
