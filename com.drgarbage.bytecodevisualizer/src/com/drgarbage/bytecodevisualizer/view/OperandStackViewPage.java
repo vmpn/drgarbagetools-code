@@ -331,27 +331,12 @@ public abstract class OperandStackViewPage extends Page {
 		return treeViewer.getControl();	
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.part.Page#setFocus()
+	 */
 	@Override
 	public void setFocus() {
-		/* nothing to do */		
-	}
-
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		/* nothing to do */
-	}
-
-	public ISelection getSelection() {
-		/* nothing to do */
-		return null;
-	}
-
-	public void removeSelectionChangedListener(	ISelectionChangedListener listener) {
-		/* nothing to do */
-		
-	}
-
-	public void setSelection(ISelection selection) {
-		/* nothing to do */
+		treeViewer.getTree().setFocus();
 	}
 	
 	/**
@@ -630,6 +615,15 @@ public abstract class OperandStackViewPage extends Page {
 
     	treeMap = new TreeMap<Integer, TreeItem>();
     	fillTreeMap(treeViewer.getTree().getItems());
+    	
+    	
+    	/* set current selection */
+    	int newLine = editor.getSelectedLine();
+    	TreeItem item = treeMap.get(newLine);
+		if(item != null){
+			treeViewer.getTree().setSelection(item);
+			treeViewer.refresh(true);
+		}
     }
     
     /**
