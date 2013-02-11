@@ -18,13 +18,17 @@ package com.drgarbage.bytecodevisualizer.view;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.internal.views.ViewsPlugin;
 import org.eclipse.ui.part.IPage;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.MessagePage;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 
+import com.drgarbage.asm.render.intf.IClassFileDocument;
 import com.drgarbage.asm.render.intf.IMethodSection;
+import com.drgarbage.bytecodevisualizer.editors.BytecodeDocumentProvider;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 
 
@@ -32,25 +36,11 @@ import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
  * Operand Stack View.
  * 
  * @author Sergej Alekseev
- * @version $Revision: 26 $
- * $Id$
+ * @version $Revision$
+ * $Id: OperandStackView.java 45 2013-02-08 19:03:38Z salekseev $
  */
 public class OperandStackView extends PageBookView {
 
-	/**
-	 * Sets the input - the list of the byte code instructions
-	 * for the table Viewer of the current page.
-	 * @param methodSection
-	 */
-	public void setInput(IMethodSection m) {
-		OperandStackViewPage page;
-		IWorkbenchPart part = getBootstrapPart();
-		if(part instanceof BytecodeEditor){
-			page = (OperandStackViewPage) getPageRec(part).page;
-			page.setInput(m);
-		}		
-	}
-	
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.PageBookView#doCreatePage(org.eclipse.ui.IWorkbenchPart)
 	 */
@@ -59,12 +49,35 @@ public class OperandStackView extends PageBookView {
 		/* set reference in the editor */
         if(part instanceof BytecodeEditor){
         	BytecodeEditor be = (BytecodeEditor) part;
-        	be.setOperandStackView(this);
+        	OperandStackViewPage page = null;
+        	Object obj = ViewsPlugin.getAdapter(part, OperandStackViewPage.class, false);
+            if (obj instanceof OperandStackViewPage) {
+            	page = (OperandStackViewPage) obj;
+            }
+            else {
+            	/* should never happen */
+            	page = new OperandStackViewPageIml();
+                page.setEditor(be);
+            }
         	
-        	OperandStackViewPage page = new OperandStackViewPageIml();        	
 			initPage((IPageBookViewPage) page);
             page.createControl(getPageBook());
-            page.setEditor(be);
+            
+            /* set input */
+            IDocumentProvider docProvider = be.getDocumentProvider();
+            if(docProvider instanceof BytecodeDocumentProvider){
+            	BytecodeDocumentProvider byteCodeDocumentProvider = (BytecodeDocumentProvider) be.getDocumentProvider();
+            	if(byteCodeDocumentProvider!= null){
+            		IClassFileDocument classFileDoc = byteCodeDocumentProvider.getClassFileDocument(); 
+            		int line = be.getSelectedLine();
+            		if(classFileDoc.isLineInMethod(line/* changed to 0-based */)){
+            			IMethodSection m = classFileDoc.findMethodSection(line/* changed to 0-based */);
+            			if(m!= null){
+            				page.setInput(m);
+            			}
+            		}
+            	}
+            }
             
             return new PageRec(part, page);
         }
