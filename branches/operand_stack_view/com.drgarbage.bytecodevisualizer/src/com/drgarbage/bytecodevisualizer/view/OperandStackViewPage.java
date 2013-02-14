@@ -47,10 +47,12 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 
+import com.drgarbage.asm.render.intf.IClassFileDocument;
 import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
+import com.drgarbage.bytecodevisualizer.editors.BytecodeDocumentProvider;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack;
@@ -600,20 +602,25 @@ public abstract class OperandStackViewPage extends Page {
     	treeMap = new TreeMap<Integer, Node>();
     	fillTreeMap((Node)input);
     	
-		//TODO: implement OperandStack here
-		/* when the methodInput changes, a new stack is generated */
-		/* later, we can add the reference to the previous stack to the new stack */
-    	INodeListExt nodeList = new OperandStack(null, instructions).getOperandStackGraph().getNodeList();
-    	for(int i = 0; i < nodeList.size(); i++){
-    		INodeExt n = nodeList.getNodeExt(i);
-    		Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
-    		if(node != null){
-    			Object stackArray = n.getData();
-    			if(stackArray != null){ //TODO: Optimize display options
-    				node.setOperandStack(stackArray.toString());
-    			}
-    			else{
-    				node.setOperandStack(BytecodeVisualizerMessages.OperandStackView_Unknown);
+		//TODO: implement OperandStack here    	
+    	BytecodeDocumentProvider byteCodeDocumentProvider = (BytecodeDocumentProvider) editor.getDocumentProvider();
+    	if(byteCodeDocumentProvider!= null){
+    		IClassFileDocument ic = byteCodeDocumentProvider.getClassFileDocument();
+
+    		/* when the methodInput changes, a new stack is generated */
+    		/* later, we can add the reference to the previous stack to the new stack */
+    		INodeListExt nodeList = new OperandStack(ic.getConstantPool(), instructions).getOperandStackGraph().getNodeList();
+    		for(int i = 0; i < nodeList.size(); i++){
+    			INodeExt n = nodeList.getNodeExt(i);
+    			Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
+    			if(node != null){
+    				Object stackArray = n.getData();
+    				if(stackArray != null){ //TODO: Optimize display options
+    					node.setOperandStack(stackArray.toString());
+    				}
+    				else{
+    					node.setOperandStack(BytecodeVisualizerMessages.OperandStackView_Unknown);
+    				}
     			}
     		}
     	}
