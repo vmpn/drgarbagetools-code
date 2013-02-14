@@ -40,8 +40,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  */
 public class OperandStack implements Opcodes{
 
-//	private List<String> stack;
-	private Stack<OperandStackEntry> stack2;
+	private Stack<OperandStackEntry> stack;
 	private AbstractConstantPoolEntry[] classConstantPool;
 	private IDirectedGraphExt graph;
 	
@@ -56,7 +55,7 @@ public class OperandStack implements Opcodes{
 	 * @param instructions byte code instructions of the method 
 	 */
 	public OperandStack(AbstractConstantPoolEntry[] cPool, List<IInstructionLine> instructions){		
-		stack2 = new Stack<OperandStackEntry>();
+		stack = new Stack<OperandStackEntry>();
 		classConstantPool = cPool;
 
 		generateOperandStack(instructions);
@@ -159,7 +158,7 @@ public class OperandStack implements Opcodes{
     		else{ 
     			Stack<OperandStackEntry> localStack = new Stack<OperandStackEntry>();
     			for(int i = 0; i < outList.size(); i++){
-    				stack2 = localStack;
+    				stack = localStack;
     				IEdgeExt edge = outList.getEdgeExt(i);
     				edge.setVisited(true);
     				parseGraph(edge.getTarget());
@@ -181,7 +180,7 @@ public class OperandStack implements Opcodes{
     	/* convert stack to string */
     	/* TODO: adapt code to avoid conversion */
     	StringBuffer buf = new StringBuffer();
-    	for (Enumeration<OperandStackEntry> en = stack2.elements(); en.hasMoreElements();){
+    	for (Enumeration<OperandStackEntry> en = stack.elements(); en.hasMoreElements();){
     		OperandStackEntry ose = en.nextElement();
     		buf.append(ose.getVarName());
     		buf.append("=");
@@ -238,9 +237,9 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LALOAD:
 		case OPCODE_SALOAD:
 			
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(2, "V", "?"));
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(2, "V", "?"));
 			return;
 			
 			
@@ -252,7 +251,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ALOAD_3:
 		case OPCODE_NEW:
 			
-			stack2.push(new OperandStackEntry(4, "R", "?"));
+			stack.push(new OperandStackEntry(4, "R", "?"));
 			return;
 			
 		/* -> value */
@@ -261,7 +260,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ILOAD_1:
 		case OPCODE_ILOAD_2:
 		case OPCODE_ILOAD_3:
-			stack2.push(new OperandStackEntry(4, "I", "?"));
+			stack.push(new OperandStackEntry(4, "I", "?"));
 			return;
 					
 		case OPCODE_DLOAD:
@@ -269,7 +268,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_DLOAD_1:
 		case OPCODE_DLOAD_2:
 		case OPCODE_DLOAD_3:
-			stack2.push(new OperandStackEntry(4, "D", "?"));
+			stack.push(new OperandStackEntry(4, "D", "?"));
 			return;
 			
 		case OPCODE_FLOAD:
@@ -278,7 +277,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FLOAD_2:
 		case OPCODE_FLOAD_3:
 			
-			stack2.push(new OperandStackEntry(4, "F", "?"));
+			stack.push(new OperandStackEntry(4, "F", "?"));
 			return;
 			
 		/* arrayref, index, value-> [] */
@@ -291,9 +290,9 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LASTORE:
 		case OPCODE_SASTORE:
 			
-			stack2.pop();
-			stack2.pop();
-			stack2.pop();
+			stack.pop();
+			stack.pop();
+			stack.pop();
 			return;
 		
 		/* value -> */
@@ -323,7 +322,7 @@ public class OperandStack implements Opcodes{
 
 		case OPCODE_POP:
 			
-			stack2.pop();
+			stack.pop();
 			
 		case OPCODE_POP2:
 			
@@ -333,14 +332,14 @@ public class OperandStack implements Opcodes{
 
 		/* 	count -> arrayref */
 		case OPCODE_ANEWARRAY:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "arrayref", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "arrayref", "?"));
 			return;
 		
 		/* arrayref -> length */
 		case OPCODE_ARRAYLENGTH:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "length", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "length", "?"));
 			return;
 			
 		/* value -> [] */
@@ -351,71 +350,71 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LRETURN:
 		case OPCODE_RETURN:
 			// TODO special return case
-			stack2.clear();
+			stack.clear();
 			
 			//TODO: check if the stack empty
 			return;
 			
 		/* -> null */
 		case OPCODE_ACONST_NULL:
-			stack2.push(new OperandStackEntry(1, "const", "null"));
+			stack.push(new OperandStackEntry(1, "const", "null"));
 			return;
 		
 		/* -> const */
 		case OPCODE_ICONST_0:
-			stack2.push(new OperandStackEntry(1, "const", "0"));
+			stack.push(new OperandStackEntry(1, "const", "0"));
 			return;
 		case OPCODE_ICONST_1:
-			stack2.push(new OperandStackEntry(1, "const", "1"));
+			stack.push(new OperandStackEntry(1, "const", "1"));
 			return;
 		case OPCODE_ICONST_2:
-			stack2.push(new OperandStackEntry(1, "const", "2"));
+			stack.push(new OperandStackEntry(1, "const", "2"));
 			return;
 		case OPCODE_ICONST_3:
-			stack2.push(new OperandStackEntry(1, "const", "3"));
+			stack.push(new OperandStackEntry(1, "const", "3"));
 			return;
 		case OPCODE_ICONST_4:
-			stack2.push(new OperandStackEntry(1, "const", "4"));
+			stack.push(new OperandStackEntry(1, "const", "4"));
 			return;
 		case OPCODE_ICONST_5:
-			stack2.push(new OperandStackEntry(1, "const", "5"));
+			stack.push(new OperandStackEntry(1, "const", "5"));
 			return;
 		case OPCODE_ICONST_M1:
-			stack2.push(new OperandStackEntry(1, "const", "-1"));
+			stack.push(new OperandStackEntry(1, "const", "-1"));
 			return;
 		case OPCODE_DCONST_0:
-			stack2.push(new OperandStackEntry(4, "const", "0.0"));
+			stack.push(new OperandStackEntry(4, "const", "0.0"));
 			return;
 		case OPCODE_DCONST_1:
-			stack2.push(new OperandStackEntry(4, "const", "1.0"));
+			stack.push(new OperandStackEntry(4, "const", "1.0"));
 			return;
 		case OPCODE_FCONST_0:
-			stack2.push(new OperandStackEntry(4, "const", "0.0F"));
+			stack.push(new OperandStackEntry(4, "const", "0.0F"));
 			return;
 		case OPCODE_FCONST_1:
-			stack2.push(new OperandStackEntry(4, "const", "1.0F"));
+			stack.push(new OperandStackEntry(4, "const", "1.0F"));
 			return;
 		case OPCODE_FCONST_2:
-			stack2.push(new OperandStackEntry(4, "const", "2.0F"));
+			stack.push(new OperandStackEntry(4, "const", "2.0F"));
 			return;
 		
 		
 		/* objectref -> [empty], objectref */
 		case OPCODE_ATHROW:
-			stack2.clear();
-			stack2.push(new OperandStackEntry(4, "R", "?"));
+			stack.clear();
+			stack.push(new OperandStackEntry(4, "R", "?"));
 			return;
 			
 		/* -> value */
 		case OPCODE_BIPUSH:
 		case OPCODE_SIPUSH:
-			stack2.push(new OperandStackEntry(1, "V", "?"));
+			stack.push(new OperandStackEntry(1, "V", "?"));
 			return;
 			
 		/* objectref -> objectref */
 		case OPCODE_CHECKCAST:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "R", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "R", "?"));
 			return;
 			
 		/* value -> result */
@@ -434,8 +433,8 @@ public class OperandStack implements Opcodes{
 		case OPCODE_L2F:
 		case OPCODE_L2I:
 
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* value1, value2 -> result */
@@ -464,9 +463,9 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FSUB:
 		case OPCODE_LSUB:
 			
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* value1 -> result */				
@@ -474,8 +473,8 @@ public class OperandStack implements Opcodes{
 		case OPCODE_INEG:
 		case OPCODE_FNEG:
 		case OPCODE_LNEG:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* value1, value2 -> result */
@@ -483,49 +482,49 @@ public class OperandStack implements Opcodes{
 		case OPCODE_DCMPL:
 		case OPCODE_FCMPG:
 		case OPCODE_FCMPL:
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 			
 		/* value -> value, value */
 		case OPCODE_DUP:
 		case OPCODE_DUP2:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 		
 		case OPCODE_DUP_X1:
 		case OPCODE_DUP2_X1:
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
-			stack2.push(new OperandStackEntry(4, "V", "?"));
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 		
 		case OPCODE_DUP_X2:
 		case OPCODE_DUP2_X2:
-			stack2.pop();
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
-			stack2.push(new OperandStackEntry(4, "V", "?"));
-			stack2.push(new OperandStackEntry(4, "V", "?"));
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* objectref -> value */
 		case OPCODE_GETFIELD:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* -> value */
 		case OPCODE_GETSTATIC:
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* value1, value2 -> result */
@@ -542,9 +541,9 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LSHL:
 		case OPCODE_LSHR:
 		case OPCODE_LUSHR:
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* value1, value2 -> [] */
@@ -556,8 +555,8 @@ public class OperandStack implements Opcodes{
 		case OPCODE_IF_ICMPGE:
 		case OPCODE_IF_ICMPGT:
 		case OPCODE_IF_ICMPLE:
-			stack2.pop();
-			stack2.pop();
+			stack.pop();
+			stack.pop();
 			return;
 			
 		/* value -> [] */
@@ -569,19 +568,19 @@ public class OperandStack implements Opcodes{
 		case OPCODE_IFLE:
 		case OPCODE_IFNONNULL:
 		case OPCODE_IFNULL:
-			stack2.pop();
+			stack.pop();
 			return;
 			
 		/* objectref -> result */
 		case OPCODE_INSTANCEOF:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "V", "?"));
 			return;
 			
 		/* [arg1, [arg2 ...]] -> [] */
 		case OPCODE_INVOKEDYNAMIC:
 		case OPCODE_INVOKESTATIC:
-			stack2.pop();
+			stack.pop();
 			//TODO: get number of arguments
 			return;
 		
@@ -589,58 +588,58 @@ public class OperandStack implements Opcodes{
 		case OPCODE_INVOKEINTERFACE:
 		case OPCODE_INVOKESPECIAL:
 		case OPCODE_INVOKEVIRTUAL:
-			stack2.pop();
+			stack.pop();
 			//TODO: get number of arguments
 			return;
 			
 		/* -> address */
 		case OPCODE_JSR:
 		case OPCODE_JSR_W:
-			stack2.push(new OperandStackEntry(4, "ADDR", "?"));
+			stack.push(new OperandStackEntry(4, "ADDR", "?"));
 			return;
 			
 		/* key -> [] */
 		case OPCODE_LOOKUPSWITCH:
-			stack2.pop();
+			stack.pop();
 			return;
 			
 		/* objectref -> [] */
 		case OPCODE_MONITORENTER:
 		case OPCODE_MONITOREXIT:
-			stack2.pop();
+			stack.pop();
 			return;
 
 		/* count1, [count2,...] -> arrayref */
 		case OPCODE_MULTIANEWARRAY:
-			stack2.pop();
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "AR", "?"));
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "AR", "?"));
 			return;
 			
 			
 		/* count -> arrayref */
 		case OPCODE_NEWARRAY:
-			stack2.pop();
-			stack2.push(new OperandStackEntry(4, "AR", "?"));
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "AR", "?"));
 			return;
 			
 		/* objectref,value -> [] */
 		case OPCODE_PUTFIELD:
-			stack2.pop();
-			stack2.pop();
+			stack.pop();
+			stack.pop();
 			return;
 			
 		/* value -> [] */
 		case OPCODE_PUTSTATIC:
 		case OPCODE_TABLESWITCH:
-			stack2.pop();
+			stack.pop();
 			return;
 		
 		/* value2, value1 -> value1, value2 */
 		case OPCODE_SWAP:
-			OperandStackEntry tmp = stack2.get(stack2.size()-2);
-			stack2.set(stack2.size()-1, tmp);
-			stack2.set(stack2.size()-2, stack2.get(stack2.size()-1));
+			OperandStackEntry tmp = stack.get(stack.size()-2);
+			stack.set(stack.size()-1, tmp);
+			stack.set(stack.size()-2, stack.get(stack.size()-1));
 			return;		
 		}
 		
