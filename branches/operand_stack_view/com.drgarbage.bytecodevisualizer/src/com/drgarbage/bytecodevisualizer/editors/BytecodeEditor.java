@@ -171,6 +171,8 @@ import com.drgarbage.bytecodevisualizer.actions.ExportGraphAndOpenWithControlflo
 import com.drgarbage.bytecodevisualizer.actions.ToggleBytecodeBreakpointAction;
 import com.drgarbage.bytecodevisualizer.preferences.BytecodeVisualizerPreferenceConstats;
 import com.drgarbage.bytecodevisualizer.view.OperandStackView;
+import com.drgarbage.bytecodevisualizer.view.OperandStackViewPage;
+import com.drgarbage.bytecodevisualizer.view.OperandStackViewPageIml;
 import com.drgarbage.core.CoreConstants;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.core.CorePlugin;
@@ -287,7 +289,7 @@ public class BytecodeEditor extends JavaEditor
 	/**
 	 * Operand Stack View reference
 	 */
-	private OperandStackView operandStackView = null;
+	private OperandStackViewPage operandStackViewPage = null;
 
 	/**
 	 * Used to generate annotations for stack frames
@@ -1286,8 +1288,8 @@ public class BytecodeEditor extends JavaEditor
 			fOutlinePage.setInput(byteCodeDocumentProvider.getClassFileOutlineElement());
 		}
 		
-		if(operandStackView != null){
-			operandStackView.setInput(null);
+		if(operandStackViewPage != null){
+			operandStackViewPage.setInput(null);
 		}
 	}
 
@@ -1305,8 +1307,8 @@ public class BytecodeEditor extends JavaEditor
 						fOutlinePage.setSelection(m);
 					}
 					
-					if(operandStackView != null){
-						operandStackView.setInput(m);
+					if(operandStackViewPage != null){
+						operandStackViewPage.setInput(m);
 					}
 					
 					updateLineSectionListener(line/* changed to 0-based */, m);
@@ -1322,8 +1324,8 @@ public class BytecodeEditor extends JavaEditor
 					}
 					
 					/* set input null for operand stack if the line not in the method */
-					if(operandStackView != null){
-						operandStackView.setInput(null);
+					if(operandStackViewPage != null){
+						operandStackViewPage.setInput(null);
 					}
 					
 					updateLineSectionListener(line/* changed to 0-based */, f);
@@ -1337,8 +1339,8 @@ public class BytecodeEditor extends JavaEditor
 			}
 			
 			/* set input null for operand stack if the line not in the method */
-			if(operandStackView != null){
-				operandStackView.setInput(null);
+			if(operandStackViewPage != null){
+				operandStackViewPage.setInput(null);
 			}
 			
 			updateLineSectionListener(line/* changed to 0-based */, doc);
@@ -1435,6 +1437,13 @@ public class BytecodeEditor extends JavaEditor
 				return new ToggleBytecodeSourceBreakpointAdapter();
 			}
 		} 
+		else if (OperandStackViewPage.class.equals(required)) {
+			if (operandStackViewPage == null){
+				operandStackViewPage = new OperandStackViewPageIml();
+            	operandStackViewPage.setEditor(this);
+			}			
+			return operandStackViewPage;
+		}
 		
 		return super.getAdapter(required);
 	}
@@ -1582,24 +1591,6 @@ public class BytecodeEditor extends JavaEditor
 	 */
 	public BytecodeOutlinePage getOutlinePage() {			
 		return fOutlinePage;
-	}
-	
-	/**
-	 * Returns the OperandStackView reference assigned to the editor.
-	 * @return operandStackView
-	 */
-	public OperandStackView getOperandStackView() {
-		return operandStackView;
-	}
-	
-	/**
-	 * Set the OperandStackView reference.
-	 * @param operandStackView
-	 */
-	public void setOperandStackView(OperandStackView osv) {
-		if(!osv.equals(operandStackView)){
-			operandStackView = osv;
-		}
 	}
 
 	/**

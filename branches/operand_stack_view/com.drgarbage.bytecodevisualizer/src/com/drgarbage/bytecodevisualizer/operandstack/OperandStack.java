@@ -16,19 +16,20 @@
 package com.drgarbage.bytecodevisualizer.operandstack;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Stack;
 
-import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
 import com.drgarbage.bytecode.instructions.Opcodes;
-import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
-
-import java.io.*;
+import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
+import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 /**
  * Operand Stack View.
@@ -39,54 +40,192 @@ import java.io.*;
  */
 public class OperandStack implements Opcodes{
 
-	private ArrayList<String> stack;
+//	private List<String> stack;
+	private Stack<OperandStackEntry> stack2;
 	private AbstractConstantPoolEntry[] classConstantPool;
-	private IDirectedGraphExt methodGraph;
+	private IDirectedGraphExt graph;
 	
-	public OperandStack(AbstractConstantPoolEntry[] cPool, List<IInstructionLine> instructions){
-		
-		stack = new ArrayList<String>();
-		
-		classConstantPool = cPool;
-		
-		methodGraph = generateControlFlowGraph(instructions);
-		
-	}
-	
-	private IDirectedGraphExt generateControlFlowGraph(List<IInstructionLine> instructions){
-		List<AbstractInstruction> instructionList = new ArrayList<AbstractInstruction>();
-		IDirectedGraphExt graph = null;
-		
-		for(IInstructionLine l : instructions){
-			instructionList.add(l.getInstruction());
-		}
-		
-		try {
-		    graph = ControlFlowGraphGenerator.generateControlFlowGraph(instructionList, null, false, false, false);
-		    
-		    Algorithms.printGraph(graph);
-		    
-		    
-		    List<IEdgeExt> edges = Algorithms.doSpaningTreeAlgorithm(graph);
-		    /*
-		    for(IEdgeExt e : edges){
-		    	System.out.println(e.getSource() + " " +e.getTarget());
-		    }
-		    */
-		} catch (ControlFlowGraphException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		}
-		
-
+	public IDirectedGraphExt getOperandStackGraph() {
 		return graph;
-		
 	}
 
-	private void executeInstruction(AbstractInstruction i){
+
+	/**
+	 * Creates the operand stack object for the given method.
+	 * @param cPool reference to the constant pool of the class
+	 * @param instructions byte code instructions of the method 
+	 */
+	public OperandStack(AbstractConstantPoolEntry[] cPool, List<IInstructionLine> instructions){		
+		stack2 = new Stack<OperandStackEntry>();
+		classConstantPool = cPool;
+
+		generateOperandStack(instructions);
+	}
+	
+	/**
+	 * Generates the operand stack.
+	 * @param instructions list of instructions
+	 */
+	private void generateOperandStack(List<IInstructionLine> instructions){
+		 graph = ControlFlowGraphGenerator.generateSynchronizedControlFlowGraphFrom(instructions, true);
+		
+		/* remove back edges (loops) from the graph */
+		removeBackEdges(graph);
+		
+		/* parse the graph */
+		List<INodeExt> listOfStartNodes = getAllStartNodes(graph);
+		for(INodeExt n: listOfStartNodes)
+			parseGraph(n);
+		
+	}
+	
+    /**
+     * Removes all back edges from the edge list and 
+     * incidence lists of nodes.
+     * @param graph control flow graph
+     */
+    private void removeBackEdges(IDirectedGraphExt graph){
+    	IEdgeListExt edges = graph.getEdgeList();
+    	for(int i = 0; i < edges.size(); i++){
+    		IEdgeExt e = edges.getEdgeExt(i);
+    		INodeExt source = e.getSource(); 
+    		INodeExt target = e.getTarget();
+    		if(source.getByteCodeOffset() > target.getByteCodeOffset()){
+    			source.getOutgoingEdgeList().remove(e);
+    			target.getIncomingEdgeList().remove(e);
+    			edges.remove(i);
+    		}
+    	}
+    }
+
+    /**
+     * Returns the list of all nodes with incoming degree of 0.
+     * @param graph control flow graph
+     * @return list of start nodes
+     */
+    private List<INodeExt> getAllStartNodes(IDirectedGraphExt graph){
+    	List<INodeExt> listOfStartNodes= new ArrayList<INodeExt>();
+    	INodeListExt nodes = graph.getNodeList();
+    	for(int i = 0; i < nodes.size(); i++){
+    		INodeExt n = nodes.getNodeExt(i);
+    		if(n.getIncomingEdgeList().size() == 0){
+    			listOfStartNodes.add(n);
+    		}
+    	}
+    	
+    	return listOfStartNodes;
+    }
+    
+    /**
+     * Topological sort.
+     * @param n start node of the graph
+     */
+    private void parseGraph(INodeExt n){
+    	INodeExt node = n;
+    	while(node != null){
+    		
+    		if(node.isVisited()){
+    			return;
+    		}
+    		
+    		IEdgeListExt inList = node.getIncomingEdgeList();
+    		for(int j = 0; j < inList.size(); j++){
+    			if(!inList.getEdgeExt(j).isVisited()){
+    				return;
+    			}
+    		}
+    		
+    		/* Calculate the operand stack and assign the it to the current node */
+    		Object o = node.getData();
+    		if(o instanceof IInstructionLine){
+    			IInstructionLine iLine = (IInstructionLine) o;
+    			node.setCounter(iLine.getLine()); /* use counter attribute to save line numbers */
+    			calculateOperandStack(node, iLine.getInstruction());
+    		}
+    		
+    		node.setVisited(true);
+
+    		
+    		IEdgeListExt outList = node.getOutgoingEdgeList();
+    		if(outList.size() == 0){
+    			return;
+    		}
+    		
+    		if(outList.size() == 1){
+    			IEdgeExt edge = outList.getEdgeExt(0);
+    			edge.setVisited(true);
+    			node = edge.getTarget();
+    		}
+    		else{ 
+    			Stack<OperandStackEntry> localStack = new Stack<OperandStackEntry>();
+    			for(int i = 0; i < outList.size(); i++){
+    				stack2 = localStack;
+    				IEdgeExt edge = outList.getEdgeExt(i);
+    				edge.setVisited(true);
+    				parseGraph(edge.getTarget());
+    			}
+    		}
+
+    	} 
+    }
+    
+    /**
+     * Calculates the operand stack for the current byte code instruction.
+     * @param node
+     * @param i
+     */
+    private void calculateOperandStack(INodeExt node, AbstractInstruction i){
+
+    	processInstruction(i);
+
+    	/* convert stack to string */
+    	/* TODO: adapt code to avoid conversion */
+    	StringBuffer buf = new StringBuffer();
+    	for (Enumeration<OperandStackEntry> en = stack2.elements(); en.hasMoreElements();){
+    		OperandStackEntry ose = en.nextElement();
+    		buf.append(ose.getVarName());
+    		buf.append("=");
+    		buf.append(ose.getValue());
+    		buf.append(", ");
+    	}
+    	if(buf.length() > 2){ /* cut the last ' ,' ' ' */
+    		buf.deleteCharAt(buf.length()-1);
+    		buf.deleteCharAt(buf.length()-1);
+    	}
+    	
+    	node.setData(buf.toString());
+    }
+    
+    /**
+     * The operand stack entry corresponding to the byte code instruction
+     * which has to be pushed onto the stack or popped from the stack.
+     */
+    class OperandStackEntry{
+
+		private int length;
+    	private String varName;
+    	private String value;
+
+    	public OperandStackEntry(int length, String varName, String value) {
+			super();
+			this.length = length;
+			this.varName = varName;
+			this.value = value;
+		}
+    	
+		public int getLength() {
+			return length;
+		}
+		public String getVarName() {
+			return varName;
+		}
+		public String getValue() {
+			return value;
+		}
+    }
+    
+    
+	private void processInstruction(AbstractInstruction i){
 		
 		switch (i.getOpcode()) {
 		/* arrayref, index -> value */
@@ -99,11 +238,11 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LALOAD:
 		case OPCODE_SALOAD:
 			
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("V");
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(2, "V", "?"));
+			return;
 			
-			break;
 			
 		/* -> objectref */
 		case OPCODE_ALOAD:
@@ -113,15 +252,25 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ALOAD_3:
 		case OPCODE_NEW:
 			
-			stack.add("R");
-			break;
+			stack2.push(new OperandStackEntry(4, "R", "?"));
+			return;
 			
 		/* -> value */
+		case OPCODE_ILOAD:
+		case OPCODE_ILOAD_0:
+		case OPCODE_ILOAD_1:
+		case OPCODE_ILOAD_2:
+		case OPCODE_ILOAD_3:
+			stack2.push(new OperandStackEntry(4, "I", "?"));
+			return;
+					
 		case OPCODE_DLOAD:
 		case OPCODE_DLOAD_0:
 		case OPCODE_DLOAD_1:
 		case OPCODE_DLOAD_2:
 		case OPCODE_DLOAD_3:
+			stack2.push(new OperandStackEntry(4, "D", "?"));
+			return;
 			
 		case OPCODE_FLOAD:
 		case OPCODE_FLOAD_0:
@@ -129,8 +278,8 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FLOAD_2:
 		case OPCODE_FLOAD_3:
 			
-			stack.add("V");
-			break;
+			stack2.push(new OperandStackEntry(4, "F", "?"));
+			return;
 			
 		/* arrayref, index, value-> [] */
 		case OPCODE_AASTORE:
@@ -142,11 +291,10 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LASTORE:
 		case OPCODE_SASTORE:
 			
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			
-			break;
+			stack2.pop();
+			stack2.pop();
+			stack2.pop();
+			return;
 		
 		/* value -> */
 		case OPCODE_ASTORE:
@@ -172,26 +320,28 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ISTORE_1:
 		case OPCODE_ISTORE_2:
 		case OPCODE_ISTORE_3:
-			
+
 		case OPCODE_POP:
+			
+			stack2.pop();
+			
 		case OPCODE_POP2:
 			
-			stack.remove(stack.size()-1);
-			
-			break;
+//			stack2.pop();//TODO: check length			
+			return;
 			
 
 		/* 	count -> arrayref */
 		case OPCODE_ANEWARRAY:
-			stack.remove(stack.size()-1);
-			stack.add("R");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "arrayref", "?"));
+			return;
 		
 		/* arrayref -> length */
 		case OPCODE_ARRAYLENGTH:
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "length", "?"));
+			return;
 			
 		/* value -> [] */
 		case OPCODE_ARETURN:
@@ -201,68 +351,73 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LRETURN:
 		case OPCODE_RETURN:
 			// TODO special return case
-			stack.clear();
-			break;
+			stack2.clear();
+			
+			//TODO: check if the stack empty
+			return;
 			
 		/* -> null */
 		case OPCODE_ACONST_NULL:
-			stack.add("N");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "null"));
+			return;
 		
 		/* -> const */
 		case OPCODE_ICONST_0:
-			stack.add("0");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "0"));
+			return;
 		case OPCODE_ICONST_1:
-			stack.add("1");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "1"));
+			return;
 		case OPCODE_ICONST_2:
-			stack.add("2");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "2"));
+			return;
 		case OPCODE_ICONST_3:
-			stack.add("3");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "3"));
+			return;
 		case OPCODE_ICONST_4:
-			stack.add("4");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "4"));
+			return;
 		case OPCODE_ICONST_5:
-			stack.add("5");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "5"));
+			return;
 		case OPCODE_ICONST_M1:
-			stack.add("-1");
-			break;
+			stack2.push(new OperandStackEntry(1, "const", "-1"));
+			return;
 		case OPCODE_DCONST_0:
-			stack.add("0.0");
-			break;
+			stack2.push(new OperandStackEntry(4, "const", "0.0"));
+			return;
 		case OPCODE_DCONST_1:
-			stack.add("1.0");
-			break;
+			stack2.push(new OperandStackEntry(4, "const", "1.0"));
+			return;
 		case OPCODE_FCONST_0:
-			stack.add("0.0f");
-			break;
+			stack2.push(new OperandStackEntry(4, "const", "0.0F"));
+			return;
 		case OPCODE_FCONST_1:
-			stack.add("1.0f");
-			break;
+			stack2.push(new OperandStackEntry(4, "const", "1.0F"));
+			return;
 		case OPCODE_FCONST_2:
-			stack.add("2.0f");
-			break;
+			stack2.push(new OperandStackEntry(4, "const", "2.0F"));
+			return;
 		
 		
 		/* objectref -> [empty], objectref */
 		case OPCODE_ATHROW:
-			stack.clear();
-			stack.add("R");
-			break;
+			stack2.clear();
+			stack2.push(new OperandStackEntry(4, "R", "?"));
+			return;
+			
 		/* -> value */
 		case OPCODE_BIPUSH:
 		case OPCODE_SIPUSH:
-			stack.add("V");
-			break;
+			stack2.push(new OperandStackEntry(1, "V", "?"));
+			return;
+			
 		/* objectref -> objectref */
 		case OPCODE_CHECKCAST:
-			stack.remove(stack.size()-1);
-			stack.add("R");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "R", "?"));
+			return;
+			
 		/* value -> result */
 		case OPCODE_D2F:
 		case OPCODE_D2I:
@@ -279,9 +434,9 @@ public class OperandStack implements Opcodes{
 		case OPCODE_L2F:
 		case OPCODE_L2I:
 
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* value1, value2 -> result */
 		case OPCODE_DADD:
@@ -308,68 +463,70 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ISUB:
 		case OPCODE_FSUB:
 		case OPCODE_LSUB:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* value1 -> result */				
 		case OPCODE_DNEG:
 		case OPCODE_INEG:
 		case OPCODE_FNEG:
 		case OPCODE_LNEG:
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* value1, value2 -> result */
 		case OPCODE_DCMPG:
 		case OPCODE_DCMPL:
 		case OPCODE_FCMPG:
 		case OPCODE_FCMPL:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
+			
 			
 		/* value -> value, value */
 		case OPCODE_DUP:
 		case OPCODE_DUP2:
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 		
 		case OPCODE_DUP_X1:
 		case OPCODE_DUP2_X1:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			stack.add("V");
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 		
 		case OPCODE_DUP_X2:
 		case OPCODE_DUP2_X2:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			stack.add("V");
-			stack.add("V");
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* objectref -> value */
 		case OPCODE_GETFIELD:
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* -> value */
 		case OPCODE_GETSTATIC:
-			stack.add("V");
-			break;
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* value1, value2 -> result */
 		case OPCODE_IAND:
@@ -385,10 +542,10 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LSHL:
 		case OPCODE_LSHR:
 		case OPCODE_LUSHR:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
 			
 		/* value1, value2 -> [] */
 		case OPCODE_IF_ACMPEQ:
@@ -399,9 +556,9 @@ public class OperandStack implements Opcodes{
 		case OPCODE_IF_ICMPGE:
 		case OPCODE_IF_ICMPGT:
 		case OPCODE_IF_ICMPLE:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			stack2.pop();
+			return;
 			
 		/* value -> [] */
 		case OPCODE_IFEQ:
@@ -412,84 +569,82 @@ public class OperandStack implements Opcodes{
 		case OPCODE_IFLE:
 		case OPCODE_IFNONNULL:
 		case OPCODE_IFNULL:
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			return;
 			
 		/* objectref -> result */
 		case OPCODE_INSTANCEOF:
-			stack.remove(stack.size()-1);
-			stack.add("V");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "V", "?"));
+			return;
+			
 		/* [arg1, [arg2 ...]] -> [] */
 		case OPCODE_INVOKEDYNAMIC:
 		case OPCODE_INVOKESTATIC:
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			//TODO: get number of arguments
+			return;
 		
 		/* objectref, [arg1, arg2, ...] -> [] */
 		case OPCODE_INVOKEINTERFACE:
 		case OPCODE_INVOKESPECIAL:
 		case OPCODE_INVOKEVIRTUAL:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			//TODO: get number of arguments
+			return;
+			
 		/* -> address */
 		case OPCODE_JSR:
 		case OPCODE_JSR_W:
-			stack.add("ADDR");
-			break;
+			stack2.push(new OperandStackEntry(4, "ADDR", "?"));
+			return;
 			
 		/* key -> [] */
 		case OPCODE_LOOKUPSWITCH:
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			return;
 			
 		/* objectref -> [] */
 		case OPCODE_MONITORENTER:
 		case OPCODE_MONITOREXIT:
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			return;
 
 		/* count1, [count2,...] -> arrayref */
 		case OPCODE_MULTIANEWARRAY:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			stack.add("AR");
-			break;
+			stack2.pop();
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "AR", "?"));
+			return;
+			
+			
 		/* count -> arrayref */
 		case OPCODE_NEWARRAY:
-			stack.remove(stack.size()-1);
-			stack.add("AR");
-			break;
+			stack2.pop();
+			stack2.push(new OperandStackEntry(4, "AR", "?"));
+			return;
 			
 		/* objectref,value -> [] */
 		case OPCODE_PUTFIELD:
-			stack.remove(stack.size()-1);
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			stack2.pop();
+			return;
 			
 		/* value -> [] */
 		case OPCODE_PUTSTATIC:
 		case OPCODE_TABLESWITCH:
-			stack.remove(stack.size()-1);
-			break;
+			stack2.pop();
+			return;
 		
 		/* value2, value1 -> value1, value2 */
 		case OPCODE_SWAP:
-			String tmp = stack.get(stack.size()-2);
-			stack.set(stack.size()-1, tmp);
-			stack.set(stack.size()-2, stack.get(stack.size()-1));
-			break;
-			
-		default:
-			break;
+			OperandStackEntry tmp = stack2.get(stack2.size()-2);
+			stack2.set(stack2.size()-1, tmp);
+			stack2.set(stack2.size()-2, stack2.get(stack2.size()-1));
+			return;		
 		}
-	}
+		
 	
-	
-	@Override
-	public String toString(){
-		return stack.toString();
 	}
 	
 }
