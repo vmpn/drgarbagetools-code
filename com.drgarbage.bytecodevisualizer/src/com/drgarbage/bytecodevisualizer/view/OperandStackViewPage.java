@@ -49,10 +49,14 @@ import org.eclipse.ui.part.Page;
 
 import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.IMethodSection;
+import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStack;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
+import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeType;
 import com.drgarbage.core.img.CoreImg;
 
@@ -93,7 +97,6 @@ public abstract class OperandStackViewPage extends Page {
 	/**
      * Map of the tree items to the byte code line numbers in the editor.
      */
-    //private Map<Integer, TreeItem> treeMap;
 	private Map<Integer, Node> treeMap;
     
     /**
@@ -246,10 +249,6 @@ public abstract class OperandStackViewPage extends Page {
 		}
 		
 		methodInput = m;
-		//TODO: implement OperandStack here
-		/* when the methodInput changes, a new stack is generated */
-		/* later, we can add the reference to the previous stack to the new stack */
-		//stack = new OperandStack(null, fContextMenuManagers);
 
 		if(methodInput == null){
 			enableActions(false);
@@ -526,7 +525,8 @@ public abstract class OperandStackViewPage extends Page {
         public String getColumnText(Object element, int columnIndex){
 
         	if(element instanceof Node){
-        		Object o = ((Node)element).getObject();
+        		Node node = (Node)element;
+        		Object o = node.getObject();
         		if(o != null && o instanceof IInstructionLine){
         			IInstructionLine i = (IInstructionLine)o;
 
@@ -536,9 +536,13 @@ public abstract class OperandStackViewPage extends Page {
         			else if (columnIndex == 1) {							
         				return String.valueOf(i.getInstruction().getOffset());
         			}
-        			else if (columnIndex == 2) {
-        				return String.valueOf(i.getInstruction().getOpcode());
+        			else if (columnIndex == 2) { /* operand stack  */
+        				return node.getOperandStack();
         			}
+        			else if (columnIndex == 3) { /* opcode description   */
+        				return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
+        			}
+        			
         		}
         		else{
         			if (columnIndex == 0) {
@@ -586,19 +590,37 @@ public abstract class OperandStackViewPage extends Page {
      * @param id kind of the view
      */
     private void setInput(List<IInstructionLine> instructions){
-    	Object input = generateInput(instructions, view_ID);		
-    	treeViewer.setInput(input);
-    	
+    	Object input = generateInput(instructions, view_ID);
+
     	if(input == null){
     		return;
     	}
     	
-    	treeViewer.expandAll();
-
     	/* fill tree map for synchronization */
     	treeMap = new TreeMap<Integer, Node>();
     	fillTreeMap((Node)input);
     	
+		//TODO: implement OperandStack here
+		/* when the methodInput changes, a new stack is generated */
+		/* later, we can add the reference to the previous stack to the new stack */
+    	INodeListExt nodeList = new OperandStack(null, instructions).getOperandStackGraph().getNodeList();
+    	for(int i = 0; i < nodeList.size(); i++){
+    		INodeExt n = nodeList.getNodeExt(i);
+    		Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
+    		if(node != null){
+    			Object stackArray = n.getData();
+    			if(stackArray != null){ //TODO: Optimize display options
+    				node.setOperandStack(stackArray.toString());
+    			}
+    			else{
+    				node.setOperandStack(BytecodeVisualizerMessages.OperandStackView_Unknown);
+    			}
+    		}
+    	}
+    	
+    	treeViewer.setInput(input);
+    	treeViewer.expandAll();
+
     	/* set current selection */
     	int newLine = editor.getSelectedLine();
     	Node node  = treeMap.get(newLine);
@@ -638,6 +660,7 @@ public abstract class OperandStackViewPage extends Page {
 		Node parent = null;
 		List<Node> children = new ArrayList<Node>();
 		Object obj;
+		String operandStack;
 
 		public Object getObject() {
 			return obj;
@@ -673,6 +696,14 @@ public abstract class OperandStackViewPage extends Page {
 
 		public boolean hasChildren() {
 			return children.size() > 0 ;
+		}
+		
+		public String getOperandStack() {
+			return operandStack;
+		}
+
+		public void setOperandStack(String operandStack) {
+			this.operandStack = operandStack;
 		}
 	}
 }
