@@ -15,14 +15,23 @@
  */
 package com.drgarbage.bytecodevisualizer.operandstack;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Stack;
 
 import com.drgarbage.asm.render.intf.IInstructionLine;
+import com.drgarbage.bytecode.ByteCodeConstants;
+import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
+import com.drgarbage.bytecode.constant_pool.ConstantClassInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantMethodrefInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantNameAndTypeInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantUtf8Info;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
+import com.drgarbage.bytecode.instructions.IConstantPoolIndexProvider;
+import com.drgarbage.bytecode.instructions.ILocalVariableIndexProvider;
 import com.drgarbage.bytecode.instructions.Opcodes;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -30,6 +39,7 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
+import com.drgarbage.javasrc.JavaLexicalConstants;
 
 /**
  * Operand Stack View.
@@ -250,7 +260,6 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ALOAD_2:
 		case OPCODE_ALOAD_3:
 		case OPCODE_NEW:
-			
 			stack.push(new OperandStackEntry(4, "R", "?"));
 			return;
 			
@@ -321,12 +330,8 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ISTORE_3:
 
 		case OPCODE_POP:
-			
-			stack.pop();
-			
 		case OPCODE_POP2:
-			
-//			stack2.pop();//TODO: check length			
+			stack.pop();//TODO: check length			
 			return;
 			
 
@@ -574,25 +579,75 @@ public class OperandStack implements Opcodes{
 		/* objectref -> result */
 		case OPCODE_INSTANCEOF:
 			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			return;
-			
-		/* [arg1, [arg2 ...]] -> [] */
-		case OPCODE_INVOKEDYNAMIC:
-		case OPCODE_INVOKESTATIC:
-			stack.pop();
-			//TODO: get number of arguments
+			stack.push(new OperandStackEntry(4, "?", "<RET>"));
 			return;
 		
 		/* objectref, [arg1, arg2, ...] -> [] */
 		case OPCODE_INVOKEINTERFACE:
 		case OPCODE_INVOKESPECIAL:
 		case OPCODE_INVOKEVIRTUAL:
-			stack.pop();
-			//TODO: get number of arguments
+			stack.pop(); /* pop objectref ???*/
+
+		/* [arg1, [arg2 ...]] -> [] */
+		case OPCODE_INVOKEDYNAMIC:
+		case OPCODE_INVOKESTATIC:
+			/* get number of arguments and pop them from the stack */
+			/* get return value an push it onto the stack */
+			String retVal = "?" ;
+			int argi = 0;
+			if (i instanceof IConstantPoolIndexProvider) {
+				AbstractConstantPoolEntry cpInfo = classConstantPool[((IConstantPoolIndexProvider)i).getConstantPoolIndex()];
+				if (cpInfo instanceof ConstantMethodrefInfo) {
+					ConstantMethodrefInfo constantMethodrefInfo = (ConstantMethodrefInfo) cpInfo;
+					ConstantNameAndTypeInfo constantNameAndTypeInfo = (ConstantNameAndTypeInfo) classConstantPool[constantMethodrefInfo.getNameAndTypeIndex()];
+					String descriptor = ((ConstantUtf8Info)classConstantPool[constantNameAndTypeInfo.getDescriptorIndex()]).getString();
+					
+					/* descriptor for the method int max(int a, int b)
+					 * has the following format (II)I  */
+					int rightParenthesis = descriptor.indexOf(ByteCodeConstants.METHOD_DESCRIPTOR_RIGHT_PARENTHESIS);
+					retVal = descriptor.substring(rightParenthesis + 1);
+					
+					/*
+					 * parse the method arguments first and save them in a temporarary
+					 * StringBuilder
+					 */
+					StringBuilder sb = new StringBuilder();
+					int offset = 1;;
+					try {
+
+						while ((descriptor.charAt(offset)) != ByteCodeConstants.METHOD_DESCRIPTOR_RIGHT_PARENTHESIS) {
+							if (argi != 0) {
+								sb.append(JavaLexicalConstants.COMMA);
+								sb.append(JavaLexicalConstants.SPACE);
+							}
+							offset = BytecodeUtils.appendFieldDescriptor(descriptor, offset, sb);
+							sb.append(JavaLexicalConstants.SPACE);
+							
+							argi++;
+						}
+
+					} catch (IOException e) {
+						//TODO: implent handling
+						System.out.println(sb);
+						e.printStackTrace();
+					}
+
+					
+				}
+			}
+
+			/* pop all arguments from the stack */
+			for(int arg = 0; arg < argi; arg++){
+				stack.pop();
+			}
+
+			/* push return value onto the stack */
+			if(!retVal.equals("V")){ /* ignore void */
+				stack.push(new OperandStackEntry(4, retVal, "<RET>"));
+			}
 			return;
-			
-		/* -> address */
+
+			/* -> address */
 		case OPCODE_JSR:
 		case OPCODE_JSR_W:
 			stack.push(new OperandStackEntry(4, "ADDR", "?"));
