@@ -139,5 +139,18 @@ public interface IMethodSection {
 	 * @return true or false
 	 */
 	public boolean isNative();
+	
+	/**
+	 * Returns the local variable table if exists or null.
+	 * @return table or null 
+	 */
+	public ILocalVariableTable getLocalVariableTable();
+	
+	/**
+	 * Returns true if the local variable table is available
+	 * otherwise false.
+	 * @return true or false
+	 */
+	public boolean isLocalVariableTableAvailable();
 
 }
