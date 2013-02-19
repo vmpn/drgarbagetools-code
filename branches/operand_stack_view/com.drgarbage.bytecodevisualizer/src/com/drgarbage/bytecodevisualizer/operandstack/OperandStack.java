@@ -21,9 +21,13 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Stack;
 
+import com.drgarbage.asm.render.impl.ClassFileDocument;
+import com.drgarbage.asm.render.impl.LocalVariableTable;
 import com.drgarbage.asm.render.intf.IInstructionLine;
+import com.drgarbage.asm.render.intf.ILocalVariableTable;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.BytecodeUtils;
+import com.drgarbage.bytecode.LocalVariableTableEntry;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 import com.drgarbage.bytecode.constant_pool.ConstantClassInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantMethodrefInfo;
@@ -52,6 +56,7 @@ public class OperandStack implements Opcodes{
 
 	private Stack<OperandStackEntry> stack;
 	private AbstractConstantPoolEntry[] classConstantPool;
+	private ILocalVariableTable localVariableTable;
 	private IDirectedGraphExt graph;
 	
 	public IDirectedGraphExt getOperandStackGraph() {
@@ -64,9 +69,10 @@ public class OperandStack implements Opcodes{
 	 * @param cPool reference to the constant pool of the class
 	 * @param instructions byte code instructions of the method 
 	 */
-	public OperandStack(AbstractConstantPoolEntry[] cPool, List<IInstructionLine> instructions){		
+	public OperandStack(List<IInstructionLine> instructions, AbstractConstantPoolEntry[] cPool, ILocalVariableTable locVarTable){		
 		stack = new Stack<OperandStackEntry>();
 		classConstantPool = cPool;
+		localVariableTable = locVarTable;
 
 		generateOperandStack(instructions);
 	}
@@ -237,6 +243,7 @@ public class OperandStack implements Opcodes{
 	private void processInstruction(AbstractInstruction i){
 		
 		switch (i.getOpcode()) {
+		
 		/* arrayref, index -> value */
 		case OPCODE_AALOAD:
 		case OPCODE_BALOAD:
@@ -269,7 +276,16 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ILOAD_1:
 		case OPCODE_ILOAD_2:
 		case OPCODE_ILOAD_3:
-			stack.push(new OperandStackEntry(4, "I", "?"));
+			
+			String name = "?";
+			if (i instanceof ILocalVariableIndexProvider) {
+				name = 	localVariableTable.findArgName(((ILocalVariableIndexProvider)i).getLocalVariableIndex() - 1, 
+						i.getOffset(), 
+						false, 
+						false);
+			}
+			
+			stack.push(new OperandStackEntry(4, "I", name));
 			return;
 					
 		case OPCODE_DLOAD:
