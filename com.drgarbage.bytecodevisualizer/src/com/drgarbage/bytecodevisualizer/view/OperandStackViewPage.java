@@ -609,7 +609,7 @@ public abstract class OperandStackViewPage extends Page {
 
     		/* when the methodInput changes, a new stack is generated */
     		/* later, we can add the reference to the previous stack to the new stack */
-    		INodeListExt nodeList = new OperandStack(ic.getConstantPool(), instructions).getOperandStackGraph().getNodeList();
+    		INodeListExt nodeList = new OperandStack(instructions, ic.getConstantPool(), methodInput.getLocalVariableTable()).getOperandStackGraph().getNodeList();
     		for(int i = 0; i < nodeList.size(); i++){
     			INodeExt n = nodeList.getNodeExt(i);
     			Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */

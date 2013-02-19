@@ -470,7 +470,7 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 	
 			private LineNumberTableEntry[] lineNumberTable;
 			protected ILocalVariableTable localVariableTable;
-	
+
 			/**
 	         * The {@link MethodVisitor} to which this visitor delegates calls. May be
 	         * <tt>null</tt>.
@@ -517,6 +517,23 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 				return null;
 			}
 	
+			/* (non-Javadoc)
+			 * @see com.drgarbage.asm.render.intf.IMethodSection#getLocalVariableTable()
+			 */
+			public ILocalVariableTable getLocalVariableTable() {
+				return localVariableTable;
+			}
+			
+			/* (non-Javadoc)
+			 * @see com.drgarbage.asm.render.intf.IMethodSection#isLocalVariableTableAvailable()
+			 */
+			public boolean isLocalVariableTableAvailable(){
+				if(localVariableTable == null)
+					return false;
+
+				return localVariableTable.isAvailable();
+			}
+
 	        /* (non-Javadoc)
 	         * @see com.drgarbage.asm.render.intf.IMethodSection#findOffsetLine(int)
 	         */
