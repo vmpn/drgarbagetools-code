@@ -190,12 +190,25 @@ public class OperandStack implements Opcodes{
      * @param i
      */
     private void calculateOperandStack(INodeExt node, AbstractInstruction i){
+    	
+    	ArrayList<String> stackBeforeAfter = new ArrayList<String>();
+    	
+    	/* add the current stack snapshot to the List */
+    	stackBeforeAfter.add(stackToString());
 
     	processInstruction(i);
 
-    	/* convert stack to string */
-    	/* TODO: adapt code to avoid conversion */
+    	/* add another stack snapshot to the List after the instruction has been executed */
+    	stackBeforeAfter.add(stackToString());
+
+    	
+    	node.setData(stackBeforeAfter);
+    }
+    
+    private String stackToString(){
     	StringBuffer buf = new StringBuffer();
+    	
+    	/* convert stack to string */
     	for (Enumeration<OperandStackEntry> en = stack.elements(); en.hasMoreElements();){
     		OperandStackEntry ose = en.nextElement();
     		buf.append(ose.getVarName());
@@ -203,12 +216,13 @@ public class OperandStack implements Opcodes{
     		buf.append(ose.getValue());
     		buf.append(", ");
     	}
+    	
     	if(buf.length() > 2){ /* cut the last ' ,' ' ' */
     		buf.deleteCharAt(buf.length()-1);
     		buf.deleteCharAt(buf.length()-1);
     	}
     	
-    	node.setData(buf.toString());
+    	return buf.toString();
     }
     
     /**
