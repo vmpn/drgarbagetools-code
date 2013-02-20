@@ -365,18 +365,23 @@ public abstract class OperandStackViewPage extends Page {
 		
 		TreeColumn column3 = new TreeColumn(tree, SWT.RIGHT);
 	    column3.setAlignment(SWT.LEFT);
-	    column3.setText("Operand Stack");//TODO: define constant
+	    column3.setText("Operand Stack before");//TODO: define constant
 	    column3.setWidth(100);
-		
-	    TreeColumn column4 = new TreeColumn(tree, SWT.RIGHT);
+	    
+		TreeColumn column4 = new TreeColumn(tree, SWT.RIGHT);
 	    column4.setAlignment(SWT.LEFT);
-	    column4.setText("Description");//TODO: define constant
+	    column4.setText("Operand Stack after");//TODO: define constant
 	    column4.setWidth(100);
+		
+	    TreeColumn column5 = new TreeColumn(tree, SWT.RIGHT);
+	    column5.setAlignment(SWT.LEFT);
+	    column5.setText("Description");//TODO: define constant
+	    column5.setWidth(100);
 	    
 		tree.setHeaderVisible(true);
     	tree.setLinesVisible(true);
     	
-    	int order[] = {1, 0, 2, 3 };//tree.getColumnOrder();
+    	int order[] = {1, 0, 2, 3, 4 };//tree.getColumnOrder();
     	tree.setColumnOrder(order);
     	
     	treeViewer.setContentProvider(new TreeViewContentProvider());
@@ -538,10 +543,13 @@ public abstract class OperandStackViewPage extends Page {
         			else if (columnIndex == 1) {							
         				return String.valueOf(i.getInstruction().getOffset());
         			}
-        			else if (columnIndex == 2) { /* operand stack  */
-        				return node.getOperandStack();
+        			else if (columnIndex == 2) { /* operand stack before */
+        				return node.getOperandStackBefore();
         			}
-        			else if (columnIndex == 3) { /* opcode description   */
+        			else if (columnIndex == 3) { /* operand stack after*/
+        				return node.getOperandStackAfter();
+        			}
+        			else if (columnIndex == 4) { /* opcode description   */
         				return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
         			}
         			
@@ -614,12 +622,14 @@ public abstract class OperandStackViewPage extends Page {
     			INodeExt n = nodeList.getNodeExt(i);
     			Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
     			if(node != null){
-    				Object stackArray = n.getData();
-    				if(stackArray != null){ //TODO: Optimize display options
-    					node.setOperandStack(stackArray.toString());
+    				Object stackList = n.getData();
+    				if(stackList instanceof ArrayList<?>){ //TODO: Optimize display options
+    					node.setOperandStackBefore((String) ((ArrayList) stackList).get(0));
+    					node.setOperandStackAfter((String) ((ArrayList) stackList).get(1));
     				}
     				else{
-    					node.setOperandStack(BytecodeVisualizerMessages.OperandStackView_Unknown);
+    					node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
+    					node.setOperandStackAfter(BytecodeVisualizerMessages.OperandStackView_Unknown);
     				}
     			}
     		}
@@ -667,7 +677,7 @@ public abstract class OperandStackViewPage extends Page {
 		Node parent = null;
 		List<Node> children = new ArrayList<Node>();
 		Object obj;
-		String operandStack;
+		String operandStackBefore, operandStackAfter;
 
 		public Object getObject() {
 			return obj;
@@ -705,12 +715,20 @@ public abstract class OperandStackViewPage extends Page {
 			return children.size() > 0 ;
 		}
 		
-		public String getOperandStack() {
-			return operandStack;
+		public String getOperandStackBefore() {
+			return operandStackBefore;
+		}
+		
+		public String getOperandStackAfter() {
+			return operandStackAfter;
 		}
 
-		public void setOperandStack(String operandStack) {
-			this.operandStack = operandStack;
+		public void setOperandStackBefore(String operandStack) {
+			this.operandStackBefore = operandStack;
+		}
+		
+		public void setOperandStackAfter(String operandStack) {
+			this.operandStackAfter = operandStack;
 		}
 	}
 }
