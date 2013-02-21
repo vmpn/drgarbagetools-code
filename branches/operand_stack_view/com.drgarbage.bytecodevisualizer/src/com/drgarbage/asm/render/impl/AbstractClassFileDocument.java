@@ -1792,7 +1792,10 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 								//const_ = JavaKeywords.NEW + JavaLexicalConstants.SPACE + methodName;
 								ConstantClassInfo constantClassInfo = (ConstantClassInfo) cpInfo;
 								if (instruction.getOpcode() == Opcodes.ANEWARRAY) {
-									String className = ((ConstantUtf8Info)constantPool[constantClassInfo.getNameIndex()]).getString();
+									
+									String className = BytecodeUtils.resolveConstantPoolTypeName(constantClassInfo, constantPool);
+									
+//									String className = ((ConstantUtf8Info)constantPool[constantClassInfo.getNameIndex()]).getString();
 									className = className.replace(ByteCodeConstants.CLASS_NAME_SLASH, JavaLexicalConstants.DOT);
 									StringBuilder sb = new StringBuilder();
 									sb.append(JavaKeywords.NEW);

@@ -30,13 +30,12 @@ import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.LocalVariableTableEntry;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 import com.drgarbage.bytecode.constant_pool.ConstantClassInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantInvokeDynamicInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantMethodrefInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantNameAndTypeInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantReference;
 import com.drgarbage.bytecode.constant_pool.ConstantUtf8Info;
-import com.drgarbage.bytecode.instructions.AbstractInstruction;
-import com.drgarbage.bytecode.instructions.IConstantPoolIndexProvider;
-import com.drgarbage.bytecode.instructions.ILocalVariableIndexProvider;
-import com.drgarbage.bytecode.instructions.Opcodes;
+import com.drgarbage.bytecode.instructions.*;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
@@ -256,6 +255,9 @@ public class OperandStack implements Opcodes{
     
 	private void processInstruction(AbstractInstruction i){
 		
+		/* the default class name is ? if it is unknown */
+		String className = "?";
+		
 		switch (i.getOpcode()) {
 		
 		/* arrayref, index -> value */
@@ -270,6 +272,7 @@ public class OperandStack implements Opcodes{
 			
 			stack.pop();
 			stack.pop();
+			
 			stack.push(new OperandStackEntry(2, "V", "?"));
 			return;
 			
@@ -291,15 +294,15 @@ public class OperandStack implements Opcodes{
 		case OPCODE_ILOAD_2:
 		case OPCODE_ILOAD_3:
 			
-			String name = "?";
+			String variableName = "?";
 			if (i instanceof ILocalVariableIndexProvider) {
-				name = 	localVariableTable.findArgName(((ILocalVariableIndexProvider)i).getLocalVariableIndex() - 1, 
+				variableName = 	localVariableTable.findArgName(((ILocalVariableIndexProvider)i).getLocalVariableIndex() - 1, 
 						i.getOffset(), 
 						false, 
 						false);
 			}
 			
-			stack.push(new OperandStackEntry(4, "I", name));
+			stack.push(new OperandStackEntry(4, "I", variableName));
 			return;
 					
 		case OPCODE_DLOAD:
@@ -362,19 +365,6 @@ public class OperandStack implements Opcodes{
 		case OPCODE_POP:
 		case OPCODE_POP2:
 			stack.pop();//TODO: check length			
-			return;
-			
-
-		/* 	count -> arrayref */
-		case OPCODE_ANEWARRAY:
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "arrayref", "?"));
-			return;
-		
-		/* arrayref -> length */
-		case OPCODE_ARRAYLENGTH:
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "length", "?"));
 			return;
 			
 		/* value -> [] */
@@ -523,32 +513,66 @@ public class OperandStack implements Opcodes{
 			return;
 			
 			
+		// TODO find way to parse the different ConstantClassInfo types see AbstractClassFile InstructionRenderer
+		/* -> value (from one indexbyte) ConstantPoolByteIndexInstruction */
+		case OPCODE_LDC:
+//			stack.pop();
+//			
+//			className = "?";
+//			if (i instanceof ConstantPoolByteIndexInstruction) {
+//
+//				AbstractConstantPoolEntry cpInfo = classConstantPool[((IConstantPoolIndexProvider) i)
+//						.getConstantPoolIndex()];
+//				ConstantClassInfo constantClassInfo = (ConstantClassInfo) cpInfo;
+//				className = BytecodeUtils.resolveConstantPoolTypeName(
+//						constantClassInfo, classConstantPool);
+//
+//				className = className.replace(
+//						ByteCodeConstants.CLASS_NAME_SLASH,
+//						JavaLexicalConstants.DOT);
+//
+//			}
+//			
+//			stack.push(new OperandStackEntry(4, "V", className));
+//			
+//			return;
+//
+//		/* -> value (from two indexbytes) ConstantPoolShortIndexInstruction */
+//        case OPCODE_LDC_W:
+//        case OPCODE_LDC2_W:
+//
+//            return;
+			
+			
+			
 		/* value -> value, value */
 		case OPCODE_DUP:
 		case OPCODE_DUP2:
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			OperandStackEntry tmpDup = stack.pop();
+			stack.push(tmpDup);
+			stack.push(tmpDup);
 			return;
 		
+		/* value2, value1 -> value1, value2, value1 */
 		case OPCODE_DUP_X1:
 		case OPCODE_DUP2_X1:
-			stack.pop();
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			OperandStackEntry tmpValue1DupX1 = stack.pop();
+			OperandStackEntry tmpValue2DupX1 = stack.pop();
+			stack.push(tmpValue1DupX1);
+			stack.push(tmpValue2DupX1);
+			stack.push(tmpValue1DupX1);
 			return;
 		
+		/* value3, value2, value1 -> value1, value3, value2, value1 */
 		case OPCODE_DUP_X2:
 		case OPCODE_DUP2_X2:
-			stack.pop();
-			stack.pop();
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			stack.push(new OperandStackEntry(4, "V", "?"));
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			OperandStackEntry tmpValue1DupX2 = stack.pop();
+			OperandStackEntry tmpValue2DupX2 = stack.pop();
+			OperandStackEntry tmpValue3DupX2 = stack.pop();
+			stack.push(tmpValue1DupX2);
+			stack.push(tmpValue3DupX2);
+			stack.push(tmpValue2DupX2);
+			stack.push(tmpValue1DupX2);
 			return;
 			
 		/* objectref -> value */
@@ -701,14 +725,47 @@ public class OperandStack implements Opcodes{
 			stack.push(new OperandStackEntry(4, "AR", "?"));
 			return;
 			
-			
-		/* count -> arrayref */
+			/* count -> arrayref */
 		case OPCODE_NEWARRAY:
 			stack.pop();
 			stack.push(new OperandStackEntry(4, "AR", "?"));
 			return;
-			
-		/* objectref,value -> [] */
+
+			/* count -> arrayref */
+		case OPCODE_ANEWARRAY:
+			stack.pop();
+
+			className = "?";
+			if (i instanceof ConstantPoolShortIndexInstruction) {
+
+				AbstractConstantPoolEntry cpInfo = classConstantPool[((IConstantPoolIndexProvider) i)
+						.getConstantPoolIndex()];
+				ConstantClassInfo constantClassInfo = (ConstantClassInfo) cpInfo;
+				className = BytecodeUtils.resolveConstantPoolTypeName(
+						constantClassInfo, classConstantPool);
+
+				className = className.replace(
+						ByteCodeConstants.CLASS_NAME_SLASH,
+						JavaLexicalConstants.DOT);
+				StringBuilder sb = new StringBuilder();
+				sb.append(className);
+				sb.append(JavaLexicalConstants.LEFT_SQUARE_BRACKET);
+				sb.append(JavaLexicalConstants.RIGHT_SQUARE_BRACKET);
+
+				className = sb.toString();
+
+			}
+
+			stack.push(new OperandStackEntry(4, "arrayref", className));
+			return;
+
+			/* arrayref -> length */
+		case OPCODE_ARRAYLENGTH:
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "length", "?"));
+			return;
+
+			/* objectref,value -> [] */
 		case OPCODE_PUTFIELD:
 			stack.pop();
 			stack.pop();
@@ -722,8 +779,8 @@ public class OperandStack implements Opcodes{
 		
 		/* value2, value1 -> value1, value2 */
 		case OPCODE_SWAP:
-			OperandStackEntry tmp = stack.get(stack.size()-2);
-			stack.set(stack.size()-1, tmp);
+			OperandStackEntry tmpSwap = stack.get(stack.size()-2);
+			stack.set(stack.size()-1, tmpSwap);
 			stack.set(stack.size()-2, stack.get(stack.size()-1));
 			return;		
 		}
