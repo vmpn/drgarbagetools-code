@@ -16,6 +16,7 @@
 
 package com.drgarbage.bytecodevisualizer;
 
+import java.lang.reflect.Field;
 import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
@@ -53,33 +54,6 @@ import com.sun.jdi.request.StepRequest;
  */
 @SuppressWarnings("restriction")
 public class DebugSupport {
-
-	/**
-	 * Currently pending step handler, <code>null</code> when not performing a
-	 * step.
-	 */
-	private StepBytecodeHandler fStepHandler = null;
-	
-	/**
-	 * Sets the step handler currently handling a step request.
-	 * 
-	 * @param handler
-	 *            the current step handler, or <code>null</code> if none
-	 */
-	protected void setPendingStepHandler(StepBytecodeHandler handler) {
-		fStepHandler = handler;
-	}
-
-	/**
-	 * Returns the step handler currently handling a step request, or
-	 * <code>null</code> if none.
-	 * 
-	 * @return step handler, or <code>null</code> if none
-	 */
-	protected StepBytecodeHandler getPendingStepHandler() {
-		return fStepHandler;
-	}
-	
 	
 	/**
 	 * Own step over action.
@@ -211,7 +185,6 @@ public class DebugSupport {
 				Location location = jdiThread.getUnderlyingThread().frames().get(i - 1).location();
 				setOriginalStepLocation(location);
 				setStepRequest(createStepRequest());
-				setPendingStepHandler(this);
 				jdiThread.addJDIEventListener(this, getStepRequest());
 				jdiThread.fireResumeEvent(DebugEvent.STEP_OVER);
 				invokeThread();
@@ -427,6 +400,9 @@ public class DebugSupport {
 				
 				/* refresh the stack frame view */
 				jdiThread.computeNewStackFrames();
+			
+				/* refresh variables */
+				updateVariable();
 				
 				return false;
 			} catch (DebugException e) {
@@ -436,6 +412,38 @@ public class DebugSupport {
 			}
 		}
 
+		/**
+		 * Refresh variables. Not really good solution, but works.
+		 */
+		private void updateVariable(){
+			try {
+				JDIStackFrame top = (JDIStackFrame) jdiThread.getTopStackFrame();
+
+				Class<?> jdiStackFrameClass = top.getClass();	
+				Field req = jdiStackFrameClass.getDeclaredField("fRefreshVariables");
+
+				req.setAccessible(true);
+				if(!req.getBoolean(top)){				
+					req.setBoolean(top, true);
+				}
+				req.setAccessible(false);
+				
+				/* update variables by calling hasVariable() method */
+				top.hasVariables();
+
+			} catch (SecurityException e) {
+				exceptionHandler(e);
+			} catch (NoSuchFieldException e) {
+				exceptionHandler(e);
+			} catch (IllegalArgumentException e) {
+				exceptionHandler(e);
+			} catch (IllegalAccessException e) {
+				exceptionHandler(e);
+			} catch (DebugException e) {
+				exceptionHandler(e);
+			}
+		}
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -525,7 +533,6 @@ public class DebugSupport {
 		 */
 		protected void stepEnd(EventSet set) {
 			deleteStepRequest();
-			setPendingStepHandler(null);
 			if (set != null) {
 				jdiThread.queueSuspendEvent(DebugEvent.STEP_END, set);
 			}
@@ -574,7 +581,6 @@ public class DebugSupport {
 		protected void createSecondaryStepRequest(int kind)
 				throws DebugException {
 			setStepRequest(createStepRequest(kind));
-			setPendingStepHandler(this);
 			jdiThread.addJDIEventListener(this, getStepRequest());
 		}
 
@@ -585,7 +591,6 @@ public class DebugSupport {
 		protected void abort() {
 			if (getStepRequest() != null) {
 				deleteStepRequest();
-				setPendingStepHandler(null);
 			}
 		}
 	}
