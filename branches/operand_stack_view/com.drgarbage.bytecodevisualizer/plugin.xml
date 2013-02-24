@@ -101,7 +101,7 @@
             allowMultiple="false"
             category="com.drgabage.bytecodevisualizer.category.controlflowgraph_view"
             class="com.drgarbage.bytecodevisualizer.view.OperandStackView"
-            icon="img/enabled16/bytecode-viewer-16x16.png"
+            icon="img/enabled16/operand-stack-16x16.png"
             id="com.drgabage.bytecodevisualizer.view.operandstack_view"
             name="%OperandStackView_title">
       </view>
