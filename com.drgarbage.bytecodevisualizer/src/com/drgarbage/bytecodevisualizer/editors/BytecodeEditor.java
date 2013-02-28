@@ -167,6 +167,7 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.bytecodevisualizer.actions.ActivateBasicblockGraphViewAction;
 import com.drgarbage.bytecodevisualizer.actions.ActivateBytecodeGraphViewAction;
+import com.drgarbage.bytecodevisualizer.actions.BytecodevizualizerActionBarContributor;
 import com.drgarbage.bytecodevisualizer.actions.ExportGraphAndOpenWithControlflowgraphFactoryAction;
 import com.drgarbage.bytecodevisualizer.actions.ToggleBytecodeBreakpointAction;
 import com.drgarbage.bytecodevisualizer.preferences.BytecodeVisualizerPreferenceConstats;
@@ -310,7 +311,11 @@ public class BytecodeEditor extends JavaEditor
 	 * is enabled or disabled.
 	 */
 	private boolean handleCursorPositionChanged = true;
-
+	
+	/**
+	 * Reference to the action contributor. 
+	 */
+	private BytecodevizualizerActionBarContributor actionContributor = null;
 	
 	/**
 	 * List of the line selection listeners.
@@ -457,6 +462,14 @@ public class BytecodeEditor extends JavaEditor
 
 		/* reuse editor during debugging */
 		BytecodeVisualizerPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(reuseDebugPropertyChangeListener);
+	}
+
+	/**
+	 * Set the reference to the action contributor. 
+	 * @param actionContributor
+	 */
+	public void setActionContributor( BytecodevizualizerActionBarContributor contributor) {
+		actionContributor = contributor;
 	}
 
 	/**
@@ -2032,6 +2045,9 @@ public class BytecodeEditor extends JavaEditor
 			}
 
 		}
+		
+		if(actionContributor != null)
+			actionContributor.pageChanged(newPageIndex);
 
 	}
 
