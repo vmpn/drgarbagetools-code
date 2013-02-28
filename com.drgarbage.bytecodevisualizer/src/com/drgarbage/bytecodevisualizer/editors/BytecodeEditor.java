@@ -1365,8 +1365,11 @@ public class BytecodeEditor extends JavaEditor
 	 * @see org.eclipse.ui.texteditor.AbstractTextEditor#doRestoreState(org.eclipse.ui.IMemento)
 	 */
 	protected void doRestoreState(IMemento memento) {
-			setHandleCursorPositionChanged(true);
-			super.doRestoreState(memento);
+		/* FIX: initialization after restoring the workspace */
+		activateBytecodeTab();  
+
+		setHandleCursorPositionChanged(true);
+		super.doRestoreState(memento);
 	}
 
 	/* (non-Javadoc)
