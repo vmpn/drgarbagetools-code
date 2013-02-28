@@ -200,24 +200,23 @@ public class BytecodevizualizerActionBarContributor extends BasicTextEditorActio
 			
 			ISourceCodeViewer  sourceCodeViewer = textEditor.getSourceCodeViewer();
 			if(sourceCodeViewer instanceof JavaSourceCodeViewer){
-				JavaSourceCodeViewer jscv = (JavaSourceCodeViewer)sourceCodeViewer;
 				IAction action = null;
 				
-				action = jscv.getAction(ITextEditorActionConstants.COPY);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.COPY);
 				actionBars.setGlobalActionHandler(ITextEditorActionConstants.COPY, action);
-				action = jscv.getAction(ITextEditorActionConstants.SELECT_ALL);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.SELECT_ALL);
 				actionBars.setGlobalActionHandler(ITextEditorActionConstants.SELECT_ALL, action);
 				
-				action = jscv.getAction(ITextEditorActionConstants.FIND);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.FIND);
 				actionBars.setGlobalActionHandler(ITextEditorActionConstants.FIND, action);
-				action = jscv.getAction(ITextEditorActionConstants.FIND_NEXT);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.FIND_NEXT);
 				fFindNext.setAction(action);	
-				action = jscv.getAction(ITextEditorActionConstants.FIND_PREVIOUS);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.FIND_PREVIOUS);
 				fFindPrevious.setAction(action);	
-				action = jscv.getAction(ITextEditorActionConstants.GOTO_LINE);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.GOTO_LINE);
 				fGotoLine.setAction(action);
 				
-				action = jscv.getAction(ITextEditorActionConstants.PRINT);
+				action = sourceCodeViewer.getAction(ITextEditorActionConstants.PRINT);
 				actionBars.setGlobalActionHandler(ITextEditorActionConstants.PRINT, action);
 				
 				/* disable replace actions */
