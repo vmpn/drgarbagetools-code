@@ -199,7 +199,7 @@ public class BytecodevizualizerActionBarContributor extends BasicTextEditorActio
 			textEditor.getAction(ActivateBasicblockGraphViewAction.ID).setEnabled(false);
 			
 			ISourceCodeViewer  sourceCodeViewer = textEditor.getSourceCodeViewer();
-			if(sourceCodeViewer instanceof JavaSourceCodeViewer){
+			if(sourceCodeViewer instanceof ISourceCodeViewer){
 				IAction action = null;
 				
 				action = sourceCodeViewer.getAction(ITextEditorActionConstants.COPY);
