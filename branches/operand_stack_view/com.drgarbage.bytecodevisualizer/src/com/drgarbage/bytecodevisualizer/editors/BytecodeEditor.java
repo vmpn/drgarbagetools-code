@@ -2143,7 +2143,7 @@ public class BytecodeEditor extends JavaEditor
 					/* resolve sourceCodeLine into the ByteCodeLine */
 					List<IMethodSection> methods = byteCodeDocumentProvider.getClassFileDocument().getMethodSections();
 		
-					int bytecodeLine = resolveLineNumberIntoBytecode(methods, sourceCodeLine);
+					int bytecodeLine = resolveLineNumberIntoBytecode(methods, sourceCodeLine + 1);
 					if (bytecodeLine != ByteCodeConstants.INVALID_OFFSET) {
 						selectLineAndReveal(bytecodeLine - 1); /* convert to 0-based lines */
 					}
