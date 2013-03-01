@@ -45,6 +45,7 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String GeneralPreferencePage_chk_Show_source_line_numbers;
 	public static String GeneralPreferencePage_chk_Show_Local_Variable_Table;
 	public static String GeneralPreferencePage_chk_Show_Constant_Pool;
+	public static String GeneralPreferencePage_chk_Show_Maxs;
 	public static String GeneralPreferencePage_chk_Render_try_catch_blocks;
 
 	public static String GeneralPreferencePage_radioGroup_Branch_Target_Address_Rendering;
