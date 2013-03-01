@@ -69,6 +69,9 @@ public class GeneralPreferencePage
 		
 		ed= new IndentBooleanFieldEditor(CLASS_FILE_ATTR_SHOW_VARIABLE_TABLE, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Show_Local_Variable_Table, getFieldEditorParent());
 		addField(ed);
+
+		ed= new IndentBooleanFieldEditor(CLASS_FILE_ATTR_SHOW_MAXS, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Show_Maxs, getFieldEditorParent());
+		addField(ed);
 		
 		ed= new IndentBooleanFieldEditor(CLASS_FILE_ATTR_RENDER_TRYCATCH_BLOCKS, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Render_try_catch_blocks, getFieldEditorParent());
 		addField(ed);

@@ -34,6 +34,7 @@ public class BytecodeVisualizerPreferenceInitializer extends
 		store.setDefault(CLASS_FILE_ATTR_SHOW_CONSTANT_POOL, false);
 		store.setDefault(CLASS_FILE_ATTR_SHOW_LINE_NUMBER_TABLE, false);
 		store.setDefault(CLASS_FILE_ATTR_SHOW_VARIABLE_TABLE, false);
+		store.setDefault(CLASS_FILE_ATTR_SHOW_MAXS, false);
 		
 		store.setDefault(RETRIEVE_CLASS_FROM, RETRIEVE_CLASS_FROM_FILE_SYSTEM);
 		store.setDefault(BRANCH_TARGET_ADDRESS_RENDERING, BRANCH_TARGET_ADDRESS_RELATIVE);
