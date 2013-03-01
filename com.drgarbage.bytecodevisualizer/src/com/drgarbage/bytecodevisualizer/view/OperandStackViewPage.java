@@ -25,6 +25,7 @@ import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -157,6 +158,15 @@ public abstract class OperandStackViewPage extends Page {
 		this.view_ID = view_ID;
 	}
 	
+	private void createStatusLine(IActionBars bars){ //TODO: sample implementation
+		IStatusLineManager slm = bars.getStatusLineManager();
+		slm.setMessage(JavaUI.getSharedImages()
+				.getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE),
+				"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
+				" max_locals: " + String.valueOf(methodInput.getMaxLocals()));
+		slm.update(true);
+	}
+
 	private void configureToolBar(IActionBars bars){
 
 		IToolBarManager tbm = bars.getToolBarManager();
@@ -315,6 +325,7 @@ public abstract class OperandStackViewPage extends Page {
 	public void createControl(Composite parent) {		
 		createTreeViewer(parent);
 		IActionBars bars = getSite().getActionBars();
+		createStatusLine(bars);
 		configureToolBar(bars);
 	}
 	
