@@ -152,5 +152,22 @@ public interface IMethodSection {
 	 * @return true or false
 	 */
 	public boolean isLocalVariableTableAvailable();
+	
+	/**
+	 * Returns the value of the <code>max_stack</code> item calculated by the compiler 
+	 * and stored in the class file. The <code>max_stack</code> gives the maximum depth 
+	 * of the operand stack of this method.
+	 * @return The value of the <code>max_stack</code>
+	 */
+	public int getMaxStack();
+	
+	/**
+	 * Returns the value of the <code>max_locals</code> item calculated by the compiler 
+	 * and stored in the class file. The <code>max_locals</code> gives the number of 
+	 * local variables in the local variable array allocated upon invocation of this method,
+	 * including the local variables used to pass parameters to the method on its invocation.
+	 * @return The value of the <code>max_locals</code>
+	 */
+	public int getMaxLocals();
 
 }
