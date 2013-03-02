@@ -158,7 +158,13 @@ public abstract class OperandStackViewPage extends Page {
 		this.view_ID = view_ID;
 	}
 	
-	private void createStatusLine(IActionBars bars){ //TODO: sample implementation
+	private void setMesssageInStatusLine(){ //TODO: sample implementation
+		if(methodInput == null){
+			return;
+		}
+		
+		IActionBars bars = getSite().getActionBars();
+		
 		IStatusLineManager slm = bars.getStatusLineManager();
 		slm.setMessage(JavaUI.getSharedImages()
 				.getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE),
@@ -167,8 +173,9 @@ public abstract class OperandStackViewPage extends Page {
 		slm.update(true);
 	}
 
-	private void configureToolBar(IActionBars bars){
+	private void configureToolBar(){
 
+		IActionBars bars = getSite().getActionBars();
 		IToolBarManager tbm = bars.getToolBarManager();
 		
 		showTreeViewAction = new Action() {
@@ -270,6 +277,8 @@ public abstract class OperandStackViewPage extends Page {
 			setInput(methodInput.getInstructionLines());
 			enableActions(true);
 		}
+		
+		setMesssageInStatusLine();
 	}
 	
 	/**
@@ -317,6 +326,7 @@ public abstract class OperandStackViewPage extends Page {
 	 */
 	public void init(IPageSite pageSite) {
 		super.init(pageSite);
+		configureToolBar();
 	}
 
 	/*
@@ -324,9 +334,6 @@ public abstract class OperandStackViewPage extends Page {
 	 */
 	public void createControl(Composite parent) {		
 		createTreeViewer(parent);
-		IActionBars bars = getSite().getActionBars();
-		createStatusLine(bars);
-		configureToolBar(bars);
 	}
 	
 	/* (non-Javadoc)
