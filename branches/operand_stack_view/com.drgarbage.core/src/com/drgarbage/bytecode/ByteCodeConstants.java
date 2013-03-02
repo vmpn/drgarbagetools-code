@@ -542,6 +542,8 @@ public class ByteCodeConstants implements Opcodes {
 	public static final String LINE_NUMBER_TABLE_NOT_AVAILABLE = "LineNumberTable not available";
 	public static final String LOCAL_VARIABLE_TABLE = "LocalVariableTable";
 	public static final String LOCAL_VARIABLE_TYPE_TABLE = "LocalVariableTypeTable";
+	public static final String MAX_STACK = "max_stack";
+	public static final String MAX_LOCALS = "max_locals";
 	public static final String CODE = "Code";
 
 	public static final String START_PC = "start_pc";
