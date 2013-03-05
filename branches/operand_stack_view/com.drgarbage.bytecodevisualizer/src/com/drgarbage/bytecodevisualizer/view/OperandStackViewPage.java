@@ -528,7 +528,7 @@ public abstract class OperandStackViewPage extends Page {
         					case INodeType.NODE_TYPE_INVOKE:
         						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PUBLIC);
         					case INodeType.NODE_TYPE_GET:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        						return CoreImg.get_instr_16x16.createImage();
         					default:
         						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
         							
