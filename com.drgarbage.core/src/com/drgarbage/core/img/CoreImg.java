@@ -36,7 +36,7 @@ public class CoreImg {
 	
 	/* copied from control ControlFlowFactoryResource */
 	public static final ImageDescriptor outline_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "outline_16x16.gif");
-	public static final ImageDescriptor bytecodeViewer_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "get-16x16.png");
+	public static final ImageDescriptor bytecodeViewer_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "bytecode-viewer-16x16.png");
 	
 	/* source code visualizer icons */
 	public static final ImageDescriptor hideConstructorAction_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "hide_constructor_action-16x16.png");
@@ -48,6 +48,6 @@ public class CoreImg {
 	/* operand stack icons */
 	public static final ImageDescriptor operandStackViewIcon_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "operand-stack-16x16.png");
 	public static final ImageDescriptor operandStackViewIcon_32x32 = ImageDescriptor.createFromFile(CoreImg.class, "operand-stack-32x32.png");
-	public static final ImageDescriptor get_instr_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "operand-stack-32x32.png");
+	public static final ImageDescriptor get_instr_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "get-16x16.png");
 	
 }
