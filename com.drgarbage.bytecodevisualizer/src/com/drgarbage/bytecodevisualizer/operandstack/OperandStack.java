@@ -615,6 +615,11 @@ public class OperandStack implements Opcodes{
 		case OPCODE_IUSHR:
 		case OPCODE_IXOR:
 			
+			stack.pop();
+			stack.pop();
+			stack.push(new OperandStackEntry(4, "I", getLocalVariableName(i)));
+			return;
+			
 		case OPCODE_LAND:
 		case OPCODE_LOR:
 		case OPCODE_LXOR:
@@ -623,7 +628,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LUSHR:
 			stack.pop();
 			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "J", getLocalVariableName(i)));
 			return;
 			
 		/* value1, value2 -> */
