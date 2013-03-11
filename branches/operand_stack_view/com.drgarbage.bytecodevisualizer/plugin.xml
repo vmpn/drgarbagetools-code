@@ -17,7 +17,18 @@
          </contentTypeBinding>
       </editor>
    </extension>
-       <extension
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            extensions="class"
+            icon="img/enabled16/classfile-editor-16x16.png"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="com.drgarbage.classfile.editors.ClassFileEditor"
+            id="com.drgarbage.classfile.editor"
+            name="%ClassFileEditor">
+      </editor>
+   </extension>
+   <extension
          point="org.eclipse.ui.editorActions">
       <editorContribution
             targetID="com.drgarbage.bytecodevisualizer.editor"
