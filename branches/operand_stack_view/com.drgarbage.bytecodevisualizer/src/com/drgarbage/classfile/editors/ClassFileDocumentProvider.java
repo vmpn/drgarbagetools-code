@@ -25,6 +25,7 @@ import org.eclipse.core.filebuffers.manipulation.ContainerCreator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
@@ -32,6 +33,10 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 import org.eclipse.ui.texteditor.ResourceMarkerAnnotationModel;
+
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.core.CoreMessages;
+import com.drgarbage.utils.Messages;
 
 /**
  * A sharable document provider. The document content is generated from the class file.
@@ -77,14 +82,31 @@ public class ClassFileDocumentProvider extends FileDocumentProvider {
 			document.set(s);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			handleException(IOException.class.getName(), e);
+			Messages.error(IOException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+			return;
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			handleException(ParseException.class.getName(), e);
+			Messages.error(ParseException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+			return;
+		} catch(IllegalArgumentException e){
+			handleException(IllegalArgumentException.class.getName(), e);
+			Messages.error(IllegalArgumentException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+			return;
+		}catch(IllegalStateException e){
+			handleException(IllegalStateException.class.getName(), e);
+			Messages.error(IllegalStateException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+			return;
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.ui.editors.text.FileDocumentProvider#doSaveDocument(org.eclipse.core.runtime.IProgressMonitor, java.lang.Object, org.eclipse.jface.text.IDocument, boolean)
+	 */
 	protected void doSaveDocument(IProgressMonitor monitor, Object element, IDocument document, boolean overwrite) throws CoreException {
 		if (element instanceof IFileEditorInput) {
 
@@ -97,8 +119,9 @@ public class ClassFileDocumentProvider extends FileDocumentProvider {
 			try {
 				bytes = ClassFileParser.getClasFileBytesFromString(document.get());
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				handleException(ParseException.class.getName(), e);
+				Messages.error(ParseException.class.getName() +
+						CoreMessages.ExceptionAdditionalMessage);
 			}
 			
 			InputStream stream= new ByteArrayInputStream(bytes);
@@ -108,35 +131,35 @@ public class ClassFileDocumentProvider extends FileDocumentProvider {
 				if (info != null && !overwrite)
 					checkSynchronizationState(info.fModificationStamp, file);
 
-				// inform about the upcoming content change
+				/* inform about the upcoming content change */
 				fireElementStateChanging(element);
 				try {
 					file.setContents(stream, overwrite, true, monitor);
 				} catch (CoreException x) {
-					// inform about failure
+					/* inform about failure */
 					fireElementStateChangeFailed(element);
 					throw x;
 				} catch (RuntimeException x) {
-					// inform about failure
+					/* inform about failure */
 					fireElementStateChangeFailed(element);
 					throw x;
 				}
-
-				// If here, the editor state will be flipped to "not dirty".
-				// Thus, the state changing flag will be reset.
+ 
+				/* 
+				 * If here, the editor state will be flipped to "not dirty".
+				 * Thus, the state changing flag will be reset. 
+				 */
 
 				if (info != null) {
-
 					ResourceMarkerAnnotationModel model= (ResourceMarkerAnnotationModel) info.fModel;
 					if (model != null)
 						model.updateMarkers(info.fDocument);
 
 					info.fModificationStamp= computeModificationStamp(file);
 				}
-
 			} else {
 				try {
-					monitor.beginTask("TextEditorMessages.FileDocumentProvider_task_saving", 2000);
+					monitor.beginTask("Saving", 2000);
 					ContainerCreator creator = new ContainerCreator(file.getWorkspace(), file.getParent().getFullPath());
 					creator.createContainer(new SubProgressMonitor(monitor, 1000));
 					file.create(stream, false, new SubProgressMonitor(monitor, 1000));
@@ -151,4 +174,8 @@ public class ClassFileDocumentProvider extends FileDocumentProvider {
 		}
 	}
 
+	private void handleException(String message, Throwable t){
+		IStatus status = BytecodeVisualizerPlugin.createErrorStatus(message, t);
+		BytecodeVisualizerPlugin.log(status);
+	}
 }

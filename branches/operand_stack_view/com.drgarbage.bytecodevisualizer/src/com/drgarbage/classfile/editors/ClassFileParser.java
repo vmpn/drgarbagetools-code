@@ -23,6 +23,7 @@ import java.text.ParseException;
 
 import com.drgarbage.asm.ClassReader;
 import com.drgarbage.asm_ext.IConstantPoolVisitor;
+import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.ConstantPoolParser;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 
@@ -88,15 +89,27 @@ public class ClassFileParser {
 		buf.append('\n');
 
 		buf.append(appendBytes(offset, offset + 2));
-		offset = offset + 2;
-		buf.append(_14_BYTES);
-		buf.append("/* u2 minor_version */");
+		int minor = cr.readUnsignedShort(offset);
+		offset = offset + 2;		
+		buf.append(_14_BYTES);		
+		buf.append("/* u2 minor_version=");
+		buf.append(minor);
+		buf.append(" */");
 		buf.append('\n');
 
 		buf.append(appendBytes(offset, offset + 2));
+		int major = cr.readUnsignedShort(offset);
 		offset = offset + 2;
-		buf.append(_14_BYTES);
-		buf.append("/* u2 major_version */");
+		buf.append(_14_BYTES);		
+		buf.append("/* u2 major_version=");
+		buf.append(major);
+		buf.append(" */");
+		buf.append('\n');
+		
+		buf.append(_16_BYTES);
+		buf.append("/* java ");
+		buf.append(BytecodeUtils.getLowestJavaPlatformVersion(major, minor));
+		buf.append(" */");
 		buf.append('\n');
 
 		buf.append(appendBytes(offset, offset + 2));
@@ -135,6 +148,7 @@ public class ClassFileParser {
 		buf.append('\n');
 
 		/* interfaces */
+		buf.append('\n');
 		buf.append(_16_BYTES);
 		buf.append("/* Interfaces: */");
 		buf.append('\n');
@@ -434,7 +448,7 @@ public class ClassFileParser {
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0; i < constantPool.length; i++) {
 			AbstractConstantPoolEntry en = constantPool[i];
-
+			boolean appendConstantPoolinfo = true;
 			if (en != null) {
 				try {
 					ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -446,6 +460,11 @@ public class ClassFileParser {
 					for(; j <= byteArray.length; j++){
 						buf.append(String.format("%02X",byteArray[(j - 1)]));
 						if((j % 16) == 0){
+							if(appendConstantPoolinfo) {
+								buf.append(' ');
+								appendConstantPoolEntryInfo(buf, en, i);
+								appendConstantPoolinfo = false;
+							}
 							buf.append('\n');
 						}
 						else{
@@ -464,16 +483,10 @@ public class ClassFileParser {
 
 					offset= offset + byteArray.length;
 
-
-					buf.append(" /* ");
-					buf.append(' ');
-					buf.append(String.valueOf(i));
-					buf.append(' ');
-					buf.append(en.getTagMnemonics());
-					buf.append(' ');
-					buf.append(en.getInfo());
-					buf.append(' ');
-					buf.append("*/");
+					if(appendConstantPoolinfo) {
+						appendConstantPoolEntryInfo(buf, en, i);
+						appendConstantPoolinfo = false;
+					}
 					buf.append('\n');
 
 				} catch (IOException e) {
@@ -485,6 +498,18 @@ public class ClassFileParser {
 		return buf.toString();
 	}
 
+	private void appendConstantPoolEntryInfo(StringBuffer buf, AbstractConstantPoolEntry en, int i){
+		buf.append(" /* ");
+		buf.append(' ');
+		buf.append(String.valueOf(i));
+		buf.append(' ');
+		buf.append(en.getTagMnemonics());
+		buf.append(' ');
+		buf.append(en.getInfo());
+		buf.append(' ');
+		buf.append("*/");
+	}
+	
 	/**
 	 * Creates a string representation of interface bytes.
 	 * @param interafaces
