@@ -26,6 +26,7 @@ import com.drgarbage.asm_ext.IConstantPoolVisitor;
 import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.ConstantPoolParser;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
+import com.drgarbage.bytecode.constant_pool.ConstantUtf8Info;
 
 /**
  * The class file parser to generate a readable representation from the class file.
@@ -110,6 +111,7 @@ public class ClassFileParser {
 		buf.append("/* java ");
 		buf.append(BytecodeUtils.getLowestJavaPlatformVersion(major, minor));
 		buf.append(" */");
+		buf.append('\n');
 		buf.append('\n');
 
 		buf.append(appendBytes(offset, offset + 2));
@@ -355,6 +357,13 @@ public class ClassFileParser {
           }
 			 */
 			for(int j = 0; j < attributes_count; j++){
+				buf.append(_16_BYTES);
+				buf.append("/* Attribute[");
+				buf.append(j);
+				buf.append(']');
+				buf.append(" */");
+				buf.append('\n');
+				
 				buf.append(appendBytes(offset, offset + 2));
 				int attribute_name_index = cr.readUnsignedShort(offset);
 				offset += 2;
@@ -362,6 +371,13 @@ public class ClassFileParser {
 				buf.append("/* u2 attribute_name_index=");
 				buf.append(attribute_name_index);
 				buf.append(", ");
+				boolean codeAttribute = false;
+				if(constantPool[attribute_name_index] instanceof ConstantUtf8Info){
+					String utf8String = ((ConstantUtf8Info) constantPool[attribute_name_index]).getString();
+					if(utf8String.equals("Code")){
+						codeAttribute = true;
+					}
+				}
 				buf.append(constantPool[attribute_name_index].getInfo());
 				buf.append(" */");
 				buf.append('\n');
@@ -377,8 +393,159 @@ public class ClassFileParser {
 				buf.append(_16_BYTES);
 				buf.append("/* Attribute bytes: */");
 				buf.append('\n');
-				buf.append(appendBytes(offset, offset + attribute_length));
-				offset += attribute_length;
+				
+				if(codeAttribute){	
+					/*
+					  Code_attribute {
+					    u2 attribute_name_index;
+					    u4 attribute_length;
+					    u2 max_stack;
+					    u2 max_locals;
+					    u4 code_length;
+					    u1 code[code_length];
+					    u2 exception_table_length;
+					    {   u2 start_pc;
+					        u2 end_pc;
+					        u2 handler_pc;
+					        u2 catch_type;
+					    } exception_table[exception_table_length];
+					    u2 attributes_count;
+					    attribute_info attributes[attributes_count];
+					}
+					 */
+					buf.append(_16_BYTES);
+					buf.append("/* Code_attribute: */");
+					buf.append('\n');
+					
+					buf.append(appendBytes(offset, offset + 2));
+					int max_stack = cr.readUnsignedShort(offset);
+					offset += 2;
+					buf.append(_14_BYTES);
+					buf.append("/* u2 max_stack=");
+					buf.append(max_stack);
+					buf.append(" */");
+					buf.append('\n');
+				
+					buf.append(appendBytes(offset, offset + 2));
+					int max_locals = cr.readUnsignedShort(offset);
+					offset += 2;
+					buf.append(_14_BYTES);
+					buf.append("/* u2 max_locals=");
+					buf.append(max_locals);
+					buf.append(" */");
+					buf.append('\n');
+					
+					buf.append(appendBytes(offset, offset + 4));
+					int code_length = cr.readInt(offset);
+					offset += 4;
+					buf.append(_12_BYTES);
+					buf.append("/* u4 code_length=");
+					buf.append(code_length);
+					buf.append(" */");
+					buf.append('\n');
+					
+					buf.append(_16_BYTES);
+					buf.append("/* Code instructions: */");
+					buf.append('\n');
+					
+					buf.append(appendBytes(offset, offset + code_length));
+					offset += code_length;
+					buf.append('\n');
+					
+					/* exception_table */
+					buf.append(appendBytes(offset, offset + 2));
+					int exception_table_length = cr.readUnsignedShort(offset);
+					offset += 2;
+					buf.append(_14_BYTES);
+					buf.append("/* u2 exception_table_length=");
+					buf.append(exception_table_length);
+					buf.append(" */");
+					buf.append('\n');
+					
+					for(int e = 0; e < exception_table_length; e++){
+						/*
+						u2 start_pc;
+				        u2 end_pc;
+				        u2 handler_pc;
+				        u2 catch_type;
+				        */
+						buf.append(appendBytes(offset, offset + 4));
+						int start_pc = cr.readUnsignedShort(offset);
+						offset += 2;
+						int end_pc = cr.readUnsignedShort(offset);
+						offset += 2;
+						buf.append(_12_BYTES);
+						buf.append("/* u2 start_pc=");
+						buf.append(start_pc);
+						buf.append(" u2 end_pc=");
+						buf.append(end_pc);
+						buf.append(" */");
+						buf.append('\n');
+						
+						buf.append(appendBytes(offset, offset + 4));
+						int handler_pc = cr.readUnsignedShort(offset);
+						offset += 2;
+						int catch_type = cr.readUnsignedShort(offset);
+						offset += 2;
+						buf.append(_12_BYTES);
+						buf.append("/* u2 handler_pc=");
+						buf.append(handler_pc);
+						buf.append(" u2 catch_type=");
+						buf.append(catch_type);
+						buf.append(" */");
+						buf.append('\n');
+					}
+					
+					buf.append(appendBytes(offset, offset + 2));
+					int code_attributes_count = cr.readUnsignedShort(offset);
+					offset += 2;
+					buf.append(_14_BYTES);
+					buf.append("/* u2 attributes_count=");
+					buf.append(code_attributes_count);
+					buf.append(" */");
+					buf.append('\n');
+					
+					/*
+			        attribute_info {
+			            u2 attribute_name_index;
+			            u4 attribute_length;
+			            u1 info[attribute_length];
+			        }
+					 */
+					for(int cj = 0; cj < code_attributes_count; cj++){
+						buf.append(appendBytes(offset, offset + 2));
+						int code_attribute_name_index = cr.readUnsignedShort(offset);
+						offset += 2;
+						buf.append(_14_BYTES);
+						buf.append("/* u2 attribute_name_index=");
+						buf.append(code_attribute_name_index);
+						buf.append(", ");
+						buf.append(constantPool[code_attribute_name_index].getInfo());
+						buf.append(" */");
+						buf.append('\n');
+
+						buf.append(appendBytes(offset, offset + 4));
+						int code_attribute_length = cr.readInt(offset);
+						offset += 4;
+						buf.append(_12_BYTES);
+						buf.append("/* u4 attribute_length=");
+						buf.append(code_attribute_length);
+						buf.append(" */");
+						buf.append('\n');
+
+						buf.append(_16_BYTES);
+						buf.append("/* Attribute bytes: */");
+						buf.append('\n');
+						buf.append(appendBytes(offset, offset + code_attribute_length));
+						offset += code_attribute_length;
+						buf.append('\n');
+					}
+					codeAttribute = false;
+				}
+				else{
+					buf.append(appendBytes(offset, offset + attribute_length));
+					offset += attribute_length;
+				}
 				buf.append('\n');
 			}
 		}
@@ -387,11 +554,11 @@ public class ClassFileParser {
 
 		/* class attrinutes */
 		buf.append(appendBytes(offset, offset + 2));
-		int attributes_count = cr.readUnsignedShort(offset);
+		int class_attributes_count = cr.readUnsignedShort(offset);
 		offset += 2;
 		buf.append(_14_BYTES);
 		buf.append("/* u2 attributes_count=");
-		buf.append(attributes_count);
+		buf.append(class_attributes_count);
 		buf.append(" */");
 		buf.append('\n');
 
@@ -402,7 +569,7 @@ public class ClassFileParser {
             u1 info[attribute_length];
         }
 		 */
-		for(int j = 0; j < attributes_count; j++){
+		for(int j = 0; j < class_attributes_count; j++){
 			buf.append(appendBytes(offset, offset + 2));
 			int attribute_name_index = cr.readUnsignedShort(offset);
 			offset += 2;
@@ -499,10 +666,9 @@ public class ClassFileParser {
 	}
 
 	private void appendConstantPoolEntryInfo(StringBuffer buf, AbstractConstantPoolEntry en, int i){
-		buf.append(" /* ");
-		buf.append(' ');
+		buf.append(" /* [");
 		buf.append(String.valueOf(i));
-		buf.append(' ');
+		buf.append("] ");
 		buf.append(en.getTagMnemonics());
 		buf.append(' ');
 		buf.append(en.getInfo());
