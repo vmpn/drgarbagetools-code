@@ -21,6 +21,8 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Stack;
 
+import org.eclipse.core.runtime.IStatus;
+
 import com.drgarbage.asm.render.impl.ClassFileDocument;
 import com.drgarbage.asm.render.impl.LocalVariableTable;
 import com.drgarbage.asm.render.intf.IInstructionLine;
@@ -30,6 +32,7 @@ import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.LocalVariableTableEntry;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 import com.drgarbage.bytecode.constant_pool.ConstantClassInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantDoubleInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantFieldrefInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantFloatInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantIntegerInfo;
@@ -41,6 +44,7 @@ import com.drgarbage.bytecode.constant_pool.ConstantReference;
 import com.drgarbage.bytecode.constant_pool.ConstantStringInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantUtf8Info;
 import com.drgarbage.bytecode.instructions.*;
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
@@ -48,6 +52,7 @@ import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.javasrc.JavaLexicalConstants;
+import com.sun.org.apache.bcel.internal.generic.Instruction;
 
 /**
  * Operand Stack View.
@@ -62,6 +67,8 @@ public class OperandStack implements Opcodes{
 	private AbstractConstantPoolEntry[] classConstantPool;
 	private ILocalVariableTable localVariableTable;
 	private IDirectedGraphExt graph;
+	private boolean errorOccured;
+	private int maxStackSize;
 	
 	public IDirectedGraphExt getOperandStackGraph() {
 		return graph;
@@ -77,6 +84,8 @@ public class OperandStack implements Opcodes{
 		stack = new Stack<OperandStackEntry>();
 		classConstantPool = cPool;
 		localVariableTable = locVarTable;
+		errorOccured = false;
+		maxStackSize = 0;
 
 		generateOperandStack(instructions);
 	}
@@ -160,6 +169,7 @@ public class OperandStack implements Opcodes{
     			IInstructionLine iLine = (IInstructionLine) o;
     			node.setCounter(iLine.getLine()); /* use counter attribute to save line numbers */
     			calculateOperandStack(node, iLine.getInstruction());
+   
     		}
     		
     		node.setVisited(true);
@@ -208,6 +218,11 @@ public class OperandStack implements Opcodes{
 
     	
     	node.setData(stackBeforeAfter);
+    	
+
+    	/* update the maxStackSize */
+		int currentStackSize = stack.size();
+		if(currentStackSize > maxStackSize) maxStackSize = currentStackSize;
     }
     
     private String stackToString(){
@@ -273,7 +288,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_IALOAD:
 		case OPCODE_LALOAD:
 		case OPCODE_SALOAD:
-			
+
 			//TODO: get name of the pushed value
 			stack.pop();
 			stack.pop();
@@ -385,7 +400,7 @@ public class OperandStack implements Opcodes{
 			return;
 			
 		case OPCODE_POP2:
-			//TODO: check length	
+			//TODO: check length !! not needed due to handling long and double values as 1 stack entry in our implementation
 			stack.pop();		
 			return;
 			
@@ -399,7 +414,7 @@ public class OperandStack implements Opcodes{
 			// TODO special return case
 			stack.clear();
 			
-			//TODO: check if the stack empty
+			//TODO: check if the stack is empty
 			return;
 			
 		/* -> null */
@@ -472,7 +487,7 @@ public class OperandStack implements Opcodes{
 		/* objectref -> objectref */
 		case OPCODE_CHECKCAST:
 			stack.pop();
-			stack.push(new OperandStackEntry(4, "R", getConstantPoolClassName(i, classConstantPool)));
+			stack.push(new OperandStackEntry(4, "L", getConstantPoolClassName(i, classConstantPool)));
 			return;
 			
 		/* value -> result */
@@ -480,39 +495,33 @@ public class OperandStack implements Opcodes{
 		case OPCODE_I2F:
 		case OPCODE_L2F:
 			
-			stack.push(new OperandStackEntry(4, "F", getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(4, "F", stack.pop().getValue()));
 			return;
 			
 		case OPCODE_D2I:
 		case OPCODE_F2I:
 		case OPCODE_L2I:
-			
-			stack.push(new OperandStackEntry(4, "I", getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(4, "I", stack.pop().getValue()));
 			return;
 			
 		case OPCODE_D2L:
 		case OPCODE_F2L:
 		case OPCODE_I2L:
-			
-			stack.push(new OperandStackEntry(4, "J", getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(4, "J", stack.pop().getValue()));
 			return;
 
 		case OPCODE_F2D:
 		case OPCODE_I2D:
 		case OPCODE_L2D:
-			
-			stack.push(new OperandStackEntry(4, "D", getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(4, "D", stack.pop().getValue()));
 			return;
 			
 		case OPCODE_I2C:
-			
-			stack.push(new OperandStackEntry(4, "C", getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(4, "C", stack.pop().getValue()));
 			return;
 
-
 		case OPCODE_I2S:
-			
-			stack.push(new OperandStackEntry(4, "S", getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(4, "S", stack.pop().getValue()));
 			return;
 			
 		/* value1, value2 -> result */
@@ -541,9 +550,10 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FSUB:
 		case OPCODE_LSUB:
 			
-			stack.pop();
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			OperandStackEntry value2 = stack.pop();
+			OperandStackEntry value1 = stack.pop();
+			
+			stack.push(new OperandStackEntry(4, value1.getVarName(), "<" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ">"));
 			return;
 			
 		/* value1 -> result */				
@@ -551,8 +561,8 @@ public class OperandStack implements Opcodes{
 		case OPCODE_INEG:
 		case OPCODE_FNEG:
 		case OPCODE_LNEG:
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			OperandStackEntry negValue = stack.pop();
+			stack.push(new OperandStackEntry(4, negValue.getVarName(), "<-" + negValue.getValue() + ">"));
 			return;
 			
 		/* value1, value2 -> result */
@@ -562,7 +572,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FCMPL:
 			stack.pop();
 			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", "?"));
+			stack.push(new OperandStackEntry(4, "I", "<RET>"));
 			return;
 			
 			
@@ -575,7 +585,6 @@ public class OperandStack implements Opcodes{
 			if (i instanceof ConstantPoolShortIndexInstruction || i instanceof ConstantPoolByteIndexInstruction) {
 				AbstractConstantPoolEntry cpInfo = classConstantPool[((IConstantPoolIndexProvider)i).getConstantPoolIndex()];
 				
-
 				if (cpInfo instanceof ConstantFloatInfo) {
 					const_ = String.valueOf(((ConstantFloatInfo)cpInfo).getFloat());
 					stack.push(new OperandStackEntry(i.getOpcode() == OPCODE_LDC2_W ? 8 : 4, "F", const_));
@@ -584,6 +593,11 @@ public class OperandStack implements Opcodes{
 				else if (cpInfo instanceof ConstantIntegerInfo) {
 					const_ = String.valueOf(((ConstantIntegerInfo)cpInfo).getInt());
 					stack.push(new OperandStackEntry(i.getOpcode() == OPCODE_LDC2_W ? 8 : 4, "I", const_));
+					return;
+				}
+				else if (cpInfo instanceof ConstantDoubleInfo) {
+					const_ = String.valueOf(((ConstantDoubleInfo)cpInfo).getDouble());
+					stack.push(new OperandStackEntry(i.getOpcode() == OPCODE_LDC2_W ? 8 : 4, "D", const_));
 					return;
 				}
 				else if (cpInfo instanceof ConstantLongInfo) {
@@ -640,12 +654,12 @@ public class OperandStack implements Opcodes{
 		/* objectref -> value */
 		case OPCODE_GETFIELD:
 			stack.pop();
-			stack.push(new OperandStackEntry(4, "V", getConstantPoolClassName(i, classConstantPool)));
+			stack.push(new OperandStackEntry(4, "L", getConstantPoolClassName(i, classConstantPool)));
 			return;
 			
 		/* -> value */
 		case OPCODE_GETSTATIC:
-			stack.push(new OperandStackEntry(4, "V", getConstantPoolClassName(i, classConstantPool)));
+			stack.push(new OperandStackEntry(4, "L", getConstantPoolClassName(i, classConstantPool)));
 			return;
 			
 		/* value1, value2 -> result */
@@ -700,7 +714,7 @@ public class OperandStack implements Opcodes{
 		/* objectref -> result */
 		case OPCODE_INSTANCEOF:
 			stack.pop();
-			stack.push(new OperandStackEntry(4, "?", "<RET>"));
+			stack.push(new OperandStackEntry(4, "I", "<RET>"));
 			return;
 		
 		/* objectref, [arg1, arg2, ...] -> */
@@ -748,9 +762,8 @@ public class OperandStack implements Opcodes{
 						}
 
 					} catch (IOException e) {
-						//TODO: implent handling
-						System.out.println(sb);
-						e.printStackTrace();
+						handleException(IOException.class.getName(), e);
+						errorOccured = true;
 					}
 
 					
@@ -771,6 +784,7 @@ public class OperandStack implements Opcodes{
 			/* -> address */
 		case OPCODE_JSR:
 		case OPCODE_JSR_W:
+			//TODO is the branch offset the address?
 			stack.push(new OperandStackEntry(4, "ADDR", "?"));
 			return;
 			
@@ -787,10 +801,16 @@ public class OperandStack implements Opcodes{
 
 		/* count1, [count2,...] -> arrayref */
 		case OPCODE_MULTIANEWARRAY:
-			//TODO how to get the count for how many dimensions get initialized?
-			stack.pop();
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "L", "?"));
+
+			int dims = 0;
+			if(i instanceof MultianewarrayInstruction){
+				MultianewarrayInstruction multiArray = (MultianewarrayInstruction) i;
+				dims = multiArray.getDimensions();
+			}
+			
+			while((dims--) != 0) stack.pop();
+
+			stack.push(new OperandStackEntry(4, "L", getConstantPoolClassName(i, classConstantPool)));
 			return;
 			
 			/* count -> arrayref */
@@ -803,8 +823,8 @@ public class OperandStack implements Opcodes{
 
 			/* arrayref -> length (as int)*/
 		case OPCODE_ARRAYLENGTH:
-			stack.pop();
-			stack.push(new OperandStackEntry(4, "I", "?"));
+			OperandStackEntry arrayLength = stack.pop();
+			stack.push(new OperandStackEntry(4, "I", "<"+arrayLength.getValue()+".length>"));
 			return;
 
 			/* objectref,value -> */
@@ -826,7 +846,6 @@ public class OperandStack implements Opcodes{
 			stack.set(stack.size()-2, stack.get(stack.size()-1));
 			return;		
 		}
-		
 	
 	}
 	
@@ -871,13 +890,11 @@ public class OperandStack implements Opcodes{
 					ByteCodeConstants.CLASS_NAME_SLASH,
 					JavaLexicalConstants.DOT);
 			className = className.replace(
-					";", // TODO define constant
+					";",
 					"");
 			
 			StringBuilder sb = new StringBuilder();
 			sb.append(className);
-			//sb.append(JavaLexicalConstants.LEFT_SQUARE_BRACKET);
-			//sb.append(JavaLexicalConstants.RIGHT_SQUARE_BRACKET);
 
 			className = sb.toString();
 			
@@ -886,6 +903,90 @@ public class OperandStack implements Opcodes{
 		}
 		
 		return "?";
+	}
+	
+//	private String resolveMathOperationType(AbstractInstruction i) {
+//		switch (i.getOpcode()) {
+//			case OPCODE_DADD:
+//			case OPCODE_DDIV:
+//			case OPCODE_DMUL:
+//			case OPCODE_DREM:
+//			case OPCODE_DSUB:
+//				return "D";
+//
+//			case OPCODE_IADD:
+//			case OPCODE_IDIV:
+//			case OPCODE_IMUL:
+//			case OPCODE_IREM:
+//			case OPCODE_ISUB:
+//				return "I";
+//
+//			case OPCODE_FADD:
+//			case OPCODE_FDIV:
+//			case OPCODE_FMUL:
+//			case OPCODE_FREM:
+//			case OPCODE_FSUB:
+//				return "F";
+//
+//			case OPCODE_LADD:
+//			case OPCODE_LDIV:
+//			case OPCODE_LMUL:
+//			case OPCODE_LREM:
+//			case OPCODE_LSUB:
+//				return "J";
+//
+//			default:
+//				return "?";
+//		}
+//	}
+
+	private String resolveMathOperation(AbstractInstruction i){
+		switch (i.getOpcode()) {
+			case OPCODE_DADD:
+			case OPCODE_IADD:
+			case OPCODE_FADD:
+			case OPCODE_LADD:
+				return "+";
+				
+			case OPCODE_DDIV:
+			case OPCODE_IDIV:
+			case OPCODE_FDIV:
+			case OPCODE_LDIV:
+				return "/";
+				
+			case OPCODE_DMUL:
+			case OPCODE_IMUL:
+			case OPCODE_FMUL:
+			case OPCODE_LMUL:
+				return "*";
+			case OPCODE_DREM:
+			case OPCODE_IREM:
+			case OPCODE_FREM:
+			case OPCODE_LREM:
+				return "%";
+				
+			case OPCODE_DSUB:
+			case OPCODE_ISUB:
+			case OPCODE_FSUB:
+			case OPCODE_LSUB:
+				return "-";
+				
+			default:
+				return "?";
+		}
+	}
+	
+	private void handleException(String message, Throwable t){
+		IStatus status = BytecodeVisualizerPlugin.createErrorStatus(message, t);
+		BytecodeVisualizerPlugin.log(status);
+	}
+
+	/**
+	 * getter for the maximum stack size
+	 * @return
+	 */
+	public int getMaxStackSize() {
+		return maxStackSize;
 	}
 	
 }

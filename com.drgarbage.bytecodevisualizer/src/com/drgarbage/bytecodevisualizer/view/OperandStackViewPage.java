@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.eclipse.jdt.ui.ISharedImages;
+//import org.eclipse.jdt.ui.ISharedImages;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -53,6 +55,7 @@ import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeDocumentProvider;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
@@ -81,6 +84,8 @@ public abstract class OperandStackViewPage extends Page {
 	 * Reference to the selected method instance.
 	 */
 	private IMethodSection methodInput;
+	
+	private OperandStack operandStack;
 	
 	/* Menu actions */
 	private IAction showTreeViewAction, showBasicBlockViewAction, showInstructioneListViewAction;
@@ -166,10 +171,24 @@ public abstract class OperandStackViewPage extends Page {
 		IActionBars bars = getSite().getActionBars();
 		
 		IStatusLineManager slm = bars.getStatusLineManager();
-		slm.setMessage(JavaUI.getSharedImages()
-				.getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE),
-				"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
-				" max_locals: " + String.valueOf(methodInput.getMaxLocals()));
+		
+		if(operandStack.getMaxStackSize() > methodInput.getMaxStack() || operandStack.getMaxStackSize() < methodInput.getMaxStack()){
+			slm.setErrorMessage((JavaUI.getSharedImages()
+					.getImage(ISharedImages.IMG_OBJS_ERROR_TSK)),
+					"max_stack should be: " + String.valueOf(methodInput.getMaxStack()) +
+					" is: " + String.valueOf(operandStack.getMaxStackSize()) +
+					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
+			
+			IStatus status = BytecodeVisualizerPlugin.createErrorStatus("Operand Stack under- or overflow in Method: " + methodInput.getDescriptor() + " " + methodInput.getName() +" occurred", null);
+			BytecodeVisualizerPlugin.log(status);
+			
+		} else {
+			slm.setMessage(JavaUI.getSharedImages()
+					.getImage(ISharedImages.IMG_OBJS_INFO_TSK),
+					"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
+					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
+		}
+
 		slm.update(true);
 	}
 
@@ -184,7 +203,7 @@ public abstract class OperandStackViewPage extends Page {
 			}
 		};
 		showTreeViewAction
-				.setImageDescriptor(CoreImg.bytecodeViewer_16x16); //$NON-NLS-1$ //TODo: make new icon
+				.setImageDescriptor(CoreImg.bytecodeViewer_16x16); //$NON-NLS-1$ //TODO: make new icon
 		tbm.add(showTreeViewAction);
 		showTreeViewAction.setChecked(true);
 		
@@ -517,29 +536,29 @@ public abstract class OperandStackViewPage extends Page {
         				//TODO: create new symbols
         				switch(ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode())){
         					case INodeType.NODE_TYPE_SIMPLE:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
         					case INodeType.NODE_TYPE_IF:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_INTERFACE);
+        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_INTERFACE);
         					case INodeType.NODE_TYPE_RETURN:
         					case INodeType.NODE_TYPE_GOTO_JUMP:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PUBLIC);
+        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PUBLIC);
         					case INodeType.NODE_TYPE_SWITCH:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_INTERFACE);
+        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_INTERFACE);
         					case INodeType.NODE_TYPE_INVOKE:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PUBLIC);
+        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PUBLIC);
         					case INodeType.NODE_TYPE_GET:
         						return CoreImg.get_instr_16x16.createImage();
         					default:
-        						return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
         							
         				}
         			}
         			if(o instanceof String){
-        				return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_PROTECTED);
+        				return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PROTECTED);
         			}
         		}
         		
-        		return JavaUI.getSharedImages().getImage(ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        		return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
 			}
 			return null;
         }
@@ -635,7 +654,8 @@ public abstract class OperandStackViewPage extends Page {
 
     		/* when the methodInput changes, a new stack is generated */
     		/* later, we can add the reference to the previous stack to the new stack */
-    		INodeListExt nodeList = new OperandStack(instructions, ic.getConstantPool(), methodInput.getLocalVariableTable()).getOperandStackGraph().getNodeList();
+    		operandStack = new OperandStack(instructions, ic.getConstantPool(), methodInput.getLocalVariableTable());
+    		INodeListExt nodeList = operandStack.getOperandStackGraph().getNodeList();
     		for(int i = 0; i < nodeList.size(); i++){
     			INodeExt n = nodeList.getNodeExt(i);
     			Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
