@@ -23,6 +23,7 @@ import java.util.TreeMap;
 
 //import org.eclipse.jdt.ui.ISharedImages;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
@@ -173,8 +174,7 @@ public abstract class OperandStackViewPage extends Page {
 		IStatusLineManager slm = bars.getStatusLineManager();
 		
 		if(operandStack.getMaxStackSize() > methodInput.getMaxStack() || operandStack.getMaxStackSize() < methodInput.getMaxStack()){
-			slm.setErrorMessage((JavaUI.getSharedImages()
-					.getImage(ISharedImages.IMG_OBJS_ERROR_TSK)),
+			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJS_ERROR_TSK),
 					"max_stack should be: " + String.valueOf(methodInput.getMaxStack()) +
 					" is: " + String.valueOf(operandStack.getMaxStackSize()) +
 					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
@@ -183,8 +183,7 @@ public abstract class OperandStackViewPage extends Page {
 			BytecodeVisualizerPlugin.log(status);
 			
 		} else {
-			slm.setMessage(JavaUI.getSharedImages()
-					.getImage(ISharedImages.IMG_OBJS_INFO_TSK),
+			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK),
 					"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
 					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
 		}
