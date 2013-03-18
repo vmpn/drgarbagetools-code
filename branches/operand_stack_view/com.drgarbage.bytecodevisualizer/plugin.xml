@@ -124,4 +124,14 @@
       </stickyView>
    </extension>
    
+   <!-- Compare and Merge Elements -->
+   <extension point="org.eclipse.compare.contentMergeViewers">
+     <viewer
+           class="com.drgarbage.bytecodevisualizer.compare.ClassFileMergeViewerCreator"
+           extensions="class, class_drgarbage"
+           id="com.drgarbage.bytecodevisualizer.compare.ClassFileMergeViewer"
+           label="%ClassFileCompare_label">
+     </viewer>
+   </extension>
+   
 </plugin>
