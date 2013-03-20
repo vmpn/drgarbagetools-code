@@ -46,7 +46,7 @@ public class CoreImg {
 	public static final ImageDescriptor breakpoint_action_icon = ImageDescriptor.createFromFile(CoreImg.class, "brkp_obj.gif");
 	
 	/* operand stack icons */
-	public static final ImageDescriptor operandStackViewIcon_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "operand-stack-16x16.png");
+	public static final ImageDescriptor operandStackViewIcon_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "operand-stack-16x16-2.png");
 	public static final ImageDescriptor operandStackViewIcon_32x32 = ImageDescriptor.createFromFile(CoreImg.class, "operand-stack-32x32.png");
 	public static final ImageDescriptor get_instr_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "get-16x16.png");
 	
