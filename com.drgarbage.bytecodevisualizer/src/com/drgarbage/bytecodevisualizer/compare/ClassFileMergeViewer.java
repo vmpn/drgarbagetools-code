@@ -13,23 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.drgarbage.bytecodevisualizer.compare;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 
 import org.eclipse.compare.CompareConfiguration;
+import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ResourceNode;
 import org.eclipse.compare.contentmergeviewer.IMergeViewerContentProvider;
 import org.eclipse.compare.contentmergeviewer.TextMergeViewer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.DocumentEvent;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.TextViewer;
+import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
@@ -54,9 +70,16 @@ import com.drgarbage.utils.Messages;
  */
 public class ClassFileMergeViewer extends TextMergeViewer{
 
+	protected SourceViewer ansestorSourceViewer = null;
+	protected SourceViewer sourceViewerLeft = null;
+	protected SourceViewer sourceViewerRight = null;
+	
 	public ClassFileMergeViewer(Composite parent,
 			CompareConfiguration configuration) {
 		super(parent, configuration);
+		
+		/* set display string */
+		getControl().setData(CompareUI.COMPARE_VIEWER_TITLE, "Class File Compare");//$NON-NLS-1$
 		
 	}
 	
@@ -74,8 +97,309 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	}
 	
 	/* (non-Javadoc)
+	 * @see org.eclipse.compare.contentmergeviewer.TextMergeViewer#createSourceViewer(org.eclipse.swt.widgets.Composite, int)
+	 */
+	protected SourceViewer createSourceViewer(Composite parent, int textOrientation) {
+		
+		if(ansestorSourceViewer == null){
+			ansestorSourceViewer =  super.createSourceViewer(parent, textOrientation);
+			return ansestorSourceViewer;
+		}
+		if(sourceViewerLeft == null){
+			sourceViewerLeft = createSourceViewerLeft(parent,textOrientation);
+			return sourceViewerLeft;
+		}
+		else if(sourceViewerRight == null){
+			sourceViewerRight = createSourceViewerRight(parent,textOrientation);
+			return sourceViewerRight;
+		}
+
+		return super.createSourceViewer(parent, textOrientation);
+	}
+	
+	
+	/**
+	 * Creates a new left source viewer.
+	 * @param parent
+	 * @param parent
+	 *            the parent of the viewer's control
+	 * @param textOrientation
+	 *            style constant bit for text orientation
+	 */
+	private SourceViewer createSourceViewerLeft(Composite parent, int textOrientation){
+	
+		SourceViewer sourceViewer =  new SourceViewer(parent, 
+				new CompositeRuler(), textOrientation | SWT.H_SCROLL | SWT.V_SCROLL){
+			
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.text.source.SourceViewer#setDocument(org.eclipse.jface.text.IDocument)
+			 */
+			@Override
+			public void setDocument( IDocument document ) { 
+				if( document != null ) {
+					IDocument newDocument = new Document();
+					
+					IJavaElement	elementLetft = getLeftElement();
+					if(elementLetft != null){
+						String s = generateClassFileInput(elementLetft);
+						if(s!= null){
+							newDocument.set(s);
+							newDocument.addDocumentListener(
+									new IDocumentListener(){
+
+										@Override
+										public void documentAboutToBeChanged(
+												DocumentEvent arg0) {
+										}
+
+										@Override
+										public void documentChanged(DocumentEvent arg0) {
+											setLeftDirty(true);
+										}
+
+									});
+						}	
+					}   
+
+					super.setDocument( newDocument );
+				} else {
+					super.setDocument(null);
+				}
+			}
+		};
+		
+		return sourceViewer;
+	}
+
+	/**
+	 * Creates a new right source viewer.
+	 * @param parent
+	 * @param parent
+	 *            the parent of the viewer's control
+	 * @param textOrientation
+	 *            style constant bit for text orientation
+	 */
+	private SourceViewer createSourceViewerRight(Composite parent, int textOrientation){
+		
+		SourceViewer sourceViewer =  new SourceViewer(parent, 
+				new CompositeRuler(), textOrientation | SWT.H_SCROLL | SWT.V_SCROLL){
+
+			/* (non-Javadoc)
+			 * @see org.eclipse.jface.text.source.SourceViewer#setDocument(org.eclipse.jface.text.IDocument)
+			 */
+			@Override
+            public void setDocument( IDocument document ) { 
+				if( document != null ) {
+					IDocument newDocument = new Document();
+					
+					IJavaElement elementRight = getRightElement();
+					if(elementRight != null){
+						String s = generateClassFileInput(elementRight);
+						if(s!= null){
+							newDocument.set(s);
+							newDocument.addDocumentListener(
+									new IDocumentListener(){
+
+										@Override
+										public void documentAboutToBeChanged(
+												DocumentEvent arg0) {
+										}
+
+										@Override
+										public void documentChanged(DocumentEvent arg0) {
+											setRightDirty(true);
+										}
+
+									});
+						}
+					}
+
+					super.setDocument( newDocument );
+				} else {
+                    super.setDocument(null);
+                }
+            }
+		};
+		
+		return sourceViewer;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the content of the left
+	 * source viewer is empty.  
+	 * @return <code>true</code> or <code>false</code>
+	 */
+	protected boolean isContentLeftEmpty(){
+		return (getContentLeft() == null || getContentLeft().equals(""));
+	}
+	
+	/**
+	 * Returns <code>true</code> if the content of the right
+	 * source viewer is empty.  
+	 * @return <code>true</code> or <code>false</code>
+	 */
+	protected boolean isContentRightEmpty(){
+		return (getContentRight() == null || getContentRight().equals(""));
+	}
+	
+	/**
+	 * Returns the contents of the underlying document from the 
+	 * left source viewer using the current workbench encoding.
+	 * 
+	 * @return the contents as an array of bytes or null
+	 */
+	protected byte[] getContentLeft(){
+		return getContents(true);
+	}
+	
+	/**
+	 * Returns the contents of the underlying document from the 
+	 * right source viewer using the current workbench encoding.
+	 * 
+	 * @return the contents as an array of bytes or null
+	 */
+	protected byte[] getContentRight(){
+		return getContents(false);
+	}
+	
+	/**
+	 * Returns the underlying java resource element of the left 
+	 * source viewer.
+	 * @return resource object 
+	 * 
+	 * @see IMergeViewerContentProvider
+	 */
+	protected IJavaElement getLeftElement(){
+		Object input = getInput();
+		IMergeViewerContentProvider content = 
+				(IMergeViewerContentProvider) getContentProvider();
+		Object o = content.getLeftContent(input);
+		if(o instanceof ResourceNode){
+			ResourceNode r = (ResourceNode) o;
+			IJavaElement javaElement = getJavaElementFromResource(r.getResource());
+			return javaElement;
+		}
+		
+		if(o instanceof CompareElement){
+			CompareElement ce = (CompareElement)o;
+			return ce.getJavaElement();
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Returns the underlying java resource element of the right 
+	 * source viewer.
+	 * @return resource object 
+	 * 
+	 * @see IMergeViewerContentProvider
+	 */
+	protected IJavaElement getRightElement(){
+		Object input = getInput();
+		IMergeViewerContentProvider content = 
+				(IMergeViewerContentProvider) getContentProvider();
+		Object o = content.getRightContent(input);
+		if(o instanceof ResourceNode){
+			ResourceNode r = (ResourceNode) o;
+			IJavaElement javaElement = getJavaElementFromResource(r.getResource());
+			return javaElement;
+		}
+		
+		if(o instanceof CompareElement){
+			CompareElement ce = (CompareElement)o;
+			return ce.getJavaElement();
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns an java element if the resource is a java object,
+	 * otherwise <code>null</code>.
+	 * @param resource object
+	 * @return java element
+	 */
+	public static IJavaElement getJavaElementFromResource(IResource res) {
+		if (res instanceof IFile) {
+			return JavaCore.create((IFile)res);
+		} 
+
+		if (res instanceof IJavaElement) {
+			return (IJavaElement)res;
+		} 
+		
+		if (res instanceof IAdaptable) {
+			IAdaptable a = (IAdaptable) res;
+			Object adapter = a.getAdapter(IFile.class);
+			if (adapter instanceof IFile) {
+				return JavaCore.create((IFile)adapter);
+			}
+
+			adapter = a.getAdapter(ICompilationUnit.class);
+			if (adapter instanceof ICompilationUnit) {
+				return (IJavaElement)adapter;
+			}
+
+			adapter = a.getAdapter(IClassFile.class);
+			if (adapter instanceof IClassFile) {
+				return (IJavaElement)adapter;
+			}
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Generates a readable text representation of the class file.
+	 * @param element
+	 * @return string
+	 */
+	private String generateClassFileInput (IJavaElement javaElement){
+		byte[] bytes = null;
+		try {
+			IClassFile classFile = (IClassFile) javaElement
+					.getAncestor(IJavaElement.CLASS_FILE);
+
+			if (classFile == null) {
+				return null;
+			}
+
+			InputStream	stream = new ByteArrayInputStream(classFile.getBytes());
+			int max = stream.available();
+			bytes = new byte[max];
+			for(int i = 0; i < max; i++){
+				bytes[i] = (byte) stream.read();
+			}
+		} catch (CoreException e) {
+			handleException(CoreException.class.getName(), e);
+			Messages.error(CoreException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+			return null;
+		} catch (IOException e) {
+			handleException(IOException.class.getName(), e);
+			Messages.error(IOException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+		} 
+	
+		ClassFileParser cfp = new ClassFileParser();
+		try {
+			String s = cfp.parseClassFile(bytes);
+			return s;
+		} catch (ParseException e) {
+			handleException(ParseException.class.getName(), e);
+			Messages.error(ParseException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+		}
+		
+		return null;
+	}
+	
+	
+	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#flushLeft(org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public void flushLeft(IProgressMonitor monitor) {
 		Object input = getInput();
 		IMergeViewerContentProvider content = (IMergeViewerContentProvider) getContentProvider();
@@ -96,6 +420,7 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#flushRight(org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public void flushRight(IProgressMonitor monitor) {
 		Object input = getInput();
 		IMergeViewerContentProvider content = (IMergeViewerContentProvider) getContentProvider();
@@ -111,6 +436,8 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 			doSaveContent(monitor, bytes, 
 					(ResourceNode) content.getRightContent(input));
 		}
+		
+		
 	}
 	
 	/**
@@ -119,7 +446,7 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	 * @param contentToSave new content
 	 * @param resource the class file has to be saved
 	 */
-	private void doSaveContent(IProgressMonitor monitor, 
+	protected void doSaveContent(IProgressMonitor monitor, 
 			byte[] contentToSave, 
 			ResourceNode resource)
 	{
@@ -148,29 +475,11 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.compare.contentmergeviewer.TextMergeViewer#setupDocument(org.eclipse.jface.text.IDocument)
+	/**
+	 * Simple exception handler.
+	 * @param message
+	 * @param t exception object
 	 */
-	protected void setupDocument(org.eclipse.jface.text.IDocument document) {
-		final byte[] bytes = document.get().getBytes();
-		
-		/* changing the content representation */
-		ClassFileParser cfp = new ClassFileParser();
-		try {
-			String s = cfp.parseClassFile(bytes);
-			document.set(s);
-		} catch (ParseException e) {
-			handleException(ParseException.class.getName(), e);
-			Messages.error(CoreException.class.getName() +
-					CoreMessages.ExceptionAdditionalMessage);
-		}
-		
-		/* call setupDocument to make the new content visible */
-		super.setupDocument(document);
-		setLeftDirty(false);
-		setRightDirty(false);
-	}
-	
 	private void handleException(String message, Throwable t){
 		IStatus status = BytecodeVisualizerPlugin.createErrorStatus(message, t);
 		BytecodeVisualizerPlugin.log(status);
