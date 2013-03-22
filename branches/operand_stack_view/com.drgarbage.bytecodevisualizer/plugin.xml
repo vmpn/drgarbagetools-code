@@ -134,4 +134,86 @@
      </viewer>
    </extension>
    
+   
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            objectClass="org.eclipse.jdt.core.IOpenable"
+            id="com.drgarbage.compare.CompareClassFileActionContribution1">
+
+         <visibility>
+            <or>
+               <objectClass name="org.eclipse.jdt.core.IClassFile"/>
+               <objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
+            </or>
+         </visibility>
+         <menu
+               label="Compare With ..."
+               path="additions"
+               id="compareWithMenu">
+            <separator
+                  name="compareWithGroup">
+            </separator>
+         </menu>
+
+         <action
+               enablesFor="1"
+               label="Another Class File"
+               icon="icons/bytecodeview.gif"
+               class="com.drgarbage.bytecodevisualizer.compare.OpenClassFileAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="com.drgarbage.compare.OpenClassFileAction">
+         </action>
+         <action
+               enablesFor="2"
+               label="Each Other Class File"
+               icon="icons/bytecodeview.gif"
+               class="com.drgarbage.bytecodevisualizer.compare.CompareClassFilesAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="com.drgarbage.compare.CompareClassFileAction">
+         </action>
+       </objectContribution>
+
+      <objectContribution
+            objectClass="org.eclipse.core.resources.IFile"
+            nameFilter="*.class"
+            id="com.drgarbage.compare.CompareBytecodeActionContribution2">
+
+         <visibility>
+            <not>
+             <or>
+                   <objectClass name="org.eclipse.jdt.core.IClassFile"/>
+                   <objectClass name="org.eclipse.jdt.core.ICompilationUnit"/>
+               </or>
+            </not>
+         </visibility>
+         <menu
+               label="Compare With ..."
+               path="additions"
+               id="compareWithMenu">
+            <separator
+                  name="compareWithGroup">
+            </separator>
+         </menu>
+
+         <action
+               enablesFor="1"
+               label="Another Class File"
+               icon="icons/bytecodeview.gif"
+               class="com.drgarbage.bytecodevisualizer.compare.OpenClassFileAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="com.drgarbage.compare.OpenClassFileAction">
+         </action>
+         <action
+               enablesFor="2"
+               label="Each Other Class File"
+               icon="icons/bytecodeview.gif"
+               class="com.drgarbage.bytecodevisualizer.compare.CompareClassFilesAction"
+               menubarPath="compareWithMenu/compareWithGroup"
+               id="com.drgarbage.compare.CompareClassFileAction">
+         </action>
+       </objectContribution>
+   </extension>
+   
+   
 </plugin>
