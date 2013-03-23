@@ -164,7 +164,7 @@ public abstract class OperandStackViewPage extends Page {
 		this.view_ID = view_ID;
 	}
 	
-	private void setMesssageInStatusLine(){ //TODO: sample implementation
+	private void setMesssageInStatusLine(){
 		if(methodInput == null){
 			return;
 		}
@@ -179,7 +179,8 @@ public abstract class OperandStackViewPage extends Page {
 					" is: " + String.valueOf(operandStack.getMaxStackSize()) +
 					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
 			
-			IStatus status = BytecodeVisualizerPlugin.createErrorStatus("Operand Stack under- or overflow in Method: " + methodInput.getDescriptor() + " " + methodInput.getName() +" occurred", null);
+			/* generate a warning */
+			IStatus status = BytecodeVisualizerPlugin.createWarningStatus("Operand Stack under- or overflow in Method: " + methodInput.getDescriptor() + " " + methodInput.getName() +" occurred");
 			BytecodeVisualizerPlugin.log(status);
 			
 		} else {
