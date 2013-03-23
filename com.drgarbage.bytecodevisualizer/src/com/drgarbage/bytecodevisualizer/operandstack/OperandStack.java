@@ -64,10 +64,10 @@ import com.sun.org.apache.bcel.internal.generic.Instruction;
 public class OperandStack implements Opcodes{
 
 	private Stack<OperandStackEntry> stack;
+	private ArrayList<Stack<OperandStackEntry>> possibleStacks;
 	private AbstractConstantPoolEntry[] classConstantPool;
 	private ILocalVariableTable localVariableTable;
 	private IDirectedGraphExt graph;
-	private boolean errorOccured;
 	private int maxStackSize;
 	
 	public IDirectedGraphExt getOperandStackGraph() {
@@ -84,7 +84,6 @@ public class OperandStack implements Opcodes{
 		stack = new Stack<OperandStackEntry>();
 		classConstantPool = cPool;
 		localVariableTable = locVarTable;
-		errorOccured = false;
 		maxStackSize = 0;
 
 		generateOperandStack(instructions);
@@ -174,7 +173,6 @@ public class OperandStack implements Opcodes{
     		
     		node.setVisited(true);
 
-    		
     		IEdgeListExt outList = node.getOutgoingEdgeList();
     		if(outList.size() == 0){
     			return;
@@ -188,11 +186,25 @@ public class OperandStack implements Opcodes{
     		else{ 
     			//TODO extend for special case when two or more possible values can be on the stack 
     			Stack<OperandStackEntry> localStack = new Stack<OperandStackEntry>();
+    			
+    			Stack<OperandStackEntry> referenceStack = new Stack<OperandStackEntry>();
+    			
+    			/* copy stack state for later usage */
+    			referenceStack.addAll(stack);
+    			
+    			
     			for(int i = 0; i < outList.size(); i++){
+    				
     				stack = localStack;
     				IEdgeExt edge = outList.getEdgeExt(i);
     				edge.setVisited(true);
+    				
     				parseGraph(edge.getTarget());
+    				
+    				/* restore the previous stack state */
+    				localStack = new Stack<OperandStackEntry>();
+    				localStack.addAll(referenceStack);
+    				
     			}
     		}
 
@@ -271,6 +283,10 @@ public class OperandStack implements Opcodes{
 		}
 		public String getValue() {
 			return value;
+		}
+		
+		public String toString(){
+			return value + "," + varName;
 		}
     }
     
@@ -763,7 +779,7 @@ public class OperandStack implements Opcodes{
 
 					} catch (IOException e) {
 						handleException(IOException.class.getName(), e);
-						errorOccured = true;
+//						errorOccured = true;
 					}
 
 					
