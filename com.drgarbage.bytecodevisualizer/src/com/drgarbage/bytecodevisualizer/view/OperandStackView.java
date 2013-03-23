@@ -115,7 +115,7 @@ public class OperandStackView extends PageBookView {
 		page = new MessagePage();
         initPage(page);
         page.createControl(book);
-        page.setMessage("OperandStack View is not avaliable");//TODO: define constant for default page
+        page.setMessage("OperandStack View is not available");//TODO: define constant for default page
         
         return page;
 	}
