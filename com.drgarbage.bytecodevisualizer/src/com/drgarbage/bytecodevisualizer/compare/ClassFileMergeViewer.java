@@ -34,9 +34,12 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
@@ -53,6 +56,8 @@ import com.drgarbage.classfile.editors.ClassFileConfiguration;
 import com.drgarbage.classfile.editors.ClassFileParser;
 import com.drgarbage.classfile.editors.ColorManager;
 import com.drgarbage.core.CoreMessages;
+import com.drgarbage.javalang.JavaLangUtils;
+import com.drgarbage.javasrc.JavaSourceUtils;
 import com.drgarbage.utils.Messages;
 
 /**
@@ -360,14 +365,11 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	private String generateClassFileInput (IJavaElement javaElement){
 		byte[] bytes = null;
 		try {
-			IClassFile classFile = (IClassFile) javaElement
-					.getAncestor(IJavaElement.CLASS_FILE);
-
-			if (classFile == null) {
+			InputStream	stream = createStream(javaElement);
+			if(stream == null){
 				return null;
 			}
 
-			InputStream	stream = new ByteArrayInputStream(classFile.getBytes());
 			int max = stream.available();
 			bytes = new byte[max];
 			for(int i = 0; i < max; i++){
@@ -383,7 +385,7 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 			Messages.error(IOException.class.getName() +
 					CoreMessages.ExceptionAdditionalMessage);
 		} 
-	
+
 		ClassFileParser cfp = new ClassFileParser();
 		try {
 			String s = cfp.parseClassFile(bytes);
@@ -393,7 +395,7 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 			Messages.error(ParseException.class.getName() +
 					CoreMessages.ExceptionAdditionalMessage);
 		}
-		
+
 		return null;
 	}
 	
@@ -485,6 +487,41 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	private void handleException(String message, Throwable t){
 		IStatus status = BytecodeVisualizerPlugin.createErrorStatus(message, t);
 		BytecodeVisualizerPlugin.log(status);
+	}
+	
+	public static InputStream createStream(IJavaElement javaElement) throws CoreException{
+		IClassFile classFile = (IClassFile) javaElement
+				.getAncestor(IJavaElement.CLASS_FILE);
+		
+		InputStream	stream = null;
+    	if (classFile != null) {
+    		stream = new ByteArrayInputStream(classFile.getBytes());	
+    	}
+    	else{
+    		if (javaElement.getParent().getElementType() 
+    				== IJavaElement.COMPILATION_UNIT){
+    			IType t = (IType) javaElement;
+    			IJavaProject javaProject = t.getJavaProject();
+    			String fullyQualifiedName = t.getFullyQualifiedName();
+    			String className = JavaSourceUtils.getSimpleName(fullyQualifiedName);
+    			String packageName = JavaSourceUtils.getPackage(fullyQualifiedName);
+
+    			String classPath[] = JavaLangUtils.computeRuntimeClassPath(javaProject);    			
+    			try {
+    				stream = JavaLangUtils.findResource(classPath, packageName, className);
+    			} catch (IOException e) {
+    				throw new CoreException(new Status(IStatus.ERROR, 
+        					BytecodeVisualizerPlugin.PLUGIN_ID, 
+        					e.getMessage(), 
+        					e));
+    			}
+    		}
+    		else{
+    			return null;
+    		}
+    	}
+    	
+    	return stream;
 	}
 	
 }

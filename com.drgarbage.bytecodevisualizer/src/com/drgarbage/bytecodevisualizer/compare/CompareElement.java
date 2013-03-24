@@ -163,16 +163,11 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     /* (non-Javadoc)
      * @see org.eclipse.compare.BufferedContent#createStream()
      */
-    protected InputStream createStream() throws CoreException {
-
-    	IClassFile classFile = (IClassFile) javaElement
-    			.getAncestor(IJavaElement.CLASS_FILE);
-
-    	if (classFile == null) {
-    		return null;
-    	}
-
-    	InputStream	stream = new ByteArrayInputStream(classFile.getBytes());
+    protected InputStream createStream() throws CoreException {    	
+    	InputStream	stream = ClassFileMergeViewer.createStream(javaElement);
+		if(stream == null){
+			return null;
+		}
 
     	if(!type.equals(TYPE_JAVA)){
     		return stream;
