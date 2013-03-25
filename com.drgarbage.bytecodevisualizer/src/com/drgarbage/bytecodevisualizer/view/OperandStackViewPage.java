@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-//import org.eclipse.jdt.ui.ISharedImages;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
@@ -48,6 +45,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 
@@ -203,7 +201,7 @@ public abstract class OperandStackViewPage extends Page {
 			}
 		};
 		showTreeViewAction
-				.setImageDescriptor(CoreImg.bytecodeViewer_16x16); //$NON-NLS-1$ //TODO: make new icon
+				.setImageDescriptor(CoreImg.bytecodeViewIcon_16x16);
 		tbm.add(showTreeViewAction);
 		showTreeViewAction.setChecked(true);
 		
@@ -213,7 +211,7 @@ public abstract class OperandStackViewPage extends Page {
 			}
 		};
 		showBasicBlockViewAction
-				.setImageDescriptor(CoreImg.basicblockViewIcon_16x16); //$NON-NLS-1$ //TODO: make new icon
+				.setImageDescriptor(CoreImg.basicblockViewIcon_16x16);
 		tbm.add(showBasicBlockViewAction);
 		showBasicBlockViewAction.setChecked(false);
 		
@@ -223,7 +221,7 @@ public abstract class OperandStackViewPage extends Page {
 			}
 		};
 		showInstructioneListViewAction
-				.setImageDescriptor(CoreImg.hideMethodAction_16x16); //$NON-NLS-1$ //TODO: make new icon
+				.setImageDescriptor(CoreImg.bytecode_listview_16x16);
 		tbm.add(showInstructioneListViewAction);
 		showInstructioneListViewAction.setChecked(false);
 		
@@ -533,23 +531,23 @@ public abstract class OperandStackViewPage extends Page {
         			if(o != null && o instanceof IInstructionLine){
         				IInstructionLine i = (IInstructionLine)o;
         				
-        				//TODO: create new symbols
         				switch(ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode())){
         					case INodeType.NODE_TYPE_SIMPLE:
-        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        						return CoreImg.roundedrect_instr_16x16.createImage();
         					case INodeType.NODE_TYPE_IF:
-        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_INTERFACE);
+        						return CoreImg.decision_instr_16x16.createImage();
         					case INodeType.NODE_TYPE_RETURN:
+        						return CoreImg.return_instr_16x16.createImage();
         					case INodeType.NODE_TYPE_GOTO_JUMP:
-        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PUBLIC);
+        						return CoreImg.goto_instr_16x16.createImage();
         					case INodeType.NODE_TYPE_SWITCH:
-        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_INTERFACE);
+        						return CoreImg.switch_instr_16x16.createImage();
         					case INodeType.NODE_TYPE_INVOKE:
-        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PUBLIC);
+        						return CoreImg.invoke_instr_16x16.createImage();
         					case INodeType.NODE_TYPE_GET:
         						return CoreImg.get_instr_16x16.createImage();
         					default:
-        						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+        						return CoreImg.roundedrect_instr_16x16.createImage();
         							
         				}
         			}
@@ -646,8 +644,7 @@ public abstract class OperandStackViewPage extends Page {
     	/* fill tree map for synchronization */
     	treeMap = new TreeMap<Integer, Node>();
     	fillTreeMap((Node)input);
-    	
-		//TODO: implement OperandStack here    	
+    	  	
     	BytecodeDocumentProvider byteCodeDocumentProvider = (BytecodeDocumentProvider) editor.getDocumentProvider();
     	if(byteCodeDocumentProvider!= null){
     		IClassFileDocument ic = byteCodeDocumentProvider.getClassFileDocument();
