@@ -57,4 +57,7 @@ public class CoreImg {
 	public static final ImageDescriptor return_instr_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "return-16x16.png");
 	public static final ImageDescriptor bytecode_listview_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "bytecode-listview-16x16.png");
 	
+	/* compare icons */
+	public static final ImageDescriptor classfile_compare_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "classfile-compare-16x16.png");
+	
 }
