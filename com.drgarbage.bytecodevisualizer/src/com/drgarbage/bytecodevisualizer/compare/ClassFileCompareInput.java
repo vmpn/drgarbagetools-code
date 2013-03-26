@@ -14,15 +14,19 @@ import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -31,6 +35,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.PlatformUI;
+
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerConstants;
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.core.img.CoreImg;
 
 /**
  * A compare operation input which can present its results in a compare editor.
@@ -66,6 +74,22 @@ public class ClassFileCompareInput extends CompareEditorInput {
     	super(cc);
         this.left = left;
         this.right = right;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.eclipse.compare.CompareEditorInput#getTitleImage()
+     */
+    public Image getTitleImage() {
+    	ImageRegistry reg = BytecodeVisualizerPlugin.getDefault().getImageRegistry();
+    	if(reg == null){
+    		return super.getTitleImage();
+    	}
+
+    	ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_COMPARE_ACTION);
+    	if(descr == null){
+    		return super.getTitleImage();
+    	}
+    	return descr.createImage();
     }
 
     /**
@@ -244,17 +268,23 @@ public class ClassFileCompareInput extends CompareEditorInput {
 		final SelectionListener selListJavaSource = createSelectionListener();
 		itemJavaSourceCompare.addSelectionListener(selListJavaSource);
 		itemJavaSourceCompare.setText("Java Source Compare");
+		Image img = JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_CUNIT);
+		itemJavaSourceCompare.setImage(img);
+		
 		
 		itemClassFileCompare = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListClassFile = createSelectionListener();
 		itemClassFileCompare.addSelectionListener(selListClassFile);
 		itemClassFileCompare.setText(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE);
+		itemClassFileCompare.setImage(CoreImg.classfile_compare_16x16.createImage());
 		
 		if(left.getType().equals(CompareElement.TYPE_BYTECODE)){
 			itemClassFileCompare.setEnabled(false);
+			itemClassFileCompare.setSelection(true);
 		}
 		else{
 			itemJavaSourceCompare.setEnabled(false);
+			itemJavaSourceCompare.setSelection(true);
 		}
 		
 		// 2. show

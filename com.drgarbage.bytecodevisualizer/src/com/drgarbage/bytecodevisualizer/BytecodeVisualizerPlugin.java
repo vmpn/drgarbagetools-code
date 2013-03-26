@@ -165,6 +165,7 @@ public class BytecodeVisualizerPlugin extends AbstractUIPlugin implements Byteco
     	registerImage(BytecodeVisualizerConstants.IMG16E_STEP_OVER_SINGLE_INSTRUCTION, registry);
     	registerImage(BytecodeVisualizerConstants.IMG16E_STEP_INTO_BYTECODE, registry);
     	registerImage(BytecodeVisualizerConstants.IMG16E_TOGGLE_BREAKPOINT, registry);
+    	registerImage(BytecodeVisualizerConstants.IMG16E_COMPARE_ACTION, registry);
     }
 	
 	private void registerImage(String path, ImageRegistry registry) {
