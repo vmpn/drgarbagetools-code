@@ -38,8 +38,13 @@ public class BytecodeVisualizerMessages extends NLS {
 
 	public static String BytecodeVisualizerPreferencePage_link_File_Associations;
 	
-	/* ClassFile Attributes Preferences */
 	public static String GeneralPreferencePage_title;
+	
+	public static String GeneralPreferencePage_chk_Graph_Panel;
+	public static String GeneralPreferencePage_chk_Render_Graphs;
+	public static String GeneralPreferencePage_view_Graphrendering_deactivated;
+	
+	/* ClassFile Attributes Preferences */
 	public static String GeneralPreferencePage_lbl_Select_class_file_parts;
 	public static String GeneralPreferencePage_chk_Show_Line_Number_Table;
 	public static String GeneralPreferencePage_chk_Show_source_line_numbers;

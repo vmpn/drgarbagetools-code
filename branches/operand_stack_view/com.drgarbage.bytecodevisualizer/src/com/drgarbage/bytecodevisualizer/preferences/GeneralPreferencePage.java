@@ -54,11 +54,19 @@ public class GeneralPreferencePage
 	 * @see org.eclipse.jface.preference.FieldEditorPreferencePage#createFieldEditors()
 	 */
 	protected void createFieldEditors() {
-
-		LabelField fld = new LabelField("Lbl"+ fieldIndex++, BytecodeVisualizerMessages.GeneralPreferencePage_lbl_Select_class_file_parts, getFieldEditorParent());
+		
+		LabelField fld = new LabelField("Lbl"+ fieldIndex++, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Graph_Panel, getFieldEditorParent());
 		addField(fld);
 		
-		BooleanFieldEditor ed = new IndentBooleanFieldEditor(CLASS_FILE_ATTR_SHOW_CONSTANT_POOL, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Show_Constant_Pool, getFieldEditorParent());
+		BooleanFieldEditor ed = new IndentBooleanFieldEditor(GRAPH_PANEL_ATTR_RENDER_GRAPHS, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Render_Graphs, getFieldEditorParent());
+		addField(ed);
+		
+		addVerticalSpace();
+		
+		fld = new LabelField("Lbl"+ fieldIndex++, BytecodeVisualizerMessages.GeneralPreferencePage_lbl_Select_class_file_parts, getFieldEditorParent());
+		addField(fld);
+		
+		ed = new IndentBooleanFieldEditor(CLASS_FILE_ATTR_SHOW_CONSTANT_POOL, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Show_Constant_Pool, getFieldEditorParent());
 		addField(ed);
 		
 		ed = new IndentBooleanFieldEditor(CLASS_FILE_ATTR_SHOW_SOURCE_LINE_NUMBERS, BytecodeVisualizerMessages.GeneralPreferencePage_chk_Show_source_line_numbers, getFieldEditorParent());
