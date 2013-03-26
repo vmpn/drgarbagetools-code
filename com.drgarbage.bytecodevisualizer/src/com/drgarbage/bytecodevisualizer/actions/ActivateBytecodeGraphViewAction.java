@@ -20,7 +20,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.actions.RetargetAction;
 
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
+import com.drgarbage.bytecodevisualizer.preferences.BytecodeVisualizerPreferenceConstats;
 import com.drgarbage.core.img.CoreImg;
 
 
@@ -46,7 +48,20 @@ public class ActivateBytecodeGraphViewAction extends RetargetAction {
 		this.setEnabled(true);
 	}
 
-	
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.action.Action#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean oldVal){
+		final boolean renderGraphs = BytecodeVisualizerPlugin.getDefault().getPreferenceStore().
+		getBoolean(BytecodeVisualizerPreferenceConstats.GRAPH_PANEL_ATTR_RENDER_GRAPHS);
+		if(renderGraphs){
+		  super.setEnabled(oldVal);
+		}
+		else{
+			super.setEnabled(false);
+		}
+	  }
+	  
     /**
      * Invoked when an action occurs. 
      */

@@ -397,17 +397,6 @@ public class BytecodeEditor extends JavaEditor
 	 * Preference property change listener.
 	 */
 	private IPropertyChangeListener preferenceListener = null;
-
-	private Button restrictionDetailsButton;
-	
-	private Label restrictionDetailsDummyPlaceHolder;
-	
-	private Composite restrictionDetailsPanel;
-	
-	private boolean restrictionDetailsVisible = false;
-	
-	/** BCV LT Panel */
-	private Composite restrictionInfoPanel;
 	
 	/**
 	 * Modify property: reuse editor during debugging.
@@ -838,7 +827,6 @@ public class BytecodeEditor extends JavaEditor
 		this.parent = parent;
 
 		parent.setLayout(new FillLayout());
-		this.restrictionInfoPanel = null;
 		this.tabFolder = createTabFolder(parent);
 
 		createPages();
