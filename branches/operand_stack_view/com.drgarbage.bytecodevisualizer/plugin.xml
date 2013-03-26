@@ -112,7 +112,7 @@
             allowMultiple="false"
             category="com.drgabage.bytecodevisualizer.category.controlflowgraph_view"
             class="com.drgarbage.bytecodevisualizer.view.OperandStackView"
-            icon="img/enabled16/operand-stack-16x16-2.png"
+            icon="img/enabled16/operand-stack-16x16.png"
             id="com.drgabage.bytecodevisualizer.view.operandstack_view"
             name="%OperandStackView_title">
       </view>
@@ -159,7 +159,7 @@
          <action
                enablesFor="1"
                label="Another Class File"
-               icon="icons/bytecodeview.gif"
+               icon="img/enabled16/compare-other-class-action-16x16.png"
                class="com.drgarbage.bytecodevisualizer.compare.OpenClassFileAction"
                menubarPath="compareWithMenu/compareWithGroup"
                id="com.drgarbage.compare.OpenClassFileAction">
@@ -167,7 +167,7 @@
          <action
                enablesFor="2"
                label="Each Other Class File"
-               icon="icons/bytecodeview.gif"
+               icon="img/enabled16/compare-action-16x16.png"
                class="com.drgarbage.bytecodevisualizer.compare.CompareClassFilesAction"
                menubarPath="compareWithMenu/compareWithGroup"
                id="com.drgarbage.compare.CompareClassFileAction">
@@ -199,7 +199,7 @@
          <action
                enablesFor="1"
                label="Another Class File"
-               icon="icons/bytecodeview.gif"
+               icon="img/enabled16/compare-other-class-action-16x16.png"
                class="com.drgarbage.bytecodevisualizer.compare.OpenClassFileAction"
                menubarPath="compareWithMenu/compareWithGroup"
                id="com.drgarbage.compare.OpenClassFileAction">
@@ -207,7 +207,7 @@
          <action
                enablesFor="2"
                label="Each Other Class File"
-               icon="icons/bytecodeview.gif"
+               icon="img/enabled16/compare-action-16x16.png"
                class="com.drgarbage.bytecodevisualizer.compare.CompareClassFilesAction"
                menubarPath="compareWithMenu/compareWithGroup"
                id="com.drgarbage.compare.CompareClassFileAction">
