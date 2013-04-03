@@ -154,12 +154,16 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 							newDocument.addDocumentListener(
 									new IDocumentListener(){
 
-										@Override
+										/* (non-Javadoc)
+										 * @see org.eclipse.jface.text.IDocumentListener#documentAboutToBeChanged(org.eclipse.jface.text.DocumentEvent)
+										 */
 										public void documentAboutToBeChanged(
 												DocumentEvent arg0) {
 										}
 
-										@Override
+										/* (non-Javadoc)
+										 * @see org.eclipse.jface.text.IDocumentListener#documentChanged(org.eclipse.jface.text.DocumentEvent)
+										 */
 										public void documentChanged(DocumentEvent arg0) {
 											setLeftDirty(true);
 										}
@@ -207,12 +211,10 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 							newDocument.addDocumentListener(
 									new IDocumentListener(){
 
-										@Override
 										public void documentAboutToBeChanged(
 												DocumentEvent arg0) {
 										}
 
-										@Override
 										public void documentChanged(DocumentEvent arg0) {
 											setRightDirty(true);
 										}

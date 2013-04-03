@@ -46,7 +46,6 @@ public abstract class AbstractCompareClassFileAction implements IObjectActionDel
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)
 	 */
-	@Override
 	public void selectionChanged(IAction action, ISelection newSelection) {
 		if (newSelection instanceof IStructuredSelection) {
 			this.selection = (IStructuredSelection) newSelection;
@@ -56,7 +55,6 @@ public abstract class AbstractCompareClassFileAction implements IObjectActionDel
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.IObjectActionDelegate#setActivePart(org.eclipse.jface.action.IAction, org.eclipse.ui.IWorkbenchPart)
 	 */
-	@Override
 	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
 		/* nothing to do */
 	}

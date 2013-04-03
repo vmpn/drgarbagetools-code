@@ -313,7 +313,6 @@ public class ClassFileCompareInput extends CompareEditorInput {
 			/* (non-Javadoc)
 			 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.events.SelectionEvent)
 			 */
-			@Override
 			public void widgetSelected(SelectionEvent e) {
 				MenuItem mi = (MenuItem) e.widget;
 				if (mi.getSelection()) {
@@ -337,7 +336,6 @@ public class ClassFileCompareInput extends CompareEditorInput {
 			/* (non-Javadoc)
 			 * @see org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.swt.events.SelectionEvent)
 			 */
-			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 				/* nothing to do */
 			}

@@ -726,7 +726,6 @@ public class ClassFileParser {
 		/* (non-Javadoc)
 		 * @see com.drgarbage.asm_ext.IConstantPoolVisitor#visitConstantPool(byte[], int, int)
 		 */
-		@Override
 		public void visitConstantPool(final byte[] bytes, int offset, int entryCount) {
 			if (bytes == null || entryCount == 0) {
 				constantPool = null;
