@@ -32,7 +32,6 @@ public class ClassFileMergeViewerCreator implements IViewerCreator {
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.IViewerCreator#createViewer(org.eclipse.swt.widgets.Composite, org.eclipse.compare.CompareConfiguration)
 	 */
-	@Override
 	public Viewer createViewer(Composite parent, CompareConfiguration config) {
 		return new ClassFileMergeViewer(parent, config);
 	}

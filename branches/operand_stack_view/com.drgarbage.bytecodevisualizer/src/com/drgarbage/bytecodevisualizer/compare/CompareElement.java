@@ -115,7 +115,6 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     /* (non-Javadoc)
      * @see org.eclipse.compare.ITypedElement#getName()
      */
-    @Override
     public String getName() {
         return className;
     }
@@ -131,7 +130,6 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     /* (non-Javadoc)
      * @see org.eclipse.compare.ITypedElement#getType()
      */
-    @Override
     public String getType() {
         return type;
     }
@@ -147,7 +145,6 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     /* (non-Javadoc)
      * @see org.eclipse.compare.ITypedElement#getImage()
      */
-    @Override
     public Image getImage() {
         return CompareUI.getImage("class");
     }
@@ -155,7 +152,6 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     /* (non-Javadoc)
      * @see org.eclipse.compare.structuremergeviewer.IStructureComparator#getChildren()
      */
-    @Override
     public Object[] getChildren() {
         return new CompareElement[0];
     }
@@ -208,7 +204,6 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     			}
 
     			Display.getDefault().syncExec(new Runnable(){
-    				@Override
     				public void run() {
     					setContent(content2);
     				}

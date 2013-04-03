@@ -311,7 +311,6 @@ public abstract class OperandStackViewPage extends Page {
 			/* (non-Javadoc)
 			 * @see com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener#lineSelectionChanged(int, java.lang.Object)
 			 */
-			@Override
 			public void lineSelectionChanged(int newLine, Object o) {
 				if(isTreeViewerSelectionMutex()){
 					setTreeViewerSelectionMutex(false);
@@ -430,7 +429,6 @@ public abstract class OperandStackViewPage extends Page {
 			/* (non-Javadoc)
 			 * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers.SelectionChangedEvent)
 			 */
-			@Override
 			public void selectionChanged(SelectionChangedEvent arg0) {
 				ISelection sel =  arg0.getSelection();
 				if(!sel.isEmpty()){
