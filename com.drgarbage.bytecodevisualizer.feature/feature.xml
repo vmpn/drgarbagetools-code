@@ -44,7 +44,7 @@
          id="com.drgarbage.bytecodevisualizer"
          download-size="200"
          install-size="200"
-         version="4.2.0.qualifier"
+         version="4.2.1.qualifier"
          unpack="false"/>
 
    <plugin
