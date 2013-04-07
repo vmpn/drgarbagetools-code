@@ -421,7 +421,7 @@ public class ByteCodeConstants implements Opcodes {
         OPCODE_OPERANDSTACK_DESCR[OPCODE_LREM] = "remainder of division of two longs";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_FREM] = "get the remainder from a division between two floats";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_DREM] = "get the remainder from a division between two doubles";
-        OPCODE_OPERANDSTACK_DESCR[OPCODE_INEG] = "negate int";
+        OPCODE_OPERANDSTACK_DESCR[OPCODE_INEG] = "negate an int";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_LNEG] = "negate a long";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_FNEG] = "negate a float";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_DNEG] = "negate a double";
@@ -441,7 +441,7 @@ public class ByteCodeConstants implements Opcodes {
         OPCODE_OPERANDSTACK_DESCR[OPCODE_I2L] = "convert an int into a long";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_I2F] = "convert an int into a float";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_I2D] = "convert an int into a double";
-        OPCODE_OPERANDSTACK_DESCR[OPCODE_L2I] = "convert a long to a int";
+        OPCODE_OPERANDSTACK_DESCR[OPCODE_L2I] = "convert a long to an int";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_L2F] = "convert a long to a float";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_L2D] = "convert a long to a double";
         OPCODE_OPERANDSTACK_DESCR[OPCODE_F2I] = "convert a float to an int";
