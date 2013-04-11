@@ -25,8 +25,11 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -203,6 +206,8 @@ public abstract class OperandStackViewPage extends Page {
 		showTreeViewAction
 				.setImageDescriptor(CoreImg.bytecodeViewIcon_16x16);
 		tbm.add(showTreeViewAction);
+		showTreeViewAction.setText("tree view");//TODO: Define constant
+		showTreeViewAction.setToolTipText("tree view");//TODO: Define constant
 		showTreeViewAction.setChecked(true);
 		
 		showBasicBlockViewAction = new Action() {
@@ -213,6 +218,8 @@ public abstract class OperandStackViewPage extends Page {
 		showBasicBlockViewAction
 				.setImageDescriptor(CoreImg.basicblockViewIcon_16x16);
 		tbm.add(showBasicBlockViewAction);
+		showBasicBlockViewAction.setText("basic block view");//TODO: Define constant
+		showBasicBlockViewAction.setToolTipText("basic block view");//TODO: Define constant
 		showBasicBlockViewAction.setChecked(false);
 		
 		showInstructioneListViewAction = new Action() {
@@ -222,14 +229,48 @@ public abstract class OperandStackViewPage extends Page {
 		};
 		showInstructioneListViewAction
 				.setImageDescriptor(CoreImg.bytecode_listview_16x16);
+		showInstructioneListViewAction.setText("instruction list view");//TODO: Define constant
+		showInstructioneListViewAction.setToolTipText("instruction list view");//TODO: Define constant
 		tbm.add(showInstructioneListViewAction);
 		showInstructioneListViewAction.setChecked(false);
 		
 		enableActions(false);
 		
 		tbm.update(true);
+		
+		/* menu */
+		IMenuManager imb = bars.getMenuManager();
+		
+		MenuManager subMenu = new MenuManager("View layout", null);//TODO:constant
+		imb.add(subMenu);
+		
+		
+
+        subMenu.add(showTreeViewAction);
+        subMenu.add(showBasicBlockViewAction);
+        subMenu.add(showInstructioneListViewAction);
+        
+        imb.add(new Separator());
+        
+        IAction a = new Action() {
+			public void run() {
+				if(column4.getWidth() == 0){
+					column4.setWidth(100);
+					column4.setResizable(true);
+				}
+				else{
+					column4.setWidth(0);
+					column4.setResizable(false);
+				}
+			}
+		};
+		a.setText("show colum after");
+		
+		imb.add(a);
 
 	}
+	
+	TreeColumn column4;
 	
 	/**
 	 * Enables or disables the actions.
@@ -402,7 +443,7 @@ public abstract class OperandStackViewPage extends Page {
 	    column3.setText("Operand Stack before");//TODO: define constant
 	    column3.setWidth(100);
 	    
-		TreeColumn column4 = new TreeColumn(tree, SWT.RIGHT);
+		column4 = new TreeColumn(tree, SWT.RIGHT);
 	    column4.setAlignment(SWT.LEFT);
 	    column4.setText("Operand Stack after");//TODO: define constant
 	    column4.setWidth(100);
