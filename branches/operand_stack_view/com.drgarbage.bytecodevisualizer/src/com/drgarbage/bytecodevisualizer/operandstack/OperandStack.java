@@ -23,27 +23,30 @@ import java.util.Stack;
 
 import org.eclipse.core.runtime.IStatus;
 
-import com.drgarbage.asm.render.impl.ClassFileDocument;
-import com.drgarbage.asm.render.impl.LocalVariableTable;
 import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.ILocalVariableTable;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.BytecodeUtils;
-import com.drgarbage.bytecode.LocalVariableTableEntry;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 import com.drgarbage.bytecode.constant_pool.ConstantClassInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantDoubleInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantFieldrefInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantFloatInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantIntegerInfo;
-import com.drgarbage.bytecode.constant_pool.ConstantInvokeDynamicInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantLongInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantMethodrefInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantNameAndTypeInfo;
-import com.drgarbage.bytecode.constant_pool.ConstantReference;
 import com.drgarbage.bytecode.constant_pool.ConstantStringInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantUtf8Info;
-import com.drgarbage.bytecode.instructions.*;
+import com.drgarbage.bytecode.instructions.AbstractInstruction;
+import com.drgarbage.bytecode.instructions.ConstantPoolByteIndexInstruction;
+import com.drgarbage.bytecode.instructions.ConstantPoolShortIndexInstruction;
+import com.drgarbage.bytecode.instructions.IConstantPoolIndexProvider;
+import com.drgarbage.bytecode.instructions.ILocalVariableIndexProvider;
+import com.drgarbage.bytecode.instructions.ImmediateByteInstruction;
+import com.drgarbage.bytecode.instructions.ImmediateShortInstruction;
+import com.drgarbage.bytecode.instructions.MultianewarrayInstruction;
+import com.drgarbage.bytecode.instructions.Opcodes;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -52,28 +55,21 @@ import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.javasrc.JavaLexicalConstants;
-import com.sun.org.apache.bcel.internal.generic.Instruction;
 
 /**
- * Operand Stack View.
+ * Operand Stack Algorithms.
  * 
- * @author Andreas Karoly
+ * @author Andreas Karoly and Sergej Alekseev
  * @version $Revision: 26 $
  * $Id$
  */
 public class OperandStack implements Opcodes{
 
 	private Stack<OperandStackEntry> stack;
-	private ArrayList<Stack<OperandStackEntry>> possibleStacks;
 	private AbstractConstantPoolEntry[] classConstantPool;
 	private ILocalVariableTable localVariableTable;
 	private IDirectedGraphExt graph;
 	private int maxStackSize;
-	
-	public IDirectedGraphExt getOperandStackGraph() {
-		return graph;
-	}
-
 
 	/**
 	 * Creates the operand stack object for the given method.
@@ -87,6 +83,23 @@ public class OperandStack implements Opcodes{
 		maxStackSize = 0;
 
 		generateOperandStack(instructions);
+	}
+	
+	/**
+	 * Returns the transformed graph for displaying the
+	 * stack structure in the operand stack view.
+	 * @return graph
+	 */
+	public IDirectedGraphExt getOperandStackGraph() {
+		return graph;
+	}
+	
+	/**
+	 * getter for the maximum stack size
+	 * @return
+	 */
+	public int getMaxStackSize() {
+		return maxStackSize;
 	}
 	
 	/**
@@ -184,14 +197,11 @@ public class OperandStack implements Opcodes{
     			node = edge.getTarget();
     		}
     		else{ 
-    			//TODO extend for special case when two or more possible values can be on the stack 
     			Stack<OperandStackEntry> localStack = new Stack<OperandStackEntry>();
     			
-    			Stack<OperandStackEntry> referenceStack = new Stack<OperandStackEntry>();
-    			
     			/* copy stack state for later usage */
+    			Stack<OperandStackEntry> referenceStack = new Stack<OperandStackEntry>();
     			referenceStack.addAll(stack);
-    			
     			
     			for(int i = 0; i < outList.size(); i++){
     				
@@ -204,7 +214,6 @@ public class OperandStack implements Opcodes{
     				/* restore the previous stack state */
     				localStack = new Stack<OperandStackEntry>();
     				localStack.addAll(referenceStack);
-    				
     			}
     		}
 
@@ -218,23 +227,29 @@ public class OperandStack implements Opcodes{
      */
     private void calculateOperandStack(INodeExt node, AbstractInstruction i){
     	
+    	Stack<OperandStackEntry> stackBefore = new Stack<OperandStackEntry>();
+    	stackBefore.addAll(stack);
+    	
     	ArrayList<String> stackBeforeAfter = new ArrayList<String>();
     	
     	/* add the current stack snapshot to the List */
     	stackBeforeAfter.add(stackToString());
-
+    	
     	processInstruction(i);
 
     	/* add another stack snapshot to the List after the instruction has been executed */
     	stackBeforeAfter.add(stackToString());
 
-    	
-    	node.setData(stackBeforeAfter);
-    	
-
     	/* update the maxStackSize */
 		int currentStackSize = stack.size();
-		if(currentStackSize > maxStackSize) maxStackSize = currentStackSize;
+		if(currentStackSize > maxStackSize){
+			maxStackSize = currentStackSize;
+		}
+
+		/* assign the property object */
+    	NodeStackProperty prop = new NodeStackProperty(stackBefore, stack);
+//    	node.setData(prop);
+    	node.setData(stackBeforeAfter); 
     }
     
     private String stackToString(){
@@ -244,7 +259,7 @@ public class OperandStack implements Opcodes{
     	for (Enumeration<OperandStackEntry> en = stack.elements(); en.hasMoreElements();){
     		OperandStackEntry ose = en.nextElement();
     		buf.append("(");
-    		buf.append(ose.getVarName());
+    		buf.append(ose.getVarType());
     		buf.append(")");
     		buf.append(ose.getValue());
     		buf.append(", ");
@@ -257,40 +272,12 @@ public class OperandStack implements Opcodes{
     	
     	return buf.toString();
     }
-    
-    /**
-     * The operand stack entry corresponding to the byte code instruction
-     * which has to be pushed onto the stack or popped from the stack.
-     */
-    class OperandStackEntry{
-
-		private int length;
-    	private String varName;
-    	private String value;
-
-    	public OperandStackEntry(int length, String varName, String value) {
-			super();
-			this.length = length;
-			this.varName = varName;
-			this.value = value;
-		}
-    	
-		public int getLength() {
-			return length;
-		}
-		public String getVarName() {
-			return varName;
-		}
-		public String getValue() {
-			return value;
-		}
-		
-		public String toString(){
-			return value + "," + varName;
-		}
-    }
-    
-    
+        
+	/**
+	 * Updates the stack by interpreting the byte code
+	 * operation.  
+	 * @param i byte code instruction
+	 */
 	private void processInstruction(AbstractInstruction i){
 		
 		switch (i.getOpcode()) {
@@ -569,7 +556,7 @@ public class OperandStack implements Opcodes{
 			OperandStackEntry value2 = stack.pop();
 			OperandStackEntry value1 = stack.pop();
 			
-			stack.push(new OperandStackEntry(4, value1.getVarName(), "<" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ">"));
+			stack.push(new OperandStackEntry(4, value1.getVarType(), "<" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ">"));
 			return;
 			
 		/* value1 -> result */				
@@ -578,7 +565,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FNEG:
 		case OPCODE_LNEG:
 			OperandStackEntry negValue = stack.pop();
-			stack.push(new OperandStackEntry(4, negValue.getVarName(), "<-" + negValue.getValue() + ">"));
+			stack.push(new OperandStackEntry(4, negValue.getVarType(), "<-" + negValue.getValue() + ">"));
 			return;
 			
 		/* value1, value2 -> result */
@@ -866,7 +853,7 @@ public class OperandStack implements Opcodes{
 	}
 	
 	/**
-	 * returns the argument name of the given Instruction in the LocalVariableTable
+	 * Returns the argument name of the given Instruction in the LocalVariableTable
 	 * @param i the Instruction to check
 	 * @return ? if the name can't be acquired otherwise returns the name
 	 */
@@ -886,6 +873,12 @@ public class OperandStack implements Opcodes{
 		
 	}
 	
+	/**
+	 * Returns the resolved class name.
+	 * @param i
+	 * @param classConstantPool
+	 * @return class name
+	 */
 	private String getConstantPoolClassName(AbstractInstruction i, AbstractConstantPoolEntry[] classConstantPool){
 		
 		if (i instanceof IConstantPoolIndexProvider) {
@@ -920,42 +913,12 @@ public class OperandStack implements Opcodes{
 		
 		return "?";
 	}
-	
-//	private String resolveMathOperationType(AbstractInstruction i) {
-//		switch (i.getOpcode()) {
-//			case OPCODE_DADD:
-//			case OPCODE_DDIV:
-//			case OPCODE_DMUL:
-//			case OPCODE_DREM:
-//			case OPCODE_DSUB:
-//				return "D";
-//
-//			case OPCODE_IADD:
-//			case OPCODE_IDIV:
-//			case OPCODE_IMUL:
-//			case OPCODE_IREM:
-//			case OPCODE_ISUB:
-//				return "I";
-//
-//			case OPCODE_FADD:
-//			case OPCODE_FDIV:
-//			case OPCODE_FMUL:
-//			case OPCODE_FREM:
-//			case OPCODE_FSUB:
-//				return "F";
-//
-//			case OPCODE_LADD:
-//			case OPCODE_LDIV:
-//			case OPCODE_LMUL:
-//			case OPCODE_LREM:
-//			case OPCODE_LSUB:
-//				return "J";
-//
-//			default:
-//				return "?";
-//		}
-//	}
 
+	/**
+	 * TODO: description
+	 * @param i byte code instruction
+	 * @return math operation string one of +,-,*,/ or %
+	 */
 	private String resolveMathOperation(AbstractInstruction i){
 		switch (i.getOpcode()) {
 			case OPCODE_DADD:
@@ -996,13 +959,79 @@ public class OperandStack implements Opcodes{
 		IStatus status = BytecodeVisualizerPlugin.createErrorStatus(message, t);
 		BytecodeVisualizerPlugin.log(status);
 	}
-
-	/**
-	 * getter for the maximum stack size
-	 * @return
-	 */
-	public int getMaxStackSize() {
-		return maxStackSize;
-	}
 	
+    /**
+     * The operand stack entry corresponding to the byte code instruction
+     * which has to be pushed onto the stack or popped from the stack.
+     */
+    class OperandStackEntry{
+
+		private int length;
+    	private String varType;
+    	private String value;
+
+    	public OperandStackEntry(int length, String varType, String value) {
+			super();
+			this.length = length;
+			this.varType = varType;
+			this.value = value;
+		}
+    	
+		public int getLength() {
+			return length;
+		}
+		public String getVarType() {
+			return varType;
+		}
+		public String getValue() {
+			return value;
+		}
+		
+		public String toString(){
+			return value + "," + varType;
+		}
+    }
+	
+    /**
+     * A property stack class is used for assigning the stack
+     * states to the nodes in the control flow graph.
+     */
+    public class NodeStackProperty {
+    	Stack<OperandStackEntry> stackBefore = new Stack<OperandStackEntry>();		
+    	Stack<OperandStackEntry> stackAfter = new Stack<OperandStackEntry>();
+    	
+		/**
+		 * @param stackBefore
+		 * @param stackAfter
+		 * @param stackSize
+		 * @param varaibaleTypes
+		 */
+		public NodeStackProperty(Stack<OperandStackEntry> stackBefore,
+				Stack<OperandStackEntry> stackAfter) {
+			this.stackBefore.addAll(stackBefore);
+			this.stackAfter.addAll(stackAfter);
+		}
+
+		public Stack<OperandStackEntry> getStackBefore() {
+			return stackBefore;
+		}
+
+		public Stack<OperandStackEntry> getStackAfter() {
+			return stackAfter;
+		}
+
+		public int getStackSize() {
+			return stackAfter.size();
+		}
+
+		public List<String> getVaraibaleTypes() {
+			List<String> varaibaleTypes = new ArrayList<String>();
+			for(int i = 0; i < stackAfter.size(); i++){
+				varaibaleTypes.add(stackAfter.get(i).getVarType());
+			}
+			
+			return varaibaleTypes;
+		}
+    }
+    
 }
