@@ -76,28 +76,35 @@ import com.drgarbage.core.img.CoreImg;
  * $Id$
  */
 public abstract class OperandStackViewPage extends Page {
-	
+
 	/**
 	 * Tree Viewer of the OperandStack view Page.
 	 */
 	private TreeViewer treeViewer;
-	
+
+	/**
+	 * Tree Column of the OperandStack view.
+	 */
+	private TreeColumn column, column3, column4, column5, column6;
+
+
 	/**
 	 * Reference to the selected method instance.
 	 */
 	private IMethodSection methodInput;
-	
+
 	private OperandStack operandStack;
-	
+
 	/* Menu actions */
-	private IAction showTreeViewAction, showBasicBlockViewAction, showInstructioneListViewAction;
-	
+	private IAction showTreeViewAction, showBasicBlockViewAction, showInstructioneListViewAction, 
+	showOSBeforeColumnAction, showOSAfterColumnAction, showDescriptionColumnAction, showOSDepthColumnAction;
+
 	static enum OperandStackView_ID{
 		TREE_VIEW,
 		BASICBKLOCK_VIEW,
 		INSTR_LIST_VIEW;
 	};
-	
+
 	/**
 	 * Kind of the view. The value is one of the  REE_VIEW, 
 	 * BASICBKLOCK_VIEW or INSTR_LIST_VIEW.
@@ -105,25 +112,25 @@ public abstract class OperandStackViewPage extends Page {
 	OperandStackView_ID view_ID = OperandStackView_ID.TREE_VIEW;
 
 	/**
-     * Map of the tree items to the byte code line numbers in the editor.
-     */
+	 * Map of the tree items to the byte code line numbers in the editor.
+	 */
 	private Map<Integer, Node> treeMap;
-    
-    /**
-     * Listener for synchronization of lines with the BCV.
-     */
-    private IClassFileEditorSelectionListener classFileEditorSelectionListener;
-    
-    /**
-     * Use the mutex variable to avoid call backs from the editor view. 
-     */
-     private boolean treeViewerSelectionMutex = false; 
-    
- 	/**
- 	 * Reference to the active byte code editor.
- 	 */
- 	private BytecodeEditor editor;
-     
+
+	/**
+	 * Listener for synchronization of lines with the BCV.
+	 */
+	private IClassFileEditorSelectionListener classFileEditorSelectionListener;
+
+	/**
+	 * Use the mutex variable to avoid call backs from the editor view. 
+	 */
+	private boolean treeViewerSelectionMutex = false; 
+
+	/**
+	 * Reference to the active byte code editor.
+	 */
+	private BytecodeEditor editor;
+
 	private synchronized boolean isTreeViewerSelectionMutex() {
 		return treeViewerSelectionMutex;
 	}
@@ -146,14 +153,14 @@ public abstract class OperandStackViewPage extends Page {
 	 */
 	public TreeViewer getTreeView() {
 		return treeViewer;
-		
+
 	}
-	
-    /**
-     * Returns the current view id, one of the REE_VIEW, BASICBKLOCK_VIEW, INSTR_LIST_VIEW. 
-     * @return view_ID
-     */
-    public OperandStackView_ID getView_ID() {
+
+	/**
+	 * Returns the current view id, one of the REE_VIEW, BASICBKLOCK_VIEW, INSTR_LIST_VIEW. 
+	 * @return view_ID
+	 */
+	public OperandStackView_ID getView_ID() {
 		return view_ID;
 	}
 
@@ -164,26 +171,26 @@ public abstract class OperandStackViewPage extends Page {
 	public void setView_ID(OperandStackView_ID view_ID) {
 		this.view_ID = view_ID;
 	}
-	
+
 	private void setMesssageInStatusLine(){
 		if(methodInput == null){
 			return;
 		}
-		
+
 		IActionBars bars = getSite().getActionBars();
-		
+
 		IStatusLineManager slm = bars.getStatusLineManager();
-		
+
 		if(operandStack.getMaxStackSize() > methodInput.getMaxStack() || operandStack.getMaxStackSize() < methodInput.getMaxStack()){
 			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJS_ERROR_TSK),
 					"max_stack should be: " + String.valueOf(methodInput.getMaxStack()) +
 					" is: " + String.valueOf(operandStack.getMaxStackSize()) +
 					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
-			
+
 			/* generate a warning */
 			IStatus status = BytecodeVisualizerPlugin.createWarningStatus("Operand Stack under- or overflow in Method: " + methodInput.getDescriptor() + " " + methodInput.getName() +" occurred");
 			BytecodeVisualizerPlugin.log(status);
-			
+
 		} else {
 			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK),
 					"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
@@ -197,81 +204,140 @@ public abstract class OperandStackViewPage extends Page {
 
 		IActionBars bars = getSite().getActionBars();
 		IToolBarManager tbm = bars.getToolBarManager();
-		
+
 		showTreeViewAction = new Action() {
 			public void run() {
 				activateView(OperandStackView_ID.TREE_VIEW);
 			}
 		};
 		showTreeViewAction
-				.setImageDescriptor(CoreImg.bytecodeViewIcon_16x16);
+		.setImageDescriptor(CoreImg.bytecodeViewIcon_16x16);
 		tbm.add(showTreeViewAction);
 		showTreeViewAction.setText("tree view");//TODO: Define constant
 		showTreeViewAction.setToolTipText("tree view");//TODO: Define constant
 		showTreeViewAction.setChecked(true);
-		
+
 		showBasicBlockViewAction = new Action() {
 			public void run() {
 				activateView(OperandStackView_ID.BASICBKLOCK_VIEW);
 			}
 		};
 		showBasicBlockViewAction
-				.setImageDescriptor(CoreImg.basicblockViewIcon_16x16);
+		.setImageDescriptor(CoreImg.basicblockViewIcon_16x16);
 		tbm.add(showBasicBlockViewAction);
 		showBasicBlockViewAction.setText("basic block view");//TODO: Define constant
 		showBasicBlockViewAction.setToolTipText("basic block view");//TODO: Define constant
 		showBasicBlockViewAction.setChecked(false);
-		
+
 		showInstructioneListViewAction = new Action() {
 			public void run() {
 				activateView(OperandStackView_ID.INSTR_LIST_VIEW);
 			}
 		};
 		showInstructioneListViewAction
-				.setImageDescriptor(CoreImg.bytecode_listview_16x16);
+		.setImageDescriptor(CoreImg.bytecode_listview_16x16);
 		showInstructioneListViewAction.setText("instruction list view");//TODO: Define constant
 		showInstructioneListViewAction.setToolTipText("instruction list view");//TODO: Define constant
 		tbm.add(showInstructioneListViewAction);
 		showInstructioneListViewAction.setChecked(false);
-		
-		enableActions(false);
-		
-		tbm.update(true);
-		
-		/* menu */
-		IMenuManager imb = bars.getMenuManager();
-		
-		MenuManager subMenu = new MenuManager("View layout", null);//TODO:constant
-		imb.add(subMenu);
-		
-		
 
-        subMenu.add(showTreeViewAction);
-        subMenu.add(showBasicBlockViewAction);
-        subMenu.add(showInstructioneListViewAction);
-        
-        imb.add(new Separator());
-        
-        IAction a = new Action() {
+		enableActions(false);
+
+		tbm.update(true);
+
+		/* menu */
+		final IMenuManager imb = bars.getMenuManager();
+
+		MenuManager subMenu = new MenuManager("View layout", null);//TODO:constant
+		final MenuManager subMenuShowHideColumn = new MenuManager("Hide column(s)",null);//TODO:constant
+		imb.add(subMenu);
+		imb.add(subMenuShowHideColumn);
+
+
+		subMenu.add(showTreeViewAction);
+		subMenu.add(showBasicBlockViewAction);
+		subMenu.add(showInstructioneListViewAction);
+
+		imb.add(new Separator());
+
+		showOSBeforeColumnAction = new Action() {
+			public void run() {
+				if(column3.getWidth() == 0){
+					column3.setWidth(100);
+					column3.setResizable(true);
+					setChecked(false);
+				}
+				else{
+					column3.setWidth(0);
+					column3.setResizable(false);
+					setChecked(true);
+				}
+				subMenuShowHideColumn.update(true);
+			}
+		};
+		showOSBeforeColumnAction.setText("Operand Stack before");//TODO:constant
+
+		showOSAfterColumnAction = new Action() {
 			public void run() {
 				if(column4.getWidth() == 0){
 					column4.setWidth(100);
 					column4.setResizable(true);
+					setChecked(false);
 				}
 				else{
 					column4.setWidth(0);
 					column4.setResizable(false);
+					setChecked(true);
 				}
+				subMenuShowHideColumn.update(true);
 			}
 		};
-		a.setText("show colum after");
-		
-		imb.add(a);
+		showOSAfterColumnAction.setText("Operand Stack after");//TODO:constant
 
+		showDescriptionColumnAction = new Action() {
+			public void run() {
+				if(column5.getWidth() == 0){
+					column5.setWidth(100);
+					column5.setResizable(true);
+					setChecked(false);
+				}
+				else{
+					column5.setWidth(0);
+					column5.setResizable(false);
+					setChecked(true);
+				}
+				subMenuShowHideColumn.update(true);
+			}
+		};
+		showDescriptionColumnAction.setText("Description");//TODO:constant
+
+		showOSDepthColumnAction = new Action() {
+			public void run() {
+				if(column6.getWidth() == 0){
+					column6.setWidth(40);
+					column6.setResizable(true);
+					setChecked(false);
+				}
+				else{
+					column6.setWidth(0);
+					column6.setResizable(false);
+					setChecked(true);
+				}
+				subMenuShowHideColumn.update(true);
+			}
+		};
+		showOSDepthColumnAction.setText("Operand Stack depth");//TODO:constant	
+
+		
+		subMenuShowHideColumn.add(showOSBeforeColumnAction);
+		subMenuShowHideColumn.add(showOSAfterColumnAction);
+		subMenuShowHideColumn.add(showDescriptionColumnAction);
+		subMenuShowHideColumn.add(showOSDepthColumnAction);
+	
 	}
-	
-	TreeColumn column4;
-	
+
+
+
 	/**
 	 * Enables or disables the actions.
 	 * @param b true or false
@@ -281,7 +347,7 @@ public abstract class OperandStackViewPage extends Page {
 		showBasicBlockViewAction.setEnabled(b);
 		showInstructioneListViewAction.setEnabled(b);
 	}
-	
+
 	/**
 	 * Activates selected view
 	 * @param id - id of the view
@@ -303,14 +369,14 @@ public abstract class OperandStackViewPage extends Page {
 			showBasicBlockViewAction.setChecked(false);
 			showInstructioneListViewAction.setChecked(true);
 		}
-		
+
 		/* update input */
 		if(methodInput != null){
 			setView_ID(id);
 			setInput(methodInput.getInstructionLines());
 		}
 	}
-	
+
 	/**
 	 * Sets the input - the list of the byte code instructions
 	 * for the table Viewer. 
@@ -320,11 +386,11 @@ public abstract class OperandStackViewPage extends Page {
 		if(m == null && methodInput == null){
 			return;
 		}
-		
+
 		if(m!= null && m.equals(methodInput)){
 			return;
 		}
-		
+
 		methodInput = m;
 
 		if(methodInput == null){
@@ -335,17 +401,17 @@ public abstract class OperandStackViewPage extends Page {
 			setInput(methodInput.getInstructionLines());
 			enableActions(true);
 		}
-		
+
 		setMesssageInStatusLine();
 	}
-	
+
 	/**
 	 * Set the reference to the active byte code editor.
 	 * @param editor byte code editor
 	 */
 	public void setEditor(BytecodeEditor editor) {
 		this.editor = editor;
-		
+
 		/* Synchronize tree selection with lines in the editor */		
 		classFileEditorSelectionListener = new IClassFileEditorSelectionListener(){
 
@@ -357,21 +423,21 @@ public abstract class OperandStackViewPage extends Page {
 					setTreeViewerSelectionMutex(false);
 					return;
 				}
-				
+
 				if(treeMap == null){
 					return;
 				}
-				
+
 				Node node  = treeMap.get(newLine);
-		    	if(node != null){
-		    		treeViewer.expandToLevel(node, 1);
-		    		Widget w = treeViewer.testFindItem(node);
-		    		if(w != null){
-		    			TreeItem t = (TreeItem)w;
-		    			treeViewer.getTree().select(t);
-		    			treeViewer.refresh(true);
-		    		}
-		    	}
+				if(node != null){
+					treeViewer.expandToLevel(node, 1);
+					Widget w = treeViewer.testFindItem(node);
+					if(w != null){
+						TreeItem t = (TreeItem)w;
+						treeViewer.getTree().select(t);
+						treeViewer.refresh(true);
+					}
+				}
 			}
 		};
 		editor.addtLineSelectionListener(classFileEditorSelectionListener);
@@ -392,7 +458,7 @@ public abstract class OperandStackViewPage extends Page {
 	public void createControl(Composite parent) {		
 		createTreeViewer(parent);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.ui.part.Page#dispose()
 	 */
@@ -419,53 +485,58 @@ public abstract class OperandStackViewPage extends Page {
 	public void setFocus() {
 		treeViewer.getTree().setFocus();
 	}
-	
+
 	/**
 	 * Creates the tree viewer of the operand stack view.
 	 * @param parent composite
 	 */
 	void createTreeViewer(Composite parent){
 		treeViewer = new TreeViewer(parent, SWT.BORDER);
-		
+
 		Tree tree = treeViewer.getTree();
-		TreeColumn column = new TreeColumn(tree, SWT.LEFT, 0);
+		column = new TreeColumn(tree, SWT.LEFT, 0);
 		column.setMoveable(true);
 		column.setText("Bytecode Instruction"); //TODO: define constant
 		column.setWidth(200);
-		
+
 		column = new TreeColumn(tree, SWT.LEFT, 1);
 		column.setMoveable(true);
 		column.setText("Offset");//TODO: define constant
 		column.setWidth(40);
-		
-		TreeColumn column3 = new TreeColumn(tree, SWT.RIGHT);
-	    column3.setAlignment(SWT.LEFT);
-	    column3.setText("Operand Stack before");//TODO: define constant
-	    column3.setWidth(100);
-	    
+
+		column3 = new TreeColumn(tree, SWT.RIGHT);
+		column3.setAlignment(SWT.LEFT);
+		column3.setText("Operand Stack before");//TODO: define constant
+		column3.setWidth(100);
+
 		column4 = new TreeColumn(tree, SWT.RIGHT);
-	    column4.setAlignment(SWT.LEFT);
-	    column4.setText("Operand Stack after");//TODO: define constant
-	    column4.setWidth(100);
-		
-	    TreeColumn column5 = new TreeColumn(tree, SWT.RIGHT);
-	    column5.setAlignment(SWT.LEFT);
-	    column5.setText("Description");//TODO: define constant
-	    column5.setWidth(100);
-	    
+		column4.setAlignment(SWT.LEFT);
+		column4.setText("Operand Stack after");//TODO: define constant
+		column4.setWidth(100);
+
+		column5 = new TreeColumn(tree, SWT.RIGHT);
+		column5.setAlignment(SWT.LEFT);
+		column5.setText("Description");//TODO: define constant
+		column5.setWidth(100);
+
+		column6 = new TreeColumn(tree, SWT.RIGHT);
+		column6.setAlignment(SWT.LEFT);
+		column6.setText("Operand Stack depth");//TODO: define constant
+		column6.setWidth(40);
+
 		tree.setHeaderVisible(true);
-    	tree.setLinesVisible(true);
-    	
-    	int order[] = {1, 0, 2, 3, 4 };//tree.getColumnOrder();
-    	tree.setColumnOrder(order);
-    	
-    	treeViewer.setContentProvider(new TreeViewContentProvider());
-    	treeViewer.setLabelProvider(new TreeTableLabelProvider());
-    	
-        treeViewer.expandAll();
-        
-        /* selection listener for line synchronization */
-        treeViewer.addSelectionChangedListener(new ISelectionChangedListener(){
+		tree.setLinesVisible(true);
+
+		int order[] = {1, 0, 2, 3, 4, 5};//tree.getColumnOrder();
+		tree.setColumnOrder(order);
+
+		treeViewer.setContentProvider(new TreeViewContentProvider());
+		treeViewer.setLabelProvider(new TreeTableLabelProvider());
+
+		treeViewer.expandAll();
+
+		/* selection listener for line synchronization */
+		treeViewer.addSelectionChangedListener(new ISelectionChangedListener(){
 
 			/* (non-Javadoc)
 			 * @see org.eclipse.jface.viewers.ISelectionChangedListener#selectionChanged(org.eclipse.jface.viewers.SelectionChangedEvent)
@@ -475,16 +546,16 @@ public abstract class OperandStackViewPage extends Page {
 				if(!sel.isEmpty()){
 					/* set a mutex to avoid the call back from the editor */
 					setTreeViewerSelectionMutex(true);
-					
+
 					TreeSelection treeSel = (TreeSelection) sel;
 					Node n = (Node)treeSel.getFirstElement();
 					Object o = n.getObject();
-					
+
 					if(o instanceof IInstructionLine){
 						IInstructionLine i = (IInstructionLine)o;
 						editor.selectLineAndRevaluate2(i.getLine());
 					}
-					
+
 					if(o instanceof String){ /* use parent of the true, false or switch value nodes */
 						IInstructionLine i = (IInstructionLine)n.getParent().getObject();
 						if(i != null){
@@ -493,256 +564,256 @@ public abstract class OperandStackViewPage extends Page {
 					}
 				}
 			}
-        });
-    	
-     }
-	
-    /**
-     * Content provider for the operand stack view.
-     */
-    class TreeViewContentProvider implements ITreeContentProvider{
-    	
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
-         */
-        public Object[] getChildren(Object parentElement){
-           if (parentElement instanceof Node){
-        	   return ((Node)parentElement).getChildren().toArray();
-           }
+		});
 
-           return new Object[0];
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
-         */
-        public Object getParent(Object element){
-        	if (element instanceof Node){
-         	   return ((Node)element).getParent();
-            }
+	}
 
-           return null;
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
-         */
-        public boolean hasChildren(Object element){
-        	if (element instanceof Node){
-          	   return ((Node)element).hasChildren();
-             }
-        	
-           return false;
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.ITreeContentProvider#getElements(java.lang.Object)
-         */
-        public Object[] getElements(Object nodes){
-        	return getChildren(nodes);
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IContentProvider#dispose()
-         */
-        public void dispose(){
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
-         */
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput){
-        }
-     }
-    
-    /**
-     * Label provider for the operand stack view
-     */
-    class TreeTableLabelProvider implements ITableLabelProvider{
-    	   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
-         */
-        public Image getColumnImage(Object element, int columnIndex){
-        	if (columnIndex == 0) {
-        		if(element instanceof Node){
-        			Object o = ((Node)element).getObject();
-        			if(o != null && o instanceof IInstructionLine){
-        				IInstructionLine i = (IInstructionLine)o;
-        				
-        				switch(ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode())){
-        					case INodeType.NODE_TYPE_SIMPLE:
-        						return CoreImg.roundedrect_instr_16x16.createImage();
-        					case INodeType.NODE_TYPE_IF:
-        						return CoreImg.decision_instr_16x16.createImage();
-        					case INodeType.NODE_TYPE_RETURN:
-        						return CoreImg.return_instr_16x16.createImage();
-        					case INodeType.NODE_TYPE_GOTO_JUMP:
-        						return CoreImg.goto_instr_16x16.createImage();
-        					case INodeType.NODE_TYPE_SWITCH:
-        						return CoreImg.switch_instr_16x16.createImage();
-        					case INodeType.NODE_TYPE_INVOKE:
-        						return CoreImg.invoke_instr_16x16.createImage();
-        					case INodeType.NODE_TYPE_GET:
-        						return CoreImg.get_instr_16x16.createImage();
-        					default:
-        						return CoreImg.roundedrect_instr_16x16.createImage();
-        							
-        				}
-        			}
-        			if(o instanceof String){
-        				return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PROTECTED);
-        			}
-        		}
-        		
-        		return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
+	/**
+	 * Content provider for the operand stack view.
+	 */
+	class TreeViewContentProvider implements ITreeContentProvider{
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ITreeContentProvider#getChildren(java.lang.Object)
+		 */
+		public Object[] getChildren(Object parentElement){
+			if (parentElement instanceof Node){
+				return ((Node)parentElement).getChildren().toArray();
+			}
+
+			return new Object[0];
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ITreeContentProvider#getParent(java.lang.Object)
+		 */
+		public Object getParent(Object element){
+			if (element instanceof Node){
+				return ((Node)element).getParent();
+			}
+
+			return null;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ITreeContentProvider#hasChildren(java.lang.Object)
+		 */
+		public boolean hasChildren(Object element){
+			if (element instanceof Node){
+				return ((Node)element).hasChildren();
+			}
+
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ITreeContentProvider#getElements(java.lang.Object)
+		 */
+		public Object[] getElements(Object nodes){
+			return getChildren(nodes);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.IContentProvider#dispose()
+		 */
+		public void dispose(){
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.IContentProvider#inputChanged(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
+		 */
+		public void inputChanged(Viewer viewer, Object oldInput, Object newInput){
+		}
+	}
+
+	/**
+	 * Label provider for the operand stack view
+	 */
+	class TreeTableLabelProvider implements ITableLabelProvider{
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object, int)
+		 */
+		public Image getColumnImage(Object element, int columnIndex){
+			if (columnIndex == 0) {
+				if(element instanceof Node){
+					Object o = ((Node)element).getObject();
+					if(o != null && o instanceof IInstructionLine){
+						IInstructionLine i = (IInstructionLine)o;
+
+						switch(ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode())){
+						case INodeType.NODE_TYPE_SIMPLE:
+							return CoreImg.roundedrect_instr_16x16.createImage();
+						case INodeType.NODE_TYPE_IF:
+							return CoreImg.decision_instr_16x16.createImage();
+						case INodeType.NODE_TYPE_RETURN:
+							return CoreImg.return_instr_16x16.createImage();
+						case INodeType.NODE_TYPE_GOTO_JUMP:
+							return CoreImg.goto_instr_16x16.createImage();
+						case INodeType.NODE_TYPE_SWITCH:
+							return CoreImg.switch_instr_16x16.createImage();
+						case INodeType.NODE_TYPE_INVOKE:
+							return CoreImg.invoke_instr_16x16.createImage();
+						case INodeType.NODE_TYPE_GET:
+							return CoreImg.get_instr_16x16.createImage();
+						default:
+							return CoreImg.roundedrect_instr_16x16.createImage();
+
+						}
+					}
+					if(o instanceof String){
+						return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_PROTECTED);
+					}
+				}
+
+				return JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_LOCAL_VARIABLE);
 			}
 			return null;
-        }
+		}
 
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
-         */
-        public String getColumnText(Object element, int columnIndex){
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang.Object, int)
+		 */
+		public String getColumnText(Object element, int columnIndex){
 
-        	if(element instanceof Node){
-        		Node node = (Node)element;
-        		Object o = node.getObject();
-        		if(o != null && o instanceof IInstructionLine){
-        			IInstructionLine i = (IInstructionLine)o;
+			if(element instanceof Node){
+				Node node = (Node)element;
+				Object o = node.getObject();
+				if(o != null && o instanceof IInstructionLine){
+					IInstructionLine i = (IInstructionLine)o;
 
-        			if (columnIndex == 0) {
-        				return i.getInstruction().getOpcodeMnemonic();
-        			}
-        			else if (columnIndex == 1) {							
-        				return String.valueOf(i.getInstruction().getOffset());
-        			}
-        			else if (columnIndex == 2) { /* operand stack before */
-        				return node.getOperandStackBefore();
-        			}
-        			else if (columnIndex == 3) { /* operand stack after*/
-        				return node.getOperandStackAfter();
-        			}
-        			else if (columnIndex == 4) { /* opcode description   */
-        				return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
-        			}
-        			
-        		}
-        		else{
-        			if (columnIndex == 0) {
-        				return o.toString();
-        			}
-        			else{
-        				return "";
-        			}
-        		}
-        	}
-        	
+					if (columnIndex == 0) {
+						return i.getInstruction().getOpcodeMnemonic();
+					}
+					else if (columnIndex == 1) {							
+						return String.valueOf(i.getInstruction().getOffset());
+					}
+					else if (columnIndex == 2) { /* operand stack before */
+						return node.getOperandStackBefore();
+					}
+					else if (columnIndex == 3) { /* operand stack after*/
+						return node.getOperandStackAfter();
+					}
+					else if (columnIndex == 4) { /* opcode description   */
+						return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
+					}
+
+				}
+				else{
+					if (columnIndex == 0) {
+						return o.toString();
+					}
+					else{
+						return "";
+					}
+				}
+			}
+
 			return BytecodeVisualizerMessages.OperandStackView_Unknown;
-        	
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
-         */
-        public void addListener(ILabelProviderListener listener){
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IBaseLabelProvider#dispose()
-         */
-        public void dispose(){
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
-         */
-        public boolean isLabelProperty(Object element, String property){
-           return false;
-        }
-   
-        /* (non-Javadoc)
-         * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
-         */
-        public void removeListener(ILabelProviderListener listener){
-        }
-     }		
-    
-    /**
-     * Sets input of the tree viewer.
-     * @param instructions list of byte code instructions
-     * @param id kind of the view
-     */
-    private void setInput(List<IInstructionLine> instructions){
-    	Object input = generateInput(instructions, view_ID);
 
-    	if(input == null){
-    		return;
-    	}
-    	
-    	/* fill tree map for synchronization */
-    	treeMap = new TreeMap<Integer, Node>();
-    	fillTreeMap((Node)input);
-    	  	
-    	BytecodeDocumentProvider byteCodeDocumentProvider = (BytecodeDocumentProvider) editor.getDocumentProvider();
-    	if(byteCodeDocumentProvider!= null){
-    		IClassFileDocument ic = byteCodeDocumentProvider.getClassFileDocument();
+		}
 
-    		/* when the methodInput changes, a new stack is generated */
-    		/* later, we can add the reference to the previous stack to the new stack */
-    		operandStack = new OperandStack(instructions, ic.getConstantPool(), methodInput.getLocalVariableTable());
-    		INodeListExt nodeList = operandStack.getOperandStackGraph().getNodeList();
-    		for(int i = 0; i < nodeList.size(); i++){
-    			INodeExt n = nodeList.getNodeExt(i);
-    			Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
-    			if(node != null){
-    				Object stackList = n.getData();
-    				if(stackList instanceof ArrayList<?>){ //TODO: Optimize display options
-    					node.setOperandStackBefore((String) ((ArrayList) stackList).get(0));
-    					node.setOperandStackAfter((String) ((ArrayList) stackList).get(1));
-    				}
-    				else{
-    					node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
-    					node.setOperandStackAfter(BytecodeVisualizerMessages.OperandStackView_Unknown);
-    				}
-    			}
-    		}
-    	}
-    	
-    	treeViewer.setInput(input);
-    	treeViewer.expandAll();
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.jface.viewers.ILabelProviderListener)
+		 */
+		public void addListener(ILabelProviderListener listener){
+		}
 
-    	/* set current selection */
-    	int newLine = editor.getSelectedLine();
-    	Node node  = treeMap.get(newLine);
-    	if(node != null){
-    		Widget w = treeViewer.testFindItem(node);
-    		if(w != null){
-    			TreeItem t = (TreeItem)w;
-    			treeViewer.getTree().select(t);
-    			treeViewer.refresh(true);
-    		}
-    	}
-    }
-    
-    private void fillTreeMap(Node root){
-    	for(Node n: root.getChildren()){
-    		fillTreeMap(n);
-    		Object nodeObj = n.getObject();
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.IBaseLabelProvider#dispose()
+		 */
+		public void dispose(){
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang.Object, java.lang.String)
+		 */
+		public boolean isLabelProperty(Object element, String property){
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse.jface.viewers.ILabelProviderListener)
+		 */
+		public void removeListener(ILabelProviderListener listener){
+		}
+	}		
+
+	/**
+	 * Sets input of the tree viewer.
+	 * @param instructions list of byte code instructions
+	 * @param id kind of the view
+	 */
+	private void setInput(List<IInstructionLine> instructions){
+		Object input = generateInput(instructions, view_ID);
+
+		if(input == null){
+			return;
+		}
+
+		/* fill tree map for synchronization */
+		treeMap = new TreeMap<Integer, Node>();
+		fillTreeMap((Node)input);
+
+		BytecodeDocumentProvider byteCodeDocumentProvider = (BytecodeDocumentProvider) editor.getDocumentProvider();
+		if(byteCodeDocumentProvider!= null){
+			IClassFileDocument ic = byteCodeDocumentProvider.getClassFileDocument();
+
+			/* when the methodInput changes, a new stack is generated */
+			/* later, we can add the reference to the previous stack to the new stack */
+			operandStack = new OperandStack(instructions, ic.getConstantPool(), methodInput.getLocalVariableTable());
+			INodeListExt nodeList = operandStack.getOperandStackGraph().getNodeList();
+			for(int i = 0; i < nodeList.size(); i++){
+				INodeExt n = nodeList.getNodeExt(i);
+				Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
+				if(node != null){
+					Object stackList = n.getData();
+					if(stackList instanceof ArrayList<?>){ //TODO: Optimize display options
+						node.setOperandStackBefore((String) ((ArrayList) stackList).get(0));
+						node.setOperandStackAfter((String) ((ArrayList) stackList).get(1));
+					}
+					else{
+						node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
+						node.setOperandStackAfter(BytecodeVisualizerMessages.OperandStackView_Unknown);
+					}
+				}
+			}
+		}
+
+		treeViewer.setInput(input);
+		treeViewer.expandAll();
+
+		/* set current selection */
+		int newLine = editor.getSelectedLine();
+		Node node  = treeMap.get(newLine);
+		if(node != null){
+			Widget w = treeViewer.testFindItem(node);
+			if(w != null){
+				TreeItem t = (TreeItem)w;
+				treeViewer.getTree().select(t);
+				treeViewer.refresh(true);
+			}
+		}
+	}
+
+	private void fillTreeMap(Node root){
+		for(Node n: root.getChildren()){
+			fillTreeMap(n);
+			Object nodeObj = n.getObject();
 			if(nodeObj instanceof IInstructionLine){
 				IInstructionLine i = (IInstructionLine) nodeObj;				
 				treeMap.put(i.getLine(), n);
 			}
-    	}
-      }
-    
-    /**
-     * Creates the tree structure for the operand stack view.
-     * @param instructions list of instructions
-     * @param id kind of the view
-     * @return the tree structure
-     */
-    protected abstract  Object  generateInput(List<IInstructionLine> instructions, OperandStackView_ID id);
+		}
+	}
+
+	/**
+	 * Creates the tree structure for the operand stack view.
+	 * @param instructions list of instructions
+	 * @param id kind of the view
+	 * @return the tree structure
+	 */
+	protected abstract  Object  generateInput(List<IInstructionLine> instructions, OperandStackView_ID id);
 
 	/**
 	 * Element of the operand stack view structure.
@@ -788,11 +859,11 @@ public abstract class OperandStackViewPage extends Page {
 		public boolean hasChildren() {
 			return children.size() > 0 ;
 		}
-		
+
 		public String getOperandStackBefore() {
 			return operandStackBefore;
 		}
-		
+
 		public String getOperandStackAfter() {
 			return operandStackAfter;
 		}
@@ -800,7 +871,7 @@ public abstract class OperandStackViewPage extends Page {
 		public void setOperandStackBefore(String operandStack) {
 			this.operandStackBefore = operandStack;
 		}
-		
+
 		public void setOperandStackAfter(String operandStack) {
 			this.operandStackAfter = operandStack;
 		}
