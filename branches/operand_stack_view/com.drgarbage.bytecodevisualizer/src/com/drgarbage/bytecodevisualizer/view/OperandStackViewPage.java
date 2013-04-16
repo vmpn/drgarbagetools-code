@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
@@ -63,7 +64,7 @@ import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.NodeStackProperty;
-import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackView;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackRepresenation;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
@@ -183,18 +184,21 @@ public abstract class OperandStackViewPage extends Page {
 
 		IStatusLineManager slm = bars.getStatusLineManager();
 
-		if(operandStack.getMaxStackSize() > methodInput.getMaxStack() || operandStack.getMaxStackSize() < methodInput.getMaxStack()){
-			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJS_ERROR_TSK),
+		if(operandStack.getMaxStackSize() > methodInput.getMaxStack() 
+				|| operandStack.getMaxStackSize() < methodInput.getMaxStack()){
+			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK),
 					"max_stack should be: " + String.valueOf(methodInput.getMaxStack()) +
 					" is: " + String.valueOf(operandStack.getMaxStackSize()) +
 					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
-
-			/* generate a warning */
-			IStatus status = BytecodeVisualizerPlugin.createWarningStatus("Operand Stack under- or overflow in Method: " + methodInput.getDescriptor() + " " + methodInput.getName() +" occurred");
-			BytecodeVisualizerPlugin.log(status);
-
 		} else {
-			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(org.eclipse.ui.ISharedImages.IMG_OBJS_INFO_TSK),
+			/* 
+			 * DO NOT DELETE THIS LINE. 
+			 * This is probably a bug in the StatusLineManeger implementation.
+			 * The setMessage() is first visible if the error message has 
+			 * been cleaned by the setErrorMessage(""); 
+			 */
+			slm.setErrorMessage("");
+			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK),
 					"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
 					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
 		}
@@ -335,9 +339,55 @@ public abstract class OperandStackViewPage extends Page {
 		subMenuShowHideColumn.add(showOSDepthColumnAction);
 		subMenuShowHideColumn.add(showDescriptionColumnAction);
 	
+		//TODO: implement actions
+		imb.add(new Action() {
+			public void run() {
+				opstackRepresenationFormat = OpstackRepresenation.ALL;
+
+				/* update input */
+				if(methodInput != null){
+					setInput(methodInput.getInstructionLines());
+				}
+			}
+			
+			public String getText(){
+				return "Format ALL";
+			}
+		});
+		
+		imb.add(new Action() {
+			public void run() {
+				opstackRepresenationFormat = OpstackRepresenation.SIMPLE;
+
+				/* update input */
+				if(methodInput != null){
+					setInput(methodInput.getInstructionLines());
+				}
+			}
+			
+			public String getText(){
+				return "Format SIMPLE";
+			}
+		});
+		
+		imb.add(new Action() {
+			public void run() {
+					opstackRepresenationFormat = OpstackRepresenation.TYPES;
+				
+				
+				/* update input */
+				if(methodInput != null){
+					setInput(methodInput.getInstructionLines());
+				}
+			}
+			
+			public String getText(){
+				return "Format TYPES";
+			}
+		});
 	}
-
-
+	
+	private OpstackRepresenation opstackRepresenationFormat = OpstackRepresenation.ALL;
 
 	/**
 	 * Enables or disables the actions.
@@ -774,9 +824,19 @@ public abstract class OperandStackViewPage extends Page {
 					Object obj = n.getData();
 					if(obj instanceof NodeStackProperty){
 						NodeStackProperty nsp = (NodeStackProperty)obj;
-						node.setOperandStackBefore(operandStack.stackToString(nsp.getStackBefore()));
-						node.setOperandStackAfter(operandStack.stackToString(nsp.getStackAfter()));
-						
+						if(opstackRepresenationFormat == OpstackRepresenation.SIMPLE){
+							node.setOperandStackBefore(OperandStack.stackToString(OperandStack.getStackBefore(n).get(0)));
+							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0)));
+						}
+						else if(opstackRepresenationFormat == OpstackRepresenation.ALL){
+							node.setOperandStackBefore(OperandStack.stackListToString(OperandStack.getStackBefore(n)));
+							node.setOperandStackAfter(OperandStack.stackListToString(nsp.getStackAfter()));							
+						}
+						else{
+							node.setOperandStackBefore(OperandStack.stackToString(OperandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
+							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0), OpstackRepresenation.TYPES));
+						}
+
 						node.setDepth(nsp.getStackSize());
 					}
 					else{
