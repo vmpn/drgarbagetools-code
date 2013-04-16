@@ -62,6 +62,8 @@ import com.drgarbage.bytecodevisualizer.editors.BytecodeDocumentProvider;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.NodeStackProperty;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackView;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
@@ -294,10 +296,10 @@ public abstract class OperandStackViewPage extends Page {
 		};
 		showOSAfterColumnAction.setText("Operand Stack after");//TODO:constant
 
-		showDescriptionColumnAction = new Action() {
+		showOSDepthColumnAction = new Action() {
 			public void run() {
 				if(column5.getWidth() == 0){
-					column5.setWidth(100);
+					column5.setWidth(40);
 					column5.setResizable(true);
 					setChecked(false);
 				}
@@ -309,12 +311,12 @@ public abstract class OperandStackViewPage extends Page {
 				subMenuShowHideColumn.update(true);
 			}
 		};
-		showDescriptionColumnAction.setText("Description");//TODO:constant
+		showOSDepthColumnAction.setText("Operand Stack depth");//TODO:constant	
 
-		showOSDepthColumnAction = new Action() {
+		showDescriptionColumnAction = new Action() {
 			public void run() {
 				if(column6.getWidth() == 0){
-					column6.setWidth(40);
+					column6.setWidth(100);
 					column6.setResizable(true);
 					setChecked(false);
 				}
@@ -326,13 +328,12 @@ public abstract class OperandStackViewPage extends Page {
 				subMenuShowHideColumn.update(true);
 			}
 		};
-		showOSDepthColumnAction.setText("Operand Stack depth");//TODO:constant	
-
+		showDescriptionColumnAction.setText("Description");//TODO:constant
 		
 		subMenuShowHideColumn.add(showOSBeforeColumnAction);
 		subMenuShowHideColumn.add(showOSAfterColumnAction);
-		subMenuShowHideColumn.add(showDescriptionColumnAction);
 		subMenuShowHideColumn.add(showOSDepthColumnAction);
+		subMenuShowHideColumn.add(showDescriptionColumnAction);
 	
 	}
 
@@ -516,12 +517,12 @@ public abstract class OperandStackViewPage extends Page {
 
 		column5 = new TreeColumn(tree, SWT.RIGHT);
 		column5.setAlignment(SWT.LEFT);
-		column5.setText("Description");//TODO: define constant
+		column5.setText("Operand Stack depth");//TODO: define constant
 		column5.setWidth(100);
 
 		column6 = new TreeColumn(tree, SWT.RIGHT);
 		column6.setAlignment(SWT.LEFT);
-		column6.setText("Operand Stack depth");//TODO: define constant
+		column6.setText("Description");//TODO: define constant
 		column6.setWidth(40);
 
 		tree.setHeaderVisible(true);
@@ -691,10 +692,13 @@ public abstract class OperandStackViewPage extends Page {
 					else if (columnIndex == 2) { /* operand stack before */
 						return node.getOperandStackBefore();
 					}
-					else if (columnIndex == 3) { /* operand stack after*/
+					else if (columnIndex == 3) { /* operand stack after */
 						return node.getOperandStackAfter();
 					}
-					else if (columnIndex == 4) { /* opcode description   */
+					else if (columnIndex == 4) { /* stack depth */
+						return String.valueOf(node.getDepth());
+					}
+					else if (columnIndex == 5) { /* opcode description   */
 						return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
 					}
 
@@ -767,10 +771,13 @@ public abstract class OperandStackViewPage extends Page {
 				INodeExt n = nodeList.getNodeExt(i);
 				Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
 				if(node != null){
-					Object stackList = n.getData();
-					if(stackList instanceof ArrayList<?>){ //TODO: Optimize display options
-						node.setOperandStackBefore((String) ((ArrayList) stackList).get(0));
-						node.setOperandStackAfter((String) ((ArrayList) stackList).get(1));
+					Object obj = n.getData();
+					if(obj instanceof NodeStackProperty){
+						NodeStackProperty nsp = (NodeStackProperty)obj;
+						node.setOperandStackBefore(operandStack.stackToString(nsp.getStackBefore()));
+						node.setOperandStackAfter(operandStack.stackToString(nsp.getStackAfter()));
+						
+						node.setDepth(nsp.getStackSize());
 					}
 					else{
 						node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
@@ -823,6 +830,7 @@ public abstract class OperandStackViewPage extends Page {
 		List<Node> children = new ArrayList<Node>();
 		Object obj;
 		String operandStackBefore, operandStackAfter;
+		int depth;
 
 		public Object getObject() {
 			return obj;
@@ -846,6 +854,10 @@ public abstract class OperandStackViewPage extends Page {
 
 		public List<Node> getChildren() {
 			return children;
+		}
+
+		public int getDepth() {
+			return depth;
 		}
 
 		public void setChildren(List<Node> children) {
@@ -874,6 +886,10 @@ public abstract class OperandStackViewPage extends Page {
 
 		public void setOperandStackAfter(String operandStack) {
 			this.operandStackAfter = operandStack;
+		}
+		
+		public void setDepth(int depth) {
+			this.depth = depth;
 		}
 	}
 }

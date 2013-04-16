@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
+import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IStatus;
 
@@ -48,6 +50,7 @@ import com.drgarbage.bytecode.instructions.ImmediateShortInstruction;
 import com.drgarbage.bytecode.instructions.MultianewarrayInstruction;
 import com.drgarbage.bytecode.instructions.Opcodes;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OperandStackEntry;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
@@ -65,19 +68,23 @@ import com.drgarbage.javasrc.JavaLexicalConstants;
  */
 public class OperandStack implements Opcodes{
 
-	private Stack<OperandStackEntry> stack;
 	private AbstractConstantPoolEntry[] classConstantPool;
 	private ILocalVariableTable localVariableTable;
 	private IDirectedGraphExt graph;
 	private int maxStackSize;
+	
+    public static enum OpstackView{
+    	SIMPLE,
+    	TYPES,
+    	ALL;
+    };
 
 	/**
 	 * Creates the operand stack object for the given method.
 	 * @param cPool reference to the constant pool of the class
 	 * @param instructions byte code instructions of the method 
 	 */
-	public OperandStack(List<IInstructionLine> instructions, AbstractConstantPoolEntry[] cPool, ILocalVariableTable locVarTable){		
-		stack = new Stack<OperandStackEntry>();
+	public OperandStack(List<IInstructionLine> instructions, AbstractConstantPoolEntry[] cPool, ILocalVariableTable locVarTable){
 		classConstantPool = cPool;
 		localVariableTable = locVarTable;
 		maxStackSize = 0;
@@ -114,8 +121,9 @@ public class OperandStack implements Opcodes{
 		
 		/* parse the graph */
 		List<INodeExt> listOfStartNodes = getAllStartNodes(graph);
-		for(INodeExt n: listOfStartNodes)
+		for(INodeExt n: listOfStartNodes){
 			parseGraph(n);
+		}
 		
 	}
 	
@@ -180,8 +188,8 @@ public class OperandStack implements Opcodes{
     		if(o instanceof IInstructionLine){
     			IInstructionLine iLine = (IInstructionLine) o;
     			node.setCounter(iLine.getLine()); /* use counter attribute to save line numbers */
+    			
     			calculateOperandStack(node, iLine.getInstruction());
-   
     		}
     		
     		node.setVisited(true);
@@ -196,24 +204,12 @@ public class OperandStack implements Opcodes{
     			edge.setVisited(true);
     			node = edge.getTarget();
     		}
-    		else{ 
-    			Stack<OperandStackEntry> localStack = new Stack<OperandStackEntry>();
-    			
-    			/* copy stack state for later usage */
-    			Stack<OperandStackEntry> referenceStack = new Stack<OperandStackEntry>();
-    			referenceStack.addAll(stack);
-    			
+    		else{ 		
     			for(int i = 0; i < outList.size(); i++){
-    				
-    				stack = localStack;
     				IEdgeExt edge = outList.getEdgeExt(i);
     				edge.setVisited(true);
     				
     				parseGraph(edge.getTarget());
-    				
-    				/* restore the previous stack state */
-    				localStack = new Stack<OperandStackEntry>();
-    				localStack.addAll(referenceStack);
     			}
     		}
 
@@ -227,58 +223,139 @@ public class OperandStack implements Opcodes{
      */
     private void calculateOperandStack(INodeExt node, AbstractInstruction i){
     	
-    	Stack<OperandStackEntry> stackBefore = new Stack<OperandStackEntry>();
-    	stackBefore.addAll(stack);
+    	List<Stack<OperandStackEntry>> listOfStacks = new ArrayList<Stack<OperandStackEntry>>();
+    	IEdgeListExt incEdgeList = node.getIncomingEdgeList();
     	
-    	ArrayList<String> stackBeforeAfter = new ArrayList<String>();
+    	/* the node is a start node */
+    	if(incEdgeList.size() == 0){
+    		listOfStacks.add(new Stack<OperandStackEntry>());
+    	}
+    	else{
+	    	Map<String, Stack<OperandStackEntry>> m = new TreeMap<String, Stack<OperandStackEntry>>();
+    		for(int j = 0; j < incEdgeList.size(); j++){
+    			Object o = incEdgeList.getEdgeExt(j).getSource().getData();
+    			if(o != null && o instanceof NodeStackProperty){
+    				NodeStackProperty nsp = (NodeStackProperty)o;
+    				List<Stack<OperandStackEntry>> sl = nsp.getStackAfter(); 				
+    				
+    		    	for(Stack<OperandStackEntry> s: sl){
+    		    		/* no duplicates */
+    		    		m.put(stackToString(s, OpstackView.ALL), s);
+    		    	}
+    			}
+    		}
+    		
+    		/* copy to the list */
+	    	for(Stack<OperandStackEntry> s : m.values()){
+				Stack<OperandStackEntry> stack = new Stack<OperandStackEntry>();    	
+				stack.addAll(s);
+				listOfStacks.add(stack);    		    	
+	    	}
+    	}
     	
-    	/* add the current stack snapshot to the List */
-    	stackBeforeAfter.add(stackToString());
-    	
-    	processInstruction(i);
+    	/* copy the list of stacks */    	
+    	List<Stack<OperandStackEntry>> listOfStacksBefore = new ArrayList<Stack<OperandStackEntry>>();
+    	for(Stack<OperandStackEntry> s: listOfStacks){
+    		Stack<OperandStackEntry> stackBefore = new Stack<OperandStackEntry>();
+        	stackBefore.addAll(s);
+        	listOfStacksBefore.add(stackBefore);
+    	}
 
-    	/* add another stack snapshot to the List after the instruction has been executed */
-    	stackBeforeAfter.add(stackToString());
+    	for(Stack<OperandStackEntry> s: listOfStacks){
+    		processInstruction(i, s);
+    	}
+    	
+    	/* remove duplicates */
+    	Map<String, Stack<OperandStackEntry>> m = new TreeMap<String, Stack<OperandStackEntry>>();
+    	for(Stack<OperandStackEntry> s: listOfStacks){
+    		m.put(stackToString(s, OpstackView.ALL), s);
+    	}
+    	
+    	listOfStacks.clear();
+    	for(Stack<OperandStackEntry> s : m.values()){
+			Stack<OperandStackEntry> stack = new Stack<OperandStackEntry>();    	
+			stack.addAll(s);
+			listOfStacks.add(stack);    		    	
+    	}
 
     	/* update the maxStackSize */
-		int currentStackSize = stack.size();
+		int currentStackSize = listOfStacks.get(listOfStacks.size()-1).size();
 		if(currentStackSize > maxStackSize){
 			maxStackSize = currentStackSize;
 		}
 
 		/* assign the property object */
-    	NodeStackProperty prop = new NodeStackProperty(stackBefore, stack);
-//    	node.setData(prop);
-    	node.setData(stackBeforeAfter); 
+    	NodeStackProperty prop = new NodeStackProperty(listOfStacksBefore, listOfStacks);
+    	node.setData(prop);
     }
     
-    private String stackToString(){
+    public String stackToString(Stack<OperandStackEntry> _stack, OpstackView view){
     	StringBuffer buf = new StringBuffer();
     	
-    	/* convert stack to string */
-    	for (Enumeration<OperandStackEntry> en = stack.elements(); en.hasMoreElements();){
-    		OperandStackEntry ose = en.nextElement();
-    		buf.append("(");
-    		buf.append(ose.getVarType());
-    		buf.append(")");
-    		buf.append(ose.getValue());
-    		buf.append(", ");
+    	if(view == OpstackView.SIMPLE){
+        	/* convert stack to string */
+        	for (int i = 0; i < _stack.size(); i++){
+        		buf.append("*");
+        	}
+        	
+        	return buf.toString();
     	}
     	
+    	/* convert stack to string */
+    	for (Enumeration<OperandStackEntry> en = _stack.elements(); en.hasMoreElements();){
+    		OperandStackEntry ose = en.nextElement();
+    		if(view == OpstackView.TYPES){
+    			buf.append(ose.getVarType());
+    		}
+    		else{
+    			buf.append("(");
+    			buf.append(ose.getVarType());
+    			buf.append(")");
+    			buf.append(ose.getValue());
+    		}
+    		
+    		buf.append(", ");
+    	}
+
     	if(buf.length() > 2){ /* cut the last ' ,' ' ' */
+    		buf.deleteCharAt(buf.length()-1);
+    		buf.deleteCharAt(buf.length()-1);
+    	}
+
+    	return buf.toString();
+
+    }
+    
+    public String stackToString(Stack<OperandStackEntry> _stack){
+    	return stackToString(_stack, OpstackView.SIMPLE);
+    }
+
+    public String stackToString(List<Stack<OperandStackEntry>> _stack){
+    	return stackToString(_stack, OpstackView.ALL);
+    }
+    
+    public String stackToString(List<Stack<OperandStackEntry>> _stack, OpstackView view){
+    	StringBuffer buf = new StringBuffer();
+    	for(Stack<OperandStackEntry> s: _stack){
+    		buf.append(stackToString(s, view));
+    		buf.append(" | ");
+    	}
+    	
+    	if(buf.length() >= 3){ /* cut the last ' ', '|' , ' ' */
+    		buf.deleteCharAt(buf.length()-1);
     		buf.deleteCharAt(buf.length()-1);
     		buf.deleteCharAt(buf.length()-1);
     	}
     	
     	return buf.toString();
     }
-        
+    
 	/**
 	 * Updates the stack by interpreting the byte code
 	 * operation.  
 	 * @param i byte code instruction
 	 */
-	private void processInstruction(AbstractInstruction i){
+	private void processInstruction(AbstractInstruction i, Stack<OperandStackEntry> stack){
 		
 		switch (i.getOpcode()) {
 		
@@ -997,8 +1074,8 @@ public class OperandStack implements Opcodes{
      * states to the nodes in the control flow graph.
      */
     public class NodeStackProperty {
-    	Stack<OperandStackEntry> stackBefore = new Stack<OperandStackEntry>();		
-    	Stack<OperandStackEntry> stackAfter = new Stack<OperandStackEntry>();
+    	List<Stack<OperandStackEntry>> _stackBefore = new ArrayList<Stack<OperandStackEntry>>();		
+    	List<Stack<OperandStackEntry>> _stackAfter = new ArrayList<Stack<OperandStackEntry>>();
     	
 		/**
 		 * @param stackBefore
@@ -1006,32 +1083,41 @@ public class OperandStack implements Opcodes{
 		 * @param stackSize
 		 * @param varaibaleTypes
 		 */
-		public NodeStackProperty(Stack<OperandStackEntry> stackBefore,
-				Stack<OperandStackEntry> stackAfter) {
-			this.stackBefore.addAll(stackBefore);
-			this.stackAfter.addAll(stackAfter);
+		public NodeStackProperty(List<Stack<OperandStackEntry>> stackBefore,
+				List<Stack<OperandStackEntry>> stackAfter) {
+			if(stackBefore != null){
+				_stackBefore.addAll(stackBefore);
+			}
+			
+			if(stackAfter != null){
+				_stackAfter.addAll(stackAfter);
+			}
 		}
 
-		public Stack<OperandStackEntry> getStackBefore() {
-			return stackBefore;
+		public List<Stack<OperandStackEntry>> getStackBefore() {
+			return _stackBefore;
 		}
 
-		public Stack<OperandStackEntry> getStackAfter() {
-			return stackAfter;
+		public List<Stack<OperandStackEntry>> getStackAfter() {
+			return _stackAfter;
 		}
 
 		public int getStackSize() {
-			return stackAfter.size();
+			if(_stackAfter.size() != 0){
+				return _stackAfter.get(0).size(); //TODO: implement check
+			}
+			return -1;
 		}
 
-		public List<String> getVaraibaleTypes() {
-			List<String> varaibaleTypes = new ArrayList<String>();
-			for(int i = 0; i < stackAfter.size(); i++){
-				varaibaleTypes.add(stackAfter.get(i).getVarType());
-			}
-			
-			return varaibaleTypes;
-		}
+//		public List<String> getVaraibaleTypes() {
+//			List<String> varaibaleTypes = new ArrayList<String>();
+//			for(Enumeration<OperandStackEntry> en = _stackAfter.elements(); en.hasMoreElements();){
+//				OperandStackEntry ose = en.nextElement();
+//				varaibaleTypes.add(ose.getVarType());
+//			}
+//			
+//			return varaibaleTypes;
+//		}
     }
     
 }
