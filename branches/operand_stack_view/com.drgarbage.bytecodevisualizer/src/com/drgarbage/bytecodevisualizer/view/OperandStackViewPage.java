@@ -822,9 +822,13 @@ public abstract class OperandStackViewPage extends Page {
 		if(byteCodeDocumentProvider!= null){
 			IClassFileDocument ic = byteCodeDocumentProvider.getClassFileDocument();
 
+
 			/* when the methodInput changes, a new stack is generated */
 			/* later, we can add the reference to the previous stack to the new stack */
-			operandStack = new OperandStack(instructions, ic.getConstantPool(), methodInput.getLocalVariableTable());
+			operandStack = new OperandStack(instructions, 
+					ic.getConstantPool(), 
+					methodInput.getLocalVariableTable(),
+					methodInput.getExceptionTable());
 			INodeListExt nodeList = operandStack.getOperandStackGraph().getNodeList();
 			for(int i = 0; i < nodeList.size(); i++){
 				INodeExt n = nodeList.getNodeExt(i);
@@ -834,15 +838,15 @@ public abstract class OperandStackViewPage extends Page {
 					if(obj instanceof NodeStackProperty){
 						NodeStackProperty nsp = (NodeStackProperty)obj;
 						if(opstackRepresenationFormat == OpstackRepresenation.SIMPLE){
-							node.setOperandStackBefore(OperandStack.stackToString(OperandStack.getStackBefore(n).get(0)));
+							node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0)));
 							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0)));
 						}
 						else if(opstackRepresenationFormat == OpstackRepresenation.ALL){
-							node.setOperandStackBefore(OperandStack.stackListToString(OperandStack.getStackBefore(n)));
+							node.setOperandStackBefore(OperandStack.stackListToString(operandStack.getStackBefore(n)));
 							node.setOperandStackAfter(OperandStack.stackListToString(nsp.getStackAfter()));							
 						}
 						else{
-							node.setOperandStackBefore(OperandStack.stackToString(OperandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
+							node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
 							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0), OpstackRepresenation.TYPES));
 						}
 

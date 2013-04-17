@@ -29,6 +29,7 @@ import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.ILocalVariableTable;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.BytecodeUtils;
+import com.drgarbage.bytecode.ExceptionTableEntry;
 import com.drgarbage.bytecode.constant_pool.AbstractConstantPoolEntry;
 import com.drgarbage.bytecode.constant_pool.ConstantClassInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantDoubleInfo;
@@ -69,6 +70,7 @@ public class OperandStack implements Opcodes{
 
 	private AbstractConstantPoolEntry[] classConstantPool;
 	private ILocalVariableTable localVariableTable;
+	private ExceptionTableEntry[] exceptionTable;
 	private IDirectedGraphExt graph;
 	private int maxStackSize;
 	
@@ -179,9 +181,13 @@ public class OperandStack implements Opcodes{
 	 * @param cPool reference to the constant pool of the class
 	 * @param instructions byte code instructions of the method 
 	 */
-	public OperandStack(List<IInstructionLine> instructions, AbstractConstantPoolEntry[] cPool, ILocalVariableTable locVarTable){
+	public OperandStack(List<IInstructionLine> instructions,
+			AbstractConstantPoolEntry[] cPool,
+			ILocalVariableTable locVarTable,
+			ExceptionTableEntry[] excepTable){
 		classConstantPool = cPool;
 		localVariableTable = locVarTable;
+		exceptionTable = excepTable;
 		maxStackSize = 0;
 
 		generateOperandStack(instructions);
@@ -354,13 +360,28 @@ public class OperandStack implements Opcodes{
      * @param node is a vertex in the control flow graph
      * @return list of stacks
      */
-    public static List<Stack<OperandStackEntry>> getStackBefore(INodeExt node){
+    public List<Stack<OperandStackEntry>> getStackBefore(INodeExt node){
     	List<Stack<OperandStackEntry>> listOfStacks = new ArrayList<Stack<OperandStackEntry>>();
     	IEdgeListExt incEdgeList = node.getIncomingEdgeList();
     	
-    	/* the node is a start node */
+    	/* entry nodes */
     	if(incEdgeList.size() == 0){
-    		listOfStacks.add(new Stack<OperandStackEntry>());
+    		Stack<OperandStackEntry> startStack = new Stack<OperandStackEntry>();
+    		if(node.getByteCodeOffset() != 0){
+    			/* 
+    			 * The start node is initialized with an empty stack.
+    			 * For start nodes of exception handlers the exception 
+    			 * objects have to be put onto the stack.
+    			 */
+    			for(ExceptionTableEntry ete: exceptionTable){
+    				if(node.getByteCodeOffset() == ete.getHandlerPc()){
+    					String className = getConstantPoolClassName(ete.getCatchType(), classConstantPool);
+    					startStack.add(new OperandStackEntry(4, "L", className));
+    				}
+    			}
+    		}
+    		
+    		listOfStacks.add(startStack);
     	}
     	else{
 	    	Map<String, Stack<OperandStackEntry>> m = new TreeMap<String, Stack<OperandStackEntry>>();
@@ -990,43 +1011,51 @@ public class OperandStack implements Opcodes{
 	
 	/**
 	 * Returns the resolved class name.
-	 * @param i
+	 * @param i byte code instruction
 	 * @param classConstantPool
 	 * @return class name
 	 */
 	private String getConstantPoolClassName(AbstractInstruction i, AbstractConstantPoolEntry[] classConstantPool){
-		
 		if (i instanceof IConstantPoolIndexProvider) {
-
-			AbstractConstantPoolEntry cpInfo = classConstantPool[((IConstantPoolIndexProvider) i)
-					.getConstantPoolIndex()];
-			
-			ConstantClassInfo constantClassInfo;
-			
-			if(cpInfo instanceof ConstantFieldrefInfo){
-				constantClassInfo = (ConstantClassInfo) classConstantPool[((ConstantFieldrefInfo) cpInfo).getClassIndex()];
-			} else constantClassInfo = (ConstantClassInfo) cpInfo;
-			
-			String className = BytecodeUtils.resolveConstantPoolTypeName(
-					constantClassInfo, classConstantPool);
-
-			className = className.replace(
-					ByteCodeConstants.CLASS_NAME_SLASH,
-					JavaLexicalConstants.DOT);
-			className = className.replace(
-					";",
-					"");
-			
-			StringBuilder sb = new StringBuilder();
-			sb.append(className);
-
-			className = sb.toString();
-			
-			return className;
-
+			return getConstantPoolClassName(((IConstantPoolIndexProvider) i)
+					.getConstantPoolIndex(), 
+					classConstantPool);
 		}
-		
 		return "?";
+	}
+	
+	/**
+	 * Returns the resolved class name.
+	 * @param index the constant pool index for the class entry
+	 * @param classConstantPool
+	 * @return class name
+	 */
+	private String getConstantPoolClassName(int index, AbstractConstantPoolEntry[] classConstantPool){
+		
+		AbstractConstantPoolEntry cpInfo = classConstantPool[index];
+		
+		ConstantClassInfo constantClassInfo;
+
+		if(cpInfo instanceof ConstantFieldrefInfo){
+			constantClassInfo = (ConstantClassInfo) classConstantPool[((ConstantFieldrefInfo) cpInfo).getClassIndex()];
+		} else constantClassInfo = (ConstantClassInfo) cpInfo;
+
+		String className = BytecodeUtils.resolveConstantPoolTypeName(
+				constantClassInfo, classConstantPool);
+
+		className = className.replace(
+				ByteCodeConstants.CLASS_NAME_SLASH,
+				JavaLexicalConstants.DOT);
+		className = className.replace(
+				";",
+				"");
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(className);
+
+		className = sb.toString();
+
+		return className;
 	}
 
 	/**
