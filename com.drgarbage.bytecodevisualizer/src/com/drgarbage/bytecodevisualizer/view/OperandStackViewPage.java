@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -40,6 +39,7 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -58,7 +58,6 @@ import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
-import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeDocumentProvider;
 import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
@@ -578,7 +577,7 @@ public abstract class OperandStackViewPage extends Page {
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 
-		int order[] = {1, 0, 2, 3, 4, 5};//tree.getColumnOrder();
+		int order[] = {1, 0, 2, 3, 4, 5};//tree.getColumnOrder();//TODO: define enum constants
 		tree.setColumnOrder(order);
 
 		treeViewer.setContentProvider(new TreeViewContentProvider());
@@ -733,10 +732,10 @@ public abstract class OperandStackViewPage extends Page {
 				if(o != null && o instanceof IInstructionLine){
 					IInstructionLine i = (IInstructionLine)o;
 
-					if (columnIndex == 0) {
+					if (columnIndex == 0) { //TODO: define enum constants for column index
 						return i.getInstruction().getOpcodeMnemonic();
 					}
-					else if (columnIndex == 1) {							
+					else if (columnIndex == 1) { //TODO: define enum constants for column index						
 						return String.valueOf(i.getInstruction().getOffset());
 					}
 					else if (columnIndex == 2) { /* operand stack before */
@@ -746,7 +745,17 @@ public abstract class OperandStackViewPage extends Page {
 						return node.getOperandStackAfter();
 					}
 					else if (columnIndex == 4) { /* stack depth */
-						return String.valueOf(node.getDepth());
+						int stackSize = node.getDepth();
+						if(stackSize > methodInput.getMaxStack() ){
+							Widget w = treeViewer.testFindItem(node);
+							if(w != null){
+								TreeItem t = (TreeItem)w;
+								t.setForeground(new Color(null, 255,0,0)); //TODO: define color constant
+								treeViewer.refresh(true);
+							}
+						}
+						
+						return String.valueOf(stackSize);
 					}
 					else if (columnIndex == 5) { /* opcode description   */
 						return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
