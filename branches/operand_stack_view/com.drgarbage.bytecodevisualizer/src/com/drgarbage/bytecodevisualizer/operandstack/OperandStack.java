@@ -62,7 +62,7 @@ import com.drgarbage.javasrc.JavaLexicalConstants;
  * Operand Stack Algorithms.
  * 
  * @author Andreas Karoly and Sergej Alekseev
- * @version $Revision: 26 $
+ * @version $Revision$
  * $Id$
  */
 public class OperandStack implements Opcodes{
@@ -1115,10 +1115,9 @@ public class OperandStack implements Opcodes{
     	List<Stack<OperandStackEntry>> _stackAfter = new ArrayList<Stack<OperandStackEntry>>();
     	
 		/**
-		 * @param stackBefore
-		 * @param stackAfter
-		 * @param stackSize
-		 * @param varaibaleTypes
+		 * Creates a property stack object
+		 * @param stackAfter stack state after executing 
+		 *        the corresponding byte code instruction
 		 */
 		public NodeStackProperty(List<Stack<OperandStackEntry>> stackAfter) {
 			if(stackAfter != null){
