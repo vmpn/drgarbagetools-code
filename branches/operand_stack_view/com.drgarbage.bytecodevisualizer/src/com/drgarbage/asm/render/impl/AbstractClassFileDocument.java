@@ -469,6 +469,7 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 			protected int lastLine = ByteCodeConstants.INVALID_LINE;
 	
 			private LineNumberTableEntry[] lineNumberTable;
+			private ExceptionTableEntry[] exceptionTable;
 			protected ILocalVariableTable localVariableTable;
 
 			/**
@@ -534,6 +535,24 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 					return false;
 
 				return localVariableTable.isAvailable();
+			}
+			
+			/* (non-Javadoc)
+			 * @see com.drgarbage.asm.render.intf.IMethodSection#getExceptionTable()
+			 */
+			public ExceptionTableEntry[] getExceptionTable() {
+				return exceptionTable;
+			}
+
+			/* (non-Javadoc)
+			 * @see com.drgarbage.asm.render.intf.IMethodSection#isExceptionTableAvailable()
+			 */
+			public boolean isExceptionTableAvailable() {
+				if(exceptionTable == null || exceptionTable.length == 0){
+					return false;
+				}
+				
+				return true;
 			}
 			
 			/* (non-Javadoc)
@@ -1036,7 +1055,7 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 				
 	
 				/* load try blocks */
-				ExceptionTableEntry[] exceptionTable = parser.parseExceptionTable();
+				exceptionTable = parser.parseExceptionTable();
 				
 				HashSet<String> attributeNames = new HashSet<String>();
 				attributeNames.add(ByteCodeConstants.LINE_NUMBER_TABLE);
