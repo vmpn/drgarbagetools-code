@@ -19,6 +19,7 @@ package com.drgarbage.asm.render.intf;
 import java.util.List;
 
 import com.drgarbage.bytecode.ByteCodeConstants;
+import com.drgarbage.bytecode.ExceptionTableEntry;
 
 /**
  * Representation of a method.
@@ -169,5 +170,20 @@ public interface IMethodSection {
 	 * @return The value of the <code>max_locals</code>
 	 */
 	public int getMaxLocals();
+	
+	
+	/**
+	 * Returns the exception table if exists or null.
+	 * @return table or null 
+	 */
+	public ExceptionTableEntry[] getExceptionTable();
+	
+	/**
+	 * Returns true if the exception table is available
+	 * otherwise false.
+	 * @return true or false
+	 */
+	public boolean isExceptionTableAvailable();
+	
 
 }
