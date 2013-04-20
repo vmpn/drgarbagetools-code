@@ -29,6 +29,7 @@ import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.action.SubMenuManager;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -99,7 +100,8 @@ public abstract class OperandStackViewPage extends Page {
 
 	/* Menu actions */
 	private IAction showTreeViewAction, showBasicBlockViewAction, showInstructioneListViewAction, 
-	showOSBeforeColumnAction, showOSAfterColumnAction, showDescriptionColumnAction, showOSDepthColumnAction;
+	showOSBeforeColumnAction, showOSAfterColumnAction, showDescriptionColumnAction, showOSDepthColumnAction, 
+	displayAllAction, displaySimpleAction, displayTypesAction;
 
 	static enum OperandStackView_ID{
 		TREE_VIEW,
@@ -112,6 +114,17 @@ public abstract class OperandStackViewPage extends Page {
 	 * BASICBKLOCK_VIEW or INSTR_LIST_VIEW.
 	 */
 	OperandStackView_ID view_ID = OperandStackView_ID.TREE_VIEW;
+	
+	static enum OperandStackDisplayFormat_ID{
+		DISPLAY_ALL,
+		DISPLAY_SIMPLE,
+		DISPLAY_TYPES;
+	};
+	
+	/**
+	 * The standard value for displaying all information in 2 columns "Operand Stack before" and "Operand Stack after"
+	 */
+	OperandStackDisplayFormat_ID displayFormat_ID = OperandStackDisplayFormat_ID.DISPLAY_ALL;
 
 	/**
 	 * Map of the tree items to the byte code line numbers in the editor.
@@ -172,6 +185,22 @@ public abstract class OperandStackViewPage extends Page {
 	 */
 	public void setView_ID(OperandStackView_ID view_ID) {
 		this.view_ID = view_ID;
+	}
+	
+	/**
+	 * Returns the current displayFormat id, one of the DISPLAY_ALL, DISPLAY_SIMPLE, DISPLAY_TYPES
+	 * @return displayFormat_ID
+	 */
+	public OperandStackDisplayFormat_ID getDisplayFormat_ID(){
+		return displayFormat_ID;
+	}
+	
+	/**
+	 * Sets the display format id, one of the DISPLAY_ALL, DISPLAY_SIMPLE, DISPLAY_TYPES
+	 * @param displayFormat_ID
+	 */
+	public void setDisplayFormat_ID(OperandStackDisplayFormat_ID displayFormat_ID){
+		this.displayFormat_ID = displayFormat_ID;
 	}
 
 	private void setMesssageInStatusLine(){
@@ -253,17 +282,21 @@ public abstract class OperandStackViewPage extends Page {
 		/* menu */
 		final IMenuManager imb = bars.getMenuManager();
 
+		/* submenu */
 		MenuManager subMenu = new MenuManager("View layout", null);//TODO:constant
 		final MenuManager subMenuShowHideColumn = new MenuManager("Hide column(s)",null);//TODO:constant
+		final MenuManager subMenuFormat = new MenuManager("Format",null);//TODO:constant
+		
 		imb.add(subMenu);
 		imb.add(subMenuShowHideColumn);
+		imb.add(subMenuFormat);
 
 
 		subMenu.add(showTreeViewAction);
 		subMenu.add(showBasicBlockViewAction);
 		subMenu.add(showInstructioneListViewAction);
 
-		imb.add(new Separator());
+		//imb.add(new Separator());
 
 		showOSBeforeColumnAction = new Action() {
 			public void run() {
@@ -338,52 +371,47 @@ public abstract class OperandStackViewPage extends Page {
 		subMenuShowHideColumn.add(showOSDepthColumnAction);
 		subMenuShowHideColumn.add(showDescriptionColumnAction);
 	
-		//TODO: implement actions
-		imb.add(new Action() {
+		displayAllAction = new Action() {
 			public void run() {
 				opstackRepresenationFormat = OpstackRepresenation.ALL;
-
-				/* update input */
-				if(methodInput != null){
-					setInput(methodInput.getInstructionLines());
-				}
+				activateDisplayFormat(OperandStackDisplayFormat_ID.DISPLAY_ALL);
+				subMenuFormat.update(true);
 			}
 			
 			public String getText(){
-				return "Format ALL";
+				return "Display ALL";
 			}
-		});
+		};
+		displayAllAction.setChecked(true);
 		
-		imb.add(new Action() {
+		displaySimpleAction = new Action() {
 			public void run() {
 				opstackRepresenationFormat = OpstackRepresenation.SIMPLE;
-
-				/* update input */
-				if(methodInput != null){
-					setInput(methodInput.getInstructionLines());
-				}
+				activateDisplayFormat(OperandStackDisplayFormat_ID.DISPLAY_SIMPLE);
+				subMenuFormat.update(true);
 			}
 			
 			public String getText(){
-				return "Format SIMPLE";
+				return "Display SIMPLE";
 			}
-		});
+		};
 		
-		imb.add(new Action() {
+		displayTypesAction = new Action() {
 			public void run() {
-					opstackRepresenationFormat = OpstackRepresenation.TYPES;
-				
-				
-				/* update input */
-				if(methodInput != null){
-					setInput(methodInput.getInstructionLines());
-				}
-			}
-			
-			public String getText(){
-				return "Format TYPES";
-			}
-		});
+				opstackRepresenationFormat = OpstackRepresenation.TYPES;
+				activateDisplayFormat(OperandStackDisplayFormat_ID.DISPLAY_TYPES);
+				subMenuFormat.update(true);
+		}
+		
+		public String getText(){
+			return "Display TYPES";
+		}
+		};
+		
+		subMenuFormat.add(displayAllAction);
+		subMenuFormat.add(displaySimpleAction);
+		subMenuFormat.add(displayTypesAction);
+		
 	}
 	
 	private OpstackRepresenation opstackRepresenationFormat = OpstackRepresenation.ALL;
@@ -425,6 +453,35 @@ public abstract class OperandStackViewPage extends Page {
 			setView_ID(id);
 			setInput(methodInput.getInstructionLines());
 		}
+	}
+	
+	/**
+	 * Activates selected Display Format
+	 * @param id - id of the format
+	 */
+	private void activateDisplayFormat(OperandStackDisplayFormat_ID id){
+		
+		if(id == OperandStackDisplayFormat_ID.DISPLAY_ALL){
+			displayAllAction.setChecked(true);
+			displaySimpleAction.setChecked(false);
+			displayTypesAction.setChecked(false);
+		}
+		else if(id == OperandStackDisplayFormat_ID.DISPLAY_SIMPLE){
+			displayAllAction.setChecked(false);
+			displaySimpleAction.setChecked(true);
+			displayTypesAction.setChecked(false);
+		}
+		else if(id == OperandStackDisplayFormat_ID.DISPLAY_TYPES){
+			displayAllAction.setChecked(false);
+			displaySimpleAction.setChecked(false);
+			displayTypesAction.setChecked(true);
+		}
+		
+		/* update input */
+		if(methodInput != null){
+			setDisplayFormat_ID(id);
+			setInput(methodInput.getInstructionLines());
+		}	
 	}
 
 	/**
