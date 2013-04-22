@@ -247,8 +247,8 @@ public abstract class OperandStackViewPage extends Page {
 		showTreeViewAction
 		.setImageDescriptor(CoreImg.bytecodeViewIcon_16x16);
 		tbm.add(showTreeViewAction);
-		showTreeViewAction.setText("tree view");//TODO: Define constant
-		showTreeViewAction.setToolTipText("tree view");//TODO: Define constant
+		showTreeViewAction.setText(BytecodeVisualizerMessages.TreeViewAction_Text);
+		showTreeViewAction.setToolTipText(BytecodeVisualizerMessages.TreeViewAction_Text);
 		showTreeViewAction.setChecked(true);
 
 		showBasicBlockViewAction = new Action() {
@@ -259,8 +259,8 @@ public abstract class OperandStackViewPage extends Page {
 		showBasicBlockViewAction
 		.setImageDescriptor(CoreImg.basicblockViewIcon_16x16);
 		tbm.add(showBasicBlockViewAction);
-		showBasicBlockViewAction.setText("basic block view");//TODO: Define constant
-		showBasicBlockViewAction.setToolTipText("basic block view");//TODO: Define constant
+		showBasicBlockViewAction.setText(BytecodeVisualizerMessages.BasicViewAction_Text);
+		showBasicBlockViewAction.setToolTipText(BytecodeVisualizerMessages.BasicViewAction_Text);
 		showBasicBlockViewAction.setChecked(false);
 
 		showInstructioneListViewAction = new Action() {
@@ -270,8 +270,8 @@ public abstract class OperandStackViewPage extends Page {
 		};
 		showInstructioneListViewAction
 		.setImageDescriptor(CoreImg.bytecode_listview_16x16);
-		showInstructioneListViewAction.setText("instruction list view");//TODO: Define constant
-		showInstructioneListViewAction.setToolTipText("instruction list view");//TODO: Define constant
+		showInstructioneListViewAction.setText(BytecodeVisualizerMessages.InstructionListView_Text);
+		showInstructioneListViewAction.setToolTipText(BytecodeVisualizerMessages.InstructionListView_Text);
 		tbm.add(showInstructioneListViewAction);
 		showInstructioneListViewAction.setChecked(false);
 
@@ -283,20 +283,17 @@ public abstract class OperandStackViewPage extends Page {
 		final IMenuManager imb = bars.getMenuManager();
 
 		/* submenu */
-		MenuManager subMenu = new MenuManager("View layout", null);//TODO:constant
-		final MenuManager subMenuShowHideColumn = new MenuManager("Hide column(s)",null);//TODO:constant
-		final MenuManager subMenuFormat = new MenuManager("Format",null);//TODO:constant
+		MenuManager subMenuViewLayout = new MenuManager(BytecodeVisualizerMessages.subMenuViewLayout_Text, null);
+		final MenuManager subMenuShowHideColumn = new MenuManager(BytecodeVisualizerMessages.subMenuHideColumn_Text,null);
+		final MenuManager subMenuFormat = new MenuManager(BytecodeVisualizerMessages.subMenuFormat_Text,null);
 		
-		imb.add(subMenu);
+		imb.add(subMenuViewLayout);
 		imb.add(subMenuShowHideColumn);
 		imb.add(subMenuFormat);
 
-
-		subMenu.add(showTreeViewAction);
-		subMenu.add(showBasicBlockViewAction);
-		subMenu.add(showInstructioneListViewAction);
-
-		//imb.add(new Separator());
+		subMenuViewLayout.add(showTreeViewAction);
+		subMenuViewLayout.add(showBasicBlockViewAction);
+		subMenuViewLayout.add(showInstructioneListViewAction);
 
 		showOSBeforeColumnAction = new Action() {
 			public void run() {
@@ -313,7 +310,7 @@ public abstract class OperandStackViewPage extends Page {
 				subMenuShowHideColumn.update(true);
 			}
 		};
-		showOSBeforeColumnAction.setText("Operand Stack before");//TODO:constant
+		showOSBeforeColumnAction.setText(BytecodeVisualizerMessages.OpstackBeforeColumnName);
 
 		showOSAfterColumnAction = new Action() {
 			public void run() {
@@ -330,7 +327,7 @@ public abstract class OperandStackViewPage extends Page {
 				subMenuShowHideColumn.update(true);
 			}
 		};
-		showOSAfterColumnAction.setText("Operand Stack after");//TODO:constant
+		showOSAfterColumnAction.setText(BytecodeVisualizerMessages.OpstackAfterColumnName);
 
 		showOSDepthColumnAction = new Action() {
 			public void run() {
@@ -347,7 +344,7 @@ public abstract class OperandStackViewPage extends Page {
 				subMenuShowHideColumn.update(true);
 			}
 		};
-		showOSDepthColumnAction.setText("Operand Stack depth");//TODO:constant	
+		showOSDepthColumnAction.setText(BytecodeVisualizerMessages.OpstackDepthColumnName);	
 
 		showDescriptionColumnAction = new Action() {
 			public void run() {
@@ -364,7 +361,7 @@ public abstract class OperandStackViewPage extends Page {
 				subMenuShowHideColumn.update(true);
 			}
 		};
-		showDescriptionColumnAction.setText("Description");//TODO:constant
+		showDescriptionColumnAction.setText(BytecodeVisualizerMessages.OpstackDescriptionColumnName);
 		
 		subMenuShowHideColumn.add(showOSBeforeColumnAction);
 		subMenuShowHideColumn.add(showOSAfterColumnAction);
@@ -379,7 +376,7 @@ public abstract class OperandStackViewPage extends Page {
 			}
 			
 			public String getText(){
-				return "Display ALL";
+				return BytecodeVisualizerMessages.DisplayFormatALL;
 			}
 		};
 		displayAllAction.setChecked(true);
@@ -392,7 +389,7 @@ public abstract class OperandStackViewPage extends Page {
 			}
 			
 			public String getText(){
-				return "Display SIMPLE";
+				return BytecodeVisualizerMessages.DisplayFormatSIMPLE;
 			}
 		};
 		
@@ -404,7 +401,7 @@ public abstract class OperandStackViewPage extends Page {
 		}
 		
 		public String getText(){
-			return "Display TYPES";
+			return BytecodeVisualizerMessages.DisplayFormatTYPES;
 		}
 		};
 		
@@ -603,32 +600,32 @@ public abstract class OperandStackViewPage extends Page {
 		Tree tree = treeViewer.getTree();
 		column = new TreeColumn(tree, SWT.LEFT, 0);
 		column.setMoveable(true);
-		column.setText("Bytecode Instruction"); //TODO: define constant
+		column.setText(BytecodeVisualizerMessages.OpstackBytecodeInstrColumnName); 
 		column.setWidth(200);
 
 		column = new TreeColumn(tree, SWT.LEFT, 1);
 		column.setMoveable(true);
-		column.setText("Offset");//TODO: define constant
+		column.setText(BytecodeVisualizerMessages.OpstackOffsetColumnName);
 		column.setWidth(40);
 
 		column3 = new TreeColumn(tree, SWT.RIGHT);
 		column3.setAlignment(SWT.LEFT);
-		column3.setText("Operand Stack before");//TODO: define constant
+		column3.setText(BytecodeVisualizerMessages.OpstackBeforeColumnName);
 		column3.setWidth(100);
 
 		column4 = new TreeColumn(tree, SWT.RIGHT);
 		column4.setAlignment(SWT.LEFT);
-		column4.setText("Operand Stack after");//TODO: define constant
+		column4.setText(BytecodeVisualizerMessages.OpstackAfterColumnName);
 		column4.setWidth(100);
 
 		column5 = new TreeColumn(tree, SWT.RIGHT);
 		column5.setAlignment(SWT.LEFT);
-		column5.setText("Operand Stack depth");//TODO: define constant
+		column5.setText(BytecodeVisualizerMessages.OpstackDepthColumnName);
 		column5.setWidth(100);
 
 		column6 = new TreeColumn(tree, SWT.RIGHT);
 		column6.setAlignment(SWT.LEFT);
-		column6.setText("Description");//TODO: define constant
+		column6.setText(BytecodeVisualizerMessages.OpstackDescriptionColumnName);
 		column6.setWidth(40);
 
 		tree.setHeaderVisible(true);
@@ -807,7 +804,7 @@ public abstract class OperandStackViewPage extends Page {
 							Widget w = treeViewer.testFindItem(node);
 							if(w != null){
 								TreeItem t = (TreeItem)w;
-								t.setForeground(new Color(null, 255,0,0)); //TODO: define color constant
+								t.setForeground(BytecodeVisualizerMessages.RED);
 								treeViewer.refresh(true);
 							}
 						}
