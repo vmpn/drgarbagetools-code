@@ -15,7 +15,10 @@
  */
 package com.drgarbage.bytecodevisualizer;
 
+
+
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.graphics.Color;
 
 /**
  * Text messages for dialogs and buttons.
@@ -128,4 +131,26 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String OperandStackView_Opcode;
 	public static String OperandStackView_Offset;
 	public static String OperandStackView_Unknown;
+	
+	public static String TreeViewAction_Text;
+	public static String BasicViewAction_Text;
+	public static String InstructionListView_Text;
+	
+	public static String subMenuViewLayout_Text;
+	public static String subMenuHideColumn_Text;
+	public static String subMenuFormat_Text;
+	
+	public static String OpstackBeforeColumnName;
+	public static String OpstackAfterColumnName;
+	public static String OpstackDepthColumnName;
+	public static String OpstackDescriptionColumnName;
+	public static String OpstackOffsetColumnName;
+	public static String OpstackBytecodeInstrColumnName;
+	
+	public static String DisplayFormatALL;
+	public static String DisplayFormatSIMPLE;
+	public static String DisplayFormatTYPES;
+	
+	public static Color RED = new Color(null,255,0,0);
+	
 }
