@@ -17,6 +17,7 @@
 package com.drgarbage.bytecodevisualizer.view;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -28,8 +29,6 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.action.SubMenuManager;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -41,6 +40,7 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -120,6 +120,9 @@ public abstract class OperandStackViewPage extends Page {
 		DISPLAY_SIMPLE,
 		DISPLAY_TYPES;
 	};
+	
+	public static Color RED = new Color(null,255,0,0);
+	public static Color ORANGE = new Color(null,255,255,0);
 	
 	/**
 	 * The standard value for displaying all information in 2 columns "Operand Stack before" and "Operand Stack after"
@@ -212,23 +215,30 @@ public abstract class OperandStackViewPage extends Page {
 
 		IStatusLineManager slm = bars.getStatusLineManager();
 
-		if(operandStack.getMaxStackSize() > methodInput.getMaxStack() 
-				|| operandStack.getMaxStackSize() < methodInput.getMaxStack()){
+		/* 
+		 * DO NOT DELETE THIS LINE. 
+		 * This is probably a bug in the StatusLineManeger implementation.
+		 * The setMessage() is first visible if the error message has 
+		 * been cleaned by the setErrorMessage(""); 
+		 */
+		slm.setErrorMessage("");
+		
+		if(operandStack.getMaxStackSize() > methodInput.getMaxStack()){
 			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK),
-					"max_stack should be: " + String.valueOf(methodInput.getMaxStack()) +
-					" is: " + String.valueOf(operandStack.getMaxStackSize()) +
-					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
-		} else {
-			/* 
-			 * DO NOT DELETE THIS LINE. 
-			 * This is probably a bug in the StatusLineManeger implementation.
-			 * The setMessage() is first visible if the error message has 
-			 * been cleaned by the setErrorMessage(""); 
-			 */
-			slm.setErrorMessage("");
+					"ERROR: Stack overflow, max_stack is " + String.valueOf(methodInput.getMaxStack()) +
+					", calculated max stack size is " + String.valueOf(operandStack.getMaxStackSize()) +
+					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));//TODO: define constants
+		}
+		else if(operandStack.getMaxStackSize() < methodInput.getMaxStack()){
+			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK),
+					"WARNING: max_stack is " + String.valueOf(methodInput.getMaxStack()) +
+					", calculated max stack size is " + String.valueOf(operandStack.getMaxStackSize()) +
+					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));//TODO: define constants
+		}
+		else {
 			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK),
 					"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
-					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));
+					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));//TODO: define constants
 		}
 
 		slm.update(true);
@@ -799,17 +809,72 @@ public abstract class OperandStackViewPage extends Page {
 						return node.getOperandStackAfter();
 					}
 					else if (columnIndex == 4) { /* stack depth */
-						int stackSize = node.getDepth();
-						if(stackSize > methodInput.getMaxStack() ){
-							Widget w = treeViewer.testFindItem(node);
-							if(w != null){
-								TreeItem t = (TreeItem)w;
-								t.setForeground(BytecodeVisualizerMessages.RED);
-								treeViewer.refresh(true);
+						if(node.getDepth() != null){
+							int stackSize = OperandStack.UNKNOWN_SIZE;
+							
+							if(node.getDepth().length == 1){
+								stackSize = node.getDepth()[0];
 							}
+							
+							List<Integer> listOfStacksSizes = new ArrayList<Integer>();
+							if(node.getDepth().length > 1){
+								for(int s: node.getDepth()){
+									if(stackSize != s){
+										if(s > stackSize){
+											stackSize = s;
+										}
+										listOfStacksSizes.add(s);
+									}
+								}
+							}
+							
+							/* execute some trivial size based checks */
+							if(stackSize > methodInput.getMaxStack() 
+									|| stackSize ==  OperandStack.UNKNOWN_SIZE
+									|| listOfStacksSizes.size() > 1
+									){
+
+								Widget w = treeViewer.testFindItem(node);
+								if(w != null){
+									TreeItem t = (TreeItem)w;
+									t.setForeground(RED);
+
+								}
+							}
+
+							if(stackSize > methodInput.getMaxStack() ){
+								return "ERROR: Stack Overflow stack size is " + String.valueOf(stackSize); //TODO: constants
+							}
+							
+							if(listOfStacksSizes.size() > 1){
+								StringBuffer buf = new StringBuffer("ERROR: Different stack sizes ");//TODO: constants
+								Iterator<Integer> it = listOfStacksSizes.iterator();
+								buf.append(it.next());
+								while(it.hasNext()){
+									buf.append('|');
+									buf.append(it.next());	
+								}
+								
+								return buf.toString();
+							}
+							
+							/* check if the stack is empty in the return nodes */
+							if(ControlFlowGraphUtils.
+									getInstructionNodeType(i.getInstruction().getOpcode()) 
+									== INodeType.NODE_TYPE_RETURN){
+								if(stackSize != 0){
+									Widget w = treeViewer.testFindItem(node);
+									if(w != null){
+										TreeItem t = (TreeItem)w;
+										t.setForeground(ORANGE);
+									}
+									
+									return "WARNING: Stack is not empty size " + String.valueOf(stackSize); //TODO: constants
+								}
+							}
+							
+							return String.valueOf(stackSize);
 						}
-						
-						return String.valueOf(stackSize);
 					}
 					else if (columnIndex == 5) { /* opcode description   */
 						return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
@@ -903,12 +968,13 @@ public abstract class OperandStackViewPage extends Page {
 							node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
 							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0), OpstackRepresenation.TYPES));
 						}
-
+						
 						node.setDepth(nsp.getStackSize());
 					}
 					else{
 						node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
 						node.setOperandStackAfter(BytecodeVisualizerMessages.OperandStackView_Unknown);
+						node.setDepth(new int[] { OperandStack.UNKNOWN_SIZE });
 					}
 				}
 			}
@@ -957,7 +1023,7 @@ public abstract class OperandStackViewPage extends Page {
 		List<Node> children = new ArrayList<Node>();
 		Object obj;
 		String operandStackBefore, operandStackAfter;
-		int depth;
+		int depth[];
 
 		public Object getObject() {
 			return obj;
@@ -983,7 +1049,7 @@ public abstract class OperandStackViewPage extends Page {
 			return children;
 		}
 
-		public int getDepth() {
+		public int[] getDepth() {
 			return depth;
 		}
 
@@ -1015,7 +1081,7 @@ public abstract class OperandStackViewPage extends Page {
 			this.operandStackAfter = operandStack;
 		}
 		
-		public void setDepth(int depth) {
+		public void setDepth(int depth[]) {
 			this.depth = depth;
 		}
 	}

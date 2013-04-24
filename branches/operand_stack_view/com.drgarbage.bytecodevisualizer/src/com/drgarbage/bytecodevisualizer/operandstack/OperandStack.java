@@ -17,6 +17,7 @@ package com.drgarbage.bytecodevisualizer.operandstack;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,7 @@ public class OperandStack implements Opcodes{
 	private ExceptionTableEntry[] exceptionTable;
 	private IDirectedGraphExt graph;
 	private int maxStackSize;
+	private boolean stackError = false;
 	
     /**
      * Stack representation format:
@@ -89,6 +91,7 @@ public class OperandStack implements Opcodes{
     	ALL;
     };
 
+    public static int UNKNOWN_SIZE = -1;
     /**
      * Converts the stack object into the string representation
      * in the <code>SIMPLE</code> format (see {@link OpstackRepresenation}).
@@ -223,6 +226,7 @@ public class OperandStack implements Opcodes{
 		/* parse the graph */
 		List<INodeExt> listOfStartNodes = getAllStartNodes(graph);
 		for(INodeExt n: listOfStartNodes){
+			stackError = false;
 			parseGraph(n);
 		}
 		
@@ -290,7 +294,15 @@ public class OperandStack implements Opcodes{
     			IInstructionLine iLine = (IInstructionLine) o;
     			node.setCounter(iLine.getLine()); /* use counter attribute to save line numbers */
     			
-    			calculateOperandStack(node, iLine.getInstruction());
+    			try{
+    				if(!stackError){
+    					calculateOperandStack(node, iLine.getInstruction());
+    				}
+    			}
+    			catch(EmptyStackException e){
+    				/* Stack underFlow */
+    				stackError = true;
+    			}
     		}
     		
     		node.setVisited(true);
@@ -344,10 +356,11 @@ public class OperandStack implements Opcodes{
     	}
 
     	/* update the maxStackSize */
-		int currentStackSize = listOfStacks.get(listOfStacks.size()-1).size();
-		if(currentStackSize > maxStackSize){
-			maxStackSize = currentStackSize;
-		}
+    	for(Stack<OperandStackEntry> e: listOfStacks){
+    		if(e.size() > maxStackSize){
+    			maxStackSize = e.size();
+    		}
+    	}
 
 		/* assign the property object */
     	NodeStackProperty prop = new NodeStackProperty(listOfStacks);
@@ -549,11 +562,10 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FRETURN:
 		case OPCODE_IRETURN:
 		case OPCODE_LRETURN:
+			stack.pop();
+			return;
+
 		case OPCODE_RETURN:
-			// TODO special return case
-			stack.clear();
-			
-			//TODO: check if the stack is empty
 			return;
 			
 		/* -> null */
@@ -902,7 +914,6 @@ public class OperandStack implements Opcodes{
 
 					} catch (IOException e) {
 						handleException(IOException.class.getName(), e);
-//						errorOccured = true;
 					}
 
 					
@@ -1141,8 +1152,8 @@ public class OperandStack implements Opcodes{
      * states to the nodes in the control flow graph.
      */
     public class NodeStackProperty {
-    	List<Stack<OperandStackEntry>> _stackAfter = new ArrayList<Stack<OperandStackEntry>>();
-    	
+    	private List<Stack<OperandStackEntry>> _stackAfter = new ArrayList<Stack<OperandStackEntry>>();
+
 		/**
 		 * Creates a property stack object
 		 * @param stackAfter stack state after executing 
@@ -1158,11 +1169,16 @@ public class OperandStack implements Opcodes{
 			return _stackAfter;
 		}
 
-		public int getStackSize() {
-			if(_stackAfter.size() != 0){
-				return _stackAfter.get(0).size(); //TODO: implement check
+		public int[] getStackSize() {
+			if(_stackAfter.size() != 0){				
+				int s[] = new int[_stackAfter.size()];
+				for(int i = 0; i < _stackAfter.size(); i++){
+						s[i] = _stackAfter.get(i).size();
+				}
+				return s;
 			}
-			return -1;
+			
+			return new int[] {UNKNOWN_SIZE};
 		}
     }
     

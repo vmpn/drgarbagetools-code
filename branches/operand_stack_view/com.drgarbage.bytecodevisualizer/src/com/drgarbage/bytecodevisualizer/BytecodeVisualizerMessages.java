@@ -151,6 +151,4 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String DisplayFormatSIMPLE;
 	public static String DisplayFormatTYPES;
 	
-	public static Color RED = new Color(null,255,0,0);
-	
 }
