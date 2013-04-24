@@ -136,7 +136,7 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String InstructionListView_Text;
 	
 	public static String subMenuViewLayout_Text;
-	public static String subMenuHideColumn_Text;
+	public static String subMenuShowColumn_Text;
 	public static String subMenuFormat_Text;
 	
 	public static String OpstackBeforeColumnName;
@@ -149,5 +149,9 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String DisplayFormatALL;
 	public static String DisplayFormatSIMPLE;
 	public static String DisplayFormatTYPES;
+	
+	public static String OpenOpstackAnalyseAction_Text;
+	public static String OpenOpstackAnalyseAction_Tooltip;
+	public static String OpenOpstackAnalyseWindowLabel;
 	
 }
