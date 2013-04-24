@@ -18,7 +18,6 @@ package com.drgarbage.bytecodevisualizer;
 
 
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.graphics.Color;
 
 /**
  * Text messages for dialogs and buttons.
