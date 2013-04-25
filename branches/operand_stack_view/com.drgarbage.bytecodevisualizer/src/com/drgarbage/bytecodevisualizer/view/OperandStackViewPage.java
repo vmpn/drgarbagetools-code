@@ -128,6 +128,25 @@ public abstract class OperandStackViewPage extends Page {
 		DISPLAY_TYPES;
 	};
 	
+	static enum ColumnIndex{
+		OFFSET(0),
+		OPCODEMNEMONIC(1),
+		OPSTACKBEFORE(2),
+		OPSTACKAFTER(3),
+		OPSTACKDEPTH(4),
+		DESCRIPTION(5);
+		
+		private final int INDEX;
+		
+		private ColumnIndex(int INDEX){
+			this.INDEX = INDEX;
+		}
+		public int getIndex(){
+			return INDEX;
+		}
+		
+	};
+	
 	public static Color RED = new Color(null,255,0,0);
 	public static Color ORANGE = new Color(null,255,255,0);
 	
@@ -689,7 +708,12 @@ public abstract class OperandStackViewPage extends Page {
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 
-		int order[] = {1, 0, 2, 3, 4, 5};//tree.getColumnOrder();//TODO: define enum constants
+		int order[] = {ColumnIndex.OPCODEMNEMONIC.getIndex(), 
+					   ColumnIndex.OFFSET.getIndex(),
+					   ColumnIndex.OPSTACKBEFORE.getIndex(), 
+					   ColumnIndex.OPSTACKAFTER.getIndex(), 
+					   ColumnIndex.OPSTACKDEPTH.getIndex(),
+					   ColumnIndex.DESCRIPTION.getIndex()};//tree.getColumnOrder();//TODO: define enum constants
 		tree.setColumnOrder(order);
 
 		treeViewer.setContentProvider(new TreeViewContentProvider());
@@ -844,19 +868,19 @@ public abstract class OperandStackViewPage extends Page {
 				if(o != null && o instanceof IInstructionLine){
 					IInstructionLine i = (IInstructionLine)o;
 
-					if (columnIndex == 0) { //TODO: define enum constants for column index
+					if (columnIndex == ColumnIndex.OFFSET.getIndex()) { //TODO: define enum constants for column index
 						return i.getInstruction().getOpcodeMnemonic();
 					}
-					else if (columnIndex == 1) { //TODO: define enum constants for column index						
+					else if (columnIndex == ColumnIndex.OPCODEMNEMONIC.getIndex()) { //TODO: define enum constants for column index						
 						return String.valueOf(i.getInstruction().getOffset());
 					}
-					else if (columnIndex == 2) { /* operand stack before */
+					else if (columnIndex == ColumnIndex.OPSTACKBEFORE.getIndex()) { /* operand stack before */
 						return node.getOperandStackBefore();
 					}
-					else if (columnIndex == 3) { /* operand stack after */
+					else if (columnIndex == ColumnIndex.OPSTACKAFTER.getIndex()) { /* operand stack after */
 						return node.getOperandStackAfter();
 					}
-					else if (columnIndex == 4) { /* stack depth */
+					else if (columnIndex == ColumnIndex.OPSTACKDEPTH.getIndex()) { /* stack depth */
 						if(node.getDepth() != null){
 							int stackSize = OperandStack.UNKNOWN_SIZE;
 							
