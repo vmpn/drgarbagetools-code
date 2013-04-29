@@ -16,6 +16,7 @@
 
 package com.drgarbage.bytecodevisualizer.view;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,13 +42,11 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -57,7 +56,6 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.WorkbenchImages;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 
@@ -77,7 +75,9 @@ import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeType;
+import com.drgarbage.core.CoreMessages;
 import com.drgarbage.core.img.CoreImg;
+import com.drgarbage.javasrc.JavaLexicalConstants;
 
 /**
  * The abstract Operand Stack View Page.
@@ -258,21 +258,49 @@ public abstract class OperandStackViewPage extends Page {
 		slm.setErrorMessage("");
 		
 		if(operandStack.getMaxStackSize() > methodInput.getMaxStack()){
+			
+			StringBuffer buf = new StringBuffer();
+			buf.append(CoreMessages.Error);
+			buf.append(JavaLexicalConstants.COLON);
+			buf.append(JavaLexicalConstants.SPACE);
+			buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_StackOverflow);
+			buf.append(JavaLexicalConstants.COMMA);
+			buf.append(JavaLexicalConstants.SPACE);
+			buf.append("max_stack is "); //$NON-NLS-1$
+			buf.append(methodInput.getMaxStack());
+			buf.append(", calculated max stack size is "); //$NON-NLS-1$
+			buf.append(operandStack.getMaxStackSize());
+			buf.append(JavaLexicalConstants.DOT);
+			
 			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK),
-					"ERROR: Stack overflow, max_stack is " + String.valueOf(methodInput.getMaxStack()) +
-					", calculated max stack size is " + String.valueOf(operandStack.getMaxStackSize()) +
-					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));//TODO: define constants
+					buf.toString());
 		}
 		else if(operandStack.getMaxStackSize() < methodInput.getMaxStack()){
+			StringBuffer buf = new StringBuffer();
+			buf.append(CoreMessages.Warning);
+			buf.append(JavaLexicalConstants.COLON);
+			buf.append(JavaLexicalConstants.SPACE);
+			buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Warning_StackUnderflow);
+			buf.append(JavaLexicalConstants.COMMA);
+			buf.append(JavaLexicalConstants.SPACE);
+			buf.append("max_stack is "); //$NON-NLS-1$
+			buf.append(methodInput.getMaxStack());
+			buf.append(", calculated max stack size is "); //$NON-NLS-1$
+			buf.append(operandStack.getMaxStackSize());
+			buf.append(JavaLexicalConstants.DOT);
+			
 			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK),
-					"WARNING: max_stack is " + String.valueOf(methodInput.getMaxStack()) +
-					", calculated max stack size is " + String.valueOf(operandStack.getMaxStackSize()) +
-					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));//TODO: define constants
+					buf.toString());
 		}
 		else {
+			StringBuffer buf = new StringBuffer();
+			buf.append("max_stack: "); //$NON-NLS-1$
+			buf.append(methodInput.getMaxStack());
+			buf.append(", max_locals: "); //$NON-NLS-1$
+			buf.append(methodInput.getMaxLocals());
+			
 			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK),
-					"max_stack: " + String.valueOf(methodInput.getMaxStack()) +
-					", max_locals: " + String.valueOf(methodInput.getMaxLocals()));//TODO: define constants
+					buf.toString());
 		}
 
 		slm.update(true);
@@ -915,17 +943,40 @@ public abstract class OperandStackViewPage extends Page {
 							}
 
 							if(stackSize > methodInput.getMaxStack() ){
-								return "ERROR: Stack Overflow stack size is " + String.valueOf(stackSize); //TODO: constants
+								StringBuffer buf = new StringBuffer();
+								buf.append(CoreMessages.Error);
+								buf.append(JavaLexicalConstants.COLON);
+								buf.append(JavaLexicalConstants.SPACE);
+								buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_StackOverflow);
+								buf.append(JavaLexicalConstants.COMMA);
+								buf.append(JavaLexicalConstants.SPACE);
+								String msg = MessageFormat.format(
+										BytecodeVisualizerMessages.OperandStackAnalysis_CurrentStackSize_Info, 
+										new Object[]{
+												String.valueOf(stackSize)
+										});
+								buf.append(msg);
+								buf.append(JavaLexicalConstants.DOT);
+								return buf.toString();
 							}
 							
 							if(listOfStacksSizes.size() > 1){
-								StringBuffer buf = new StringBuffer("ERROR: Different stack sizes ");//TODO: constants
+								StringBuffer buf = new StringBuffer();
+								buf.append(CoreMessages.Error);
+								buf.append(JavaLexicalConstants.COLON);
+								buf.append(JavaLexicalConstants.SPACE);
+								buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_Different_StackSizes);
+								buf.append(JavaLexicalConstants.SPACE);
+								
 								Iterator<Integer> it = listOfStacksSizes.iterator();
 								buf.append(it.next());
 								while(it.hasNext()){
-									buf.append('|');
+									buf.append(JavaLexicalConstants.PIPE);
 									buf.append(it.next());	
 								}
+								
+								buf.append(JavaLexicalConstants.SPACE);
+								buf.append(JavaLexicalConstants.DOT);
 								
 								return buf.toString();
 							}
@@ -941,20 +992,35 @@ public abstract class OperandStackViewPage extends Page {
 										t.setForeground(ORANGE);
 									}
 									
-									return "WARNING: Stack is not empty size " + String.valueOf(stackSize); //TODO: constants
+									StringBuffer buf = new StringBuffer(); 
+									buf.append(CoreMessages.Warning);
+									buf.append(JavaLexicalConstants.COLON);
+									buf.append(JavaLexicalConstants.SPACE);
+									buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Warning_StackNonEmpty);
+									buf.append(JavaLexicalConstants.COMMA);
+									buf.append(JavaLexicalConstants.SPACE);
+									String msg = MessageFormat.format(
+											BytecodeVisualizerMessages.OperandStackAnalysis_CurrentStackSize_Info, 
+											new Object[]{
+													String.valueOf(stackSize)
+											});
+									buf.append(msg);
+									buf.append(JavaLexicalConstants.DOT);
+									
+									return buf.toString();
 								}
 							}
 							
 							return String.valueOf(stackSize);
 						}
 					}
-					else if (columnIndex == 5) { /* opcode description   */
+					else if (columnIndex == ColumnIndex.DESCRIPTION.getIndex()) { /* opcode description   */
 						return ByteCodeConstants.OPCODE_OPERANDSTACK_DESCR[i.getInstruction().getOpcode()];
 					}
 
 				}
 				else{
-					if (columnIndex == 0) {
+					if (columnIndex == ColumnIndex.OFFSET.getIndex()) {
 						return o.toString();
 					}
 					else{
