@@ -153,5 +153,8 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String OpenOpstackAnalyseAction_Text;
 	public static String OpenOpstackAnalyseAction_Tooltip;
 	public static String OpenOpstackAnalyseWindowLabel;
+	public static String OperandStackAnalysis_Error_StackOverflow;
+	public static String OperandStackAnalysis_Warning_StackUnderflow;
+	public static String OperandStackAnalysis_StackSize_Info;
 	
 }
