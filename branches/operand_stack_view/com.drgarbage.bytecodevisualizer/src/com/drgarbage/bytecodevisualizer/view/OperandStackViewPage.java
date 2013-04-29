@@ -72,6 +72,7 @@ import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListene
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.NodeStackProperty;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackRepresenation;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStackAnalysis;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
@@ -148,7 +149,7 @@ public abstract class OperandStackViewPage extends Page {
 	};
 	
 	public static Color RED = new Color(null,255,0,0);
-	public static Color ORANGE = new Color(null,255,255,0);
+	public static Color ORANGE = new Color(null,255,127,0);
 	
 	/**
 	 * The standard value for displaying all information in 2 columns "Operand Stack before" and "Operand Stack after"
@@ -328,9 +329,8 @@ public abstract class OperandStackViewPage extends Page {
 				analyseReport.setSize(600, 400);
 				
 				text = new Text(analyseReport, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-				text.setText("Hello DrGarbage!");
+				text.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
 			    text.setLayoutData(new GridData(GridData.FILL_BOTH));
-			    
 				analyseReport.open();
 			}
 		};
@@ -713,7 +713,7 @@ public abstract class OperandStackViewPage extends Page {
 					   ColumnIndex.OPSTACKBEFORE.getIndex(), 
 					   ColumnIndex.OPSTACKAFTER.getIndex(), 
 					   ColumnIndex.OPSTACKDEPTH.getIndex(),
-					   ColumnIndex.DESCRIPTION.getIndex()};//tree.getColumnOrder();//TODO: define enum constants
+					   ColumnIndex.DESCRIPTION.getIndex()};
 		tree.setColumnOrder(order);
 
 		treeViewer.setContentProvider(new TreeViewContentProvider());
@@ -868,10 +868,10 @@ public abstract class OperandStackViewPage extends Page {
 				if(o != null && o instanceof IInstructionLine){
 					IInstructionLine i = (IInstructionLine)o;
 
-					if (columnIndex == ColumnIndex.OFFSET.getIndex()) { //TODO: define enum constants for column index
+					if (columnIndex == ColumnIndex.OFFSET.getIndex()) {
 						return i.getInstruction().getOpcodeMnemonic();
 					}
-					else if (columnIndex == ColumnIndex.OPCODEMNEMONIC.getIndex()) { //TODO: define enum constants for column index						
+					else if (columnIndex == ColumnIndex.OPCODEMNEMONIC.getIndex()) {						
 						return String.valueOf(i.getInstruction().getOffset());
 					}
 					else if (columnIndex == ColumnIndex.OPSTACKBEFORE.getIndex()) { /* operand stack before */

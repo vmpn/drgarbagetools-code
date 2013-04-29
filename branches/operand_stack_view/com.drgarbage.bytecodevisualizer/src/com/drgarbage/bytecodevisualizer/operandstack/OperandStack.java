@@ -1070,7 +1070,9 @@ public class OperandStack implements Opcodes{
 	}
 
 	/**
-	 * TODO: description
+	 * Resolves the math operation of the given byte code instruction
+	 * and returns the character representing the math operation.
+	 * The character is one of +,-,*,/ or %.
 	 * @param i byte code instruction
 	 * @return math operation string one of +,-,*,/ or %
 	 */
