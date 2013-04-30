@@ -574,51 +574,51 @@ public class OperandStack implements Opcodes{
 			
 		/* -> null */
 		case OPCODE_ACONST_NULL:
-			stack.push(new OperandStackEntry(i, 1, "const", "null"));
+			stack.push(new OperandStackEntry(i, 1, "aconst", "null"));
 			return;
 		
 		/* -> const */
 		case OPCODE_ICONST_0:
-			stack.push(new OperandStackEntry(i, 1, "const", "0"));
+			stack.push(new OperandStackEntry(i, 1, "I", "0"));
 			return;
 		case OPCODE_ICONST_1:
-			stack.push(new OperandStackEntry(i, 1, "const", "1"));
+			stack.push(new OperandStackEntry(i, 1, "I", "1"));
 			return;
 		case OPCODE_ICONST_2:
-			stack.push(new OperandStackEntry(i, 1, "const", "2"));
+			stack.push(new OperandStackEntry(i, 1, "I", "2"));
 			return;
 		case OPCODE_ICONST_3:
-			stack.push(new OperandStackEntry(i, 1, "const", "3"));
+			stack.push(new OperandStackEntry(i, 1, "I", "3"));
 			return;
 		case OPCODE_ICONST_4:
-			stack.push(new OperandStackEntry(i, 1, "const", "4"));
+			stack.push(new OperandStackEntry(i, 1, "I", "4"));
 			return;
 		case OPCODE_ICONST_5:
-			stack.push(new OperandStackEntry(i, 1, "const", "5"));
+			stack.push(new OperandStackEntry(i, 1, "I", "5"));
 			return;
 		case OPCODE_ICONST_M1:
-			stack.push(new OperandStackEntry(i, 1, "const", "-1"));
+			stack.push(new OperandStackEntry(i, 1, "I", "-1"));
 			return;
 		case OPCODE_DCONST_0:
-			stack.push(new OperandStackEntry(i, 8, "const", "0.0"));
+			stack.push(new OperandStackEntry(i, 8, "D", "0.0"));
 			return;
 		case OPCODE_DCONST_1:
-			stack.push(new OperandStackEntry(i, 8, "const", "1.0"));
+			stack.push(new OperandStackEntry(i, 8, "D", "1.0"));
 			return;
 		case OPCODE_FCONST_0:
-			stack.push(new OperandStackEntry(i, 4, "const", "0.0F"));
+			stack.push(new OperandStackEntry(i, 4, "F", "0.0F"));
 			return;
 		case OPCODE_FCONST_1:
-			stack.push(new OperandStackEntry(i, 4, "const", "1.0F"));
+			stack.push(new OperandStackEntry(i, 4, "F", "1.0F"));
 			return;
 		case OPCODE_FCONST_2:
-			stack.push(new OperandStackEntry(i, 4, "const", "2.0F"));
+			stack.push(new OperandStackEntry(i, 4, "F", "2.0F"));
 			return;
 		case OPCODE_LCONST_0:
-			stack.push(new OperandStackEntry(i, 8, "const", "0L"));
+			stack.push(new OperandStackEntry(i, 8, "lconst", "0L"));
 			return;
 		case OPCODE_LCONST_1:
-			stack.push(new OperandStackEntry(i, 8, "const", "1L"));
+			stack.push(new OperandStackEntry(i, 8, "lconst", "1L"));
 			return;
 		
 		

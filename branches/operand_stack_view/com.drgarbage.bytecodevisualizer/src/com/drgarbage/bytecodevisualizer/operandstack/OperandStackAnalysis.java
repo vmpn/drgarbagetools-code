@@ -18,6 +18,7 @@ package com.drgarbage.bytecodevisualizer.operandstack;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -255,9 +256,64 @@ public class OperandStackAnalysis {
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
 				
-				buf.append('\t');
-				buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.TYPES));
-				buf.append('\t'); //TODO: format the output columns
+				/* 
+				 * verify if all stack entries contains 
+				 * the same list of types. 
+				 */
+				List<String> listOfTypes = new ArrayList<String>();
+				if(nsp.getStackAfter().size() > 1){
+					Iterator<Stack<OperandStackEntry>> it = nsp.getStackAfter().iterator();
+					String tmpTypeList = "";
+					while(it.hasNext()){
+						String typeList = getStackTypes(it.next());
+						if(!tmpTypeList.equals(typeList)){
+							listOfTypes.add(typeList);
+						}
+					}
+				}
+				
+				if(listOfTypes.size() > 1){
+					buf.append(JavaLexicalConstants.NEWLINE);
+					buf.append(CoreMessages.Error);
+					buf.append(JavaLexicalConstants.COLON);
+					buf.append(JavaLexicalConstants.SPACE);
+					buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_Different_StackTypes);
+					buf.append(JavaLexicalConstants.SPACE);
+					
+					Iterator<String> it = listOfTypes.iterator();
+					buf.append(it.next());
+					while(it.hasNext()){
+						buf.append(JavaLexicalConstants.SPACE);
+						buf.append(JavaLexicalConstants.PIPE);
+						buf.append(JavaLexicalConstants.SPACE);
+						buf.append(it.next());	
+					}
+					
+					buf.append(JavaLexicalConstants.SPACE);
+					buf.append(JavaLexicalConstants.DOT);
+				}
+				else{
+					/* 
+					 * print list of types for the current 
+					 * byte code instruction. 
+					 */
+					buf.append('\t');
+					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.TYPES));
+					buf.append('\t'); //TODO: format the output columns
+				}
+				
+				/* 
+				 * verify if the list of stack types equals to 
+				 * invoke byte instruction arguments. 
+				 */
+				//TODO: Mismatched stack types
+				
+				/* 
+				 * verify the the type on stack for store
+				 *  byte code instruction.
+				 */
+				//TODO: Expecting to find integer on stack
+
 			}
 			
 			buf.append(JavaLexicalConstants.NEWLINE);
@@ -265,6 +321,21 @@ public class OperandStackAnalysis {
 		
 		
 		buf.append(JavaLexicalConstants.NEWLINE);
+		return buf.toString();
+	}
+	
+	/**
+	 * Return the list of types for the given stack in 
+	 * Java class file format.
+	 * @param stack
+	 * @return
+	 */
+	public static String getStackTypes(Stack<OperandStackEntry> stack){
+		StringBuffer buf = new StringBuffer();
+		for (Enumeration<OperandStackEntry> en = stack.elements(); en.hasMoreElements();){
+    		OperandStackEntry ose = en.nextElement();
+    			buf.append(ose.getVarType());
+		}
 		return buf.toString();
 	}
 	

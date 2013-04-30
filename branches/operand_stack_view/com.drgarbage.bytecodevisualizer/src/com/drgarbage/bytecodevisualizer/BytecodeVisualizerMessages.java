@@ -160,5 +160,6 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String OperandStackAnalysis_Warning_StackNonEmpty;
 	public static String OperandStackAnalysis_CurrentStackSize_Info;
 	public static String OperandStackAnalysis_Possible_unused_bytecodes;
+	public static String OperandStackAnalysis_Error_Different_StackTypes;
 	
 }
