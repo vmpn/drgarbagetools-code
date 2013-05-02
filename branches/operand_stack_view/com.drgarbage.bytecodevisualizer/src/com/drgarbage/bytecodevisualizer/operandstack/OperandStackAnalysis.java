@@ -22,7 +22,6 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
-
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
@@ -36,6 +35,7 @@ import com.drgarbage.controlflowgraph.intf.INodeType;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.javasrc.JavaLexicalConstants;
 
+
 /**
  * A collection of operand stack analysis methods.
  * 
@@ -44,6 +44,10 @@ import com.drgarbage.javasrc.JavaLexicalConstants;
  * $Id$
  */
 public class OperandStackAnalysis {
+	
+	public static int offsetColumnWidth = 5;
+	public static int byteCodeStringColumnWidth = 20;
+	
 
 	public static String executeAll(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer();
@@ -109,17 +113,17 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
+			
 			buf.append(n.getByteCodeOffset());
-			buf.append('\t');
+			formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length(), buf);
+			
 			buf.append(n.getByteCodeString());
-			buf.append('\t'); //TODO: format the output columns
-			buf.append('\t');
-			
-			
+			formatStringCol(byteCodeStringColumnWidth, n.getByteCodeString().length(), buf);
+
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
@@ -241,17 +245,17 @@ public class OperandStackAnalysis {
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append(JavaLexicalConstants.NEWLINE);
 		
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
 			buf.append(n.getByteCodeOffset());
-			buf.append('\t');
+			formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length(), buf);
+			
 			buf.append(n.getByteCodeString());
-			buf.append('\t'); //TODO: format the output columns
-			buf.append('\t');
-			
-			
+			formatStringCol(byteCodeStringColumnWidth, n.getByteCodeString().length(), buf);
+
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
@@ -297,9 +301,9 @@ public class OperandStackAnalysis {
 					 * print list of types for the current 
 					 * byte code instruction. 
 					 */
-					buf.append('\t');
+
 					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.TYPES));
-					buf.append('\t'); //TODO: format the output columns
+
 				}
 				
 				/* 
@@ -349,24 +353,21 @@ public class OperandStackAnalysis {
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append(JavaLexicalConstants.NEWLINE);
 		
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
 			buf.append(n.getByteCodeOffset());
-			buf.append('\t');
+			formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length(), buf);
+			
 			buf.append(n.getByteCodeString());
-			buf.append('\t'); //TODO: format the output columns
-			buf.append('\t');
-			
-			
+			formatStringCol(byteCodeStringColumnWidth, n.getByteCodeString().length(), buf);
+	
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
-				
-				buf.append('\t');
 				buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.ALL));
-				buf.append('\t'); //TODO: format the output columns
 			}
 			
 			buf.append(JavaLexicalConstants.NEWLINE);
@@ -374,5 +375,22 @@ public class OperandStackAnalysis {
 		
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
+	}
+	
+	public static void formatOffsetCol(int colWidth, int dataLength, StringBuffer buf){
+		if(dataLength < 4){
+			colWidth = 6;
+		}
+		else if(dataLength >=4 && dataLength<7){
+			colWidth = 8;
+		}
+		for(int i = 0;i<colWidth-dataLength;i++){
+			buf.append(JavaLexicalConstants.SPACE);
+		}
+	}
+	public static void formatStringCol(int columnWidth,int dataLength,StringBuffer buf){
+		for(int i = 0;i<columnWidth-dataLength;i++){
+			buf.append(JavaLexicalConstants.SPACE);
+		}
 	}
 }
