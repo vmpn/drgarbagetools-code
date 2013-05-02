@@ -131,9 +131,8 @@ public class OperandStack implements Opcodes{
     			buf.append(ose.getVarType());
     		}
     		else{
-    			buf.append("(");
     			buf.append(ose.getVarType());
-    			buf.append(")");
+    			buf.append(" ");
     			buf.append(ose.getValue());
     		}
     		
@@ -734,7 +733,7 @@ public class OperandStack implements Opcodes{
 			OperandStackEntry value1 = stack.pop();
 			
 			stack.push(new OperandStackEntry(i, 4, value1.getVarType(), 
-					"<" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ">"));
+					"(" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ")"));
 			return;
 		}	
 		/* value1 -> result */				
@@ -743,7 +742,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_FNEG:
 		case OPCODE_LNEG:
 			OperandStackEntry negValue = stack.pop();
-			stack.push(new OperandStackEntry(i, 4, negValue.getVarType(), "<-" + negValue.getValue() + ">"));
+			stack.push(new OperandStackEntry(i, 4, negValue.getVarType(), "(" + "-" + negValue.getValue() + ")"));
 			return;
 			
 		/* value1, value2 -> result */
@@ -857,7 +856,7 @@ public class OperandStack implements Opcodes{
 				OperandStackEntry value1 = stack.pop();
 				
 				stack.push(new OperandStackEntry(i, 4, I_INT, 
-						"<" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ">"));
+						"(" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ")"));
 				return;
 			}
 			
@@ -872,7 +871,7 @@ public class OperandStack implements Opcodes{
 				OperandStackEntry value1 = stack.pop();
 				
 				stack.push(new OperandStackEntry(i, 4, J_LONG, 
-						"<" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ">"));
+						"(" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ")"));
 				return;
 			}
 			
@@ -1214,13 +1213,13 @@ public class OperandStack implements Opcodes{
 				
 			case OPCODE_ISHL:
 			case OPCODE_LSHL:
-				return "‹‹";
+				return "<<";
 				
 			case OPCODE_ISHR:
 			case OPCODE_LSHR:
 			case OPCODE_IUSHR:
 			case OPCODE_LUSHR:
-				return "››";
+				return ">>";
 				
 			default:
 				return "?";
