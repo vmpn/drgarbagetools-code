@@ -271,7 +271,13 @@ public class OperandStackAnalysis {
 					while(it.hasNext()){
 						String typeList = getStackTypes(it.next());
 						if(!tmpTypeList.equals(typeList)){
-							listOfTypes.add(typeList);
+							if(typeList.equals("")){
+								tmpTypeList = "<empty>";
+							}
+							else{
+								tmpTypeList = typeList;
+							}
+							listOfTypes.add(tmpTypeList);
 						}
 					}
 				}
