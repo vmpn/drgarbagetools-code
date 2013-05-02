@@ -45,7 +45,7 @@ import com.drgarbage.javasrc.JavaLexicalConstants;
  */
 public class OperandStackAnalysis {
 	
-	public static int offsetColumnWidth = 5;
+	public static int offsetColumnWidth = 6;
 	public static int byteCodeStringColumnWidth = 20;
 	
 
@@ -109,6 +109,7 @@ public class OperandStackAnalysis {
 							String.valueOf(opStack.getMaxStackSize())
 					});
 			buf.append(msg);
+			
 			buf.append(JavaLexicalConstants.DOT);
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
@@ -148,7 +149,7 @@ public class OperandStackAnalysis {
 				}
 				
 				if(listOfStacksSizes.size() > 1){
-					buf.append(JavaLexicalConstants.NEWLINE);
+					fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
 					buf.append(CoreMessages.Error);
 					buf.append(JavaLexicalConstants.COLON);
 					buf.append(JavaLexicalConstants.SPACE);
@@ -170,7 +171,7 @@ public class OperandStackAnalysis {
 				}
 				
 				if(stackSize > method.getMaxStack()){
-					buf.append(JavaLexicalConstants.NEWLINE);
+					fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
 					buf.append(CoreMessages.Error);
 					buf.append(JavaLexicalConstants.COLON);
 					buf.append(JavaLexicalConstants.SPACE);
@@ -180,7 +181,7 @@ public class OperandStackAnalysis {
 				
 				if(n.getVertexType() == INodeType.NODE_TYPE_RETURN){
 					if(stackSize != 0){
-						buf.append(JavaLexicalConstants.NEWLINE);
+						fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
 						buf.append(CoreMessages.Warning);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -192,7 +193,7 @@ public class OperandStackAnalysis {
 						buf.append(msg);
 						
 						/* get reference to the corresponding byte code instruction */
-						buf.append(JavaLexicalConstants.NEWLINE);
+						fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
 						buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Possible_unused_bytecodes);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -309,7 +310,7 @@ public class OperandStackAnalysis {
 					 */
 
 					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.TYPES));
-
+					
 				}
 				
 				/* 
@@ -383,6 +384,7 @@ public class OperandStackAnalysis {
 		return buf.toString();
 	}
 	
+
 	public static void formatOffsetCol(int colWidth, int dataLength, StringBuffer buf){
 		if(dataLength < 4){
 			colWidth = 6;
@@ -394,8 +396,15 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.SPACE);
 		}
 	}
+	
 	public static void formatStringCol(int columnWidth,int dataLength,StringBuffer buf){
 		for(int i = 0;i<columnWidth-dataLength;i++){
+			buf.append(JavaLexicalConstants.SPACE);
+		}
+	}
+	public static void fillSpace(int numOfSpace, StringBuffer buf){
+		buf.append(JavaLexicalConstants.NEWLINE);
+		for(int i = 0;i<numOfSpace;i++){
 			buf.append(JavaLexicalConstants.SPACE);
 		}
 	}
