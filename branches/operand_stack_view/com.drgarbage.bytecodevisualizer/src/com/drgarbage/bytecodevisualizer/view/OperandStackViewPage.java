@@ -43,12 +43,15 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
@@ -354,16 +357,40 @@ public abstract class OperandStackViewPage extends Page {
 		showAnalyseReportAction = new Action(){
 			public void run(){
 				
-				analyseReport = new Shell();
+				/* Display the report window style as modal, only 1 window can be opened at a time*/
+				analyseReport = new Shell(SWT.APPLICATION_MODAL|SWT.CLOSE|SWT.ON_TOP);
 				analyseReport.setLayout(new FillLayout());
 				analyseReport.setText(BytecodeVisualizerMessages.OpenOpstackAnalyseWindowLabel);
 				analyseReport.setSize(800, 480);
+				
+				/* Set the report to display at center of the screen */
+				Monitor primary = analyseReport.getDisplay().getPrimaryMonitor();
+				Rectangle bounds = primary.getBounds();
+			    Rectangle rect = analyseReport.getBounds();
+			    
+			    int x = bounds.x + (bounds.width - rect.width) / 2;
+			    int y = bounds.y + (bounds.height - rect.height) / 2;
+			    analyseReport.setLocation(x, y);
+			    
+			    /* Allow ESC key to close the report */
+			    analyseReport.addListener(SWT.Traverse, new Listener() {
+			        public void handleEvent(Event event) {
+			          switch (event.detail) {
+			          case SWT.TRAVERSE_ESCAPE:
+			        	analyseReport.close();
+			            event.detail = SWT.TRAVERSE_NONE;
+			            event.doit = false;
+			            break;
+			          }
+			        }
+			      });
 				
 				text = new Text(analyseReport, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 				/*Monaco- a monospace font is chosen for formatting purpose in the analyse report*/
 				text.setFont(new Font(analyseReport.getDisplay(),"Monaco",12,SWT.NONE));
 				text.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
 				text.setLayoutData(new GridData(GridData.FILL_BOTH));
+				text.setEditable(false);
 				analyseReport.open();
 			}
 		};
