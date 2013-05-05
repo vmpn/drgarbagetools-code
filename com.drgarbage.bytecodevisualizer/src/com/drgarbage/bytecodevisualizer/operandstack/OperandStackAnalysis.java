@@ -48,6 +48,10 @@ public class OperandStackAnalysis {
 	public static int offsetColumnWidth = 6;
 	public static int byteCodeStringColumnWidth = 20;
 	
+	public static long startTime, stopTime, elapsedTime, memory;
+	
+	
+	
 
 	public static String executeAll(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer();
@@ -67,6 +71,20 @@ public class OperandStackAnalysis {
 		StringBuffer buf = new StringBuffer("=== Size based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
+		buf.append(JavaLexicalConstants.NEWLINE);
+		startTime = System.currentTimeMillis();
+		long startTimeNano = System.nanoTime();
+		buf.append("Start time: "+startTime);
+		buf.append(JavaLexicalConstants.NEWLINE);
+
+	    Runtime runtime = Runtime.getRuntime();
+//	    runtime.gc();
+	    memory = runtime.totalMemory() - runtime.freeMemory();
+	    buf.append("Used mem (in bytes): "+memory);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Used mem (in megabytes): "+memory/(1024L*1024L));
 		buf.append(JavaLexicalConstants.NEWLINE);
 		
 		buf.append(ByteCodeConstants.MAX_STACK);
@@ -211,8 +229,8 @@ public class OperandStackAnalysis {
 								}
 							}
 							while(opS.hasNext()){
-								buf.append(JavaLexicalConstants.SPACE);
 								buf.append(JavaLexicalConstants.COMMA);
+								buf.append(JavaLexicalConstants.SPACE);
 								OperandStackEntry ose = opS.next();
 								AbstractInstruction bi = ose.getBytecodeInstruction();
 								if(bi != null){
@@ -230,10 +248,22 @@ public class OperandStackAnalysis {
 			}	
 			
 			buf.append(JavaLexicalConstants.NEWLINE);
+			
 		}
 		
 		buf.append(JavaLexicalConstants.NEWLINE);
+		stopTime = System.currentTimeMillis();
+		elapsedTime = stopTime - startTime;
+		buf.append("Stop time: "+stopTime);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Elapsed time(in ms): "+elapsedTime+"\n");
+		buf.append("Elapsed time(in nano): "+(System.nanoTime()-startTimeNano));
+		
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
+		
+		
 	}
 	
 	/**
@@ -284,7 +314,7 @@ public class OperandStackAnalysis {
 				}
 				
 				if(listOfTypes.size() > 1){
-					buf.append(JavaLexicalConstants.NEWLINE);
+					fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
 					buf.append(CoreMessages.Error);
 					buf.append(JavaLexicalConstants.COLON);
 					buf.append(JavaLexicalConstants.SPACE);
