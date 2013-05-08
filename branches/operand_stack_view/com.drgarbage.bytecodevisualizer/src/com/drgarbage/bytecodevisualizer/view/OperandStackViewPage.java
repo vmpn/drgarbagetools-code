@@ -157,6 +157,7 @@ public abstract class OperandStackViewPage extends Page {
 	public static Color RED = new Color(null,255,0,0);
 	public static Color ORANGE = new Color(null,255,127,0);
 	public static Color GREEN = new Color(null, 50, 205, 50);
+	public static Color BLUE = new Color(null, 120, 178, 255);
 
 
 	/**
@@ -394,15 +395,36 @@ public abstract class OperandStackViewPage extends Page {
 				styledText.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
 				styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
 				styledText.setEditable(false);
-				
+
 				StyleRange Error = new StyleRange();
 				StyleRange Warning = new StyleRange();
 				StyleRange Passed = new StyleRange();
 
+				styledText.setLineBackground(0, 1, BLUE);
+				int count = 0;
+				for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
+					count++;
+					if(styledText.getText().indexOf("=== Type based analysis:")==(i+1)) {
+						styledText.setLineBackground(count, 1, BLUE);
+					}
+				}
+
+				int count2 = 0;
+				for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
+					count2++;
+					if(styledText.getText().indexOf("=== Content based analysis:")==(i+1)) {
+						styledText.setLineBackground(count2, 1, BLUE);
+					}
+				}
+					
+				formatColor(Error,styledText,"Size based analysis completed with Errors/Warnings.",RED);
 				formatColor(Error,styledText,"Error:",RED);
+				formatColor(Error,styledText,"Type based analysis completed with Errors/Warning.",RED);
 				formatColor(Warning,styledText,"Warning:",ORANGE);
 				formatColor(Passed,styledText,"Size based analysis SUCCESSFULLY PASSED.",GREEN);
-
+				formatColor(Passed,styledText,"Type based analysis SUCCESSFULLY PASSED.",GREEN);
+				
+				
 				analyseReport.open();
 			}
 		};
@@ -574,8 +596,6 @@ public abstract class OperandStackViewPage extends Page {
 			styleRange.foreground = color;
 			styledText.setStyleRange(styleRange);
 		} 
-
-
 	}
 
 	/*
