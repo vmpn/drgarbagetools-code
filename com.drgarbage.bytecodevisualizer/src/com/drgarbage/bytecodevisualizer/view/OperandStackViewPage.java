@@ -41,6 +41,8 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -53,7 +55,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -127,13 +128,13 @@ public abstract class OperandStackViewPage extends Page {
 	 * BASICBKLOCK_VIEW or INSTR_LIST_VIEW.
 	 */
 	OperandStackView_ID view_ID = OperandStackView_ID.TREE_VIEW;
-	
+
 	static enum OperandStackDisplayFormat_ID{
 		DISPLAY_ALL,
 		DISPLAY_SIMPLE,
 		DISPLAY_TYPES;
 	};
-	
+
 	static enum ColumnIndex{
 		OFFSET(0),
 		OPCODEMNEMONIC(1),
@@ -141,21 +142,23 @@ public abstract class OperandStackViewPage extends Page {
 		OPSTACKAFTER(3),
 		OPSTACKDEPTH(4),
 		DESCRIPTION(5);
-		
+
 		private final int INDEX;
-		
+
 		private ColumnIndex(int INDEX){
 			this.INDEX = INDEX;
 		}
 		public int getIndex(){
 			return INDEX;
 		}
-		
+
 	};
-	
+
 	public static Color RED = new Color(null,255,0,0);
 	public static Color ORANGE = new Color(null,255,127,0);
-	
+	public static Color GREEN = new Color(null, 50, 205, 50);
+
+
 	/**
 	 * The standard value for displaying all information in 2 columns "Operand Stack before" and "Operand Stack after"
 	 */
@@ -180,13 +183,13 @@ public abstract class OperandStackViewPage extends Page {
 	 * Reference to the active byte code editor.
 	 */
 	private BytecodeEditor editor;
-	
+
 	/**
 	 * This is for the operand stack analysis report
 	 */
 	private Shell analyseReport;
-	
-	private Text text;
+
+	private StyledText styledText;
 
 	private synchronized boolean isTreeViewerSelectionMutex() {
 		return treeViewerSelectionMutex;
@@ -228,7 +231,7 @@ public abstract class OperandStackViewPage extends Page {
 	public void setView_ID(OperandStackView_ID view_ID) {
 		this.view_ID = view_ID;
 	}
-	
+
 	/**
 	 * Returns the current displayFormat id, one of the DISPLAY_ALL, DISPLAY_SIMPLE, DISPLAY_TYPES
 	 * @return displayFormat_ID
@@ -236,7 +239,7 @@ public abstract class OperandStackViewPage extends Page {
 	public OperandStackDisplayFormat_ID getDisplayFormat_ID(){
 		return displayFormat_ID;
 	}
-	
+
 	/**
 	 * Sets the display format id, one of the DISPLAY_ALL, DISPLAY_SIMPLE, DISPLAY_TYPES
 	 * @param displayFormat_ID
@@ -261,9 +264,9 @@ public abstract class OperandStackViewPage extends Page {
 		 * been cleaned by the setErrorMessage(""); 
 		 */
 		slm.setErrorMessage("");
-		
+
 		if(operandStack.getMaxStackSize() > methodInput.getMaxStack()){
-			
+
 			StringBuffer buf = new StringBuffer();
 			buf.append(CoreMessages.Error);
 			buf.append(JavaLexicalConstants.COLON);
@@ -276,7 +279,7 @@ public abstract class OperandStackViewPage extends Page {
 			buf.append(", calculated max stack size is "); //$NON-NLS-1$
 			buf.append(operandStack.getMaxStackSize());
 			buf.append(JavaLexicalConstants.DOT);
-			
+
 			slm.setErrorMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_ERROR_TSK),
 					buf.toString());
 		}
@@ -293,7 +296,7 @@ public abstract class OperandStackViewPage extends Page {
 			buf.append(", calculated max stack size is "); //$NON-NLS-1$
 			buf.append(operandStack.getMaxStackSize());
 			buf.append(JavaLexicalConstants.DOT);
-			
+
 			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_WARN_TSK),
 					buf.toString());
 		}
@@ -303,7 +306,7 @@ public abstract class OperandStackViewPage extends Page {
 			buf.append(methodInput.getMaxStack());
 			buf.append(", max_locals: "); //$NON-NLS-1$
 			buf.append(methodInput.getMaxLocals());
-			
+
 			slm.setMessage(PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJS_INFO_TSK),
 					buf.toString());
 		}
@@ -353,48 +356,57 @@ public abstract class OperandStackViewPage extends Page {
 		showInstructioneListViewAction.setChecked(false);
 
 		enableActions(false);
-		
+
 		showAnalyseReportAction = new Action(){
 			public void run(){
-				
+
 				/* Display the report window style as modal, only 1 window can be opened at a time*/
 				analyseReport = new Shell(SWT.APPLICATION_MODAL|SWT.CLOSE|SWT.ON_TOP);
 				analyseReport.setLayout(new FillLayout());
 				analyseReport.setText(BytecodeVisualizerMessages.OpenOpstackAnalyseWindowLabel);
 				analyseReport.setSize(800, 480);
-				
+
 				/* Set the report to display at center of the screen */
 				Monitor primary = analyseReport.getDisplay().getPrimaryMonitor();
 				Rectangle bounds = primary.getBounds();
-			    Rectangle rect = analyseReport.getBounds();
-			    
-			    int x = bounds.x + (bounds.width - rect.width) / 2;
-			    int y = bounds.y + (bounds.height - rect.height) / 2;
-			    analyseReport.setLocation(x, y);
-			    
-			    /* Allow ESC key to close the report */
-			    analyseReport.addListener(SWT.Traverse, new Listener() {
-			        public void handleEvent(Event event) {
-			          switch (event.detail) {
-			          case SWT.TRAVERSE_ESCAPE:
-			        	analyseReport.close();
-			            event.detail = SWT.TRAVERSE_NONE;
-			            event.doit = false;
-			            break;
-			          }
-			        }
-			      });
-				
-				text = new Text(analyseReport, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
+				Rectangle rect = analyseReport.getBounds();
+
+				int x = bounds.x + (bounds.width - rect.width) / 2;
+				int y = bounds.y + (bounds.height - rect.height) / 2;
+				analyseReport.setLocation(x, y);
+
+				/* Allow ESC key to close the report */
+				analyseReport.addListener(SWT.Traverse, new Listener() {
+					public void handleEvent(Event event) {
+						switch (event.detail) {
+						case SWT.TRAVERSE_ESCAPE:
+							analyseReport.close();
+							event.detail = SWT.TRAVERSE_NONE;
+							event.doit = false;
+							break;
+						}
+					}
+				});
+
+				styledText = new StyledText(analyseReport, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 				/*Monaco- a monospace font is chosen for formatting purpose in the analyse report*/
-				text.setFont(new Font(analyseReport.getDisplay(),"Monaco",12,SWT.NONE));
-				text.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
-				text.setLayoutData(new GridData(GridData.FILL_BOTH));
-				text.setEditable(false);
+				styledText.setFont(new Font(analyseReport.getDisplay(),"Monaco",12,SWT.NONE));
+				styledText.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
+				styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
+				styledText.setEditable(false);
+				
+				StyleRange Error = new StyleRange();
+				StyleRange Warning = new StyleRange();
+				StyleRange Passed = new StyleRange();
+
+				formatColor(Error,styledText,"Error:",RED);
+				formatColor(Warning,styledText,"Warning:",ORANGE);
+				formatColor(Passed,styledText,"Size based analysis SUCCESSFULLY PASSED.",GREEN);
+
 				analyseReport.open();
 			}
 		};
-		
+
 		showAnalyseReportAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
 		showAnalyseReportAction.setText(BytecodeVisualizerMessages.OpenOpstackAnalyseAction_Text);
 		showAnalyseReportAction.setToolTipText(BytecodeVisualizerMessages.OpenOpstackAnalyseAction_Tooltip);
@@ -411,7 +423,7 @@ public abstract class OperandStackViewPage extends Page {
 		MenuManager subMenuViewLayout = new MenuManager(BytecodeVisualizerMessages.subMenuViewLayout_Text, null);
 		final MenuManager subMenuShowColumn = new MenuManager(BytecodeVisualizerMessages.subMenuShowColumn_Text,null);
 		final MenuManager subMenuFormat = new MenuManager(BytecodeVisualizerMessages.subMenuFormat_Text,null);
-		
+
 		imb.add(subMenuViewLayout);
 		imb.add(subMenuShowColumn);
 		imb.add(subMenuFormat);
@@ -438,8 +450,8 @@ public abstract class OperandStackViewPage extends Page {
 			}
 		};
 		showOSBeforeColumnAction.setText(BytecodeVisualizerMessages.OpstackBeforeColumnName);
-		
-		
+
+
 		showOSAfterColumnAction = new Action() {
 			public void run() {
 				if(column4.getWidth() == 0){
@@ -490,11 +502,11 @@ public abstract class OperandStackViewPage extends Page {
 			}
 		};
 		showDescriptionColumnAction.setText(BytecodeVisualizerMessages.OpstackDescriptionColumnName);
-		
+
 		showOSBeforeColumnAction.setChecked(true);
 		showOSAfterColumnAction.setChecked(true);
 		showOSDepthColumnAction.setChecked(true);
-		
+
 		subMenuShowColumn.add(showOSBeforeColumnAction);
 		subMenuShowColumn.add(showOSAfterColumnAction);
 		subMenuShowColumn.add(showOSDepthColumnAction);
@@ -506,45 +518,66 @@ public abstract class OperandStackViewPage extends Page {
 				activateDisplayFormat(OperandStackDisplayFormat_ID.DISPLAY_SIMPLE);
 				subMenuFormat.update(true);
 			}
-			
+
 			public String getText(){
 				return BytecodeVisualizerMessages.DisplayFormatSIMPLE;
 			}
 		};
 		displaySimpleAction.setChecked(true);
-		
+
 		displayAllAction = new Action() {
 			public void run() {
 				opstackRepresenationFormat = OpstackRepresenation.ALL;
 				activateDisplayFormat(OperandStackDisplayFormat_ID.DISPLAY_ALL);
 				subMenuFormat.update(true);
 			}
-			
+
 			public String getText(){
 				return BytecodeVisualizerMessages.DisplayFormatALL;
 			}
 		};
 		displayAllAction.setChecked(false);
-		
+
 		displayTypesAction = new Action() {
 			public void run() {
 				opstackRepresenationFormat = OpstackRepresenation.TYPES;
 				activateDisplayFormat(OperandStackDisplayFormat_ID.DISPLAY_TYPES);
 				subMenuFormat.update(true);
 			}
-		
-		public String getText(){
-			return BytecodeVisualizerMessages.DisplayFormatTYPES;
+
+			public String getText(){
+				return BytecodeVisualizerMessages.DisplayFormatTYPES;
 			}
 		};
 		displayTypesAction.setChecked(false);
-		
+
 		subMenuFormat.add(displaySimpleAction);
 		subMenuFormat.add(displayTypesAction);
 		subMenuFormat.add(displayAllAction);
-		
+
 	}
-	
+
+	/**
+	 * Method to format specifi string in a StyledText area
+	 * @param styleRange
+	 * @param styledText
+	 * @param toBeFormatted
+	 * @param color
+	 */
+	protected void formatColor(StyleRange styleRange, StyledText styledText,
+			String toBeFormatted, Color color) {
+
+		for (int i = -1; (i = styledText.getText().indexOf(toBeFormatted, i + 1)) != -1; ) {
+			styleRange.start = i;
+			styleRange.length = toBeFormatted.length();
+			styleRange.fontStyle = SWT.BOLD;
+			styleRange.foreground = color;
+			styledText.setStyleRange(styleRange);
+		} 
+
+
+	}
+
 	/*
 	 * Default presentation format is SIMPLE
 	 */
@@ -588,13 +621,13 @@ public abstract class OperandStackViewPage extends Page {
 			setInput(methodInput.getInstructionLines());
 		}
 	}
-	
+
 	/**
 	 * Activates selected Display Format
 	 * @param id - id of the format
 	 */
 	private void activateDisplayFormat(OperandStackDisplayFormat_ID id){
-		
+
 		if(id == OperandStackDisplayFormat_ID.DISPLAY_ALL){
 			displayAllAction.setChecked(true);
 			displaySimpleAction.setChecked(false);
@@ -610,7 +643,7 @@ public abstract class OperandStackViewPage extends Page {
 			displaySimpleAction.setChecked(false);
 			displayTypesAction.setChecked(true);
 		}
-		
+
 		/* update input */
 		if(methodInput != null){
 			setDisplayFormat_ID(id);
@@ -769,11 +802,11 @@ public abstract class OperandStackViewPage extends Page {
 		tree.setLinesVisible(true);
 
 		int order[] = {ColumnIndex.OPCODEMNEMONIC.getIndex(), 
-					   ColumnIndex.OFFSET.getIndex(),
-					   ColumnIndex.OPSTACKBEFORE.getIndex(), 
-					   ColumnIndex.OPSTACKAFTER.getIndex(), 
-					   ColumnIndex.OPSTACKDEPTH.getIndex(),
-					   ColumnIndex.DESCRIPTION.getIndex()};
+				ColumnIndex.OFFSET.getIndex(),
+				ColumnIndex.OPSTACKBEFORE.getIndex(), 
+				ColumnIndex.OPSTACKAFTER.getIndex(), 
+				ColumnIndex.OPSTACKDEPTH.getIndex(),
+				ColumnIndex.DESCRIPTION.getIndex()};
 		tree.setColumnOrder(order);
 
 		treeViewer.setContentProvider(new TreeViewContentProvider());
@@ -943,11 +976,11 @@ public abstract class OperandStackViewPage extends Page {
 					else if (columnIndex == ColumnIndex.OPSTACKDEPTH.getIndex()) { /* stack depth */
 						if(node.getDepth() != null){
 							int stackSize = OperandStack.UNKNOWN_SIZE;
-							
+
 							if(node.getDepth().length == 1){
 								stackSize = node.getDepth()[0];
 							}
-							
+
 							List<Integer> listOfStacksSizes = new ArrayList<Integer>();
 							if(node.getDepth().length > 1){
 								for(int s: node.getDepth()){
@@ -959,7 +992,7 @@ public abstract class OperandStackViewPage extends Page {
 									}
 								}
 							}
-							
+
 							/* execute some trivial size based checks */
 							if(stackSize > methodInput.getMaxStack() 
 									|| stackSize ==  OperandStack.UNKNOWN_SIZE
@@ -991,7 +1024,7 @@ public abstract class OperandStackViewPage extends Page {
 								buf.append(JavaLexicalConstants.DOT);
 								return buf.toString();
 							}
-							
+
 							if(listOfStacksSizes.size() > 1){
 								StringBuffer buf = new StringBuffer();
 								buf.append(CoreMessages.Error);
@@ -999,20 +1032,20 @@ public abstract class OperandStackViewPage extends Page {
 								buf.append(JavaLexicalConstants.SPACE);
 								buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_Different_StackSizes);
 								buf.append(JavaLexicalConstants.SPACE);
-								
+
 								Iterator<Integer> it = listOfStacksSizes.iterator();
 								buf.append(it.next());
 								while(it.hasNext()){
 									buf.append(JavaLexicalConstants.PIPE);
 									buf.append(it.next());	
 								}
-								
+
 								buf.append(JavaLexicalConstants.SPACE);
 								buf.append(JavaLexicalConstants.DOT);
-								
+
 								return buf.toString();
 							}
-							
+
 							/* check if the stack is empty in the return nodes */
 							if(ControlFlowGraphUtils.
 									getInstructionNodeType(i.getInstruction().getOpcode()) 
@@ -1023,7 +1056,7 @@ public abstract class OperandStackViewPage extends Page {
 										TreeItem t = (TreeItem)w;
 										t.setForeground(ORANGE);
 									}
-									
+
 									StringBuffer buf = new StringBuffer(); 
 									buf.append(CoreMessages.Warning);
 									buf.append(JavaLexicalConstants.COLON);
@@ -1038,11 +1071,11 @@ public abstract class OperandStackViewPage extends Page {
 											});
 									buf.append(msg);
 									buf.append(JavaLexicalConstants.DOT);
-									
+
 									return buf.toString();
 								}
 							}
-							
+
 							return String.valueOf(stackSize);
 						}
 					}
@@ -1138,7 +1171,7 @@ public abstract class OperandStackViewPage extends Page {
 							node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
 							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0), OpstackRepresenation.TYPES));
 						}
-						
+
 						node.setDepth(nsp.getStackSize());
 					}
 					else{
@@ -1250,10 +1283,12 @@ public abstract class OperandStackViewPage extends Page {
 		public void setOperandStackAfter(String operandStack) {
 			this.operandStackAfter = operandStack;
 		}
-		
+
 		public void setDepth(int depth[]) {
 			this.depth = depth;
 		}
+
+
 	}
 }
 

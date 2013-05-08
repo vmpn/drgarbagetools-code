@@ -22,6 +22,9 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+
+import quicktime.app.spaces.Space;
+
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
@@ -44,24 +47,21 @@ import com.drgarbage.javasrc.JavaLexicalConstants;
  * $Id$
  */
 public class OperandStackAnalysis {
-	
+
 	public static int offsetColumnWidth = 6;
 	public static int byteCodeStringColumnWidth = 20;
-	
+
 	public static long startTime, stopTime, elapsedTime, memory;
-	
-	
-	
 
 	public static String executeAll(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer();
 		buf.append(sizeBasedAnalysis(opStack, method));
 		buf.append(typeBasedAnalysis(opStack, method));
 		buf.append(contentBasedAnalysis(opStack, method));
-		
+
 		return buf.toString();
 	}
-	
+
 	/**
 	 * Returns a text representing the size based analysis 
 	 * of the current operand stack object.
@@ -72,31 +72,34 @@ public class OperandStackAnalysis {
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		buf.append(JavaLexicalConstants.NEWLINE);
 		startTime = System.currentTimeMillis();
 		long startTimeNano = System.nanoTime();
+		//		TODO String constants
 		buf.append("Start time: "+startTime);
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-	    Runtime runtime = Runtime.getRuntime();
-//	    runtime.gc();
-	    memory = runtime.totalMemory() - runtime.freeMemory();
-	    buf.append("Used mem (in bytes): "+memory);
+		Runtime runtime = Runtime.getRuntime();
+		//	    runtime.gc();
+		memory = runtime.totalMemory() - runtime.freeMemory();
+		//		TODO String constants
+		buf.append("Used mem (in bytes): "+memory);
 		buf.append(JavaLexicalConstants.NEWLINE);
+		//		TODO String constants
 		buf.append("Used mem (in megabytes): "+memory/(1024L*1024L));
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		buf.append(ByteCodeConstants.MAX_STACK);
 		buf.append(JavaLexicalConstants.COLON);
 		buf.append(method.getMaxStack());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		buf.append(ByteCodeConstants.MAX_LOCALS);
 		buf.append(JavaLexicalConstants.COLON);
 		buf.append(method.getMaxLocals());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		/* max stack overflow or underflow */
 		if(opStack.getMaxStackSize() > method.getMaxStack()){
 			buf.append(CoreMessages.Error);
@@ -127,7 +130,7 @@ public class OperandStackAnalysis {
 							String.valueOf(opStack.getMaxStackSize())
 					});
 			buf.append(msg);
-			
+
 			buf.append(JavaLexicalConstants.DOT);
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
@@ -136,24 +139,24 @@ public class OperandStackAnalysis {
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
-			
+
 			buf.append(n.getByteCodeOffset());
-			formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length(), buf);
-			
+			buf.append(formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length()));
+
 			buf.append(n.getByteCodeString());
-			formatStringCol(byteCodeStringColumnWidth, n.getByteCodeString().length(), buf);
+			buf.append(formatStringColumn(byteCodeStringColumnWidth, n.getByteCodeString().length()));
 
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
-				
+
 				int depth[] = nsp.getStackSize();
 				int stackSize = OperandStack.UNKNOWN_SIZE;
-				
+
 				if(depth.length == 1){
 					stackSize= depth[0];
 				}
-				
+
 				List<Integer> listOfStacksSizes = new ArrayList<Integer>();
 				if(depth.length > 1){
 					for(int s: depth){
@@ -165,41 +168,41 @@ public class OperandStackAnalysis {
 						}
 					}
 				}
-				
+
 				if(listOfStacksSizes.size() > 1){
-					fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
+					buf.append(spacesGenerator(offsetColumnWidth+byteCodeStringColumnWidth));
 					buf.append(CoreMessages.Error);
 					buf.append(JavaLexicalConstants.COLON);
 					buf.append(JavaLexicalConstants.SPACE);
 					buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_Different_StackSizes);
 					buf.append(JavaLexicalConstants.SPACE);
-					
+
 					Iterator<Integer> it = listOfStacksSizes.iterator();
 					buf.append(it.next());
 					while(it.hasNext()){
 						buf.append(JavaLexicalConstants.PIPE);
 						buf.append(it.next());	
 					}
-					
+
 					buf.append(JavaLexicalConstants.SPACE);
 					buf.append(JavaLexicalConstants.DOT);
 				}
 				else{
 					buf.append(stackSize);
 				}
-				
+
 				if(stackSize > method.getMaxStack()){
-					fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
+					buf.append(spacesGenerator(offsetColumnWidth+byteCodeStringColumnWidth));
 					buf.append(CoreMessages.Error);
 					buf.append(JavaLexicalConstants.COLON);
 					buf.append(JavaLexicalConstants.SPACE);
 					buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_StackOverflow);
 					buf.append(JavaLexicalConstants.DOT);
 				}
-				
+
 				if(n.getVertexType() == INodeType.NODE_TYPE_RETURN){
 					if(stackSize != 0){
-						fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
+						buf.append(spacesGenerator(offsetColumnWidth+byteCodeStringColumnWidth));
 						buf.append(CoreMessages.Warning);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -209,9 +212,9 @@ public class OperandStackAnalysis {
 										String.valueOf(stackSize)
 								});
 						buf.append(msg);
-						
+
 						/* get reference to the corresponding byte code instruction */
-						fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
+						buf.append(spacesGenerator(offsetColumnWidth+byteCodeStringColumnWidth));
 						buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Possible_unused_bytecodes);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -240,17 +243,17 @@ public class OperandStackAnalysis {
 									buf.append(ose.getValue());
 								}
 							}
-							
+
 						}
 					}
 				}
-				
+
 			}	
-			
+
 			buf.append(JavaLexicalConstants.NEWLINE);
-			
+
 		}
-		
+
 		buf.append(JavaLexicalConstants.NEWLINE);
 		stopTime = System.currentTimeMillis();
 		elapsedTime = stopTime - startTime;
@@ -258,14 +261,17 @@ public class OperandStackAnalysis {
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append("Elapsed time(in ms): "+elapsedTime+"\n");
 		buf.append("Elapsed time(in nano): "+(System.nanoTime()-startTimeNano));
-		
+		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
+			buf.append(JavaLexicalConstants.NEWLINE);
+			buf.append("Size based analysis SUCCESSFULLY PASSED.");
+		}
+
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
-		
-		
+
 	}
-	
+
 	/**
 	 * Returns a text representing the type based analysis 
 	 * of the current operand stack object.
@@ -277,20 +283,20 @@ public class OperandStackAnalysis {
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
+
 			buf.append(n.getByteCodeOffset());
-			formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length(), buf);
-			
+			buf.append(formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length()));
 			buf.append(n.getByteCodeString());
-			formatStringCol(byteCodeStringColumnWidth, n.getByteCodeString().length(), buf);
+			buf.append(formatStringColumn(byteCodeStringColumnWidth, n.getByteCodeString().length()));
 
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
-				
+
 				/* 
 				 * verify if all stack entries contains 
 				 * the same list of types. 
@@ -312,15 +318,15 @@ public class OperandStackAnalysis {
 						}
 					}
 				}
-				
+
 				if(listOfTypes.size() > 1){
-					fillSpace(offsetColumnWidth+byteCodeStringColumnWidth, buf);
+					buf.append(spacesGenerator(offsetColumnWidth+byteCodeStringColumnWidth));
 					buf.append(CoreMessages.Error);
 					buf.append(JavaLexicalConstants.COLON);
 					buf.append(JavaLexicalConstants.SPACE);
 					buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Error_Different_StackTypes);
 					buf.append(JavaLexicalConstants.SPACE);
-					
+
 					Iterator<String> it = listOfTypes.iterator();
 					buf.append(it.next());
 					while(it.hasNext()){
@@ -329,7 +335,7 @@ public class OperandStackAnalysis {
 						buf.append(JavaLexicalConstants.SPACE);
 						buf.append(it.next());	
 					}
-					
+
 					buf.append(JavaLexicalConstants.SPACE);
 					buf.append(JavaLexicalConstants.DOT);
 				}
@@ -340,15 +346,17 @@ public class OperandStackAnalysis {
 					 */
 
 					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.TYPES));
-					
 				}
-				
+
 				/* 
 				 * verify if the list of stack types equals to 
 				 * invoke byte instruction arguments. 
 				 */
 				//TODO: Mismatched stack types
-				
+
+				buf.append(spacesGenerator(byteCodeStringColumnWidth+offsetColumnWidth));
+				buf.append(verifyTypes(n,opStack));
+
 				/* 
 				 * verify the the type on stack for store
 				 *  byte code instruction.
@@ -356,15 +364,15 @@ public class OperandStackAnalysis {
 				//TODO: Expecting to find integer on stack
 
 			}
-			
+
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
-		
-		
+
+
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
 	}
-	
+
 	/**
 	 * Return the list of types for the given stack in 
 	 * Java class file format.
@@ -374,12 +382,12 @@ public class OperandStackAnalysis {
 	public static String getStackTypes(Stack<OperandStackEntry> stack){
 		StringBuffer buf = new StringBuffer();
 		for (Enumeration<OperandStackEntry> en = stack.elements(); en.hasMoreElements();){
-    		OperandStackEntry ose = en.nextElement();
-    			buf.append(ose.getVarType());
+			OperandStackEntry ose = en.nextElement();
+			buf.append(ose.getVarType());
 		}
 		return buf.toString();
 	}
-	
+
 	/**
 	 * Returns a text representing the content based analysis 
 	 * of the current operand stack object.
@@ -391,31 +399,32 @@ public class OperandStackAnalysis {
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
-		
+
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
 			buf.append(n.getByteCodeOffset());
-			formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length(), buf);
-			
+			buf.append(formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length()));
+
 			buf.append(n.getByteCodeString());
-			formatStringCol(byteCodeStringColumnWidth, n.getByteCodeString().length(), buf);
-	
+			buf.append(formatStringColumn(byteCodeStringColumnWidth, n.getByteCodeString().length()));
+
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
 				NodeStackProperty nsp = (NodeStackProperty)obj;
 				buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.ALL));
 			}
-			
+
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
-		
+
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
 	}
-	
 
-	public static void formatOffsetCol(int colWidth, int dataLength, StringBuffer buf){
+
+	public static String formatOffsetCol(int colWidth, int dataLength){
+		String spaces = "";
 		if(dataLength < 4){
 			colWidth = 6;
 		}
@@ -423,19 +432,78 @@ public class OperandStackAnalysis {
 			colWidth = 8;
 		}
 		for(int i = 0;i<colWidth-dataLength;i++){
-			buf.append(JavaLexicalConstants.SPACE);
+			spaces+= String.valueOf(JavaLexicalConstants.SPACE);
 		}
+		return spaces;
 	}
-	
-	public static void formatStringCol(int columnWidth,int dataLength,StringBuffer buf){
-		for(int i = 0;i<columnWidth-dataLength;i++){
-			buf.append(JavaLexicalConstants.SPACE);
+
+	/**
+	 * Generate a number of spaces for formatting purposes in bytecode String column
+	 * @param columnWidth
+	 * @param dataLength
+	 * @return spaces
+	 */
+
+	public static String formatStringColumn(int columnWidth, int dataLength){
+		String spaces = "";
+		for(int i = 0;i<columnWidth - dataLength;i++){
+			spaces+= String.valueOf(JavaLexicalConstants.SPACE);
 		}
+		return spaces;
 	}
-	public static void fillSpace(int numOfSpace, StringBuffer buf){
-		buf.append(JavaLexicalConstants.NEWLINE);
-		for(int i = 0;i<numOfSpace;i++){
-			buf.append(JavaLexicalConstants.SPACE);
+
+	/**
+	 * Generate a number of spaces for formatting purposes
+	 * @param numOfSpace
+	 * @return String
+	 */
+	public static String spacesGenerator(int numOfSpace){
+		String spaces="\n";
+		for(int i = 0;i < numOfSpace;i++){
+			spaces+=String.valueOf(JavaLexicalConstants.SPACE);
 		}
+		return spaces;
+	}
+
+	public static String verifyTypes(INodeExt n,OperandStack opStack){
+		//		Match all byteCodeString begin with [BCDFIJSZL] and follow by any word
+		String pattern [] = new String [8];
+		pattern [0] = "^f\\w*";    								/* F */
+		pattern [1] = "^i(?!f)(?!ns)(?!nv)(?!mp)\\w*";			/* I */
+		pattern [2] = "^d(?!up)\\w*";							/* D */
+		pattern [3] = "^l(?!dc)(?!oo)\\w*";						/* J */
+		pattern [4] = "^b(?!re)\\w*";							/* B */
+		pattern [5] = "^s(?!(i|w))\\w*";						/* S */	
+		pattern [6] ="^c(?!h)\\w*";								/* C */
+		pattern [7] = "^a\\w*";									/* L */
+
+		String types [] = new String [8];
+		types [0] = String.valueOf(ByteCodeConstants.F_FLOAT);
+		types [1] = String.valueOf(ByteCodeConstants.I_INT);
+		types [2] = String.valueOf(ByteCodeConstants.D_DOUBLE);
+		types [3] = String.valueOf(ByteCodeConstants.J_LONG);
+		types [4] = String.valueOf(ByteCodeConstants.B_BYTE);
+		types [5] = String.valueOf(ByteCodeConstants.S_SHORT);
+		types [6] = String.valueOf(ByteCodeConstants.C_CHAR);
+		types [7] = String.valueOf(ByteCodeConstants.L_REFERENCE);
+
+		String result="";
+
+		if(n.getByteCodeOffset()!=0){
+			for(int i = 0;i<pattern.length;i++){
+				if(n.getByteCodeString().matches(pattern[i])){
+					if(!OperandStack.stackToString(opStack.getStackBefore(n).get(0),OpstackRepresenation.TYPES).equalsIgnoreCase(types[i])){
+						if(n.getByteCodeString().contains("store")){
+							result=CoreMessages.Error+": Expecting to find integer on stack";
+						}else{
+							result=CoreMessages.Error+": Type mismatch";
+						}
+					}else{
+
+					}
+				}
+			}
+		}
+		return result;
 	}
 }
