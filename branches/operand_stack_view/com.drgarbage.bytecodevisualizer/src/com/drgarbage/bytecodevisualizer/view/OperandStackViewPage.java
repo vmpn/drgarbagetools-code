@@ -394,7 +394,8 @@ public abstract class OperandStackViewPage extends Page {
 				styledText.setFont(new Font(analyseReport.getDisplay(),"Monaco",12,SWT.NONE));
 				styledText.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
 				styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
-				styledText.setEditable(false);
+				//TODO : later set to true
+//				styledText.setEditable(false);
 
 				StyleRange Error = new StyleRange();
 				StyleRange Warning = new StyleRange();
@@ -414,6 +415,14 @@ public abstract class OperandStackViewPage extends Page {
 					count2++;
 					if(styledText.getText().indexOf("=== Content based analysis:")==(i+1)) {
 						styledText.setLineBackground(count2, 1, BLUE);
+					}
+				}
+				
+				int count3 = 0;
+				for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
+					count3++;
+					if(styledText.getText().indexOf("Statistics:")==(i+1)) {
+						styledText.setLineBackground(count3, 1, BLUE);
 					}
 				}
 					

@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
@@ -49,15 +48,30 @@ public class OperandStackAnalysis {
 
 	public static int offsetColumnWidth = 6;
 	public static int byteCodeStringColumnWidth = 20;
+	public static int numOfIf=0;
+	public static int numOfSwitch=0;
+	
 
-	public static long startTime, stopTime, elapsedTime, memory;
 
 	public static String executeAll(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer();
 		buf.append(sizeBasedAnalysis(opStack, method));
 		buf.append(typeBasedAnalysis(opStack, method));
 		buf.append(contentBasedAnalysis(opStack, method));
-
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Statistics:");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Time to generate the operand Stack: "+ OperandStack.end/1000000+" ms");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Memory consumption: "+ OperandStack.memoryConsumption/(1024L*1024L)+" Mbytes");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Number of IF: ");
+		buf.append(numOfIf);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Number of switch: ");
+		buf.append(numOfSwitch);
+		
+		
 		return buf.toString();
 	}
 
@@ -67,12 +81,6 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String sizeBasedAnalysis(OperandStack opStack, IMethodSection method){
-		startTime = System.currentTimeMillis();
-		long startTimeNano = System.nanoTime();
-		
-		Runtime runtime = Runtime.getRuntime();
-		//	    runtime.gc();
-		memory = runtime.totalMemory() - runtime.freeMemory();
 		
 		StringBuffer buf = new StringBuffer("=== Size based analysis: ");
 		buf.append(method.getName());
@@ -81,18 +89,6 @@ public class OperandStackAnalysis {
 
 		buf.append(JavaLexicalConstants.NEWLINE);
 		
-		//		TODO String constants
-		buf.append("Start time: "+startTime);
-		buf.append(JavaLexicalConstants.NEWLINE);
-
-		
-		//		TODO String constants
-		buf.append("Used mem (in bytes): "+memory);
-		buf.append(JavaLexicalConstants.NEWLINE);
-		//		TODO String constants
-		buf.append("Used mem (in megabytes): "+memory/(1024L*1024L));
-		buf.append(JavaLexicalConstants.NEWLINE);
-
 		buf.append(ByteCodeConstants.MAX_STACK);
 		buf.append(JavaLexicalConstants.COLON);
 		buf.append(method.getMaxStack());
@@ -148,6 +144,10 @@ public class OperandStackAnalysis {
 
 			buf.append(n.getByteCodeString());
 			buf.append(formatStringColumn(byteCodeStringColumnWidth, n.getByteCodeString().length()));
+			
+			countIf(n);
+			countSwitch(n);
+			
 
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
@@ -258,11 +258,6 @@ public class OperandStackAnalysis {
 		}
 
 		buf.append(JavaLexicalConstants.NEWLINE);
-		stopTime = System.currentTimeMillis();
-		elapsedTime = stopTime - startTime;
-		buf.append("Stop time: "+stopTime);
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Elapsed time(in nano): "+(System.nanoTime()-startTimeNano));
 		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
 			buf.append(JavaLexicalConstants.NEWLINE);
 			buf.append("Size based analysis SUCCESSFULLY PASSED.");
@@ -283,31 +278,19 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String typeBasedAnalysis(OperandStack opStack, IMethodSection method){
-		startTime = System.currentTimeMillis();
-		long startTimeNano = System.nanoTime();
 		
-		Runtime runtime = Runtime.getRuntime();
-		//	    runtime.gc();
-		memory = runtime.totalMemory() - runtime.freeMemory();
+//		opStack.getOperandStackGraph().getNodeList().getNodeExt(1)
 		
 		StringBuffer buf = new StringBuffer("=== Type based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
-				
-		//		TODO String constants
-		buf.append("Used mem (in bytes): "+memory);
-		buf.append(JavaLexicalConstants.NEWLINE);
-		//		TODO String constants
-		buf.append("Used mem (in megabytes): "+memory/(1024L*1024L));
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append(JavaLexicalConstants.NEWLINE);
 
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
-
+			
 			buf.append(n.getByteCodeOffset());
 			buf.append(formatOffsetCol(offsetColumnWidth, String.valueOf(n.getByteCodeOffset()).length()));
 			buf.append(n.getByteCodeString());
@@ -376,6 +359,7 @@ public class OperandStackAnalysis {
 
 				buf.append(spacesGenerator(byteCodeStringColumnWidth+offsetColumnWidth));
 				buf.append(verifyTypes(n,opStack));
+				
 
 				/* 
 				 * verify the the type on stack for store
@@ -388,7 +372,6 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
 
-		buf.append("Elapsed time: "+((System.nanoTime()-startTimeNano)/1000000)+"ms");
 		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
 			buf.append(JavaLexicalConstants.NEWLINE);
 			buf.append("Type based analysis SUCCESSFULLY PASSED.");
@@ -422,6 +405,9 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String contentBasedAnalysis(OperandStack opStack, IMethodSection method){
+		
+//		opStack.getOperandStackGraph().getNodeList().getNodeExt(0).ge
+		
 		StringBuffer buf = new StringBuffer("=== Content based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
@@ -449,6 +435,8 @@ public class OperandStackAnalysis {
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
 	}
+	
+
 
 
 	public static String formatOffsetCol(int colWidth, int dataLength){
@@ -493,6 +481,17 @@ public class OperandStackAnalysis {
 		return spaces;
 	}
 
+	public static int countIf(INodeExt n){
+		String patternIF = "^if(?!(eq|ne|lt|ge|le|gt))\\w*";
+			if(n.getByteCodeString().matches(patternIF)) numOfIf++;
+		return numOfIf;
+	}
+	public static int countSwitch(INodeExt n){
+		
+			if(n.getByteCodeString().contains("switch")) ++numOfSwitch;
+		return numOfSwitch;
+	}
+	
 	public static String verifyTypes(INodeExt n,OperandStack opStack){
 		//		Match all byteCodeString begin with [BCDFIJSZL] and follow by any word
 		String pattern [] = new String [8];

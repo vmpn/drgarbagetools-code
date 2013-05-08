@@ -75,6 +75,8 @@ public class OperandStack implements Opcodes{
 	private IDirectedGraphExt graph;
 	private int maxStackSize;
 	private boolean stackError = false;
+	static double start,end,memoryConsumption;
+	
 	
     /**
      * Stack representation format:
@@ -195,8 +197,11 @@ public class OperandStack implements Opcodes{
 		localVariableTable = locVarTable;
 		exceptionTable = excepTable;
 		maxStackSize = 0;
-
+		
+		OperandStack.start = System.nanoTime();
 		generateOperandStack(instructions);
+		OperandStack.end = System.nanoTime()-start;
+		OperandStack.memoryConsumption = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 	}
 	
 	/**
