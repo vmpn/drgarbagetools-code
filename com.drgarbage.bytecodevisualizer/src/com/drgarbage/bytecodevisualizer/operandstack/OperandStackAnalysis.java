@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
+import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
@@ -30,6 +31,7 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.NodeStackProperty;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OperandStackEntry;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackRepresenation;
+import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeType;
@@ -48,29 +50,15 @@ public class OperandStackAnalysis {
 
 	public static int offsetColumnWidth = 6;
 	public static int byteCodeStringColumnWidth = 20;
-	public static int numOfIf=0;
-	public static int numOfSwitch=0;
-	
-
 
 	public static String executeAll(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer();
 		buf.append(sizeBasedAnalysis(opStack, method));
 		buf.append(typeBasedAnalysis(opStack, method));
 		buf.append(contentBasedAnalysis(opStack, method));
+		buf.append(loopBasedAnalysis(opStack, method));
+		buf.append(statistics(opStack, method));
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Statistics:");
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Time to generate the operand Stack: "+ OperandStack.end/1000000+" ms");
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Memory consumption: "+ OperandStack.memoryConsumption/(1024L*1024L)+" Mbytes");
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of IF: ");
-		buf.append(numOfIf);
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of switch: ");
-		buf.append(numOfSwitch);
-		
 		
 		return buf.toString();
 	}
@@ -144,10 +132,6 @@ public class OperandStackAnalysis {
 
 			buf.append(n.getByteCodeString());
 			buf.append(formatStringColumn(byteCodeStringColumnWidth, n.getByteCodeString().length()));
-			
-			countIf(n);
-			countSwitch(n);
-			
 
 			Object obj = n.getData();
 			if(obj instanceof NodeStackProperty){
@@ -279,8 +263,6 @@ public class OperandStackAnalysis {
 	 */
 	public static String typeBasedAnalysis(OperandStack opStack, IMethodSection method){
 		
-//		opStack.getOperandStackGraph().getNodeList().getNodeExt(1)
-		
 		StringBuffer buf = new StringBuffer("=== Type based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
@@ -347,7 +329,6 @@ public class OperandStackAnalysis {
 					 * print list of types for the current 
 					 * byte code instruction. 
 					 */
-
 					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.TYPES));
 				}
 
@@ -356,9 +337,8 @@ public class OperandStackAnalysis {
 				 * invoke byte instruction arguments. 
 				 */
 				//TODO: Mismatched stack types
-
-				buf.append(spacesGenerator(byteCodeStringColumnWidth+offsetColumnWidth));
-				buf.append(verifyTypes(n,opStack));
+				buf.append(spacesGenerator(byteCodeStringColumnWidth + offsetColumnWidth));
+//				buf.append(verifyTypes(n,opStack));
 				
 
 				/* 
@@ -367,6 +347,16 @@ public class OperandStackAnalysis {
 				 */
 				//TODO: Expecting to find integer on stack
 
+				
+				/* 
+				 * verify the the type on stack for return
+				 *  byte code instruction.
+				 */
+				//TODO: Expecting to find integer on stack
+				if(n.getVertexType() == INodeType.NODE_TYPE_RETURN){
+
+//					listOfTypes.get(listOfTypes.size() -1 );
+				}				
 			}
 
 			buf.append(JavaLexicalConstants.NEWLINE);
@@ -405,9 +395,6 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String contentBasedAnalysis(OperandStack opStack, IMethodSection method){
-		
-//		opStack.getOperandStackGraph().getNodeList().getNodeExt(0).ge
-		
 		StringBuffer buf = new StringBuffer("=== Content based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
@@ -437,10 +424,76 @@ public class OperandStackAnalysis {
 	}
 	
 
+	/**
+	 * Returns a text representing the loop based analysis 
+	 * of the current operand stack object.
+	 * @return string 
+	 */
+	public static String loopBasedAnalysis(OperandStack opStack, IMethodSection method){
+		StringBuffer buf = new StringBuffer("=== Loop based analysis: ");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("TODO");
+		//TODO: implement
+		
+		buf.append(JavaLexicalConstants.NEWLINE);
+		return buf.toString();
+	}
+	
+	/**
+	 * Returns statistics of the current operand stack object.
+	 * @return string 
+	 */
+	public static String statistics(OperandStack opStack, IMethodSection method){
+		StringBuffer buf = new StringBuffer("=== Statitistics: ");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
+		buf.append("Elapsed time of the operand stack generation: "+ opStack.getElapsedTime() +" ms");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Memory consumption: "+ opStack.getMemoryConsumption() +" Bytes");
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
+		buf.append("Number of generated stacks: "+ opStack.getNumberOfStacks());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Number of generated stack etries: "+ opStack.getNumberOfStackEntries());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
+		buf.append("Number of method instructions: " + method.getInstructionLines().size());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Number of if instructions: ");
+		buf.append(countIfInstrunctions(method.getInstructionLines()));
+		
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Number of switch instructions: ");
+		buf.append(countSwitchInstrunctions(method.getInstructionLines()));
+		
+		buf.append(JavaLexicalConstants.NEWLINE);
+		return buf.toString();
+	}
+	
+	private static int countIfInstrunctions(List<IInstructionLine> instructionList){
+		int counter = 0;
+		for (IInstructionLine i: instructionList){
+			int type = ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode());
+			if(type == INodeType.NODE_TYPE_IF){
+				counter++;
+			}
+		}
+		return counter;
+	}
 
+	private static int countSwitchInstrunctions(List<IInstructionLine> instructionList){
+		int counter = 0;
+		for (IInstructionLine i: instructionList){
+			int type = ControlFlowGraphUtils.getInstructionNodeType(i.getInstruction().getOpcode());
+			if(type == INodeType.NODE_TYPE_SWITCH){
+				counter++;
+			}
+		}
+		return counter;
+	}
 
 	public static String formatOffsetCol(int colWidth, int dataLength){
-		String spaces = "";
+		StringBuffer spaces = new StringBuffer();
 		if(dataLength < 4){
 			colWidth = 6;
 		}
@@ -448,9 +501,9 @@ public class OperandStackAnalysis {
 			colWidth = 8;
 		}
 		for(int i = 0;i<colWidth-dataLength;i++){
-			spaces+= String.valueOf(JavaLexicalConstants.SPACE);
+			spaces.append(JavaLexicalConstants.SPACE);
 		}
-		return spaces;
+		return spaces.toString();
 	}
 
 	/**
@@ -461,11 +514,11 @@ public class OperandStackAnalysis {
 	 */
 
 	public static String formatStringColumn(int columnWidth, int dataLength){
-		String spaces = "";
+		StringBuffer spaces = new StringBuffer();
 		for(int i = 0;i<columnWidth - dataLength;i++){
-			spaces+= String.valueOf(JavaLexicalConstants.SPACE);
+			spaces.append(JavaLexicalConstants.SPACE);
 		}
-		return spaces;
+		return spaces.toString();
 	}
 
 	/**
@@ -474,63 +527,11 @@ public class OperandStackAnalysis {
 	 * @return String
 	 */
 	public static String spacesGenerator(int numOfSpace){
-		String spaces="\n";
+		StringBuffer spaces = new StringBuffer();
+		spaces.append(JavaLexicalConstants.NEWLINE);
 		for(int i = 0;i < numOfSpace;i++){
-			spaces+=String.valueOf(JavaLexicalConstants.SPACE);
+			spaces.append(JavaLexicalConstants.SPACE);
 		}
-		return spaces;
-	}
-
-	public static int countIf(INodeExt n){
-		String patternIF = "^if(?!(eq|ne|lt|ge|le|gt))\\w*";
-			if(n.getByteCodeString().matches(patternIF)) numOfIf++;
-		return numOfIf;
-	}
-	public static int countSwitch(INodeExt n){
-		
-			if(n.getByteCodeString().contains("switch")) ++numOfSwitch;
-		return numOfSwitch;
-	}
-	
-	public static String verifyTypes(INodeExt n,OperandStack opStack){
-		//		Match all byteCodeString begin with [BCDFIJSZL] and follow by any word
-		String pattern [] = new String [8];
-		pattern [0] = "^f\\w*";    								/* F */
-		pattern [1] = "^i(?!f)(?!ns)(?!nv)(?!mp)\\w*";			/* I */
-		pattern [2] = "^d(?!up)\\w*";							/* D */
-		pattern [3] = "^l(?!dc)(?!oo)\\w*";						/* J */
-		pattern [4] = "^b(?!re)\\w*";							/* B */
-		pattern [5] = "^s(?!(i|w))\\w*";						/* S */	
-		pattern [6] ="^c(?!h)\\w*";								/* C */
-		pattern [7] = "^a\\w*";									/* L */
-
-		String types [] = new String [8];
-		types [0] = String.valueOf(ByteCodeConstants.F_FLOAT);
-		types [1] = String.valueOf(ByteCodeConstants.I_INT);
-		types [2] = String.valueOf(ByteCodeConstants.D_DOUBLE);
-		types [3] = String.valueOf(ByteCodeConstants.J_LONG);
-		types [4] = String.valueOf(ByteCodeConstants.B_BYTE);
-		types [5] = String.valueOf(ByteCodeConstants.S_SHORT);
-		types [6] = String.valueOf(ByteCodeConstants.C_CHAR);
-		types [7] = String.valueOf(ByteCodeConstants.L_REFERENCE);
-
-		String result="";
-
-		if(n.getByteCodeOffset()!=0){
-			for(int i = 0;i<pattern.length;i++){
-				if(n.getByteCodeString().matches(pattern[i])){
-					if(!OperandStack.stackToString(opStack.getStackBefore(n).get(0),OpstackRepresenation.TYPES).equalsIgnoreCase(types[i])){
-						if(n.getByteCodeString().contains("store")){
-							result=CoreMessages.Error+": Expecting to find "+types[i]+" on stack";
-						}else{
-							result=CoreMessages.Error+": Type mismatch";
-						}
-					}else{
-
-					}
-				}
-			}
-		}
-		return result;
+		return spaces.toString();
 	}
 }

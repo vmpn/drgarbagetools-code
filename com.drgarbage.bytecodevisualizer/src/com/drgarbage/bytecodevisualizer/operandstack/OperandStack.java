@@ -40,6 +40,7 @@ import com.drgarbage.bytecode.constant_pool.ConstantIntegerInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantLongInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantMethodrefInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantNameAndTypeInfo;
+import com.drgarbage.bytecode.constant_pool.ConstantReference;
 import com.drgarbage.bytecode.constant_pool.ConstantStringInfo;
 import com.drgarbage.bytecode.constant_pool.ConstantUtf8Info;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
@@ -75,10 +76,11 @@ public class OperandStack implements Opcodes{
 	private IDirectedGraphExt graph;
 	private int maxStackSize;
 	private boolean stackError = false;
-	static double start,end,memoryConsumption;
 	
-	
-    /**
+	/* statistic counters for time and memory complexity */
+	private long elapsedTime = -1, memoryConsumption = -1;
+
+	/**
      * Stack representation format:
      * <ul>
      *  <li>SIMPLE -  stack entries are represented by '*' characters.</li>
@@ -198,10 +200,19 @@ public class OperandStack implements Opcodes{
 		exceptionTable = excepTable;
 		maxStackSize = 0;
 		
-		OperandStack.start = System.nanoTime();
+		/* initialize time and memory counters */
+		long start = System.currentTimeMillis();
+		
+		/* call garbage collection to free the memory */
+		System.gc();
+		long memory = Runtime.getRuntime().freeMemory();
+		
+		/* generate operand stack entries */
 		generateOperandStack(instructions);
-		OperandStack.end = System.nanoTime()-start;
-		OperandStack.memoryConsumption = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		
+		/* store the elapsed time and consumed memory */
+		elapsedTime = System.currentTimeMillis() - start;
+		memoryConsumption = memory - Runtime.getRuntime().freeMemory();
 	}
 	
 	/**
@@ -220,6 +231,76 @@ public class OperandStack implements Opcodes{
 	public int getMaxStackSize() {
 		return maxStackSize;
 	}
+	
+    /**
+     * Returns the elapsed time in ms of the
+     * operand stack generation. 
+     * 
+     * @return elapsed time in ms
+     */
+    public long getElapsedTime() {
+		return elapsedTime;
+	}
+
+	/**
+	 * Returns the consumed memory for the generated
+	 * operand stack entries in byte.
+	 * @return memory in bytes
+	 */
+	public long getMemoryConsumption() {
+		return memoryConsumption;
+	}
+	
+	
+	
+	/**
+	 * Returns the number of operand stacks.
+	 * @return the number
+	 */
+	public long getNumberOfStacks() {
+
+		long numberOfStacks = 0;
+		
+		INodeListExt nodeList = graph.getNodeList();
+		for(int i = 0; i < nodeList.size(); i++){
+			INodeExt n = nodeList.getNodeExt(i);
+				Object obj = n.getData();
+				if(obj instanceof NodeStackProperty){
+					NodeStackProperty nsp = (NodeStackProperty)obj;
+					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
+					for( Stack<OperandStackEntry> s: listOfStacks){
+						if(s.size() != 0){
+							numberOfStacks++;
+						}
+					}
+				}
+		}
+		
+		return numberOfStacks;
+	}
+	
+	/**
+	 * Returns the number of operand stack entries.
+	 * @return the number
+	 */
+	public long getNumberOfStackEntries() {
+		long numberOfStackEntries = 0;
+		
+		INodeListExt nodeList = graph.getNodeList();
+		for(int i = 0; i < nodeList.size(); i++){
+			INodeExt n = nodeList.getNodeExt(i);
+				Object obj = n.getData();
+				if(obj instanceof NodeStackProperty){
+					NodeStackProperty nsp = (NodeStackProperty)obj;
+					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
+					for( Stack<OperandStackEntry> s: listOfStacks){
+						numberOfStackEntries += s.size();
+					}
+				}
+		}
+		return numberOfStackEntries;	
+	}
+	
 	
 	/**
 	 * Generates the operand stack.
@@ -926,8 +1007,11 @@ public class OperandStack implements Opcodes{
 			int argi = 0;
 			if (i instanceof IConstantPoolIndexProvider) {
 				AbstractConstantPoolEntry cpInfo = classConstantPool[((IConstantPoolIndexProvider)i).getConstantPoolIndex()];
-				if (cpInfo instanceof ConstantMethodrefInfo) {
-					ConstantMethodrefInfo constantMethodrefInfo = (ConstantMethodrefInfo) cpInfo;
+				
+				//ConstantInterfaceMethodrefInfo
+				
+				if (cpInfo instanceof ConstantReference) {
+					ConstantReference constantMethodrefInfo = (ConstantReference) cpInfo;
 					ConstantNameAndTypeInfo constantNameAndTypeInfo = (ConstantNameAndTypeInfo) classConstantPool[constantMethodrefInfo.getNameAndTypeIndex()];
 					String descriptor = ((ConstantUtf8Info)classConstantPool[constantNameAndTypeInfo.getDescriptorIndex()]).getString();
 					
@@ -935,6 +1019,9 @@ public class OperandStack implements Opcodes{
 					 * has the following format (II)I  */
 					int rightParenthesis = descriptor.indexOf(ByteCodeConstants.METHOD_DESCRIPTOR_RIGHT_PARENTHESIS);
 					retVal = descriptor.substring(rightParenthesis + 1);
+					if(retVal.startsWith("L")){ //TODO: implement long format L<object type>
+						retVal = L_REFERENCE;
+					}
 					
 					/*
 					 * parse the method arguments first and save them in a temporarary
