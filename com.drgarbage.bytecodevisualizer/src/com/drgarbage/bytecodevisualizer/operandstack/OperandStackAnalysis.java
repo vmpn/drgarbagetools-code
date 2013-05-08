@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-import quicktime.app.spaces.Space;
 
 import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecode.ByteCodeConstants;
@@ -68,21 +67,25 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String sizeBasedAnalysis(OperandStack opStack, IMethodSection method){
+		startTime = System.currentTimeMillis();
+		long startTimeNano = System.nanoTime();
+		
+		Runtime runtime = Runtime.getRuntime();
+		//	    runtime.gc();
+		memory = runtime.totalMemory() - runtime.freeMemory();
+		
 		StringBuffer buf = new StringBuffer("=== Size based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
 		buf.append(JavaLexicalConstants.NEWLINE);
-		startTime = System.currentTimeMillis();
-		long startTimeNano = System.nanoTime();
+		
 		//		TODO String constants
 		buf.append("Start time: "+startTime);
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		Runtime runtime = Runtime.getRuntime();
-		//	    runtime.gc();
-		memory = runtime.totalMemory() - runtime.freeMemory();
+		
 		//		TODO String constants
 		buf.append("Used mem (in bytes): "+memory);
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -259,11 +262,13 @@ public class OperandStackAnalysis {
 		elapsedTime = stopTime - startTime;
 		buf.append("Stop time: "+stopTime);
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Elapsed time(in ms): "+elapsedTime+"\n");
 		buf.append("Elapsed time(in nano): "+(System.nanoTime()-startTimeNano));
 		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
 			buf.append(JavaLexicalConstants.NEWLINE);
 			buf.append("Size based analysis SUCCESSFULLY PASSED.");
+		}else{
+			buf.append(JavaLexicalConstants.NEWLINE);
+			buf.append("Size based analysis completed with Errors/Warnings.");
 		}
 
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -278,9 +283,24 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String typeBasedAnalysis(OperandStack opStack, IMethodSection method){
+		startTime = System.currentTimeMillis();
+		long startTimeNano = System.nanoTime();
+		
+		Runtime runtime = Runtime.getRuntime();
+		//	    runtime.gc();
+		memory = runtime.totalMemory() - runtime.freeMemory();
+		
 		StringBuffer buf = new StringBuffer("=== Type based analysis: ");
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append(JavaLexicalConstants.NEWLINE);
+				
+		//		TODO String constants
+		buf.append("Used mem (in bytes): "+memory);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		//		TODO String constants
+		buf.append("Used mem (in megabytes): "+memory/(1024L*1024L));
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
 
@@ -368,7 +388,15 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
 
-
+		buf.append("Elapsed time: "+((System.nanoTime()-startTimeNano)/1000000)+"ms");
+		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
+			buf.append(JavaLexicalConstants.NEWLINE);
+			buf.append("Type based analysis SUCCESSFULLY PASSED.");
+		}else{
+			buf.append(JavaLexicalConstants.NEWLINE);
+			buf.append("Type based analysis completed with Errors/Warning.");
+		}
+		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
 	}
@@ -494,7 +522,7 @@ public class OperandStackAnalysis {
 				if(n.getByteCodeString().matches(pattern[i])){
 					if(!OperandStack.stackToString(opStack.getStackBefore(n).get(0),OpstackRepresenation.TYPES).equalsIgnoreCase(types[i])){
 						if(n.getByteCodeString().contains("store")){
-							result=CoreMessages.Error+": Expecting to find integer on stack";
+							result=CoreMessages.Error+": Expecting to find "+types[i]+" on stack";
 						}else{
 							result=CoreMessages.Error+": Type mismatch";
 						}
