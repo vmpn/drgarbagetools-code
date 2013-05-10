@@ -75,6 +75,7 @@ import com.drgarbage.bytecodevisualizer.editors.BytecodeEditor;
 import com.drgarbage.bytecodevisualizer.editors.IClassFileEditorSelectionListener;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.NodeStackProperty;
+import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OperandStackPropertyConstants;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackRepresenation;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStackAnalysis;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
@@ -1183,30 +1184,40 @@ public abstract class OperandStackViewPage extends Page {
 			INodeListExt nodeList = operandStack.getOperandStackGraph().getNodeList();
 			for(int i = 0; i < nodeList.size(); i++){
 				INodeExt n = nodeList.getNodeExt(i);
-				Node node = treeMap.get(n.getCounter()); /* counter attribute is used to store the line numbers */
-				if(node != null){
-					Object obj = n.getData();
-					if(obj instanceof NodeStackProperty){
-						NodeStackProperty nsp = (NodeStackProperty)obj;
-						if(opstackRepresenationFormat == OpstackRepresenation.SIMPLE){
-							node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0)));
-							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0)));
-						}
-						else if(opstackRepresenationFormat == OpstackRepresenation.ALL){
-							node.setOperandStackBefore(OperandStack.stackListToString(operandStack.getStackBefore(n)));
-							node.setOperandStackAfter(OperandStack.stackListToString(nsp.getStackAfter()));							
+				Object o = n.getData();
+				if(o instanceof Map){
+					@SuppressWarnings("unchecked")
+					Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+					o = nodeMap.get(OperandStackPropertyConstants.NODE_INSTR_OBJECT);
+					
+					IInstructionLine iLine;
+					if(o != null){
+						iLine = (IInstructionLine) o;
+						Node node = treeMap.get(iLine.getLine());
+
+						o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+						if(o != null){
+							NodeStackProperty nsp = (NodeStackProperty)o;
+							if(opstackRepresenationFormat == OpstackRepresenation.SIMPLE){
+								node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0)));
+								node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0)));
+							}
+							else if(opstackRepresenationFormat == OpstackRepresenation.ALL){
+								node.setOperandStackBefore(OperandStack.stackListToString(operandStack.getStackBefore(n)));
+								node.setOperandStackAfter(OperandStack.stackListToString(nsp.getStackAfter()));							
+							}
+							else{
+								node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
+								node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0), OpstackRepresenation.TYPES));
+							}
+							
+							node.setDepth(nsp.getStackSize());
 						}
 						else{
-							node.setOperandStackBefore(OperandStack.stackToString(operandStack.getStackBefore(n).get(0), OpstackRepresenation.TYPES));
-							node.setOperandStackAfter(OperandStack.stackToString(nsp.getStackAfter().get(0), OpstackRepresenation.TYPES));
+							node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
+							node.setOperandStackAfter(BytecodeVisualizerMessages.OperandStackView_Unknown);
+							node.setDepth(new int[] { OperandStack.UNKNOWN_SIZE });
 						}
-
-						node.setDepth(nsp.getStackSize());
-					}
-					else{
-						node.setOperandStackBefore(BytecodeVisualizerMessages.OperandStackView_Unknown);
-						node.setOperandStackAfter(BytecodeVisualizerMessages.OperandStackView_Unknown);
-						node.setDepth(new int[] { OperandStack.UNKNOWN_SIZE });
 					}
 				}
 			}

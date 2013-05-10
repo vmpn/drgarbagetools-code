@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
@@ -96,6 +97,16 @@ public class OperandStack implements Opcodes{
     };
 
     public static int UNKNOWN_SIZE = -1;
+    
+    /**
+     * TODO: description
+     */
+    public static enum OperandStackPropertyConstants{
+    	NODE_INSTR_OBJECT,
+    	NODE_STACK
+    }
+    
+    
     /**
      * Converts the stack object into the string representation
      * in the <code>SIMPLE</code> format (see {@link OpstackRepresenation}).
@@ -264,9 +275,13 @@ public class OperandStack implements Opcodes{
 		INodeListExt nodeList = graph.getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
-				Object obj = n.getData();
-				if(obj instanceof NodeStackProperty){
-					NodeStackProperty nsp = (NodeStackProperty)obj;
+			Object o = n.getData();
+			if(o instanceof Map){
+				@SuppressWarnings("unchecked")
+				Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+				if(o != null){
+					NodeStackProperty nsp = (NodeStackProperty)o;
 					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
 					for( Stack<OperandStackEntry> s: listOfStacks){
 						if(s.size() != 0){
@@ -274,6 +289,7 @@ public class OperandStack implements Opcodes{
 						}
 					}
 				}
+			}
 		}
 		
 		return numberOfStacks;
@@ -289,14 +305,19 @@ public class OperandStack implements Opcodes{
 		INodeListExt nodeList = graph.getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
-				Object obj = n.getData();
-				if(obj instanceof NodeStackProperty){
-					NodeStackProperty nsp = (NodeStackProperty)obj;
+			Object o = n.getData();
+			if(o instanceof Map){
+				@SuppressWarnings("unchecked")
+				Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+				if(o != null){
+					NodeStackProperty nsp = (NodeStackProperty) o;
 					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
 					for( Stack<OperandStackEntry> s: listOfStacks){
 						numberOfStackEntries += s.size();
 					}
 				}
+			}
 		}
 		return numberOfStackEntries;	
 	}
@@ -378,11 +399,12 @@ public class OperandStack implements Opcodes{
     		}
     		
     		/* Calculate the operand stack and assign it to the current node */
-    		Object o = node.getData();
+    		Object o = node.getData();    		
     		if(o instanceof IInstructionLine){
     			IInstructionLine iLine = (IInstructionLine) o;
-    			node.setCounter(iLine.getLine()); /* use counter attribute to save line numbers */
-    			
+            	Map<OperandStackPropertyConstants, Object> nodeMap = new HashMap<OperandStackPropertyConstants, Object>();
+            	nodeMap.put(OperandStackPropertyConstants.NODE_INSTR_OBJECT, node.getData());
+            	node.setData(nodeMap);
     			try{
     				if(!stackError){
     					calculateOperandStack(node, iLine.getInstruction());
@@ -453,7 +475,14 @@ public class OperandStack implements Opcodes{
 
 		/* assign the property object */
     	NodeStackProperty prop = new NodeStackProperty(listOfStacks);
-    	node.setData(prop);
+    	
+    	Object o = node.getData();
+    	if(o instanceof Map){
+        	@SuppressWarnings("unchecked")
+			Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+        	nodeMap.put(OperandStackPropertyConstants.NODE_STACK, prop);		
+    	}
+
     }
     
     /**
@@ -477,8 +506,11 @@ public class OperandStack implements Opcodes{
     			 */
     			for(ExceptionTableEntry ete: exceptionTable){
     				if(node.getByteCodeOffset() == ete.getHandlerPc()){
-    					String className = getConstantPoolClassName(ete.getCatchType(), classConstantPool);
-    					startStack.add(new OperandStackEntry(null, 4, L_REFERENCE, className));
+    					if(ete.getCatchType() != 0){ /* index = 0 has no references in the constant pool */
+    						String className = getConstantPoolClassName(ete.getCatchType(), classConstantPool);
+    						startStack.add(new OperandStackEntry(null, 4, L_REFERENCE, className));
+    					}
+    					//TODO: Handle index 0
     				}
     			}
     		}
@@ -489,15 +521,20 @@ public class OperandStack implements Opcodes{
 	    	Map<String, Stack<OperandStackEntry>> m = new TreeMap<String, Stack<OperandStackEntry>>();
     		for(int j = 0; j < incEdgeList.size(); j++){
     			Object o = incEdgeList.getEdgeExt(j).getSource().getData();
-    			if(o != null && o instanceof NodeStackProperty){
-    				NodeStackProperty nsp = (NodeStackProperty)o;
-    				List<Stack<OperandStackEntry>> sl = nsp.getStackAfter(); 				
-    				
-    		    	for(Stack<OperandStackEntry> s: sl){
-    		    		/* no duplicates */
-    		    		m.put(stackToString(s, OpstackRepresenation.ALL), s);
-    		    	}
-    			}
+    			if(o instanceof Map){
+    				@SuppressWarnings("unchecked")
+    				Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+    				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+    				if(o != null){
+    					NodeStackProperty nsp = (NodeStackProperty) o;
+    					List<Stack<OperandStackEntry>> sl = nsp.getStackAfter(); 				
+
+    					for(Stack<OperandStackEntry> s: sl){
+    						/* no duplicates */
+    						m.put(stackToString(s, OpstackRepresenation.ALL), s);
+    					}
+    				}
+    		}
     		}
     		
     		/* copy to the list */
