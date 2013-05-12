@@ -154,7 +154,10 @@ public abstract class OperandStackViewPage extends Page {
 		}
 
 	};
-
+	
+	/* Font size in OpStack Analysis */
+	public static int REPORTFONT_SIZE = 11;
+	
 	public static Color RED = new Color(null,255,0,0);
 	public static Color ORANGE = new Color(null,255,127,0);
 	public static Color GREEN = new Color(null, 50, 205, 50);
@@ -392,7 +395,7 @@ public abstract class OperandStackViewPage extends Page {
 
 				styledText = new StyledText(analyseReport, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
 				/*Monaco- a monospace font is chosen for formatting purpose in the analyse report*/
-				styledText.setFont(new Font(analyseReport.getDisplay(),"Monaco",12,SWT.NONE));
+				styledText.setFont(new Font(analyseReport.getDisplay(),"Monaco",REPORTFONT_SIZE,SWT.NONE));
 				styledText.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
 				styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
 				//TODO : later set to true
