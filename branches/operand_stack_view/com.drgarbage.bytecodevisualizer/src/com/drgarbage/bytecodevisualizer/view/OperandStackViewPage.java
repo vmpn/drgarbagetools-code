@@ -41,20 +41,10 @@ import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -105,12 +95,14 @@ public abstract class OperandStackViewPage extends Page {
 	 */
 	private TreeColumn column, column3, column4, column5, column6;
 
-
 	/**
 	 * Reference to the selected method instance.
 	 */
 	private IMethodSection methodInput;
 
+	/**
+	 * reference to the operand stack.
+	 */
 	private OperandStack operandStack;
 
 	/* Menu actions */
@@ -155,14 +147,15 @@ public abstract class OperandStackViewPage extends Page {
 
 	};
 	
-	/* Font size in OpStack Analysis */
-	public static int REPORTFONT_SIZE = 11;
-	
 	public static Color RED = new Color(null,255,0,0);
 	public static Color ORANGE = new Color(null,255,127,0);
 	public static Color GREEN = new Color(null, 50, 205, 50);
 	public static Color BLUE = new Color(null, 120, 178, 255);
 
+	/**
+	 * Default presentation format is SIMPLE
+	 */
+	private OpstackRepresenation opstackRepresenationFormat = OpstackRepresenation.SIMPLE;
 
 	/**
 	 * The standard value for displaying all information in 2 columns "Operand Stack before" and "Operand Stack after"
@@ -188,13 +181,6 @@ public abstract class OperandStackViewPage extends Page {
 	 * Reference to the active byte code editor.
 	 */
 	private BytecodeEditor editor;
-
-	/**
-	 * This is for the operand stack analysis report
-	 */
-	private Shell analyseReport;
-
-	private StyledText styledText;
 
 	private synchronized boolean isTreeViewerSelectionMutex() {
 		return treeViewerSelectionMutex;
@@ -364,80 +350,8 @@ public abstract class OperandStackViewPage extends Page {
 
 		showAnalyseReportAction = new Action(){
 			public void run(){
-
-				/* Display the report window style as modal, only 1 window can be opened at a time*/
-				analyseReport = new Shell(SWT.APPLICATION_MODAL|SWT.CLOSE|SWT.ON_TOP);
-				analyseReport.setLayout(new FillLayout());
-				analyseReport.setText(BytecodeVisualizerMessages.OpenOpstackAnalyseWindowLabel);
-				analyseReport.setSize(800, 480);
-
-				/* Set the report to display at center of the screen */
-				Monitor primary = analyseReport.getDisplay().getPrimaryMonitor();
-				Rectangle bounds = primary.getBounds();
-				Rectangle rect = analyseReport.getBounds();
-
-				int x = bounds.x + (bounds.width - rect.width) / 2;
-				int y = bounds.y + (bounds.height - rect.height) / 2;
-				analyseReport.setLocation(x, y);
-
-				/* Allow ESC key to close the report */
-				analyseReport.addListener(SWT.Traverse, new Listener() {
-					public void handleEvent(Event event) {
-						switch (event.detail) {
-						case SWT.TRAVERSE_ESCAPE:
-							analyseReport.close();
-							event.detail = SWT.TRAVERSE_NONE;
-							event.doit = false;
-							break;
-						}
-					}
-				});
-
-				styledText = new StyledText(analyseReport, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
-				/*Monaco- a monospace font is chosen for formatting purpose in the analyse report*/
-				styledText.setFont(new Font(analyseReport.getDisplay(),"Monaco",REPORTFONT_SIZE,SWT.NONE));
-				styledText.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
-				styledText.setLayoutData(new GridData(GridData.FILL_BOTH));
-				//TODO : later set to true
-//				styledText.setEditable(false);
-
-				StyleRange Error = new StyleRange();
-				StyleRange Warning = new StyleRange();
-				StyleRange Passed = new StyleRange();
-
-				styledText.setLineBackground(0, 1, BLUE);
-				int count = 0;
-				for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
-					count++;
-					if(styledText.getText().indexOf("=== Type based analysis:")==(i+1)) {
-						styledText.setLineBackground(count, 1, BLUE);
-					}
-				}
-
-				int count2 = 0;
-				for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
-					count2++;
-					if(styledText.getText().indexOf("=== Content based analysis:")==(i+1)) {
-						styledText.setLineBackground(count2, 1, BLUE);
-					}
-				}
-				
-				int count3 = 0;
-				for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
-					count3++;
-					if(styledText.getText().indexOf("Statistics:")==(i+1)) {
-						styledText.setLineBackground(count3, 1, BLUE);
-					}
-				}
-					
-				formatColor(Error,styledText,"Size based analysis completed with Errors/Warnings.",RED);
-				formatColor(Error,styledText,"Error:",RED);
-				formatColor(Error,styledText,"Type based analysis completed with Errors/Warning.",RED);
-				formatColor(Warning,styledText,"Warning:",ORANGE);
-				formatColor(Passed,styledText,"Size based analysis SUCCESSFULLY PASSED.",GREEN);
-				formatColor(Passed,styledText,"Type based analysis SUCCESSFULLY PASSED.",GREEN);
-				
-				
+				OperandStackReportDialog analyseReport = new OperandStackReportDialog();
+				analyseReport.setText(OperandStackAnalysis.executeAll(operandStack, methodInput));
 				analyseReport.open();
 			}
 		};
@@ -591,30 +505,6 @@ public abstract class OperandStackViewPage extends Page {
 		subMenuFormat.add(displayAllAction);
 
 	}
-
-	/**
-	 * Method to format specifi string in a StyledText area
-	 * @param styleRange
-	 * @param styledText
-	 * @param toBeFormatted
-	 * @param color
-	 */
-	protected void formatColor(StyleRange styleRange, StyledText styledText,
-			String toBeFormatted, Color color) {
-
-		for (int i = -1; (i = styledText.getText().indexOf(toBeFormatted, i + 1)) != -1; ) {
-			styleRange.start = i;
-			styleRange.length = toBeFormatted.length();
-			styleRange.fontStyle = SWT.BOLD;
-			styleRange.foreground = color;
-			styledText.setStyleRange(styleRange);
-		} 
-	}
-
-	/*
-	 * Default presentation format is SIMPLE
-	 */
-	private OpstackRepresenation opstackRepresenationFormat = OpstackRepresenation.SIMPLE;
 
 	/**
 	 * Enables or disables the actions.
@@ -1330,8 +1220,6 @@ public abstract class OperandStackViewPage extends Page {
 		public void setDepth(int depth[]) {
 			this.depth = depth;
 		}
-
-
 	}
 }
 
