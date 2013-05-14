@@ -174,7 +174,7 @@ public class OperandStackAnalysis {
 					}
 
 					if(listOfStacksSizes.size() > 1){
-						buf.append(spacesErr(OFFSET_COLWIDTH+BYTECODESTRING_COLWIDTH+OPSTACK_BEFORE_COLWIDTH+OPSTACK_AFTER_COLWIDTH));
+						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_BEFORE_COLWIDTH + OPSTACK_AFTER_COLWIDTH));
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
