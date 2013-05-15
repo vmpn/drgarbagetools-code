@@ -76,30 +76,30 @@ public class OperandStackReportDialog extends Composite {
 		StyleRange Warning = new StyleRange();
 		StyleRange Passed = new StyleRange();
 
-		styledText.setLineBackground(0, 1, OperandStackViewPage.BLUE);
-		int count = 0;
-		for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
-			count++;
-			if(styledText.getText().indexOf("=== Type based analysis:")==(i+1)) {
-				styledText.setLineBackground(count, 1, OperandStackViewPage.BLUE);
-			}
-		}
-
-		int count2 = 0;
-		for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
-			count2++;
-			if(styledText.getText().indexOf("=== Content based analysis:")==(i+1)) {
-				styledText.setLineBackground(count2, 1, OperandStackViewPage.BLUE);
-			}
-		}
-		
-		int count3 = 0;
-		for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
-			count3++;
-			if(styledText.getText().indexOf("Statistics:")==(i+1)) {
-				styledText.setLineBackground(count3, 1, OperandStackViewPage.BLUE);
-			}
-		}
+//		styledText.setLineBackground(0, 1, OperandStackViewPage.BLUE);
+//		int count = 0;
+//		for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
+//			count++;
+//			if(styledText.getText().indexOf("=== Type based analysis:")==(i+1)) {
+//				styledText.setLineBackground(count, 1, OperandStackViewPage.BLUE);
+//			}
+//		}
+//
+//		int count2 = 0;
+//		for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
+//			count2++;
+//			if(styledText.getText().indexOf("=== Content based analysis:")==(i+1)) {
+//				styledText.setLineBackground(count2, 1, OperandStackViewPage.BLUE);
+//			}
+//		}
+//		
+//		int count3 = 0;
+//		for (int i = -1; (i = styledText.getText().indexOf("\n", i + 1)) != -1; ){
+//			count3++;
+//			if(styledText.getText().indexOf("Statistics:")==(i+1)) {
+//				styledText.setLineBackground(count3, 1, OperandStackViewPage.BLUE);
+//			}
+//		}
 			
 		formatColor(Error,styledText,"Size based analysis completed with Errors/Warnings.",OperandStackViewPage.RED);
 		formatColor(Error,styledText,"Error:",OperandStackViewPage.RED);
