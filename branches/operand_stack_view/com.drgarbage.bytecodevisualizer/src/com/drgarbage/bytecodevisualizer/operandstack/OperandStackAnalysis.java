@@ -57,8 +57,14 @@ public class OperandStackAnalysis {
 	 *	   -----------------------------------------------------------------------------------------
 	 */
 	
+	public static String OFFSET_COL_LABEL = "Offset";
+	public static String BYTE_CODE_COL_LABEL = "Bytecode";
+	public static String STACK_SIZE_COL_LABEL = "Stack Size";
+	
 	public static int OFFSET_COLWIDTH = 8;
 	public static int BYTECODESTRING_COLWIDTH = 16;
+	public static int OPSTACK_SIZE_COLWIDTH = STACK_SIZE_COL_LABEL.length();
+	
 	public static int OPSTACK_BEFORE_COLWIDTH = 24;
 	public static int OPSTACK_AFTER_COLWIDTH = 24;
 	public static int TSC_COLWIDTH = 24;
@@ -66,9 +72,17 @@ public class OperandStackAnalysis {
 	public static String executeAll(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer();
 		buf.append(sizeBasedAnalysis(opStack, method));
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		buf.append(typeBasedAnalysis(opStack, method));
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		buf.append(contentBasedAnalysis(opStack, method));
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		buf.append(loopBasedAnalysis(opStack, method));
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		buf.append(statistics(opStack, method));
 		buf.append(JavaLexicalConstants.NEWLINE);
 
@@ -82,20 +96,21 @@ public class OperandStackAnalysis {
 	 */
 	public static String sizeBasedAnalysis(OperandStack opStack, IMethodSection method){
 
-		StringBuffer buf = new StringBuffer("=== Size based analysis: ");
+		StringBuffer buf = new StringBuffer("Size based analysis: "); //TODO: define constant
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append(JavaLexicalConstants.NEWLINE);
-
 		buf.append(ByteCodeConstants.MAX_STACK);
 		buf.append(JavaLexicalConstants.COLON);
+		buf.append(JavaLexicalConstants.SPACE);
+		buf.append(JavaLexicalConstants.SPACE);
 		buf.append(method.getMaxStack());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
 		buf.append(ByteCodeConstants.MAX_LOCALS);
 		buf.append(JavaLexicalConstants.COLON);
+		buf.append(JavaLexicalConstants.SPACE);
 		buf.append(method.getMaxLocals());
 		buf.append(JavaLexicalConstants.NEWLINE);
 		
@@ -134,7 +149,14 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append(printHeader());
+		
+		String header = createHeaderSizedBasedAnalysis();
+		buf.append(header);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		String headerLine = createHeaderLine(header.length()); 
+		buf.append(headerLine);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		INodeListExt nodeList = opStack.getOperandStackGraph().getNodeList();
 		for(int i = 0; i < nodeList.size(); i++){
 			INodeExt n = nodeList.getNodeExt(i);
@@ -174,7 +196,7 @@ public class OperandStackAnalysis {
 					}
 
 					if(listOfStacksSizes.size() > 1){
-						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_BEFORE_COLWIDTH + OPSTACK_AFTER_COLWIDTH));
+						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -192,12 +214,13 @@ public class OperandStackAnalysis {
 						buf.append(JavaLexicalConstants.DOT);
 					}
 					else{
-						buf.append(spaces(OPSTACK_BEFORE_COLWIDTH+OPSTACK_AFTER_COLWIDTH));
+						/* add size */
+						buf.append(spaces(OPSTACK_SIZE_COLWIDTH / 2));
 						buf.append(stackSize);
 					}
 
 					if(stackSize > method.getMaxStack()){
-						buf.append(spacesErr(OFFSET_COLWIDTH+BYTECODESTRING_COLWIDTH+OPSTACK_BEFORE_COLWIDTH+OPSTACK_AFTER_COLWIDTH));
+						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -208,7 +231,7 @@ public class OperandStackAnalysis {
 					if(n.getVertexType() == INodeType.NODE_TYPE_RETURN){
 						if(stackSize != 0){
 
-							buf.append(spacesErr(OFFSET_COLWIDTH+BYTECODESTRING_COLWIDTH+OPSTACK_BEFORE_COLWIDTH+OPSTACK_AFTER_COLWIDTH));
+							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 							buf.append(CoreMessages.Warning);
 							buf.append(JavaLexicalConstants.COLON);
 							buf.append(JavaLexicalConstants.SPACE);
@@ -219,7 +242,7 @@ public class OperandStackAnalysis {
 									});
 							buf.append(msg);
 
-							buf.append(spacesErr(OFFSET_COLWIDTH+BYTECODESTRING_COLWIDTH+OPSTACK_BEFORE_COLWIDTH+OPSTACK_AFTER_COLWIDTH));
+							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 							/* get reference to the corresponding byte code instruction */
 							buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Possible_unused_bytecodes);
 							buf.append(JavaLexicalConstants.COLON);
@@ -260,10 +283,12 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 
 		}
+		
+		buf.append(headerLine);
 
 		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Size based analysis SUCCESSFULLY PASSED.");
+			buf.append("Size based analysis successfully passed.");
 		}else{
 			buf.append(JavaLexicalConstants.NEWLINE);
 			buf.append("Size based analysis completed with Errors/Warnings.");
@@ -282,7 +307,7 @@ public class OperandStackAnalysis {
 	 */
 	public static String typeBasedAnalysis(OperandStack opStack, IMethodSection method){
 
-		StringBuffer buf = new StringBuffer("=== Type based analysis: ");
+		StringBuffer buf = new StringBuffer("Type based analysis: "); //TODO: define constant
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -525,7 +550,7 @@ public class OperandStackAnalysis {
 
 		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Type based analysis SUCCESSFULLY PASSED.");
+			buf.append("Type based analysis successfully passed.");
 		}else{
 			buf.append(JavaLexicalConstants.NEWLINE);
 			buf.append("Type based analysis completed with Errors/Warning.");
@@ -614,21 +639,21 @@ public class OperandStackAnalysis {
 
 		buf.append("Elapsed time of the operand stack generation: "+ opStack.getElapsedTime() +" ms");
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Memory consumption: "+ opStack.getMemoryConsumption() +" Bytes");
+		buf.append("Memory consumption:                           "+ opStack.getMemoryConsumption() +" Bytes");
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append("Number of generated stacks: "+ opStack.getNumberOfStacks());
+		buf.append("Number of generated stacks:                   "+ opStack.getNumberOfStacks());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of generated stack etries: "+ opStack.getNumberOfStackEntries());
+		buf.append("Number of generated stack etries:             "+ opStack.getNumberOfStackEntries());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append("Number of method instructions: " + method.getInstructionLines().size());
+		buf.append("Number of method instructions:                " + method.getInstructionLines().size());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of if instructions: ");
+		buf.append("Number of if instructions:                    ");
 		buf.append(countIfInstrunctions(method.getInstructionLines()));
 
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of switch instructions: ");
+		buf.append("Number of switch instructions:                ");
 		buf.append(countSwitchInstrunctions(method.getInstructionLines()));
 
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -701,6 +726,35 @@ public class OperandStackAnalysis {
 		return spaces;
 	}
 	
+	/**
+	 * TODO: description
+	 * @return text
+	 */
+	public static String createHeaderSizedBasedAnalysis(){
+		StringBuffer buf = new StringBuffer();
+		buf.append(OFFSET_COL_LABEL);
+		buf.append(spaces(OFFSET_COLWIDTH - OFFSET_COL_LABEL.length()));
+		buf.append(BYTE_CODE_COL_LABEL);
+		buf.append(spaces( BYTECODESTRING_COLWIDTH - BYTE_CODE_COL_LABEL.length()));
+		buf.append(STACK_SIZE_COL_LABEL);
+
+		return buf.toString();
+	}
+
+	/**
+	 * TODO: description
+	 * @param lenght
+	 * @return text
+	 */
+	public static String createHeaderLine(int lenght){
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0;i <= lenght - 1 ;i++){
+			buf.append( '-');
+		}
+		
+		return buf.toString();
+	}
+	
 	public static String printHeader(){
 		String header = "";
 		String line ="";
@@ -733,19 +787,19 @@ public class OperandStackAnalysis {
 		String typeName = "?";
 		
 		if (type.equals(OperandStack.I_INT))
-			typeName = "Integer";
+			typeName = "int";
 		else if (type.equals(OperandStack.D_DOUBLE))
-			typeName = "Double";
+			typeName = "double";
 		else if (type.equals(OperandStack.J_LONG))
-			typeName = "Long";
+			typeName = "long";
 		else if (type.equals(OperandStack.B_BYTE))
-			typeName = "Byte";
+			typeName = "byte";
 		else if (type.equals(OperandStack.C_CHAR))
-			typeName = "Char";
+			typeName = "char";
 		else if (type.equals(OperandStack.F_FLOAT))
-			typeName = "Float";
+			typeName = "float";
 		else if (type.equals(OperandStack.S_SHORT))
-			typeName = "Short";
+			typeName = "short";
 		else 
 			typeName = "Object";
 		
