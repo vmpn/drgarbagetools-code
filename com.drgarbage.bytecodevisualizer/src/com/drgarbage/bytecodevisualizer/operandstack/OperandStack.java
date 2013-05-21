@@ -94,6 +94,7 @@ public class OperandStack implements Opcodes{
 	public static enum OpstackRepresenation{
 		SIMPLE,
 		TYPES,
+		VALUES,
 		ALL;
 	};
 
@@ -146,7 +147,11 @@ public class OperandStack implements Opcodes{
 			if(format == OpstackRepresenation.TYPES){
 				buf.append(ose.getVarType());
 			}
-			else{
+			else if(format == OpstackRepresenation.VALUES){
+				buf.append(ose.getValue());
+			}
+			else
+			{/* ALL */
 				buf.append(ose.getVarType());
 				buf.append(" ");
 				buf.append(ose.getValue());
@@ -544,6 +549,7 @@ public class OperandStack implements Opcodes{
 		/* update the maxStackSize */
 		for(Stack<OperandStackEntry> e: listOfStacks){
 			if(e.size() > maxStackSize){
+				//TODO: implement update size for wiede instructions
 				maxStackSize = e.size();
 			}
 		}
@@ -1169,7 +1175,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_JSR:
 		case OPCODE_JSR_W:
 			//TODO is the branch offset the address?
-			stack.push(new OperandStackEntry(i, 4, "ADDR", "?"));
+			stack.push(new OperandStackEntry(i, i.getOpcode() == OPCODE_JSR_W ? 8 : 4, "ADDR", "?"));
 			return;
 
 			/* key -> */
