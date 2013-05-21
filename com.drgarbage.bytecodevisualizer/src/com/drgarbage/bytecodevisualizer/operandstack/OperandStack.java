@@ -54,6 +54,7 @@ import com.drgarbage.bytecode.instructions.MultianewarrayInstruction;
 import com.drgarbage.bytecode.instructions.Opcodes;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
+import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
@@ -74,6 +75,7 @@ public class OperandStack implements Opcodes{
 	private ILocalVariableTable localVariableTable;
 	private ExceptionTableEntry[] exceptionTable;
 	private IDirectedGraphExt graph;
+	private IEdgeListExt backEdges;
 	private int maxStackSize;
 	private boolean stackError = false;
 
@@ -233,6 +235,15 @@ public class OperandStack implements Opcodes{
 	public IDirectedGraphExt getOperandStackGraph() {
 		return graph;
 	}
+	
+	/**
+	 * Returns the list of the back edges as identified 
+	 * by the DFS algorithm.
+	 * @return the list of back edges
+	 */
+	public IEdgeListExt getBackEdges(){
+		return backEdges;
+	}
 
 	/**
 	 * getter for the maximum stack size
@@ -293,6 +304,42 @@ public class OperandStack implements Opcodes{
 
 		return numberOfStacks;
 	}
+	
+	/**
+	 * Returns the max number of operand stacks assigned to
+	 * an instruction.
+	 * @return the number
+	 */
+	public int getMaxNumberOfStacks() {
+
+		int maxNumberOfStacks = 0;
+
+		INodeListExt nodeList = graph.getNodeList();
+		for(int i = 0; i < nodeList.size(); i++){
+			INodeExt n = nodeList.getNodeExt(i);
+			Object o = n.getData();
+			if(o instanceof Map){
+				@SuppressWarnings("unchecked")
+				Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+				if(o != null){
+					NodeStackProperty nsp = (NodeStackProperty)o;
+					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
+					int numberOfStacks = 0;
+					for( Stack<OperandStackEntry> s: listOfStacks){
+						if(s.size() != 0){
+							numberOfStacks++;
+						}
+					}
+					if(maxNumberOfStacks < numberOfStacks){
+						maxNumberOfStacks = numberOfStacks;
+					}
+				}
+			}
+		}
+
+		return maxNumberOfStacks;
+	}
 
 	/**
 	 * Returns the number of operand stack entries.
@@ -321,6 +368,34 @@ public class OperandStack implements Opcodes{
 		return numberOfStackEntries;	
 	}
 
+	/**
+	 * Returns the number of operand stack entries.
+	 * @return the number
+	 */
+	public long getMaxNumberOfStackEntries() {
+		long maxNumberOfStackEntries = 0;
+
+		INodeListExt nodeList = graph.getNodeList();
+		for(int i = 0; i < nodeList.size(); i++){
+			INodeExt n = nodeList.getNodeExt(i);
+			Object o = n.getData();
+			if(o instanceof Map){
+				@SuppressWarnings("unchecked")
+				Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+				if(o != null){
+					NodeStackProperty nsp = (NodeStackProperty) o;
+					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
+					for( Stack<OperandStackEntry> s: listOfStacks){
+						if(maxNumberOfStackEntries < s.size()){
+							maxNumberOfStackEntries = s.size();
+						}
+					}
+				}
+			}
+		}
+		return maxNumberOfStackEntries;	
+	}
 
 	/**
 	 * Generates the operand stack.
@@ -347,6 +422,7 @@ public class OperandStack implements Opcodes{
 	 * @param graph control flow graph
 	 */
 	private void removeBackEdges(IDirectedGraphExt graph){
+		backEdges = GraphExtentionFactory.createEdgeListExtention();
 		IEdgeListExt edges = graph.getEdgeList();
 		for(int i = 0; i < edges.size(); i++){
 			IEdgeExt e = edges.getEdgeExt(i);
@@ -355,7 +431,7 @@ public class OperandStack implements Opcodes{
 			if(source.getByteCodeOffset() > target.getByteCodeOffset()){
 				source.getOutgoingEdgeList().remove(e);
 				target.getIncomingEdgeList().remove(e);
-				edges.remove(i);
+				backEdges.add(edges.remove(i));
 			}
 		}
 	}
