@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.TreeMap;
 
 import com.drgarbage.asm.render.intf.IInstructionLine;
 import com.drgarbage.asm.render.intf.IMethodSection;
@@ -65,8 +66,11 @@ public class OperandStackAnalysis {
 	public static int BYTECODESTRING_COLWIDTH = 16;
 	public static int OPSTACK_SIZE_COLWIDTH = STACK_SIZE_COL_LABEL.length();
 
-	public static int OPSTACK_BEFORE_COLWIDTH = 12;
-	public static int OPSTACK_AFTER_COLWIDTH = 24;
+	/* The width should be always equal (width -2) % 3 = 0, 
+	 * e.g: 14, 17, 20 ... */
+	public static int OPSTACK_BEFORE_COLWIDTH = 26;
+	public static int OPSTACK_AFTER_COLWIDTH = 26;
+	
 	public static int TSC_COLWIDTH = 24;
 
 	public static String executeAll(OperandStack opStack, IMethodSection method){
@@ -380,21 +384,20 @@ public class OperandStackAnalysis {
 						buf.append(JavaLexicalConstants.DOT);
 					}
 					else{
-						List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
 						List<Stack<OperandStackEntry>> listOfStacksBefore =  opStack.getStackBefore(n);
+						List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
 
 						/* 
 						 * print list of types for the current 
 						 * byte code instruction. 
 						 */
-						String stackStr = OperandStack.stackListToString(listOfStacksBefore, OpstackRepresenation.TYPES);
-						buf.append(stackStr);
-						buf.append(formatCol(OPSTACK_BEFORE_COLWIDTH, stackStr.length()));
+						String stackStr = OperandStack.stackToString(listOfStacksBefore.get(0), OpstackRepresenation.TYPES);
+						buf.append(formatColContent(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH,
+								OPSTACK_BEFORE_COLWIDTH, stackStr));
 
-						stackStr = OperandStack.stackListToString(listOfStacks, OpstackRepresenation.TYPES);
-						buf.append(stackStr);
-						buf.append(formatCol(OPSTACK_AFTER_COLWIDTH,stackStr.length()));
-
+						stackStr = OperandStack.stackToString(listOfStacks.get(0), OpstackRepresenation.TYPES);
+						buf.append(formatColContent(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_BEFORE_COLWIDTH,
+								OPSTACK_AFTER_COLWIDTH, stackStr));
 
 						/* get instruction object associated with the node */
 						o = nodeMap.get(OperandStackPropertyConstants.NODE_INSTR_OBJECT);
@@ -705,15 +708,90 @@ public class OperandStackAnalysis {
 				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
 				if(o != null){
 					NodeStackProperty nsp = (NodeStackProperty) o;
-					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.ALL));
+					
+					List<Stack<OperandStackEntry>> listOfStacksBefore =  opStack.getStackBefore(n);
+					List<Stack<OperandStackEntry>> listOfStacks = nsp.getStackAfter();
+
+					/* 
+					 * print list of types for the current 
+					 * byte code instruction. 
+					 */
+					String stackStr = OperandStack.stackListToString(listOfStacksBefore, OpstackRepresenation.VALUES);
+					buf.append(formatColContent(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH,
+							OPSTACK_BEFORE_COLWIDTH, stackStr));
+
+					stackStr = OperandStack.stackListToString(listOfStacks, OpstackRepresenation.VALUES);
+					buf.append(formatColContent(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_BEFORE_COLWIDTH,
+							OPSTACK_AFTER_COLWIDTH, stackStr));
+					
+				}
+			}
+			
+			/* check duplicates */
+			IEdgeListExt incEdgeList = n.getIncomingEdgeList();
+			if(incEdgeList.size() > 1){
+				Map<String, Stack<OperandStackEntry>> m = new TreeMap<String, Stack<OperandStackEntry>>();
+				for(int k = 0; k < incEdgeList.size(); k++){
+					IEdgeExt e = incEdgeList.getEdgeExt(k);
+					INodeExt source = e.getSource();
+				
+					o = source.getData();
+					if(o instanceof Map){
+						@SuppressWarnings("unchecked")
+						Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+						o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+						if(o != null){
+							NodeStackProperty nsp = (NodeStackProperty) o;
+							List<Stack<OperandStackEntry>> sl = nsp.getStackAfter(); 				
+
+							for(Stack<OperandStackEntry> s: sl){
+								if(s.size() != 0){
+
+									/* no duplicates */
+									Stack<OperandStackEntry> ret = m.put(OperandStack.stackToString(s, OpstackRepresenation.ALL), s);
+									if(ret != null){
+
+
+
+										buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+										buf.append(CoreMessages.Warning);
+										buf.append(JavaLexicalConstants.COLON);
+										buf.append(JavaLexicalConstants.SPACE);
+
+										buf.append("Duplicate operand stack entry detected '");
+										buf.append(OperandStack.stackToString(ret, OpstackRepresenation.VALUES));
+										buf.append("'");
+										buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + CoreMessages.Warning.length() + 2));
+										buf.append("Bytcode addresses: ");
+										buf.append(ret.lastElement().getBytecodeInstruction().getOffset());
+										buf.append(" and ");
+										buf.append(s.lastElement().getBytecodeInstruction().getOffset());
+										buf.append(JavaLexicalConstants.COMMA);
+										buf.append("possibly dad branch.");
+
+										buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
-
 		buf.append(headerLine);
-
+//		buf.append(JavaLexicalConstants.NEWLINE);
+		
+		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
+			buf.append(JavaLexicalConstants.NEWLINE);
+			buf.append("Content based analysis successfully passed.");
+		}else{
+			buf.append(JavaLexicalConstants.NEWLINE);
+			buf.append("Content based analysis completed with Errors/Warning.");
+		}
 		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		return buf.toString();
 	}
 
@@ -810,25 +888,30 @@ public class OperandStackAnalysis {
 	public static String statistics(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer("Statistics: "); //TODO: define constrants
 		buf.append(JavaLexicalConstants.NEWLINE);
+		
+		String headerLine = createHeaderLine(64); 
+		buf.append(headerLine);
+		buf.append(JavaLexicalConstants.NEWLINE);
 
 		buf.append("Elapsed time of the operand stack generation:   " + opStack.getElapsedTime() +" ms");
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append("Memory consumption:                             " + opStack.getMemoryConsumption() +" Bytes");
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append("Number of generated stacks:                     " + opStack.getNumberOfStacks());
-		buf.append(JavaLexicalConstants.NEWLINE);
+//		buf.append("Number of generated stacks:                     " + opStack.getNumberOfStacks());
+//		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append("Max Number of assined stacks to an instruction: " + opStack.getMaxNumberOfStacks());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append("Number of generated stack etries:               " + opStack.getNumberOfStackEntries());
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Max Number of stack etries in a stack object:   " + opStack.getMaxNumberOfStackEntries());
+//		buf.append("Number of generated stack etries:               " + opStack.getNumberOfStackEntries());
+//		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Max Number of stack etries:                     " + opStack.getMaxNumberOfStackEntries());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
 
 		buf.append("Number of method instructions:                  " + method.getInstructionLines().size());
 		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		buf.append("Number of if instructions:                      ");
 		buf.append(countIfInstrunctions(method.getInstructionLines()));
 
@@ -836,6 +919,8 @@ public class OperandStackAnalysis {
 		buf.append("Number of switch instructions:                  ");
 		buf.append(countSwitchInstrunctions(method.getInstructionLines()));
 
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append(headerLine);
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
 	}
@@ -889,19 +974,53 @@ public class OperandStackAnalysis {
 		return counter;
 	}
 
+	
+	/**
+	 * TODO: description
+	 * @param startOffset
+	 * @param colWidth
+	 * @param data
+	 * @return string
+	 */
+	public static String formatColContent(int startOffset, int colWidth, String data){
+		int w = colWidth - 2;
+		StringBuffer buf = new StringBuffer();
+		if(data.length() > w){
+			int start = 0, end = w;
+			String s= data.substring(start, end);
+			buf.append(s);
+			start = end;
+			end = (data.length() - end) > w ? end + w : data.length();
+			while(start < data.length()){
+				buf.append(JavaLexicalConstants.NEWLINE);
+				buf.append(formatCol(startOffset, 0));
+				s = data.substring(start, end);
+				buf.append(s);
+				buf.append(formatCol(colWidth, s.length()));
+				
+				start = end;
+				end = (data.length() - end) > w ? end + w : data.length();
+			}
+		}
+		else{
+			buf.append(data);
+			buf.append(formatCol(colWidth, data.length()));
+		}
+		return buf.toString();
+	}
+	
 	/**
 	 * Generate a number of spaces for formatting purposes in bytecode String column
 	 * @param columnWidth
 	 * @param dataLength
 	 * @return spaces
 	 */
-
 	public static String formatCol(int colWidth, int dataLength){
-		String spaces = "";
+		StringBuffer buf = new StringBuffer();
 		for(int i = 0; i < colWidth - dataLength; i++){
-			spaces += JavaLexicalConstants.SPACE;
+			buf.append(JavaLexicalConstants.SPACE);
 		}
-		return spaces;
+		return buf.toString();
 	}
 
 	/**
@@ -910,20 +1029,20 @@ public class OperandStackAnalysis {
 	 * @return String
 	 */
 	public static String spacesErr(int numOfSpace){
-		String spaces = "";
-		spaces += JavaLexicalConstants.NEWLINE;
+		StringBuffer buf = new StringBuffer();
+		buf.append(JavaLexicalConstants.NEWLINE);
 		for(int i = 0;i < numOfSpace;i++){
-			spaces += JavaLexicalConstants.SPACE;
+			buf.append(JavaLexicalConstants.SPACE);
 		}
-		return spaces;
+		return buf.toString();
 	}
 
 	public static String spaces(int numOfSpace){
-		String spaces = "";
-		for(int i = 0;i < numOfSpace;i++){
-			spaces += JavaLexicalConstants.SPACE;
+		StringBuffer buf = new StringBuffer();
+		for(int i = 0; i < numOfSpace;i++){
+			buf.append(JavaLexicalConstants.SPACE);
 		}
-		return spaces;
+		return buf.toString();
 	}
 
 	/**
@@ -980,7 +1099,7 @@ public class OperandStackAnalysis {
 	public static String createHeaderLine(int lenght){
 		StringBuffer buf = new StringBuffer();
 		for (int i = 0;i <= lenght - 1 ;i++){
-			buf.append( '-');
+			buf.append(JavaLexicalConstants.MINUS);
 		}
 
 		return buf.toString();
