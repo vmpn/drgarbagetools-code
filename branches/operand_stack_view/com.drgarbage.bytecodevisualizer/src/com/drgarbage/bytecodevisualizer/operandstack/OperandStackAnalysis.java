@@ -37,6 +37,8 @@ import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OperandStackEn
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OperandStackPropertyConstants;
 import com.drgarbage.bytecodevisualizer.operandstack.OperandStack.OpstackRepresenation;
 import com.drgarbage.controlflowgraph.ControlFlowGraphUtils;
+import com.drgarbage.controlflowgraph.intf.IEdgeExt;
+import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeType;
@@ -78,8 +80,8 @@ public class OperandStackAnalysis {
 		buf.append(contentBasedAnalysis(opStack, method));
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append(loopBasedAnalysis(opStack, method));
-		buf.append(JavaLexicalConstants.NEWLINE);
+//		buf.append(loopBasedAnalysis(opStack, method));
+//		buf.append(JavaLexicalConstants.NEWLINE);
 
 		buf.append(statistics(opStack, method));
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -404,7 +406,7 @@ public class OperandStackAnalysis {
 							 *  byte code instruction.
 							 */
 							//TODO: implement 
-							
+
 							/* 
 							 * verify if the list of stack types equals to 
 							 * invoke byte instruction arguments. 
@@ -424,10 +426,10 @@ public class OperandStackAnalysis {
 										/* Normalize the argument to operand stack format */
 										StringBuffer sb = new StringBuffer();
 										int argi = 0;
-										
+
 										int offset = 0;
 										while (methodArgumentList.length() > offset) {
-											
+
 											try {
 												offset = BytecodeUtils.appendFieldDescriptor(methodArgumentList, offset, sb);
 											} catch (IOException e) {
@@ -449,21 +451,21 @@ public class OperandStackAnalysis {
 												sb.append(methodArgumentList.charAt(j));
 											}
 										}
-										
+
 										methodArgumentList = sb.toString();
-										
+
 										/* get return type from stack */
 										List<String> sttackTypeListReverseOrder = new ArrayList<String>(); 
 										for(int j = 1; j <= argi; j++){
 											sttackTypeListReverseOrder.add(se.get((se.size() - j)).getVarType());
 										}
-										
+
 										/* reverse list */
 										StringBuffer opStackType = new StringBuffer();
 										for(int j = (sttackTypeListReverseOrder.size() -1); j >=0; j--){
 											opStackType.append(sttackTypeListReverseOrder.get(j));
 										}
-										
+
 										if(!methodArgumentList.equals(opStackType.toString())){
 											buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 											buf.append(CoreMessages.Error);
@@ -724,8 +726,78 @@ public class OperandStackAnalysis {
 	public static String loopBasedAnalysis(OperandStack opStack, IMethodSection method){
 		StringBuffer buf = new StringBuffer("Loop based analysis: "); //TODO: define constants
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("TODO");
-		//TODO: implement
+
+		/* TODO: reimplement loop check */
+		
+		IEdgeListExt backEdges = opStack.getBackEdges();
+
+		for(int i = 0; i < backEdges.size(); i++){
+			IEdgeExt e = backEdges.getEdgeExt(i);
+
+
+			INodeExt sourceNode = e.getSource();
+			INodeExt targetNode = e.getTarget();
+
+			buf.append("Process the back edge: ");
+			buf.append(e.toString());
+			buf.append(JavaLexicalConstants.NEWLINE);
+
+			buf.append(sourceNode.getByteCodeOffset());
+			buf.append(" -> ");
+			buf.append(targetNode.getByteCodeOffset());
+			buf.append(JavaLexicalConstants.NEWLINE);
+
+			/* get operand stack from the source */
+			buf.append(" Operand Stack (source): ");
+			Object o = sourceNode.getData();
+			if(o instanceof Map){
+				@SuppressWarnings("unchecked")
+				Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+				o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+				if(o != null){
+					NodeStackProperty nsp = (NodeStackProperty) o;
+					buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.ALL));
+				}
+			}
+			buf.append(JavaLexicalConstants.NEWLINE);
+
+			/* check all incoming edges */
+			IEdgeListExt incEdgeList = targetNode.getIncomingEdgeList();
+			for(int j = 0; j < incEdgeList.size(); j++){
+				IEdgeExt incEdge = incEdgeList.getEdgeExt(j);
+				INodeExt n = incEdge.getSource();
+				
+				buf.append("  check imcommng edge: ");
+				buf.append(incEdge.toString());
+				buf.append(JavaLexicalConstants.NEWLINE);
+
+				buf.append(n.getByteCodeOffset());
+				buf.append(" -> ");
+				buf.append(incEdge.getTarget().getByteCodeOffset());
+				buf.append(JavaLexicalConstants.NEWLINE);
+
+				/* get operand stack from the source */
+				buf.append(" Operand Stack (incomming edge source): ");
+				o = n.getData();
+				if(o instanceof Map){
+					@SuppressWarnings("unchecked")
+					Map<OperandStackPropertyConstants, Object> nodeMap = (Map<OperandStackPropertyConstants, Object>) o;
+					o = nodeMap.get(OperandStackPropertyConstants.NODE_STACK);
+					if(o != null){
+						NodeStackProperty nsp = (NodeStackProperty) o;
+						buf.append(OperandStack.stackListToString(nsp.getStackAfter(), OpstackRepresenation.ALL));
+					}
+				}
+				buf.append(JavaLexicalConstants.NEWLINE);
+
+				/* TODO: implement check */
+
+
+			}
+
+
+
+		}
 
 		buf.append(JavaLexicalConstants.NEWLINE);
 		return buf.toString();
@@ -739,23 +811,29 @@ public class OperandStackAnalysis {
 		StringBuffer buf = new StringBuffer("Statistics: "); //TODO: define constrants
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append("Elapsed time of the operand stack generation: "+ opStack.getElapsedTime() +" ms");
+		buf.append("Elapsed time of the operand stack generation:   " + opStack.getElapsedTime() +" ms");
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Memory consumption:                           "+ opStack.getMemoryConsumption() +" Bytes");
-		buf.append(JavaLexicalConstants.NEWLINE);
-
-		buf.append("Number of generated stacks:                   "+ opStack.getNumberOfStacks());
-		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of generated stack etries:             "+ opStack.getNumberOfStackEntries());
+		buf.append("Memory consumption:                             " + opStack.getMemoryConsumption() +" Bytes");
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		buf.append("Number of method instructions:                " + method.getInstructionLines().size());
+		buf.append("Number of generated stacks:                     " + opStack.getNumberOfStacks());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of if instructions:                    ");
+		buf.append("Max Number of assined stacks to an instruction: " + opStack.getMaxNumberOfStacks());
+		buf.append(JavaLexicalConstants.NEWLINE);
+
+		buf.append("Number of generated stack etries:               " + opStack.getNumberOfStackEntries());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Max Number of stack etries in a stack object:   " + opStack.getMaxNumberOfStackEntries());
+		buf.append(JavaLexicalConstants.NEWLINE);
+
+
+		buf.append("Number of method instructions:                  " + method.getInstructionLines().size());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		buf.append("Number of if instructions:                      ");
 		buf.append(countIfInstrunctions(method.getInstructionLines()));
 
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append("Number of switch instructions:                ");
+		buf.append("Number of switch instructions:                  ");
 		buf.append(countSwitchInstrunctions(method.getInstructionLines()));
 
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -908,28 +986,28 @@ public class OperandStackAnalysis {
 		return buf.toString();
 	}
 
-//	public static String rewriteType(String type){
-//		String typeName = "?";
-//
-//		if (type.equals(OperandStack.I_INT))
-//			typeName = "int";
-//		else if (type.equals(OperandStack.D_DOUBLE))
-//			typeName = "double";
-//		else if (type.equals(OperandStack.J_LONG))
-//			typeName = "long";
-//		else if (type.equals(OperandStack.B_BYTE))
-//			typeName = "byte";
-//		else if (type.equals(OperandStack.C_CHAR))
-//			typeName = "char";
-//		else if (type.equals(OperandStack.F_FLOAT))
-//			typeName = "float";
-//		else if (type.equals(OperandStack.S_SHORT))
-//			typeName = "short";
-//		else 
-//			typeName = "Object";
-//
-//
-//		return typeName;
-//	}
+	//	public static String rewriteType(String type){
+	//		String typeName = "?";
+	//
+	//		if (type.equals(OperandStack.I_INT))
+	//			typeName = "int";
+	//		else if (type.equals(OperandStack.D_DOUBLE))
+	//			typeName = "double";
+	//		else if (type.equals(OperandStack.J_LONG))
+	//			typeName = "long";
+	//		else if (type.equals(OperandStack.B_BYTE))
+	//			typeName = "byte";
+	//		else if (type.equals(OperandStack.C_CHAR))
+	//			typeName = "char";
+	//		else if (type.equals(OperandStack.F_FLOAT))
+	//			typeName = "float";
+	//		else if (type.equals(OperandStack.S_SHORT))
+	//			typeName = "short";
+	//		else 
+	//			typeName = "Object";
+	//
+	//
+	//		return typeName;
+	//	}
 
 }
