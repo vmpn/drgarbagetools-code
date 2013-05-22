@@ -99,6 +99,7 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String sizeBasedAnalysis(OperandStack opStack, IMethodSection method){
+		boolean errorOrWarning = false;
 
 		StringBuffer buf = new StringBuffer("Size based analysis: "); //TODO: define constant
 		buf.append(method.getName());
@@ -118,8 +119,9 @@ public class OperandStackAnalysis {
 		buf.append(method.getMaxLocals());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
-		/* max stack overflow or underflow */
+		/* verify max stack overflow or underflow */
 		if(opStack.getMaxStackSize() > method.getMaxStack()){
+			errorOrWarning = true;
 			buf.append(CoreMessages.Error);
 			buf.append(JavaLexicalConstants.COLON);
 			buf.append(JavaLexicalConstants.SPACE);
@@ -136,6 +138,7 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
 		else if(opStack.getMaxStackSize() < method.getMaxStack()){
+			errorOrWarning = true;
 			buf.append(CoreMessages.Warning);
 			buf.append(JavaLexicalConstants.COLON);
 			buf.append(JavaLexicalConstants.SPACE);
@@ -200,6 +203,8 @@ public class OperandStackAnalysis {
 					}
 
 					if(listOfStacksSizes.size() > 1){
+						errorOrWarning = true;
+						buf.append(JavaLexicalConstants.NEWLINE);
 						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
@@ -224,7 +229,8 @@ public class OperandStackAnalysis {
 					}
 
 					if(stackSize > method.getMaxStack()){
-						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+						errorOrWarning = true;
+						buf.append(JavaLexicalConstants.SPACE);
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -234,7 +240,8 @@ public class OperandStackAnalysis {
 
 					if(n.getVertexType() == INodeType.NODE_TYPE_RETURN){
 						if(stackSize != 0){
-
+							errorOrWarning = true;
+							buf.append(JavaLexicalConstants.NEWLINE);
 							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 							buf.append(CoreMessages.Warning);
 							buf.append(JavaLexicalConstants.COLON);
@@ -246,6 +253,7 @@ public class OperandStackAnalysis {
 									});
 							buf.append(msg);
 
+							buf.append(JavaLexicalConstants.NEWLINE);
 							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 
 							/* get reference to the corresponding byte code instruction */
@@ -277,25 +285,22 @@ public class OperandStackAnalysis {
 										buf.append(ose.getValue());
 									}
 								}
-
 							}
 						}
 					}
 				}	
 			}
-
 			buf.append(JavaLexicalConstants.NEWLINE);
-
 		}
-
 		buf.append(headerLine);
 
-		if(buf.indexOf("Error")==-1 && buf.indexOf("Warning") == -1){
+		if(errorOrWarning == false){
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Size based analysis successfully passed.");
-		}else{
+			buf.append("Size based analysis successfully passed.");//TODO: define constants
+		}
+		else{
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Size based analysis completed with Errors/Warnings.");
+			buf.append("Size based analysis completed with Errors/Warnings."); //TODO: define constants
 		}
 
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -310,11 +315,11 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String typeBasedAnalysis(OperandStack opStack, IMethodSection method){
-
+		boolean errorOrWarning = false;
+		
 		StringBuffer buf = new StringBuffer("Type based analysis: "); //TODO: define constant
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
-		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
 
 		String header = createHeaderTypeBasedAnalysis();
@@ -347,7 +352,7 @@ public class OperandStackAnalysis {
 					 */
 					List<String> listOfTypes = new ArrayList<String>();
 					if(nsp.getStackAfter().size() > 1){
-						Iterator<Stack<OperandStackEntry>> it = nsp.getStackAfter().iterator();
+						Iterator<Stack<OperandStackEntry>> it = opStack.getStackBefore(n).iterator();
 						String tmpTypeList = "";
 						while(it.hasNext()){
 							String typeList = getStackTypes(it.next());
@@ -364,7 +369,7 @@ public class OperandStackAnalysis {
 					}
 
 					if(listOfTypes.size() > 1){
-						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+						errorOrWarning = true;
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -380,7 +385,6 @@ public class OperandStackAnalysis {
 							buf.append(it.next());	
 						}
 
-						buf.append(JavaLexicalConstants.SPACE);
 						buf.append(JavaLexicalConstants.DOT);
 					}
 					else{
@@ -414,6 +418,7 @@ public class OperandStackAnalysis {
 							 * verify if the list of stack types equals to 
 							 * invoke byte instruction arguments. 
 							 */
+							//FIXME: implement verification of all combination
 							if(n.getVertexType() == INodeType.NODE_TYPE_INVOKE){
 								String descriptor = opStack.getInvokeMethodDescriptor(instr);
 
@@ -470,23 +475,28 @@ public class OperandStackAnalysis {
 										}
 
 										if(!methodArgumentList.equals(opStackType.toString())){
+											errorOrWarning = true;
+											buf.append(JavaLexicalConstants.NEWLINE);
 											buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 											buf.append(CoreMessages.Error);
 											buf.append(JavaLexicalConstants.COLON);
 											buf.append(JavaLexicalConstants.SPACE);
 											buf.append("Expecting to find " + methodArgumentList + " on stack"); //TODO: define constant
-											buf.append(", type on stack: " + opStackType);
+											buf.append(", type on stack " + opStackType);
 											buf.append(JavaLexicalConstants.DOT);
 											buf.append(JavaLexicalConstants.SPACE);
+											buf.append(JavaLexicalConstants.NEWLINE);
 										}
 									}
 									else{
+										errorOrWarning = true;
 										buf.append(CoreMessages.Error);
 										buf.append(JavaLexicalConstants.COLON);
 										buf.append(JavaLexicalConstants.SPACE);
 										buf.append("Undefined type"); //TODO: define constant
 										buf.append(JavaLexicalConstants.DOT);
 										buf.append(JavaLexicalConstants.SPACE);
+										buf.append(JavaLexicalConstants.NEWLINE);
 									}
 								}
 
@@ -566,23 +576,28 @@ public class OperandStackAnalysis {
 									if(se.size() != 0){
 										String opStackType = se.lastElement().getVarType();
 										if(!storeType.equals(opStackType)){
+											errorOrWarning = true;
+											buf.append(JavaLexicalConstants.NEWLINE);
 											buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 											buf.append(CoreMessages.Error);
 											buf.append(JavaLexicalConstants.COLON);
 											buf.append(JavaLexicalConstants.SPACE);
 											buf.append("Expecting to find " + storeType + " on stack"); //TODO: define constant
-											buf.append(", type on stack: " + opStackType);
+											buf.append(", type on stack " + opStackType);
 											buf.append(JavaLexicalConstants.DOT);
 											buf.append(JavaLexicalConstants.SPACE);
+											buf.append(JavaLexicalConstants.NEWLINE);
 										}
 									}
 									else{
+										errorOrWarning = true;
 										buf.append(CoreMessages.Error);
 										buf.append(JavaLexicalConstants.COLON);
 										buf.append(JavaLexicalConstants.SPACE);
 										buf.append("Undefined type"); //TODO: define constant
 										buf.append(JavaLexicalConstants.DOT);
 										buf.append(JavaLexicalConstants.SPACE);
+										buf.append(JavaLexicalConstants.NEWLINE);
 									}
 								}
 							}
@@ -621,35 +636,42 @@ public class OperandStackAnalysis {
 									if(se.size() != 0){
 										String opStackType = se.lastElement().getVarType();
 										if(!returnType.equals(opStackType)){
-											buf.append(spacesErr(OFFSET_COLWIDTH+BYTECODESTRING_COLWIDTH));
+											errorOrWarning = true;
+											buf.append(JavaLexicalConstants.NEWLINE);
+											buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 											buf.append(CoreMessages.Error);
 											buf.append(JavaLexicalConstants.COLON);
 											buf.append(JavaLexicalConstants.SPACE);
 											buf.append("Return type mismatched. ");
 											buf.append("Expected type: " + returnType);
-											buf.append(", type on stack: " + opStackType);
+											buf.append(", type on stack " + opStackType);
 											buf.append(JavaLexicalConstants.DOT);
 											buf.append(JavaLexicalConstants.SPACE);
+											buf.append(JavaLexicalConstants.NEWLINE);
 										}
 									}
 									else{
+										errorOrWarning = true;
 										buf.append(CoreMessages.Error);
 										buf.append(JavaLexicalConstants.COLON);
 										buf.append(JavaLexicalConstants.SPACE);
 										buf.append("Undefined type"); //TODO: define constant
 										buf.append(JavaLexicalConstants.DOT);
 										buf.append(JavaLexicalConstants.SPACE);
+										buf.append(JavaLexicalConstants.NEWLINE);
 									}
 								}
 							}
 						}
 						else{
+							errorOrWarning = true;
 							buf.append(CoreMessages.Error);
 							buf.append(JavaLexicalConstants.COLON);
 							buf.append(JavaLexicalConstants.SPACE);
 							buf.append("Instruction object missing"); //TODO: define constant
 							buf.append(JavaLexicalConstants.DOT);
 							buf.append(JavaLexicalConstants.SPACE);
+							buf.append(JavaLexicalConstants.NEWLINE);
 						}
 					}				
 				}
@@ -660,12 +682,12 @@ public class OperandStackAnalysis {
 
 		buf.append(headerLine);
 
-		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
+		if(errorOrWarning == false){
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Type based analysis successfully passed.");
+			buf.append("Type based analysis successfully passed.");//TODO: define constant
 		}else{
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Type based analysis completed with Errors/Warning.");
+			buf.append("Type based analysis completed with Errors/Warning.");//TODO: define constant
 		}
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -678,12 +700,12 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String contentBasedAnalysis(OperandStack opStack, IMethodSection method){
+		boolean errorOrWarning = false;
+		
 		StringBuffer buf = new StringBuffer("Content based analysis: "); //TODO: define constants
 		buf.append(method.getName());
 		buf.append(method.getDescriptor());
 		buf.append(JavaLexicalConstants.NEWLINE);
-		buf.append(JavaLexicalConstants.NEWLINE);
-
 
 		String header = createHeaderTypeBasedAnalysis();
 		buf.append(header);
@@ -750,9 +772,8 @@ public class OperandStackAnalysis {
 									/* no duplicates */
 									Stack<OperandStackEntry> ret = m.put(OperandStack.stackToString(s, OpstackRepresenation.ALL), s);
 									if(ret != null){
-
-
-
+										errorOrWarning = true;
+										buf.append(JavaLexicalConstants.NEWLINE);
 										buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 										buf.append(CoreMessages.Warning);
 										buf.append(JavaLexicalConstants.COLON);
@@ -761,14 +782,17 @@ public class OperandStackAnalysis {
 										buf.append("Duplicate operand stack entry detected '");
 										buf.append(OperandStack.stackToString(ret, OpstackRepresenation.VALUES));
 										buf.append("'");
+										buf.append(JavaLexicalConstants.NEWLINE);
 										buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + CoreMessages.Warning.length() + 2));
 										buf.append("Bytcode addresses: ");
 										buf.append(ret.lastElement().getBytecodeInstruction().getOffset());
 										buf.append(" and ");
 										buf.append(s.lastElement().getBytecodeInstruction().getOffset());
 										buf.append(JavaLexicalConstants.COMMA);
+										buf.append(JavaLexicalConstants.SPACE);
 										buf.append("possibly dad branch.");
 
+										buf.append(JavaLexicalConstants.NEWLINE);
 										buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
 									}
 								}
@@ -780,14 +804,13 @@ public class OperandStackAnalysis {
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
 		buf.append(headerLine);
-//		buf.append(JavaLexicalConstants.NEWLINE);
 		
-		if(buf.indexOf("Error")==-1&&buf.indexOf("Warning")==-1){
+		if(errorOrWarning == false){
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Content based analysis successfully passed.");
+			buf.append("Content based analysis successfully passed.");//TODO: define constant
 		}else{
 			buf.append(JavaLexicalConstants.NEWLINE);
-			buf.append("Content based analysis completed with Errors/Warning.");
+			buf.append("Content based analysis completed with Errors/Warning.");//TODO: define constant
 		}
 		buf.append(JavaLexicalConstants.NEWLINE);
 		buf.append(JavaLexicalConstants.NEWLINE);
@@ -886,7 +909,7 @@ public class OperandStackAnalysis {
 	 * @return string 
 	 */
 	public static String statistics(OperandStack opStack, IMethodSection method){
-		StringBuffer buf = new StringBuffer("Statistics: "); //TODO: define constrants
+		StringBuffer buf = new StringBuffer("Statistics: "); //TODO: define constants
 		buf.append(JavaLexicalConstants.NEWLINE);
 		
 		String headerLine = createHeaderLine(64); 
@@ -1010,7 +1033,7 @@ public class OperandStackAnalysis {
 	}
 	
 	/**
-	 * Generate a number of spaces for formatting purposes in bytecode String column
+	 * Generate a number of spaces for formatting purposes in byte code String column
 	 * @param columnWidth
 	 * @param dataLength
 	 * @return spaces
@@ -1030,7 +1053,6 @@ public class OperandStackAnalysis {
 	 */
 	public static String spacesErr(int numOfSpace){
 		StringBuffer buf = new StringBuffer();
-		buf.append(JavaLexicalConstants.NEWLINE);
 		for(int i = 0;i < numOfSpace;i++){
 			buf.append(JavaLexicalConstants.SPACE);
 		}

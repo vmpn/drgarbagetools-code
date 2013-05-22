@@ -1,6 +1,6 @@
 package test;
 
-public class StackReturnTypeTest {
+public class OperandStack_ReturnType_Test {
 
 	byte test1(){
 		return 10;

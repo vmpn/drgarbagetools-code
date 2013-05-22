@@ -548,9 +548,13 @@ public class OperandStack implements Opcodes{
 
 		/* update the maxStackSize */
 		for(Stack<OperandStackEntry> e: listOfStacks){
-			if(e.size() > maxStackSize){
-				//TODO: implement update size for wiede instructions
-				maxStackSize = e.size();
+			int stackSize = 0;
+			for(OperandStackEntry ose: e){
+				stackSize += (ose.getLength() / 4);
+			}
+			
+			if(stackSize > maxStackSize){
+				maxStackSize = stackSize;
 			}
 		}
 
@@ -668,7 +672,7 @@ public class OperandStack implements Opcodes{
 			val.append(value2.getValue());
 			val.append(JavaLexicalConstants.RIGHT_SQUARE_BRACKET);
 
-			stack.push(new OperandStackEntry(i, 2, getType(i.getOpcode()), val.toString()));
+			stack.push(new OperandStackEntry(i, 4, getOperandTypeOfLoadInstruction(i.getOpcode()), val.toString()));
 			return;
 		}
 
@@ -793,30 +797,30 @@ public class OperandStack implements Opcodes{
 
 			/* -> null */
 		case OPCODE_ACONST_NULL:
-			stack.push(new OperandStackEntry(i, 1, L_REFERENCE, "null"));
+			stack.push(new OperandStackEntry(i, 4, L_REFERENCE, "null"));
 			return;
 
 			/* -> const */
 		case OPCODE_ICONST_0:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "0"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "0"));
 			return;
 		case OPCODE_ICONST_1:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "1"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "1"));
 			return;
 		case OPCODE_ICONST_2:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "2"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "2"));
 			return;
 		case OPCODE_ICONST_3:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "3"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "3"));
 			return;
 		case OPCODE_ICONST_4:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "4"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "4"));
 			return;
 		case OPCODE_ICONST_5:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "5"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "5"));
 			return;
 		case OPCODE_ICONST_M1:
-			stack.push(new OperandStackEntry(i, 1, I_INT, "-1"));
+			stack.push(new OperandStackEntry(i, 4, I_INT, "-1"));
 			return;
 		case OPCODE_DCONST_0:
 			stack.push(new OperandStackEntry(i, 8, D_DOUBLE, "0.0"));
@@ -1240,11 +1244,12 @@ public class OperandStack implements Opcodes{
 	}
 
 	/**
-	 * Returns the type of the result.
+	 * Returns the operand type type of an load 
+	 * byte code instruction.
 	 * @param opcode
 	 * @return type
 	 */
-	private String getType(int opcode){
+	private String getOperandTypeOfLoadInstruction(int opcode){
 		switch (opcode){
 		case OPCODE_AALOAD:
 			return L_REFERENCE;
@@ -1397,7 +1402,7 @@ public class OperandStack implements Opcodes{
 	/**
 	 * Resolves the math operation of the given byte code instruction
 	 * and returns the character representing the math operation.
-	 * The character is one of +,-,*,/ or %.
+	 * The character is one of +, -, *, /, %, &, |, ^, << or >>.
 	 * @param i byte code instruction
 	 * @return math operation string one of +,-,*,/ or %
 	 */
@@ -1531,6 +1536,7 @@ public class OperandStack implements Opcodes{
 			if(_stackAfter.size() != 0){				
 				int s[] = new int[_stackAfter.size()];
 				for(int i = 0; i < _stackAfter.size(); i++){
+					int stackSize = 0;
 					s[i] = _stackAfter.get(i).size();
 				}
 				return s;
