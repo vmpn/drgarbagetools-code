@@ -205,7 +205,7 @@ public class OperandStackAnalysis {
 					if(listOfStacksSizes.size() > 1){
 						errorOrWarning = true;
 						buf.append(JavaLexicalConstants.NEWLINE);
-						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+						buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_SIZE_COLWIDTH/2));
 						buf.append(CoreMessages.Error);
 						buf.append(JavaLexicalConstants.COLON);
 						buf.append(JavaLexicalConstants.SPACE);
@@ -242,7 +242,7 @@ public class OperandStackAnalysis {
 						if(stackSize != 0){
 							errorOrWarning = true;
 							buf.append(JavaLexicalConstants.NEWLINE);
-							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_SIZE_COLWIDTH/2));
 							buf.append(CoreMessages.Warning);
 							buf.append(JavaLexicalConstants.COLON);
 							buf.append(JavaLexicalConstants.SPACE);
@@ -254,7 +254,7 @@ public class OperandStackAnalysis {
 							buf.append(msg);
 
 							buf.append(JavaLexicalConstants.NEWLINE);
-							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH));
+							buf.append(spacesErr(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_SIZE_COLWIDTH/2));
 
 							/* get reference to the corresponding byte code instruction */
 							buf.append(BytecodeVisualizerMessages.OperandStackAnalysis_Possible_unused_bytecodes);
@@ -270,7 +270,7 @@ public class OperandStackAnalysis {
 										buf.append(bi.getOffset());
 									}
 									else{
-										buf.append(ose.getValue());
+										buf.append(BytecodeVisualizerMessages.OperandStackView_Unknown);
 									}
 								}
 								while(opS.hasNext()){
@@ -286,9 +286,34 @@ public class OperandStackAnalysis {
 									}
 								}
 							}
+							buf.append(JavaLexicalConstants.NEWLINE);
 						}
 					}
-				}	
+				}
+				else{ /* stack not found */
+					errorOrWarning = true;
+					
+					/* add size */
+					buf.append(spaces(OPSTACK_SIZE_COLWIDTH / 2 - 
+							BytecodeVisualizerMessages.OperandStackView_Unknown.length()/2));
+					buf.append(BytecodeVisualizerMessages.OperandStackView_Unknown);
+					
+					/* print error */
+					buf.append(JavaLexicalConstants.SPACE);
+					buf.append(CoreMessages.Error);
+					buf.append(JavaLexicalConstants.COLON);
+					buf.append(JavaLexicalConstants.SPACE);
+					
+					o = nodeMap.get(OperandStackPropertyConstants.ERROR_EXCEPTION);
+					if(o != null && o instanceof Throwable){
+						Throwable th = (Throwable) o;
+						buf.append(th);
+					}
+					else{
+						buf.append("Undefined stack");
+					}
+					buf.append(JavaLexicalConstants.DOT);
+				}
 			}
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
@@ -611,6 +636,7 @@ public class OperandStackAnalysis {
 								boolean voidReturn = false;
 								switch(instr.getOpcode()){
 								case Opcodes.OPCODE_ARETURN:
+								case Opcodes.OPCODE_ATHROW:
 									returnType = OperandStack.L_REFERENCE;
 									break;
 								case Opcodes.OPCODE_DRETURN:
@@ -675,7 +701,23 @@ public class OperandStackAnalysis {
 						}
 					}				
 				}
-			}
+				else{ /* stack not found */
+					errorOrWarning = true;
+					buf.append(CoreMessages.Error);
+					buf.append(JavaLexicalConstants.COLON);
+					buf.append(JavaLexicalConstants.SPACE);
+					
+					o = nodeMap.get(OperandStackPropertyConstants.ERROR_EXCEPTION);
+					if(o != null && o instanceof Throwable){
+						Throwable th = (Throwable) o;
+						buf.append(th);
+					}
+					else{
+						buf.append("Undefined stack");
+					}
+					buf.append(JavaLexicalConstants.DOT);
+				}
+			}			
 
 			buf.append(JavaLexicalConstants.NEWLINE);
 		}
@@ -746,6 +788,22 @@ public class OperandStackAnalysis {
 					buf.append(formatColContent(OFFSET_COLWIDTH + BYTECODESTRING_COLWIDTH + OPSTACK_BEFORE_COLWIDTH,
 							OPSTACK_AFTER_COLWIDTH, stackStr));
 					
+				}
+				else{ /* stack not found */
+					errorOrWarning = true;
+					buf.append(CoreMessages.Error);
+					buf.append(JavaLexicalConstants.COLON);
+					buf.append(JavaLexicalConstants.SPACE);
+					
+					o = nodeMap.get(OperandStackPropertyConstants.ERROR_EXCEPTION);
+					if(o != null && o instanceof Throwable){
+						Throwable th = (Throwable) o;
+						buf.append(th);
+					}
+					else{
+						buf.append("Undefined stack");
+					}
+					buf.append(JavaLexicalConstants.DOT);
 				}
 			}
 			

@@ -105,7 +105,8 @@ public class OperandStack implements Opcodes{
 	 */
 	public static enum OperandStackPropertyConstants{
 		NODE_INSTR_OBJECT,
-		NODE_STACK
+		NODE_STACK,
+		ERROR_EXCEPTION
 	}
 
 
@@ -493,6 +494,7 @@ public class OperandStack implements Opcodes{
 				catch(EmptyStackException e){
 					/* Stack underFlow */
 					stackError = true;
+					nodeMap.put(OperandStackPropertyConstants.ERROR_EXCEPTION, e);
 				}
 			}
 
@@ -595,7 +597,10 @@ public class OperandStack implements Opcodes{
 							String className = getConstantPoolClassName(ete.getCatchType(), classConstantPool);
 							startStack.add(new OperandStackEntry(null, 4, L_REFERENCE, className));
 						}
-						//TODO: Handle index 0
+						else{
+							startStack.add(new OperandStackEntry(null, 4, L_REFERENCE, Throwable.class.getName()));
+						}
+
 					}
 				}
 			}
@@ -725,7 +730,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_LLOAD_2:
 		case OPCODE_LLOAD_3:
 
-			stack.push(new OperandStackEntry(i, 4, J_LONG, getLocalVariableName(i)));
+			stack.push(new OperandStackEntry(i, 8, J_LONG, getLocalVariableName(i)));
 			return;
 
 			/* arrayref, index, value-> */
@@ -779,8 +784,10 @@ public class OperandStack implements Opcodes{
 			return;
 
 		case OPCODE_POP2:
-			//TODO: check length !! not needed due to handling long and double values as 1 stack entry in our implementation
-			stack.pop();		
+			OperandStackEntry ose = stack.pop();
+			if(ose.getLength() == 4){
+				stack.pop();
+			}
 			return;
 
 			/* value -> */
@@ -846,9 +853,17 @@ public class OperandStack implements Opcodes{
 
 			/* objectref -> [empty], objectref to throwable */
 		case OPCODE_ATHROW:
+		{
+			/*
+			 * athrow byte code instruction throws an error or exception 
+			 * The rest of the stack is cleared, leaving only a reference to the 
+			 * throwable object
+			 * */
+			OperandStackEntry throwbleRef = stack.lastElement();
 			stack.clear();
-			stack.push(new OperandStackEntry(i, 4, "R", "?"));
+			stack.push(throwbleRef);
 			return;
+		}
 
 			/* -> value */
 		case OPCODE_BIPUSH:
@@ -1079,7 +1094,7 @@ public class OperandStack implements Opcodes{
 			OperandStackEntry value2 = stack.pop();
 			OperandStackEntry value1 = stack.pop();
 
-			stack.push(new OperandStackEntry(i, 4, J_LONG, 
+			stack.push(new OperandStackEntry(i, 8, J_LONG, 
 					"(" + value1.getValue() + resolveMathOperation(i) + value2.getValue() + ")"));
 			return;
 		}
@@ -1119,7 +1134,7 @@ public class OperandStack implements Opcodes{
 		case OPCODE_INVOKEINTERFACE:
 		case OPCODE_INVOKESPECIAL:
 		case OPCODE_INVOKEVIRTUAL:
-			stack.pop(); /* pop objectref ???*/
+			stack.pop(); /* pop objectref */
 
 			/* [arg1, [arg2 ...]] -> */
 		case OPCODE_INVOKEDYNAMIC:
@@ -1170,8 +1185,12 @@ public class OperandStack implements Opcodes{
 			}
 
 			/* push return value onto the stack */
-			if(!retVal.equals("V")){ /* ignore void */
-				stack.push(new OperandStackEntry(i, 4, retVal, "<RET>"));
+			if(!retVal.equals("V")){ /* ignore void *///TODO: define constant
+				/* double and long have the double length */
+				stack.push(new OperandStackEntry(i, 
+						(retVal.equals(J_LONG) || retVal.equals(D_DOUBLE)) ? 8 : 4, 
+						retVal, "<RET>"));
+				
 			}
 			return;
 
@@ -1516,6 +1535,7 @@ public class OperandStack implements Opcodes{
 	 */
 	public class NodeStackProperty {
 		private List<Stack<OperandStackEntry>> _stackAfter = new ArrayList<Stack<OperandStackEntry>>();
+		private int stackSize[] = null;
 
 		/**
 		 * Creates a property stack object
@@ -1533,12 +1553,23 @@ public class OperandStack implements Opcodes{
 		}
 
 		public int[] getStackSize() {
+			
+			if(stackSize != null){
+				return stackSize;
+			}
+			
 			if(_stackAfter.size() != 0){				
 				int s[] = new int[_stackAfter.size()];
+				
 				for(int i = 0; i < _stackAfter.size(); i++){
 					int stackSize = 0;
-					s[i] = _stackAfter.get(i).size();
+					for(OperandStackEntry ose: _stackAfter.get(i)){
+						stackSize += (ose.getLength() / 4);
+					}
+					
+					s[i] = stackSize;
 				}
+				
 				return s;
 			}
 
