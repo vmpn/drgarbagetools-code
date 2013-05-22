@@ -22,7 +22,7 @@ package test;
  * @version $Revision$
  * $Id$
  */
-public class C1 {
+public class OperandStack_View_Test {
 	
 	void test(int a, int b){
 		max( a > b ? a : b, a > b ? a : b);

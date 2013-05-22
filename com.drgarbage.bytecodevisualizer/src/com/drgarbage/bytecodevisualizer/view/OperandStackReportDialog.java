@@ -9,7 +9,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
@@ -74,7 +73,12 @@ public class OperandStackReportDialog extends Composite {
 
 		StyleRange Error = new StyleRange();
 		StyleRange Warning = new StyleRange();
-		StyleRange Passed = new StyleRange();
+//		StyleRange Passed = new StyleRange();
+		
+		formatColor(Error, styledText,"Error",OperandStackViewPage.RED);
+		formatColor(Warning, styledText,"Warning", OperandStackViewPage.ORANGE);
+		formatColor(Error, styledText,"Errors",OperandStackViewPage.RED);
+		formatColor(Warning, styledText,"Warnings", OperandStackViewPage.ORANGE);
 
 //		styledText.setLineBackground(0, 1, OperandStackViewPage.BLUE);
 //		int count = 0;
@@ -100,20 +104,17 @@ public class OperandStackReportDialog extends Composite {
 //				styledText.setLineBackground(count3, 1, OperandStackViewPage.BLUE);
 //			}
 //		}
-			
-		formatColor(Error,styledText,"Size based analysis completed with Errors/Warnings.",OperandStackViewPage.RED);
-		formatColor(Error,styledText,"Error:",OperandStackViewPage.RED);
-		formatColor(Error,styledText,"Type based analysis completed with Errors/Warning.",OperandStackViewPage.RED);
-		formatColor(Warning,styledText,"Warning:", OperandStackViewPage.ORANGE);
-		formatColor(Passed,styledText,"Size based analysis SUCCESSFULLY PASSED.", OperandStackViewPage.GREEN);
-		formatColor(Passed,styledText,"Type based analysis SUCCESSFULLY PASSED.", OperandStackViewPage.GREEN);
+//			
+//		formatColor(Error,styledText,"Size based analysis completed with Errors/Warnings.",OperandStackViewPage.RED);
+//		formatColor(Error,styledText,"Type based analysis completed with Errors/Warning.",OperandStackViewPage.RED);
+//		formatColor(Passed,styledText,"Size based analysis SUCCESSFULLY PASSED.", OperandStackViewPage.GREEN);
+//		formatColor(Passed,styledText,"Type based analysis SUCCESSFULLY PASSED.", OperandStackViewPage.GREEN);
 		
-
 	}
 	
 
 	/**
-	 * Method to format specifi string in a StyledText area
+	 * Method to format specific string in a StyledText area
 	 * @param styleRange
 	 * @param styledText
 	 * @param toBeFormatted

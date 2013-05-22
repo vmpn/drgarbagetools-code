@@ -5,7 +5,7 @@ package test;
  * Use *m.class file to verify the stack.
  * @author Sergej Alekseev
  */
-public class C4 {
+public class OperandStack_SizeBased_Test {
 	
 	void test(int a, int b){
 		diff(a > b ? a: b, 2);

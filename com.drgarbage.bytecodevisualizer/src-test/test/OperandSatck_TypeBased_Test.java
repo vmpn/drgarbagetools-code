@@ -5,7 +5,7 @@ package test;
  * Use *m.class file to verify the stack.
  * @author Sergej Alekseev
  */
-public class C5 {
+public class OperandSatck_TypeBased_Test {
 	
 	int test(int a, int b){
 		return diff(a > b ? a: b, a < b ? a: b);
@@ -19,7 +19,7 @@ public class C5 {
 	}
 	
 	public static void main(String argv[]){
-		C5 c5 = new C5();
+		OperandSatck_TypeBased_Test c5 = new OperandSatck_TypeBased_Test();
 		int a = c5.test(2, 3);
 		System.out.println(a);
 	}

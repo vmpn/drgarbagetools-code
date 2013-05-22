@@ -4,7 +4,7 @@ package test;
  * Test for load array elements.
  * @author Sergej Alekseev
  */
-public class C6 {
+public class OperandStack_Array_Test {
 	int a[] = {0, 1};
 	short b[] = {0, 1};
 	byte c[] = {0, 1};
