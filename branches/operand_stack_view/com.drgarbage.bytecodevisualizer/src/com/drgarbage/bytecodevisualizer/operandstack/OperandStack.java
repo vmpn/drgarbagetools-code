@@ -313,11 +313,10 @@ public class OperandStack implements Opcodes{
 	
 	/**
 	 * Returns the max number of operand stacks assigned to
-	 * an instruction.
+	 * an instruction in the current operand stack.
 	 * @return the number
 	 */
 	public int getMaxNumberOfStacks() {
-
 		int maxNumberOfStacks = 0;
 
 		INodeListExt nodeList = graph.getNodeList();
@@ -347,6 +346,33 @@ public class OperandStack implements Opcodes{
 		return maxNumberOfStacks;
 	}
 
+	/**
+	 * Calculates and returns the maximal number of stack combinations
+	 * in the current operand stack.
+	 * @return max number of stack combination
+	 */
+	public int getMaxNumberOfStackCombinations() {
+		int maxNumberOfStacksCombinations = 0;
+
+		INodeListExt nodeList = graph.getNodeList();
+		for(int i = 0; i < nodeList.size(); i++){
+			List<Stack<OperandStackEntry>> listOfStacks = getStackBefore(nodeList.getNodeExt(i));
+			int numberOfStacks = 0;
+			for( Stack<OperandStackEntry> s: listOfStacks){
+				if(s.size() != 0){
+					numberOfStacks++;
+				}
+			}
+			if(maxNumberOfStacksCombinations < numberOfStacks){
+				maxNumberOfStacksCombinations = numberOfStacks;
+			}
+		}
+
+		return maxNumberOfStacksCombinations;
+	}
+	
+	
+	
 	/**
 	 * Returns the number of operand stack entries.
 	 * @return the number
@@ -1552,6 +1578,11 @@ public class OperandStack implements Opcodes{
 			return _stackAfter;
 		}
 
+		/**
+		 * Returns the stack size. The stack size is calculated
+		 * by using the length attribute of the stack entries.
+		 * @return stack size
+		 */
 		public int[] getStackSize() {
 			
 			if(stackSize != null){
