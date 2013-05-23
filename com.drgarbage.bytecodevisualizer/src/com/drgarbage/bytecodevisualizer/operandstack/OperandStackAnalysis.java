@@ -981,6 +981,10 @@ public class OperandStackAnalysis {
 
 //		buf.append("Number of generated stacks:                     " + opStack.getNumberOfStacks());
 //		buf.append(JavaLexicalConstants.NEWLINE);
+
+		buf.append("Max Number of stack combinations:               " + opStack.getMaxNumberOfStackCombinations());
+		buf.append(JavaLexicalConstants.NEWLINE);
+		
 		buf.append("Max Number of assined stacks to an instruction: " + opStack.getMaxNumberOfStacks());
 		buf.append(JavaLexicalConstants.NEWLINE);
 
