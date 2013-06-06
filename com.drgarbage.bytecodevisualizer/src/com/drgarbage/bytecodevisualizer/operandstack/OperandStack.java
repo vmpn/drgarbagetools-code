@@ -1298,14 +1298,13 @@ public class OperandStack implements Opcodes{
 		switch (opcode){
 		case OPCODE_AALOAD:
 			return L_REFERENCE;
-		case OPCODE_CALOAD:
-			return C_CHAR;
 		case OPCODE_DALOAD:
 			return D_DOUBLE;
 		case OPCODE_FALOAD:
 			return F_FLOAT;
 		case OPCODE_IALOAD:
 		case OPCODE_BALOAD:
+		case OPCODE_CALOAD:
 			return I_INT;
 		case OPCODE_LALOAD:
 			return J_LONG;
