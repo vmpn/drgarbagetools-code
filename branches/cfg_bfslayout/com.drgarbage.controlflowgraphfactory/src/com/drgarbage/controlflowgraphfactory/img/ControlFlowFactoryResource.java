@@ -29,6 +29,7 @@ public class ControlFlowFactoryResource {
 	/* placing algorithm icons */
 	public static final ImageDescriptor positioning_serial_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "positioning-serial-16x16.png");
 	public static final ImageDescriptor positioning_hierarchical_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "positioning-hierarchical-16x16.png");
+	public static final ImageDescriptor positioning_bfs_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "positioning-bfs-16x16.png");
 	
 	/* vertex order actions */
 	public static final ImageDescriptor horizontal_left_order_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "horizontal-left-order-16x16.png");
