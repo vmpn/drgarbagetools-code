@@ -74,6 +74,8 @@ public class ControlFlowFactoryMessages extends NLS {
 	public static String ByteCodelLayoutAlgorithmAction_ToolTipText;
 	public static String HierarchicalLayoutAlgorithmAction_Text;
 	public static String HierarchicalLayoutAlgorithmAction_ToolTipText;
+	public static String BFSLayoutAlgorithmAction_Text;
+	public static String BFSLayoutAlgorithmAction_ToolTipText;
 	
 	public static String ExportAsImageAction_Text;
 	public static String ExportAsImageAction_ToolTipText;

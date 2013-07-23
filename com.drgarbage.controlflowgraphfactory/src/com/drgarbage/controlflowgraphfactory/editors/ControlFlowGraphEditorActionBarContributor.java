@@ -42,6 +42,7 @@ import org.eclipse.ui.actions.RetargetAction;
 import org.eclipse.ui.internal.WorkbenchImages;
 
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
+import com.drgarbage.controlflowgraphfactory.actions.BFSLayoutAlgorithmAction;
 import com.drgarbage.controlflowgraphfactory.actions.ByteCodelLayoutAlgorithmAction;
 import com.drgarbage.controlflowgraphfactory.actions.ExportAsImageAction;
 import com.drgarbage.controlflowgraphfactory.actions.ExportGraphAction;
@@ -83,6 +84,9 @@ public class ControlFlowGraphEditorActionBarContributor extends ActionBarContrib
 
 		HierarchicalLayoutAlgorithmAction a2 = (HierarchicalLayoutAlgorithmAction)getAction(HierarchicalLayoutAlgorithmAction.ID);
 		a2.setActiveEditor((ControlFlowGraphEditor)part);
+		
+		BFSLayoutAlgorithmAction bfsLayoutAlgorithmAction = (BFSLayoutAlgorithmAction)getAction(BFSLayoutAlgorithmAction.ID);
+		bfsLayoutAlgorithmAction.setActiveEditor((ControlFlowGraphEditor)part);
 		
 		/* set active editor for vertex order action */
 		OrderAbstractAction oaa = (OrderAbstractAction)getAction(HorizontalLeftOrderAction.ID);
@@ -162,6 +166,7 @@ public class ControlFlowGraphEditorActionBarContributor extends ActionBarContrib
 		/* graph layout algorithm actions */
 		addRetargetAction(new ByteCodelLayoutAlgorithmAction());
 		addRetargetAction(new HierarchicalLayoutAlgorithmAction());
+		addRetargetAction(new BFSLayoutAlgorithmAction());
 		
 		/* vertex order actions */
 		addRetargetAction(new HorizontalLeftOrderAction());
@@ -233,7 +238,11 @@ public class ControlFlowGraphEditorActionBarContributor extends ActionBarContrib
 		if(a != null)
 			toolBarManager.add(a);
 		
-		/* vertex order ections */
+		a = getAction(BFSLayoutAlgorithmAction.ID);
+		if(a != null)
+			toolBarManager.add(a);
+		
+		/* vertex order actions */
 		toolBarManager.add(new Separator());
 		a = getAction(HorizontalLeftOrderAction.ID);
 		if(a != null)
@@ -331,6 +340,10 @@ public class ControlFlowGraphEditorActionBarContributor extends ActionBarContrib
 			graphAlgorithms.add(a);
 		
 		a = getAction(HierarchicalLayoutAlgorithmAction.ID);
+		if(a != null)
+			graphAlgorithms.add(a);
+		
+		a = getAction(BFSLayoutAlgorithmAction.ID);
 		if(a != null)
 			graphAlgorithms.add(a);
 		
