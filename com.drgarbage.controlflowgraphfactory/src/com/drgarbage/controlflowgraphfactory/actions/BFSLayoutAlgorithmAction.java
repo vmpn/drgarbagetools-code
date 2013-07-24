@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.actions.RetargetAction;
 
 
-//import com.drgarbage.algorithms.BFSLayout;
+import com.drgarbage.algorithms.BFSLayout;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
 import com.drgarbage.controlflowgraphfactory.editors.ControlFlowGraphEditor;
@@ -73,15 +73,15 @@ public class BFSLayoutAlgorithmAction extends RetargetAction {
 	 */
 	public void run() {
 		if(editor != null){
-		/*
+		
 			ControlFlowGraphDiagram controlFlowGraphDiagram = editor.getModel();
 			IDirectedGraphExt graph = LayoutAlgorithmsUtils.generateGraph(controlFlowGraphDiagram);
 			
-			new HierarchicalLayout().visit(graph);
+			new BFSLayout().visit(graph);
 			
 			Command cmd = new LayoutAlgorithmCommand(graph);
 			editor.getControlFlowGraphEditorEditDomain().getCommandStack().execute(cmd);
-		*/
+		
 		}
 		else{
 			Messages.error(ControlFlowFactoryMessages.ExecutionFailure);
