@@ -146,6 +146,7 @@ public class BFSLayout extends BFSBase{
 	@Override
 	protected void bfs(INodeExt startnode){
 		int treeLevel = 1;
+		int nodesNextLevel = 0;
 		
 		Queue<INodeExt> queue = new LinkedList<INodeExt>();
 		enqueue(queue, startnode);
@@ -169,14 +170,15 @@ public class BFSLayout extends BFSBase{
 					visitNode(targetNode);
 					
 					//targetNode.setX(offset);
-					targetNode.setY(offset * treeLevel);
+					targetNode.setY(offset * treeLevel); System.out.println(treeLevel);
+					nodesNextLevel++;
 				}
-				
-				else
-					treeLevel--;
 			}
 			
-			treeLevel++;
+			if(queue.size() == nodesNextLevel) {
+				treeLevel++;
+				nodesNextLevel = 0;
+			}
 		}
 	}
 
