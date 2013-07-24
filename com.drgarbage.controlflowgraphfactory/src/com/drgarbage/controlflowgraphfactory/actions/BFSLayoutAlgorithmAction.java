@@ -17,16 +17,20 @@
 package com.drgarbage.controlflowgraphfactory.actions;
 
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.gef.commands.Command;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.actions.RetargetAction;
 
-
 import com.drgarbage.algorithms.BFSLayout;
+import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.editors.ControlFlowGraphEditor;
 import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
+import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.commands.LayoutAlgorithmCommand;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
@@ -73,11 +77,18 @@ public class BFSLayoutAlgorithmAction extends RetargetAction {
 	 */
 	public void run() {
 		if(editor != null){
-		
 			ControlFlowGraphDiagram controlFlowGraphDiagram = editor.getModel();
 			IDirectedGraphExt graph = LayoutAlgorithmsUtils.generateGraph(controlFlowGraphDiagram);
 			
-			new BFSLayout().visit(graph);
+			// set node layout
+			try {
+				BFSLayout bfsLayout = new BFSLayout(graph);
+				bfsLayout.visit();
+			} catch (ControlFlowGraphException e) {
+				ControlFlowFactoryPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,ControlFlowFactoryPlugin.PLUGIN_ID, e.getMessage() , e));
+				Messages.error(ControlFlowFactoryMessages.ExecutionFailure + CoreMessages.ExceptionAdditionalMessage);
+				return;
+			}
 			
 			Command cmd = new LayoutAlgorithmCommand(graph);
 			editor.getControlFlowGraphEditorEditDomain().getCommandStack().execute(cmd);
