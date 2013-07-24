@@ -39,9 +39,6 @@ public class BFSLayout extends BFSBase{
 	
 	private int offset = 68;
 	
-	private int minX = 0;
-	private int maxX = 0;
-	
 	IDirectedGraphExt graph = null;
 	
 	/**
@@ -146,6 +143,7 @@ public class BFSLayout extends BFSBase{
 	 * Traverses the graph from the given node.
 	 * @param start node
 	 */
+	@Override
 	protected void bfs(INodeExt startnode){
 		int treeLevel = 1;
 		
@@ -173,7 +171,11 @@ public class BFSLayout extends BFSBase{
 					//targetNode.setX(offset);
 					targetNode.setY(offset * treeLevel);
 				}
+				
+				else
+					treeLevel--;
 			}
+			
 			treeLevel++;
 		}
 	}
@@ -237,18 +239,7 @@ public class BFSLayout extends BFSBase{
 						e.getTarget().setX(node.getX());
 					}
 				}
-
 		}
-
-		// update min max coordinates
-		if(minX > node.getX()){
-			minX = node.getX();		
-		}
-		
-		if(maxX < node.getX()){
-			maxX = node.getX();
-		}
-		
 	}
 	
 	
