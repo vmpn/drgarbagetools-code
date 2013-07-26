@@ -35,7 +35,9 @@ import com.drgarbage.core.CorePlugin;
  * Breadth-First Search layout for placing of nodes.
  * 
  * @author Adam Kajrys
- *
+ * @version $Revision: 229$
+ * $Id$
+ * 
  */
 public class BFSLayout extends BFSBase{
 	
