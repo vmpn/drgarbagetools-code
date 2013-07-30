@@ -40,7 +40,7 @@ import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
  * Action for breadth-first search layouting of the graph.
  *
  * @author Adam Kajrys
- * @version $Revision$
+ * @version $Rev$
  * $Id$
  * 
  */
