@@ -41,11 +41,12 @@ import com.drgarbage.core.CorePlugin;
  */
 public class BFSLayout extends BFSBase{
 	
-	private int offset = 68;
+	private int offset = 34;
 	
 	private List<INodeExt> branchingNodes = new ArrayList<INodeExt>();
 	
-	IDirectedGraphExt graph = null;
+	private IDirectedGraphExt graph = null;
+	 
 	
 	/**
 	 * Constructor.
@@ -67,6 +68,7 @@ public class BFSLayout extends BFSBase{
 
 		initialize();
 	}
+
 	
 	private void initialize() throws ControlFlowGraphException{
 
@@ -81,13 +83,13 @@ public class BFSLayout extends BFSBase{
 		/* first instruction */
 		INodeExt node = nodeList.getNodeExt(0);
 		node.setX(offset);
-		node.setHeight(0); /* initialize height */
+		//node.setHeight(0); /* initialize height */
 		
 		int startOffset = offset * 4;
 		for(int i = 1; i < nodeList.size(); i++){
 			node = nodeList.getNodeExt(i);
 			
-			node.setHeight(0);/* initialize height */
+			//node.setHeight(0);/* initialize height */
 			
 			/* other start nodes */
 			if(node.getIncomingEdgeList().size() == 0){
@@ -125,12 +127,13 @@ public class BFSLayout extends BFSBase{
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.drgarbage.visualgraphic.controlflowgraph.algorithms.DepthFirstSearchBaseVisitor#visit(com.drgarbage.visualgraphic.controlflowgraph.intf.IDirectedGraphExt)
+	 * @see com.drgarbage.algorithms.BFSBase#start(com.drgarbage.controlflowgraph.intf.IDirectedGraphExt)
 	 */
 	@Override	
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
 		INodeListExt nodeList = graph.getNodeList();
 		IEdgeListExt edgeList = graph.getEdgeList();
+		
 		
 		if(	nodeList == null || nodeList.size() < 1){
 			throw new ControlFlowGraphException("Can't start BFS. Vertex List is empty.");
@@ -146,43 +149,61 @@ public class BFSLayout extends BFSBase{
 		}
 		
 		
-		/* optimize layout, expand in x dimension if tree width > 2 */
 		optimizeLayout(nodeList, edgeList);
 	}
 
 	private void optimizeLayout(INodeListExt nodeList, IEdgeListExt edgeList) {
 		List<INodeExt> bNodes = new ArrayList<INodeExt>(branchingNodes);
+		
 		for(INodeExt bNode : bNodes) {
 			
-			/* unvisit all nodes and edges due to getTreeWidth() uses bfs */
-			for(int i = 0; i < nodeList.size(); i++)
-				nodeList.getNodeExt(i).setVisited(false);
+			unvisitAllNodes(nodeList);
 			
-			for(int i = 0; i < edgeList.size(); i++)
-				edgeList.getEdgeExt(i).setVisited(false);
+			unvisitAllEdges(edgeList);
 			
 			
 			int treeWidth = getTreeWidth(bNode);
 			
-			/* unvisit all nodes to see which node was already touched in the relocate process */
-			for(int i = 0; i < nodeList.size(); i++)
-				nodeList.getNodeExt(i).setVisited(false);
+			unvisitAllNodes(nodeList);
 			
 			relocateNodes(bNode, treeWidth);
 			
-			/* move the graph to the right if some x coordinates got negative values in the process */
-			int x = 0;
+			int minX = getMinX(nodeList);
+			int xShift = Math.abs(minX) + 5; 
 			
-			for(int i = 0; i < nodeList.size(); i++) {
-				 if(nodeList.getNodeExt(i).getX() < x)
-					 x = nodeList.getNodeExt(i).getX();
-			}
-			
-			x = Math.abs(x) + 5; 
-			for(int i = 0; i < nodeList.size(); i++) {
-				 nodeList.getNodeExt(i).setX(nodeList.getNodeExt(i).getX() + x);
-			}
+			shiftGraphOnXAxis(nodeList, xShift);
 		}
+		
+		for(int i = 0; i < nodeList.size(); i++) {
+			INodeExt node = nodeList.getNodeExt(i);
+			System.out.println(node.getHeight() + " : " + node.getWidth());
+		}
+	}
+
+	private void shiftGraphOnXAxis(INodeListExt nodeList, int xShift) {
+		for(int i = 0; i < nodeList.size(); i++) {
+			 nodeList.getNodeExt(i).setX(nodeList.getNodeExt(i).getX() + xShift);
+		}
+	}
+
+	private int getMinX(INodeListExt nodeList) {
+		int minX = 0;
+		
+		for(int i = 0; i < nodeList.size(); i++) {
+			 if(nodeList.getNodeExt(i).getX() < minX)
+				 minX = nodeList.getNodeExt(i).getX();
+		}
+		return minX;
+	}
+
+	private void unvisitAllEdges(IEdgeListExt edgeList) {
+		for(int i = 0; i < edgeList.size(); i++)
+			edgeList.getEdgeExt(i).setVisited(false);
+	}
+
+	private void unvisitAllNodes(INodeListExt nodeList) {
+		for(int i = 0; i < nodeList.size(); i++)
+			nodeList.getNodeExt(i).setVisited(false);
 	}
 
 	private void relocateNodes(INodeExt bNode, int treeWidth) {
@@ -219,7 +240,7 @@ public class BFSLayout extends BFSBase{
 	}
 	
 	private void relocateNodes(INodeExt bNode, int treeWidth, int factor) {
-		if(treeWidth > 2) { System.out.println(factor);
+		if(treeWidth > 2) {
 			if(bNode.getVertexType() == INodeType.NODE_TYPE_IF) {
 				IEdgeListExt outList = bNode.getOutgoingEdgeList();
 				
@@ -259,14 +280,18 @@ public class BFSLayout extends BFSBase{
 	 * @param start node
 	 */
 	@Override
-	protected void bfs(INodeExt startnode){
+	protected void bfs(INodeExt startNode){
 		int treeLevel = 1;
 		int nodesInNextTreeLevel = 0;
 		
-		Queue<INodeExt> queue = new LinkedList<INodeExt>();
-		enqueue(queue, startnode);
+		int nodeHeightSum = 0;
 		
-		visitNode(startnode);
+		Queue<INodeExt> queue = new LinkedList<INodeExt>();
+		enqueue(queue, startNode);
+		
+		visitNode(startNode);
+		
+		nodeHeightSum += startNode.getHeight();
 		
 		while(!queue.isEmpty()){
 			INodeExt node = dequeue(queue);
@@ -284,7 +309,7 @@ public class BFSLayout extends BFSBase{
 					enqueue(queue, targetNode);
 					visitNode(targetNode);
 					
-					targetNode.setY(offset * treeLevel);
+					targetNode.setY(offset * treeLevel + nodeHeightSum);
 					nodesInNextTreeLevel++;
 				}
 			}
@@ -292,6 +317,15 @@ public class BFSLayout extends BFSBase{
 			if(queue.size() == nodesInNextTreeLevel) {
 				treeLevel++;
 				nodesInNextTreeLevel = 0;
+				
+				int maxHeight = 0;
+				
+				for(Object n : queue.toArray()) {
+					if(((INodeExt)n).getHeight() > maxHeight)
+						maxHeight = ((INodeExt)n).getHeight();
+				}
+				
+				nodeHeightSum += maxHeight;	
 			}
 		}
 	}
@@ -336,7 +370,9 @@ public class BFSLayout extends BFSBase{
 		return treeWidth;
 	}
 
-	
+	/* (non-Javadoc)
+	 * @see com.drgarbage.algorithms.BFSBase#visitedNode(com.drgarbage.controlflowgraph.intf.INodeExt)
+	 */
 	@Override
 	protected void visitedNode(INodeExt node) {
 		/* set x coordinate */
@@ -350,8 +386,8 @@ public class BFSLayout extends BFSBase{
 				IEdgeExt e2 = outList.getEdgeExt(1);
 
 				if(e1.getTarget().getX() == -1 && e2.getTarget().getX() == -1){
-					e1.getTarget().setX(node.getX() + offset);
-					e2.getTarget().setX(node.getX() - offset);
+					e1.getTarget().setX(node.getX() + offset*2);
+					e2.getTarget().setX(node.getX() - offset*2);
 				}
 				/* if the x coordinate is not -1, then the node was already visited
 				 * the target node can be positioned right under the if type node */
@@ -394,16 +430,25 @@ public class BFSLayout extends BFSBase{
 	}
 	
 
+	/* (non-Javadoc)
+	 * @see com.drgarbage.algorithms.BFSBase#visitedEdge(com.drgarbage.controlflowgraph.intf.IEdgeExt)
+	 */
 	@Override
 	protected void visitedEdge(IEdgeExt edge) {
 		/* nothing to do */
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.drgarbage.algorithms.BFSBase#enqueue(com.drgarbage.controlflowgraph.intf.INodeExt)
+	 */
 	@Override
 	protected void enqueue(INodeExt node) {
 		/* nothing to do */
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.drgarbage.algorithms.BFSBase#dequeue(com.drgarbage.controlflowgraph.intf.INodeExt)
+	 */
 	@Override
 	protected void dequeue(INodeExt node) {
 		/* nothing to do */
