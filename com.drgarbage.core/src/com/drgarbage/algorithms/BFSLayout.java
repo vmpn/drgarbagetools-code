@@ -35,7 +35,7 @@ import com.drgarbage.core.CorePlugin;
  * Breadth-First Search layout for placing of nodes.
  * 
  * @author Adam Kajrys
- * @version $Revision: 229$
+ * @version $Revision: 230 $
  * $Id$
  * 
  */
@@ -70,7 +70,7 @@ public class BFSLayout extends BFSBase{
 	
 	private void initialize() throws ControlFlowGraphException{
 
-		//init all start nodes
+		/* init all start nodes */
 		INodeListExt nodeList = graph.getNodeList();
 
 		if(nodeList.size() == 0){
@@ -78,7 +78,7 @@ public class BFSLayout extends BFSBase{
 		}
 		
 		/* initialize nodes */
-		//first instruction
+		/* first instruction */
 		INodeExt node = nodeList.getNodeExt(0);
 		node.setX(offset);
 		node.setHeight(0); /* initialize height */
@@ -100,17 +100,17 @@ public class BFSLayout extends BFSBase{
 		}
 		
 		/* get node Properties */
-  		/*INodeListExt nodes = graph.getNodeList();
-		for(int i = 0; i< nodes.size(); i++){
-			node = nodes.getNodeExt(i);
-			
-			//set size of the node
-	  		node.setWidth(offset + offset/2);
-	  		if(node.getHeight() == 0){
-	  			node.setHeight(offset/2);	
-	  		}
-		}
-		*/
+//		INodeListExt nodes = graph.getNodeList();
+//		for(int i = 0; i< nodes.size(); i++){
+//			node = nodes.getNodeExt(i);
+//			
+//			/* set size of the node */
+//	  		node.setWidth(offset + offset/2);
+//	  		if(node.getHeight() == 0){
+//	  			node.setHeight(offset/2);	
+//	  		}
+//		}
+		
 	}
 	
 	/**
@@ -140,13 +140,13 @@ public class BFSLayout extends BFSBase{
 		for(int i = 0; i < nodeList.size(); i++){
 			node = nodeList.getNodeExt(i);
 
-			// get start nodes
+			/* get start nodes */
 			if(node.getIncomingEdgeList().size() == 0)
 				bfs(node);
 		}
 		
 		
-		// optimize layout, expand in x dimension if tree width > 2
+		/* optimize layout, expand in x dimension if tree width > 2 */
 		optimizeLayout(nodeList, edgeList);
 	}
 
@@ -154,7 +154,7 @@ public class BFSLayout extends BFSBase{
 		List<INodeExt> bNodes = new ArrayList<INodeExt>(branchingNodes);
 		for(INodeExt bNode : bNodes) {
 			
-			// unvisit all nodes and edges due to getTreeWidth() uses bfs
+			/* unvisit all nodes and edges due to getTreeWidth() uses bfs */
 			for(int i = 0; i < nodeList.size(); i++)
 				nodeList.getNodeExt(i).setVisited(false);
 			
@@ -164,13 +164,13 @@ public class BFSLayout extends BFSBase{
 			
 			int treeWidth = getTreeWidth(bNode);
 			
-			// unvisit all nodes to see which node was already touched in the relocate process
+			/* unvisit all nodes to see which node was already touched in the relocate process */
 			for(int i = 0; i < nodeList.size(); i++)
 				nodeList.getNodeExt(i).setVisited(false);
 			
 			relocateNodes(bNode, treeWidth);
 			
-			// move the graph to the right if some x coordinates got negative values in the process
+			/* move the graph to the right if some x coordinates got negative values in the process */
 			int x = 0;
 			
 			for(int i = 0; i < nodeList.size(); i++) {
@@ -296,7 +296,7 @@ public class BFSLayout extends BFSBase{
 		}
 	}
 	
-	protected int getTreeWidth(INodeExt startnode) {
+	private int getTreeWidth(INodeExt startnode) {
 		int treeWidth = 0;
 		int nodesInNextTreeLevel = 0;
 		
@@ -339,7 +339,7 @@ public class BFSLayout extends BFSBase{
 	
 	@Override
 	protected void visitedNode(INodeExt node) {
-		// set x coordinate
+		/* set x coordinate */
 		IEdgeListExt outList = node.getOutgoingEdgeList();
 		
 		switch(node.getVertexType()) {
@@ -353,8 +353,8 @@ public class BFSLayout extends BFSBase{
 					e1.getTarget().setX(node.getX() + offset);
 					e2.getTarget().setX(node.getX() - offset);
 				}
-				// if the x coordinate is not -1, then the node was already visited
-				// the target node can be positioned right under the if type node
+				/* if the x coordinate is not -1, then the node was already visited
+				 * the target node can be positioned right under the if type node */
 				else if(e1.getTarget().getX() != -1 && e2.getTarget().getX() == -1){
 						e2.getTarget().setX(node.getX());
 				}
@@ -364,7 +364,7 @@ public class BFSLayout extends BFSBase{
 				break;
 			case INodeType.NODE_TYPE_SWITCH:
 				branchingNodes.add(node);
-				//sort nodes by y coordinate
+				/* sort nodes by y coordinate */
              	TreeMap<Object, INodeExt> tm = new TreeMap<Object, INodeExt>();
         		IEdgeExt e = null;
 				for (int j = 0; j < outList.size(); j++){			 
@@ -396,17 +396,17 @@ public class BFSLayout extends BFSBase{
 
 	@Override
 	protected void visitedEdge(IEdgeExt edge) {
-		// nothing to do
+		/* nothing to do */
 	}
 	
 	@Override
 	protected void enqueue(INodeExt node) {
-		// nothing to do
+		/* nothing to do */
 	}
 	
 	@Override
 	protected void dequeue(INodeExt node) {
-		// nothing to do
+		/* nothing to do */
 	}
 
 }
