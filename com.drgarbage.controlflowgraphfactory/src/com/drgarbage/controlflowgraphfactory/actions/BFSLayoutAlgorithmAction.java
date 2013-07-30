@@ -52,18 +52,12 @@ public class BFSLayoutAlgorithmAction extends RetargetAction {
 	public static String ID = "com.drgarbage.controlflowgraphfactory.actions.bfslayoutalgorithm";
 	private static String text = ControlFlowFactoryMessages.BFSLayoutAlgorithmAction_Text;
 	private static String toolTipText = ControlFlowFactoryMessages.BFSLayoutAlgorithmAction_ToolTipText;
-	private boolean isBasicBlockLongDescrSet;
 
 	public BFSLayoutAlgorithmAction() {
 		super(ID, text);
 		setToolTipText(toolTipText);	
 		setImageDescriptor(ControlFlowFactoryResource.positioning_bfs_16x16);
 		setEnabled(true);
-		
-		isBasicBlockLongDescrSet = ControlFlowFactoryPlugin
-				.getDefault()
-				.getPreferenceStore()
-				.getBoolean(ControlFlowFactoryPreferenceConstants.GENERATE_BASIC_BLOCK_LONG_DESCR);
 	}
 	
 	/**
@@ -91,7 +85,7 @@ public class BFSLayoutAlgorithmAction extends RetargetAction {
 			
 			/* set node layout */
 			try {
-				BFSLayout bfsLayout = new BFSLayout(graph, isBasicBlockLongDescrSet);
+				BFSLayout bfsLayout = new BFSLayout(graph);
 				bfsLayout.visit();
 			} catch (ControlFlowGraphException e) {
 				ControlFlowFactoryPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,ControlFlowFactoryPlugin.PLUGIN_ID, e.getMessage() , e));
