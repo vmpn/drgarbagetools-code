@@ -158,26 +158,19 @@ public class BFSLayout extends BFSBase{
 		for(INodeExt bNode : bNodes) {
 			
 			unvisitAllNodes(nodeList);
-			
 			unvisitAllEdges(edgeList);
-			
 			
 			int treeWidth = getTreeWidth(bNode);
 			
 			unvisitAllNodes(nodeList);
 			
 			relocateNodes(bNode, treeWidth);
-			
-			int minX = getMinX(nodeList);
-			int xShift = Math.abs(minX) + 5; 
-			
-			shiftGraphOnXAxis(nodeList, xShift);
 		}
 		
-		for(int i = 0; i < nodeList.size(); i++) {
-			INodeExt node = nodeList.getNodeExt(i);
-			System.out.println(node.getHeight() + " : " + node.getWidth());
-		}
+		int minX = getMinX(nodeList);
+		int xShift = Math.abs(minX) + 10; 
+		
+		shiftGraphOnXAxis(nodeList, xShift);
 	}
 
 	private void shiftGraphOnXAxis(INodeListExt nodeList, int xShift) {
@@ -211,29 +204,37 @@ public class BFSLayout extends BFSBase{
 			if(bNode.getVertexType() == INodeType.NODE_TYPE_IF) {
 				IEdgeListExt outList = bNode.getOutgoingEdgeList();
 				
-				IEdgeExt e1 = outList.getEdgeExt(0);
-				IEdgeExt e2 = outList.getEdgeExt(1);
+				INodeExt n1 = outList.getEdgeExt(0).getTarget();
+				INodeExt n2 = outList.getEdgeExt(1).getTarget();
 				
-				if(e1.getTarget().getX() < e2.getTarget().getX()) {
-					e1.getTarget().setX(e1.getTarget().getX() - offset * (treeWidth - 2));
-					e2.getTarget().setX(e2.getTarget().getX() + offset * (treeWidth - 2));
+				if(n1.getX() < n2.getX()) {
+					if(n1.getY() > bNode.getY())
+						n1.setX(n1.getX() - offset * (treeWidth - 2));
+					if(n2.getY() > bNode.getY())
+						n2.setX(n2.getX() + offset * (treeWidth - 2));
 					
-					e1.getTarget().setVisited(true);
-					e2.getTarget().setVisited(true);
+					n1.setVisited(true);
+					n2.setVisited(true);
 					
-					relocateNodes(e1.getTarget(), treeWidth, -1);
-					relocateNodes(e2.getTarget(), treeWidth, 1);
+					if(n1.getY() > bNode.getY())
+						relocateNodes(n1, treeWidth, -1);
+					if(n2.getY() > bNode.getY())
+						relocateNodes(n2, treeWidth, 1);
 				}
 				
 				else {
-					e1.getTarget().setX(e1.getTarget().getX() + offset * (treeWidth - 2));
-					e2.getTarget().setX(e2.getTarget().getX() - offset * (treeWidth - 2));
+					if(n1.getY() > bNode.getY())
+						n1.setX(n1.getX() + offset * (treeWidth - 2));
+					if(n2.getY() > bNode.getY())
+						n2.setX(n2.getX() - offset * (treeWidth - 2));
 					
-					e1.getTarget().setVisited(true);
-					e2.getTarget().setVisited(true);
+					n1.setVisited(true);
+					n2.setVisited(true);
 					
-					relocateNodes(e1.getTarget(), treeWidth, 1);
-					relocateNodes(e2.getTarget(), treeWidth, -1);
+					if(n1.getY() > bNode.getY())
+						relocateNodes(n1, treeWidth, 1);
+					if(n2.getY() > bNode.getY())
+						relocateNodes(n2, treeWidth, -1);
 				}
 			}
 		}
@@ -244,31 +245,33 @@ public class BFSLayout extends BFSBase{
 			if(bNode.getVertexType() == INodeType.NODE_TYPE_IF) {
 				IEdgeListExt outList = bNode.getOutgoingEdgeList();
 				
-				IEdgeExt e1 = outList.getEdgeExt(0);
-				IEdgeExt e2 = outList.getEdgeExt(1);
+				INodeExt n1 = outList.getEdgeExt(0).getTarget();
+				INodeExt n2 = outList.getEdgeExt(1).getTarget();
 
-				if(!e1.getTarget().isVisited())
-					e1.getTarget().setX(e1.getTarget().getX() + factor * offset * (treeWidth - 2));
-				if(!e2.getTarget().isVisited())
-					e2.getTarget().setX(e2.getTarget().getX() + factor * offset * (treeWidth - 2));
+				if(!n1.isVisited())
+					n1.setX(n1.getX() + factor * offset * (treeWidth - 2));
+				if(!n2.isVisited())
+					n2.setX(n2.getX() + factor * offset * (treeWidth - 2));
 				
-				e1.getTarget().setVisited(true);
-				e2.getTarget().setVisited(true);
+				n1.setVisited(true);
+				n2.setVisited(true);
 				
-				relocateNodes(e1.getTarget(), treeWidth, factor);
-				relocateNodes(e2.getTarget(), treeWidth, factor);
+				if(n1.getY() > bNode.getY()) /* could be avoided if a mst is used for this operations */
+					relocateNodes(n1, treeWidth, factor);
+				if(n2.getY() > bNode.getY())
+					relocateNodes(n2, treeWidth, factor);
 
 			}
 			
 			else if(bNode.getOutgoingEdgeList().size() == 1) {
-				IEdgeExt e = bNode.getOutgoingEdgeList().getEdgeExt(0);
+				INodeExt n = bNode.getOutgoingEdgeList().getEdgeExt(0).getTarget();
 				
-				if(!e.getTarget().isVisited()) {
-					e.getTarget().setX(bNode.getX());
+				if(!n.isVisited() && n.getY() > bNode.getY()) {
+					n.setX(bNode.getX() + bNode.getWidth()/2 - n.getWidth()/2);
 					
-					e.getTarget().setVisited(true);
+					n.setVisited(true);
 					
-					relocateNodes(e.getTarget(), treeWidth, factor);
+					relocateNodes(n, treeWidth, factor);
 				}
 			}
 		}
@@ -382,20 +385,22 @@ public class BFSLayout extends BFSBase{
 			case INodeType.NODE_TYPE_IF:
 				branchingNodes.add(node);
 				
-				IEdgeExt e1 = outList.getEdgeExt(0);
-				IEdgeExt e2 = outList.getEdgeExt(1);
-
-				if(e1.getTarget().getX() == -1 && e2.getTarget().getX() == -1){
-					e1.getTarget().setX(node.getX() + offset*2);
-					e2.getTarget().setX(node.getX() - offset*2);
+				INodeExt n1 = outList.getEdgeExt(0).getTarget();
+				INodeExt n2 = outList.getEdgeExt(1).getTarget();
+				
+				int maxWidth = n1.getWidth() > n2.getWidth() ? n1.getWidth() : n2.getWidth();
+				
+				if(n1.getX() == -1 && n2.getX() == -1){
+					n1.setX(node.getX() + node.getWidth()/2 + offset + maxWidth/2);
+					n2.setX(node.getX() + node.getWidth()/2 - offset - maxWidth/2 - n2.getWidth());
 				}
 				/* if the x coordinate is not -1, then the node was already visited
 				 * the target node can be positioned right under the if type node */
-				else if(e1.getTarget().getX() != -1 && e2.getTarget().getX() == -1){
-						e2.getTarget().setX(node.getX());
+				else if(n1.getX() != -1 && n2.getX() == -1){
+						n2.setX(node.getX() + node.getWidth()/2 - n2.getWidth()/2);
 				}
-				else if(e1.getTarget().getX() == -1 && e2.getTarget().getX() != -1){
-						e1.getTarget().setX(node.getX());
+				else if(n1.getX() == -1 && n2.getX() != -1){
+						n1.setX(node.getX() + node.getWidth()/2 - n1.getWidth()/2);
 				}
 				break;
 			case INodeType.NODE_TYPE_SWITCH:
@@ -421,9 +426,10 @@ public class BFSLayout extends BFSBase{
 
 			default:
 				if( outList.size() > 0){
-					e = outList.getEdgeExt(0);
-					if(!e.getTarget().isVisited() && e.getTarget().getX() == -1){
-						e.getTarget().setX(node.getX());
+					INodeExt n = outList.getEdgeExt(0).getTarget();
+					
+					if(!n.isVisited() && n.getX() == -1){
+						n.setX(node.getX() + node.getWidth()/2 - n.getWidth()/2);
 					}
 				}
 		}
