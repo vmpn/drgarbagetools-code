@@ -30,6 +30,7 @@ import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.editors.ControlFlowGraphEditor;
 import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
+import com.drgarbage.controlflowgraphfactory.preferences.ControlFlowFactoryPreferenceConstants;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.commands.LayoutAlgorithmCommand;
@@ -39,7 +40,9 @@ import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
  * Action for breadth-first search layouting of the graph.
  *
  * @author Adam Kajrys
- * @version 
+ * @version $Revision$
+ * $Id$
+ * 
  */
 public class BFSLayoutAlgorithmAction extends RetargetAction {
 
@@ -49,12 +52,18 @@ public class BFSLayoutAlgorithmAction extends RetargetAction {
 	public static String ID = "com.drgarbage.controlflowgraphfactory.actions.bfslayoutalgorithm";
 	private static String text = ControlFlowFactoryMessages.BFSLayoutAlgorithmAction_Text;
 	private static String toolTipText = ControlFlowFactoryMessages.BFSLayoutAlgorithmAction_ToolTipText;
+	private boolean isBasicBlockLongDescrSet;
 
 	public BFSLayoutAlgorithmAction() {
 		super(ID, text);
 		setToolTipText(toolTipText);	
 		setImageDescriptor(ControlFlowFactoryResource.positioning_bfs_16x16);
 		setEnabled(true);
+		
+		isBasicBlockLongDescrSet = ControlFlowFactoryPlugin
+				.getDefault()
+				.getPreferenceStore()
+				.getBoolean(ControlFlowFactoryPreferenceConstants.GENERATE_BASIC_BLOCK_LONG_DESCR);
 	}
 	
 	/**
@@ -80,9 +89,9 @@ public class BFSLayoutAlgorithmAction extends RetargetAction {
 			ControlFlowGraphDiagram controlFlowGraphDiagram = editor.getModel();
 			IDirectedGraphExt graph = LayoutAlgorithmsUtils.generateGraph(controlFlowGraphDiagram);
 			
-			// set node layout
+			/* set node layout */
 			try {
-				BFSLayout bfsLayout = new BFSLayout(graph);
+				BFSLayout bfsLayout = new BFSLayout(graph, isBasicBlockLongDescrSet);
 				bfsLayout.visit();
 			} catch (ControlFlowGraphException e) {
 				ControlFlowFactoryPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,ControlFlowFactoryPlugin.PLUGIN_ID, e.getMessage() , e));
