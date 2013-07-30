@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.TreeMap;
-
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
@@ -83,13 +81,10 @@ public class BFSLayout extends BFSBase{
 		/* first instruction */
 		INodeExt node = nodeList.getNodeExt(0);
 		node.setX(offset);
-		//node.setHeight(0); /* initialize height */
 		
 		int startOffset = offset * 4;
 		for(int i = 1; i < nodeList.size(); i++){
 			node = nodeList.getNodeExt(i);
-			
-			//node.setHeight(0);/* initialize height */
 			
 			/* other start nodes */
 			if(node.getIncomingEdgeList().size() == 0){
@@ -100,19 +95,6 @@ public class BFSLayout extends BFSBase{
 				node.setX(-1);
 			}
 		}
-		
-		/* get node Properties */
-//		INodeListExt nodes = graph.getNodeList();
-//		for(int i = 0; i< nodes.size(); i++){
-//			node = nodes.getNodeExt(i);
-//			
-//			/* set size of the node */
-//	  		node.setWidth(offset + offset/2);
-//	  		if(node.getHeight() == 0){
-//	  			node.setHeight(offset/2);	
-//	  		}
-//		}
-		
 	}
 	
 	/**
@@ -208,10 +190,21 @@ public class BFSLayout extends BFSBase{
 				INodeExt n2 = outList.getEdgeExt(1).getTarget();
 				
 				if(n1.getX() < n2.getX()) {
-					if(n1.getY() > bNode.getY())
-						n1.setX(n1.getX() - offset * (treeWidth - 2));
-					if(n2.getY() > bNode.getY())
-						n2.setX(n2.getX() + offset * (treeWidth - 2));
+					if(n1.getY() > bNode.getY()) {
+						if(n2.getY() < bNode.getY())
+							n1.setX(bNode.getX() + bNode.getWidth()/2 - n1.getWidth()/2);
+						
+						else
+							n1.setX(n1.getX() - offset * (treeWidth - 2));
+					}
+
+					if(n2.getY() > bNode.getY()) {
+						if(n1.getY() < bNode.getY())
+							n2.setX(bNode.getX() + bNode.getWidth()/2 - n2.getWidth()/2);
+						
+						else
+							n2.setX(n2.getX() + offset * (treeWidth - 2));
+					}
 					
 					n1.setVisited(true);
 					n2.setVisited(true);
@@ -223,10 +216,21 @@ public class BFSLayout extends BFSBase{
 				}
 				
 				else {
-					if(n1.getY() > bNode.getY())
-						n1.setX(n1.getX() + offset * (treeWidth - 2));
-					if(n2.getY() > bNode.getY())
-						n2.setX(n2.getX() - offset * (treeWidth - 2));
+					if(n1.getY() > bNode.getY()) {
+						if(n2.getY() < bNode.getY())
+							n1.setX(bNode.getX() + bNode.getWidth()/2 - n1.getWidth()/2);
+						
+						else
+							n1.setX(n1.getX() + offset * (treeWidth - 2));
+					}
+
+					if(n2.getY() > bNode.getY()) {
+						if(n1.getY() < bNode.getY())
+							n2.setX(bNode.getX() + bNode.getWidth()/2 - n2.getWidth()/2);
+						
+						else
+							n2.setX(n2.getX() - offset * (treeWidth - 2));
+					}
 					
 					n1.setVisited(true);
 					n2.setVisited(true);
@@ -235,6 +239,34 @@ public class BFSLayout extends BFSBase{
 						relocateNodes(n1, treeWidth, 1);
 					if(n2.getY() > bNode.getY())
 						relocateNodes(n2, treeWidth, -1);
+				}
+			}
+			
+			else if(bNode.getVertexType() == INodeType.NODE_TYPE_SWITCH) {
+				IEdgeListExt outList = bNode.getOutgoingEdgeList();
+				int caseWidth = 0;
+				
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+
+					caseWidth += n.getWidth();
+				}
+				
+				int positionX = bNode.getX() + bNode.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
+
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+					
+					n.setX(positionX);
+					positionX += offset + n.getWidth();
+				}
+				
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+					
+					n.setVisited(true);
+					if(n.getY() > bNode.getY())
+						relocateNodes(n, treeWidth, 1);
 				}
 			}
 		}
@@ -261,6 +293,34 @@ public class BFSLayout extends BFSBase{
 				if(n2.getY() > bNode.getY())
 					relocateNodes(n2, treeWidth, factor);
 
+			}
+			
+			else if(bNode.getVertexType() == INodeType.NODE_TYPE_SWITCH) {
+				IEdgeListExt outList = bNode.getOutgoingEdgeList();
+				int caseWidth = 0;
+				
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+
+					caseWidth += n.getWidth();
+				}
+				
+				int positionX = bNode.getX() + bNode.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
+
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+					
+					n.setX(positionX);
+					positionX += offset + n.getWidth();
+				}
+				
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+					
+					n.setVisited(true);
+					if(n.getY() > bNode.getY())
+						relocateNodes(n, treeWidth, 1);
+				}
 			}
 			
 			else if(bNode.getOutgoingEdgeList().size() == 1) {
@@ -405,24 +465,23 @@ public class BFSLayout extends BFSBase{
 				break;
 			case INodeType.NODE_TYPE_SWITCH:
 				branchingNodes.add(node);
-				/* sort nodes by y coordinate */
-             	TreeMap<Object, INodeExt> tm = new TreeMap<Object, INodeExt>();
-        		IEdgeExt e = null;
-				for (int j = 0; j < outList.size(); j++){			 
-					 e = outList.getEdgeExt(j);
-					 if(!e.getTarget().isVisited() && e.getTarget().getX() == -1){
-						 tm.put(new Integer(e.getTarget().getByteCodeOffset()), e.getTarget()); 
-					 }
-				}
+				
+				int caseWidth = 0;
+				
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
 
-				Object[] array = tm.values().toArray();
+					caseWidth += n.getWidth();
+				}
 				
-				int positionX = node.getX() - (tm.size() * offset * 2)/2;
-				
-				for(int j = 0; j < array.length; j++){
-					positionX = positionX + (offset * 2);
-					((INodeExt)array[j]).setX(positionX);
-				}	
+				int positionX = node.getX() + node.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
+
+				for(int i = 0; i < outList.size(); i++) {
+					INodeExt n = outList.getEdgeExt(i).getTarget();
+					
+					n.setX(positionX);
+					positionX += offset + n.getWidth();
+				}
 
 			default:
 				if( outList.size() > 0){
