@@ -18,7 +18,6 @@ package com.drgarbage.algorithms;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -68,6 +67,14 @@ public class SpanningTreeBFS extends BFSBase {
 		return spanningTree;
 	}
 	
+	/**
+	 * Returns the map of nodes <b>old graph</b> <-> <b>spanning tree</b>
+	 * @return the node map
+	 */
+	public Map<INodeExt, INodeExt> getMapNodeList() {
+		return mapNodeList;
+	}
+
 	/* (non-Javadoc)
 	 * @see com.drgarbage.algorithms.BFSBase#start(com.drgarbage.controlflowgraph.intf.IDirectedGraphExt)
 	 */
@@ -110,6 +117,11 @@ public class SpanningTreeBFS extends BFSBase {
 	private void copyNodeProperties(INodeExt oldNode, INodeExt newNode){
 		newNode.setByteCodeOffset(oldNode.getByteCodeOffset());
 		newNode.setByteCodeString(oldNode.getByteCodeString());
+		
+		newNode.setHeight(oldNode.getHeight());
+		newNode.setWidth(oldNode.getWidth());
+		
+		newNode.setVertexType(oldNode.getVertexType());
 		//TODO: copy all properties
 	}
 
