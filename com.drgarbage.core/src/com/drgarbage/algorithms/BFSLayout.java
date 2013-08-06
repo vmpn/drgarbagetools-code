@@ -17,7 +17,6 @@
 package com.drgarbage.algorithms;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -103,9 +102,6 @@ public class BFSLayout extends BFSBase{
 				node.setX(startOffset);
 				startOffset = startOffset + offset * 2;
 			 }
-			else{
-				node.setX(-1);
-			}
 		}
 	}
 	
@@ -119,6 +115,7 @@ public class BFSLayout extends BFSBase{
 			CorePlugin.log(e);
 		}
 		
+		/* assign coordinates from nodes in spanning tree to the corresponding nodes in actual graph */
 		for (Entry<INodeExt, INodeExt> entry : nodeMap.entrySet()) {
 		    INodeExt graphNode = entry.getKey();
 		    INodeExt spanningTreeNode = entry.getValue();
@@ -153,180 +150,6 @@ public class BFSLayout extends BFSBase{
 		
 		optimizeLayout(nodeList, edgeList);
 	}
-
-	private void optimizeLayout(INodeListExt nodeList, IEdgeListExt edgeList) {
-		List<INodeExt> bNodes = new ArrayList<INodeExt>(branchingNodes);
-		
-		for(INodeExt bNode : bNodes) {
-			
-			unvisitAllNodes(nodeList);
-			unvisitAllEdges(edgeList);
-			
-			int treeWidth = getTreeWidth(bNode);
-			
-			unvisitAllNodes(nodeList);
-			
-			relocateNodes(bNode, treeWidth);
-		}
-		
-		int minX = getMinX(nodeList);
-		int xShift = Math.abs(minX) + 10; 
-		
-		shiftGraphOnXAxis(nodeList, xShift);
-	}
-
-	private void shiftGraphOnXAxis(INodeListExt nodeList, int xShift) {
-		for(int i = 0; i < nodeList.size(); i++) {
-			 nodeList.getNodeExt(i).setX(nodeList.getNodeExt(i).getX() + xShift);
-		}
-	}
-
-	private int getMinX(INodeListExt nodeList) {
-		int minX = 0;
-		
-		for(int i = 0; i < nodeList.size(); i++) {
-			 if(nodeList.getNodeExt(i).getX() < minX)
-				 minX = nodeList.getNodeExt(i).getX();
-		}
-		return minX;
-	}
-
-	private void unvisitAllEdges(IEdgeListExt edgeList) {
-		for(int i = 0; i < edgeList.size(); i++)
-			edgeList.getEdgeExt(i).setVisited(false);
-	}
-
-	private void unvisitAllNodes(INodeListExt nodeList) {
-		for(int i = 0; i < nodeList.size(); i++)
-			nodeList.getNodeExt(i).setVisited(false);
-	}
-
-	private void relocateNodes(INodeExt bNode, int treeWidth) {
-		if(treeWidth > 2) {
-			IEdgeListExt outList = bNode.getOutgoingEdgeList();
-			
-			switch(bNode.getVertexType()) {
-				case INodeType.NODE_TYPE_IF:
-					if(outList.size() == 2) {
-						
-						INodeExt n1 = outList.getEdgeExt(0).getTarget();
-						INodeExt n2 = outList.getEdgeExt(1).getTarget();
-						
-						if(n1.getX() < n2.getX()) {
-							n1.setX(n1.getX() - offset * (treeWidth - 2));
-							n2.setX(n2.getX() + offset * (treeWidth - 2));
-							
-							relocateNodes(n1, treeWidth, -1);
-							relocateNodes(n2, treeWidth, 1);
-						}
-						
-						else {
-							n1.setX(n1.getX() + offset * (treeWidth - 2));
-							n2.setX(n2.getX() - offset * (treeWidth - 2));
-							
-							relocateNodes(n1, treeWidth, 1);
-							relocateNodes(n2, treeWidth, -1);
-						}
-						
-						break;
-					}
-				
-				case INodeType.NODE_TYPE_SWITCH:
-					if(outList.size() > 1){
-						int caseWidth = 0;
-						
-						for(int i = 0; i < outList.size(); i++) {
-							INodeExt n = outList.getEdgeExt(i).getTarget();
-		
-							caseWidth += n.getWidth();
-						}
-						
-						int positionX = bNode.getX() + bNode.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
-		
-						for(int i = 0; i < outList.size(); i++) {
-							INodeExt n = outList.getEdgeExt(i).getTarget();
-							
-							n.setX(positionX);
-							positionX += offset + n.getWidth();
-						}
-						
-						for(int i = 0; i < outList.size(); i++) {
-							INodeExt n = outList.getEdgeExt(i).getTarget();
-							
-							relocateNodes(n, treeWidth, 1);
-						}
-						break;
-					}
-				default:
-					INodeExt n = outList.getEdgeExt(0).getTarget();
-					
-					n.setX(bNode.getX() + bNode.getWidth()/2 - n.getWidth()/2);
-					
-					relocateNodes(n, treeWidth);
-			}
-		}
-	}
-	
-	private void relocateNodes(INodeExt bNode, int treeWidth, int factor) {
-		if(treeWidth > 2) {
-			IEdgeListExt outList = bNode.getOutgoingEdgeList();
-			
-			switch(bNode.getVertexType()) {
-				case INodeType.NODE_TYPE_IF:
-					if(outList.size() == 2) {
-					
-					INodeExt n1 = outList.getEdgeExt(0).getTarget();
-					INodeExt n2 = outList.getEdgeExt(1).getTarget();
-	
-					n1.setX(n1.getX() + factor * offset * (treeWidth - 2));
-					n2.setX(n2.getX() + factor * offset * (treeWidth - 2));
-					
-					relocateNodes(n1, treeWidth, factor);
-					relocateNodes(n2, treeWidth, factor);
-	
-					break;
-					}
-				
-				case INodeType.NODE_TYPE_SWITCH:
-					if(outList.size() > 1) {
-
-						int caseWidth = 0;
-						
-						for(int i = 0; i < outList.size(); i++) {
-							INodeExt n = outList.getEdgeExt(i).getTarget();
-		
-							caseWidth += n.getWidth();
-						}
-						
-						int positionX = bNode.getX() + bNode.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
-		
-						for(int i = 0; i < outList.size(); i++) {
-							INodeExt n = outList.getEdgeExt(i).getTarget();
-							
-							n.setX(positionX);
-							positionX += offset + n.getWidth();
-						}
-						
-						for(int i = 0; i < outList.size(); i++) {
-							INodeExt n = outList.getEdgeExt(i).getTarget();
-							
-							relocateNodes(n, treeWidth, 1);
-						}
-						break;
-					}
-			
-				default:
-					if(bNode.getOutgoingEdgeList().size() == 1) {
-						INodeExt n = bNode.getOutgoingEdgeList().getEdgeExt(0).getTarget();
-						
-						n.setX(bNode.getX() + bNode.getWidth()/2 - n.getWidth()/2);
-						
-						relocateNodes(n, treeWidth, factor);
-					}
-			}
-		}
-	}
-	
 	
 	/**
 	 * Traverses the graph from the given node.
@@ -346,6 +169,7 @@ public class BFSLayout extends BFSBase{
 		
 		nodeHeightSum += startNode.getHeight();
 		
+		/* start bfs */
 		while(!queue.isEmpty()){
 			INodeExt node = dequeue(queue);
 			IEdgeListExt outgoingEdges = node.getOutgoingEdgeList();
@@ -392,6 +216,7 @@ public class BFSLayout extends BFSBase{
 		
 		startnode.setVisited(true);
 		
+		/* start bfs */
 		while(!queue.isEmpty()){
 			INodeExt node = dequeue(queue);
 			IEdgeListExt outgoingEdges = node.getOutgoingEdgeList();
@@ -441,53 +266,190 @@ public class BFSLayout extends BFSBase{
 					
 					int maxWidth = n1.getWidth() > n2.getWidth() ? n1.getWidth() : n2.getWidth();
 					
-					if(n1.getX() == -1 && n2.getX() == -1){
-						n1.setX(currentNode.getX() + currentNode.getWidth()/2 + offset + maxWidth/2);
-						n2.setX(currentNode.getX() + currentNode.getWidth()/2 - offset - maxWidth/2 - n2.getWidth());
-					}
-					/* if the x coordinate is not -1, then the node was already visited
-					 * the target node can be positioned right under the if type node */
-					else if(n1.getX() != -1 && n2.getX() == -1){
-							n2.setX(currentNode.getX() + currentNode.getWidth()/2 - n2.getWidth()/2);
-					}
-					else if(n1.getX() == -1 && n2.getX() != -1){
-							n1.setX(currentNode.getX() + currentNode.getWidth()/2 - n1.getWidth()/2);
-					}
+					n1.setX(currentNode.getX() + currentNode.getWidth()/2 + offset  + maxWidth/2);
+					n2.setX(currentNode.getX() + currentNode.getWidth()/2 - offset - maxWidth/2 - n2.getWidth());
+					
 					break;
 				}
 			case INodeType.NODE_TYPE_SWITCH:
 				branchingNodes.add(currentNode);
 				
 				if(outList.size() > 1) {
-					int caseWidth = 0;
+					positionCasesUnderSwitch(currentNode, outList);
 					
-					for(int i = 0; i < outList.size(); i++) {
-						INodeExt n = outList.getEdgeExt(i).getTarget();
-	
-						caseWidth += n.getWidth();
-					}
-					
-					int positionX = currentNode.getX() + currentNode.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
-	
-					for(int i = 0; i < outList.size(); i++) {
-						INodeExt n = outList.getEdgeExt(i).getTarget();
-						
-						n.setX(positionX);
-						positionX += offset + n.getWidth();
-					}
 					break;
 				}
 			default:
 				if(outList.size() == 1) {
-					INodeExt n = outList.getEdgeExt(0).getTarget();
-					
-					if(!n.isVisited() && n.getX() == -1){
-						n.setX(currentNode.getX() + currentNode.getWidth()/2 - n.getWidth()/2);
-					}
+					positionSingleNodeUnderParent(currentNode, outList);
 				}
 		}
 	}
+
+	private void positionCasesUnderSwitch(INodeExt currentNode, IEdgeListExt outList) {
+		int caseWidth = 0;
+		
+		for(int i = 0; i < outList.size(); i++) {
+			INodeExt n = outList.getEdgeExt(i).getTarget();
+
+			caseWidth += n.getWidth();
+		}
+		
+		int positionX = currentNode.getX() + currentNode.getWidth()/2 - caseWidth/2 - ((outList.size()-1) * offset)/2;
+
+		for(int i = 0; i < outList.size(); i++) {
+			INodeExt n = outList.getEdgeExt(i).getTarget();
+			
+			n.setX(positionX);
+			positionX += offset + n.getWidth();
+		}
+	}
 	
+	private void positionSingleNodeUnderParent(INodeExt currentNode,
+			IEdgeListExt outList) {
+		INodeExt n = outList.getEdgeExt(0).getTarget();
+		
+		n.setX(currentNode.getX() + currentNode.getWidth()/2 - n.getWidth()/2);
+	}
+	
+	private void optimizeLayout(INodeListExt nodeList, IEdgeListExt edgeList) {
+		List<INodeExt> bNodes = new ArrayList<INodeExt>(branchingNodes);
+		
+		for(INodeExt bNode : bNodes) {
+			unvisitAllNodes(nodeList);
+			unvisitAllEdges(edgeList);
+			
+			int treeWidth = getTreeWidth(bNode);
+			
+			relocateNodes(bNode, treeWidth);
+		}
+		
+		int minX = getMinX(nodeList);
+		int xShift = Math.abs(minX) + 10; 
+		
+		shiftGraphOnXAxis(nodeList, xShift);
+	}
+
+	private void shiftGraphOnXAxis(INodeListExt nodeList, int xShift) {
+		for(int i = 0; i < nodeList.size(); i++) {
+			 nodeList.getNodeExt(i).setX(nodeList.getNodeExt(i).getX() + xShift);
+		}
+	}
+
+	private int getMinX(INodeListExt nodeList) {
+		int minX = 0;
+		
+		for(int i = 0; i < nodeList.size(); i++) {
+			 if(nodeList.getNodeExt(i).getX() < minX)
+				 minX = nodeList.getNodeExt(i).getX();
+		}
+		return minX;
+	}
+
+	private void unvisitAllEdges(IEdgeListExt edgeList) {
+		for(int i = 0; i < edgeList.size(); i++)
+			edgeList.getEdgeExt(i).setVisited(false);
+	}
+
+	private void unvisitAllNodes(INodeListExt nodeList) {
+		for(int i = 0; i < nodeList.size(); i++)
+			nodeList.getNodeExt(i).setVisited(false);
+	}
+
+	private void relocateNodes(INodeExt currentNode, int treeWidth) {
+		if(treeWidth > 2) {
+			IEdgeListExt outList = currentNode.getOutgoingEdgeList();
+			
+			switch(currentNode.getVertexType()) {
+				case INodeType.NODE_TYPE_IF:
+					if(outList.size() == 2) {
+						INodeExt n1 = outList.getEdgeExt(0).getTarget();
+						INodeExt n2 = outList.getEdgeExt(1).getTarget();
+						
+						int stretch = offset > currentNode.getWidth()/4 ? offset : currentNode.getWidth()/4;
+						
+						if(n1.getX() < n2.getX()) {
+							n1.setX(n1.getX() - stretch * (treeWidth - 2));
+							n2.setX(n2.getX() + stretch * (treeWidth - 2));
+							
+							relocateNodes(n1, treeWidth, -1);
+							relocateNodes(n2, treeWidth, 1);
+						}
+						
+						else {
+							n1.setX(n1.getX() + stretch * (treeWidth - 2));
+							n2.setX(n2.getX() - stretch * (treeWidth - 2));
+							
+							relocateNodes(n1, treeWidth, 1);
+							relocateNodes(n2, treeWidth, -1);
+						}
+						
+						break;
+					}
+				
+				case INodeType.NODE_TYPE_SWITCH:
+					if(outList.size() > 1){
+						positionCasesUnderSwitch(currentNode, outList);
+						
+						for(int i = 0; i < outList.size(); i++) {
+							INodeExt n = outList.getEdgeExt(i).getTarget();
+							relocateNodes(n, treeWidth, 1);
+						}
+						break;
+					}
+				default:
+					if(outList.size() == 1) {
+						positionSingleNodeUnderParent(currentNode, outList);
+						
+						INodeExt n = outList.getEdgeExt(0).getTarget();
+						relocateNodes(n, treeWidth);
+					}
+			}
+		}
+	}
+	
+	private void relocateNodes(INodeExt currentNode, int treeWidth, int factor) {
+		if(treeWidth > 2) {
+			IEdgeListExt outList = currentNode.getOutgoingEdgeList();
+			
+			switch(currentNode.getVertexType()) {
+				case INodeType.NODE_TYPE_IF:
+					if(outList.size() == 2) {
+						INodeExt n1 = outList.getEdgeExt(0).getTarget();
+						INodeExt n2 = outList.getEdgeExt(1).getTarget();
+						
+						int stretch = offset > currentNode.getWidth()/4 ? offset : currentNode.getWidth()/4;
+		
+						n1.setX(n1.getX() + factor * stretch * (treeWidth - 2));
+						n2.setX(n2.getX() + factor * stretch * (treeWidth - 2));
+						
+						relocateNodes(n1, treeWidth, factor);
+						relocateNodes(n2, treeWidth, factor);
+		
+						break;
+					}
+				
+				case INodeType.NODE_TYPE_SWITCH:
+					if(outList.size() > 1) {
+						positionCasesUnderSwitch(currentNode, outList);
+						
+						for(int i = 0; i < outList.size(); i++) {
+							INodeExt n = outList.getEdgeExt(i).getTarget();	
+							relocateNodes(n, treeWidth, 1);
+						}
+						break;
+					}
+			
+				default:
+					if(outList.size() == 1) {
+						positionSingleNodeUnderParent(currentNode, outList);
+						
+						INodeExt n = outList.getEdgeExt(0).getTarget();
+						relocateNodes(n, treeWidth, factor);
+					}
+			}
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see com.drgarbage.algorithms.BFSBase#visitedEdge(com.drgarbage.controlflowgraph.intf.IEdgeExt)
