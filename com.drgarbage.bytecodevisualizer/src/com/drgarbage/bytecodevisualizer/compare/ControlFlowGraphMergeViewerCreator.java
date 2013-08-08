@@ -24,8 +24,8 @@ import org.eclipse.swt.widgets.Composite;
  * Generates the {@link ClassFileMergeViewer}.
  * 
  * @author Sergej Alekseev, Andreas Karoly, Adam Kajrys
- * @version $Revision: 203 $
- * $Id: ClassFileMergeViewerCreator.java 203 2013-06-07 09:27:41Z salekseev $
+ * @version $Revision$
+ * $Id$
  */
 public class ControlFlowGraphMergeViewerCreator implements IViewerCreator {
 

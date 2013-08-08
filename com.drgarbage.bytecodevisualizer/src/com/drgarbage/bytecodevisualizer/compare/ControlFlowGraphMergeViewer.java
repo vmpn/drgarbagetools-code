@@ -70,8 +70,8 @@ import com.drgarbage.utils.Messages;
  * @see TextMergeViewer
  * 
  * @author Sergej Alekseev, Andreas Karoly, Adam Kajrys
- * @version $Revision: 203 $
- * $Id: ClassFileMergeViewer.java 203 2013-06-07 09:27:41Z salekseev $
+ * @version $Revision$
+ * $Id$
  */
 public class ControlFlowGraphMergeViewer extends TextMergeViewer{
 
