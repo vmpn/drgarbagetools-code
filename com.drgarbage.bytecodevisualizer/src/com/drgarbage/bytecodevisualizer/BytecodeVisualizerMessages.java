@@ -29,7 +29,6 @@ import org.eclipse.osgi.util.NLS;
  */
 public class BytecodeVisualizerMessages extends NLS {
 	private static final String BUNDLE_NAME= BytecodeVisualizerMessages.class.getName();
-
 	
 	static {
 		NLS.initializeMessages(BUNDLE_NAME, BytecodeVisualizerMessages.class);
@@ -109,6 +108,7 @@ public class BytecodeVisualizerMessages extends NLS {
 
 	public static String StepOverSingleInstructionAction_text;
 	public static String StepIntoBytecodeAction_text;
+	public static String Read_Classes_From_JVM_text;
 
 	public static String ToggleBreakpointAction_text;
 	public static String ToggleBreakpointAction_tooltipText_Debug_functionality_is_unavailable_in_this_context_;
