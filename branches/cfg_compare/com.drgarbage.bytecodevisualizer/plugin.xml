@@ -133,6 +133,14 @@
            label="%ClassFileCompare_label">
      </viewer>
    </extension>
+   <extension point="org.eclipse.compare.contentMergeViewers">
+     <viewer
+           class="com.drgarbage.bytecodevisualizer.compare.ControlFlowGraphMergeViewerCreator"
+           extensions="class, class_drgarbage"
+           id="com.drgarbage.bytecodevisualizer.compare.ControlFlowGraphMergeViewer"
+           label="%ControlFlowGraphCompare_label">
+     </viewer>
+   </extension>
    
    
    <extension
