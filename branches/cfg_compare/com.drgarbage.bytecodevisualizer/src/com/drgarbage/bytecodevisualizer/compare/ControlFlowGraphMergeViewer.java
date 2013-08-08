@@ -76,8 +76,7 @@ import com.drgarbage.utils.Messages;
 /**
  * The compare and merge viewer with two side-by-side content areas.
  * The viewer modifies the input to represent the class file in 
- * a readable format by using the {@link ClassFileParser} and provides 
- * the syntax highlighting from the {@link ClassFileConfiguration}.
+ * a readable format by using the GHS Format.
  *
  * @see IMergeViewerContentProvider
  * @see TextMergeViewer
