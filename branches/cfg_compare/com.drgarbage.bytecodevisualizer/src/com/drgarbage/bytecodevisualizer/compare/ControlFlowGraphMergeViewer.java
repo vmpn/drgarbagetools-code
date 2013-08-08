@@ -16,10 +16,14 @@
 
 package com.drgarbage.bytecodevisualizer.compare;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
@@ -51,10 +55,19 @@ import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
+import com.drgarbage.asm.ClassReader;
+import com.drgarbage.asm.render.impl.ClassFileDocument;
+import com.drgarbage.asm.render.impl.ClassFileOutlineElement;
+import com.drgarbage.asm.render.intf.IClassFileDocument;
+import com.drgarbage.asm.render.intf.IInstructionLine;
+import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.classfile.editors.ClassFileConfiguration;
 import com.drgarbage.classfile.editors.ClassFileParser;
 import com.drgarbage.classfile.editors.ColorManager;
+import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
+import com.drgarbage.controlflowgraph.ControlFlowGraphParser;
+import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.javalang.JavaLangUtils;
 import com.drgarbage.javasrc.JavaSourceUtils;
@@ -148,8 +161,7 @@ public class ControlFlowGraphMergeViewer extends TextMergeViewer{
 					
 					IJavaElement	elementLetft = getLeftElement();
 					if(elementLetft != null){
-//						String s = generateClassFileInput(elementLetft);
-						String s = "TEST";
+						String s = generateControlFlowGraphInGHSFormat(elementLetft);
 						if(s!= null){
 							newDocument.set(s);
 							newDocument.addDocumentListener(
@@ -206,7 +218,7 @@ public class ControlFlowGraphMergeViewer extends TextMergeViewer{
 					
 					IJavaElement elementRight = getRightElement();
 					if(elementRight != null){
-						String s = generateClassFileInput(elementRight);
+						String s = generateControlFlowGraphInGHSFormat(elementRight);
 						if(s!= null){
 							newDocument.set(s);
 							newDocument.addDocumentListener(
@@ -361,14 +373,51 @@ public class ControlFlowGraphMergeViewer extends TextMergeViewer{
 	}
 	
 	/**
-	 * Generates a readable text representation of the class file.
-	 * @param element
+	 * Returns the Control Flow Graphs in the JavaElement in GHS Format
+	 * @param resource object
 	 * @return string
 	 */
-	private String generateClassFileInput (IJavaElement javaElement){
+	private String generateControlFlowGraphInGHSFormat(IJavaElement javaElement){
+		
+		byte[] javaElementInByteRepresentation = getBytesFrom(javaElement);
+		
+		IClassFileDocument classFileDocument;
+		
+		try {
+			classFileDocument = getClassFileDocumentFrom(javaElementInByteRepresentation);
+		} catch (CoreException e) {
+			handleException(CoreException.class.getName(), e);
+			Messages.error(CoreException.class.getName() +
+					CoreMessages.ExceptionAdditionalMessage);
+			return null;
+		}
+		
+		List<IMethodSection> methodsRepresentingTheClassFile = classFileDocument.getMethodSections();
+		
+		List<IDirectedGraphExt> controlFlowGraphsInClassFile = new ArrayList<IDirectedGraphExt>();
+		
+		for(IMethodSection method : methodsRepresentingTheClassFile){
+			if(method.hasCode()){
+				controlFlowGraphsInClassFile.add(ControlFlowGraphGenerator.generateSynchronizedControlFlowGraphFrom(method.getInstructionLines()));
+			}
+		}
+		
+		return ControlFlowGraphParser.toGHSAppendMode(controlFlowGraphsInClassFile);
+		
+	}
+	
+	/**
+	 * Gets the byte representation from the given JavaElement
+	 * @param element
+	 * @return byte[]
+	 */
+	private byte[] getBytesFrom(IJavaElement javaElement){
+
 		byte[] bytes = null;
 		try {
+			
 			InputStream	stream = createStream(javaElement);
+			
 			if(stream == null){
 				return null;
 			}
@@ -378,6 +427,8 @@ public class ControlFlowGraphMergeViewer extends TextMergeViewer{
 			for(int i = 0; i < max; i++){
 				bytes[i] = (byte) stream.read();
 			}
+			
+			
 		} catch (CoreException e) {
 			handleException(CoreException.class.getName(), e);
 			Messages.error(CoreException.class.getName() +
@@ -389,17 +440,38 @@ public class ControlFlowGraphMergeViewer extends TextMergeViewer{
 					CoreMessages.ExceptionAdditionalMessage);
 		} 
 
-		ClassFileParser cfp = new ClassFileParser();
-		try {
-			String s = cfp.parseClassFile(bytes);
-			return s;
-		} catch (ParseException e) {
-			handleException(ParseException.class.getName(), e);
-			Messages.error(ParseException.class.getName() +
-					CoreMessages.ExceptionAdditionalMessage);
-		}
+		return bytes;
+	}
+	
+	/**
+	 * Gets the ClassFileDocument that is represented in bytes
+	 * @param byte representation of the ClassFile
+	 * @return IClassFileDocument
+	 */
+	private IClassFileDocument getClassFileDocumentFrom(byte[] byteRepresentation) throws CoreException{
+		
+		ClassFileDocument classFileDocument = null;
+		
+		InputStream in= new ByteArrayInputStream(byteRepresentation);
+		DataInputStream din = new DataInputStream(new BufferedInputStream(in));
 
-		return null;
+		ClassFileOutlineElement cv = new ClassFileOutlineElement();
+		classFileDocument = new ClassFileDocument(cv);
+		cv.setClassFileDocument(classFileDocument);
+
+		try{
+				
+			ClassReader cr = new ClassReader(din, classFileDocument);
+			cr.accept(classFileDocument, 0);
+			
+		} catch (Exception e) {
+			throw new CoreException(new Status(IStatus.ERROR, 
+					BytecodeVisualizerPlugin.PLUGIN_ID, 
+					e.getMessage(), 
+					e));
+		}
+		
+		return classFileDocument;
 	}
 	
 	
