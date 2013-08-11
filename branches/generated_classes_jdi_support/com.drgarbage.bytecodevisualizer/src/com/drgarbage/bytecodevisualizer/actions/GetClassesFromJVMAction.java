@@ -57,23 +57,10 @@ public class GetClassesFromJVMAction extends DebugViewAction {
 	@Override
 	public void run() {
 		
-		Object o = DebugUITools.getDebugContext();
-
-		/* the object is null if the debugger is not active */
-		if(o instanceof JDIDebugElement){
-			JDIDebugElement jdiDebugElement = (JDIDebugElement)o;
-			VirtualMachine vm = jdiDebugElement.getJavaDebugTarget().getVM();
-			
-			//TODO: implement class selection
-			
-			List<ReferenceType> l = vm.allClasses();
-			
-			for(ReferenceType r : l){
-				System.out.println(r.name());
-			}
+		new ClassFilteredList();
 			
 			//TODO: implement export to build path
-		}
+		
 		
 	}
 
