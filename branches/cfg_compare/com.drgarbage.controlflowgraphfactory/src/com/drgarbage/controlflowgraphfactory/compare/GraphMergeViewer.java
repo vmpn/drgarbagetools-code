@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+/* it's opeen */
 package com.drgarbage.controlflowgraphfactory.compare;
 
 import java.io.IOException;
@@ -31,7 +31,10 @@ import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Layout;
 
+import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
+import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 
@@ -45,12 +48,15 @@ import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 public class GraphMergeViewer extends ContentMergeViewer {
 	
 	private static final String BUNDLE_NAME= "org.eclipse.compare.internal.ImageMergeViewerResources"; //$NON-NLS-1$
-		
-	private Object fLeftImage;
-	private Object fRightImage;
+	
+	private ControlFlowGraphDiagram diagramLeft;
+	private ControlFlowGraphDiagram diagramRight;
 
 	private GraphicalViewer fLeft;
 	private GraphicalViewer fRight;
+	
+	private IDirectedGraphExt graphLeft = null;
+	private IDirectedGraphExt graphRight = null;
 	
 			
 	/**
@@ -72,13 +78,69 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#updateContent(java.lang.Object, java.lang.Object, java.lang.Object)
 	 */
 	protected void updateContent(Object ancestor, Object left, Object right) {
-		fLeftImage= left;
-		setInput(fLeft, left);
+		diagramLeft = getControlFlowGraphDiagramFromInput(left);
 		
-		fRightImage= right;
-		setInput(fRight, right);
+		setInput(fLeft, diagramLeft);
+		
+		graphLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);
+		
+		diagramRight = getControlFlowGraphDiagramFromInput(right);
+		
+		setInput(fRight, diagramRight);
+		
+		graphRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+	}
+
+	/**
+	 * Reads the Input Object and returns the corresponding ControlFlowGraphDiagram
+	 * 
+	 * @param input
+	 * @return a ControlFlowGraphDiagram representing the Input
+	 */
+	private ControlFlowGraphDiagram getControlFlowGraphDiagramFromInput(Object input) {
+		if (input != null) {
+			InputStream stream= null;
+			ControlFlowGraphDiagram diagram = null;
+			if (input instanceof IStreamContentAccessor) {
+				IStreamContentAccessor sca= (IStreamContentAccessor) input;
+				if (sca != null) {
+					try {
+						stream = sca.getContents();
+						ObjectInputStream in = new ObjectInputStream(stream);
+						diagram = (ControlFlowGraphDiagram) in.readObject();
+						in.close();
+						stream.close();
+
+					} catch (CoreException ex) {
+						// TODO: implement handling
+						ex.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			
+			return diagram;
+		}
+		
+		return null;
 	}
 	
+	/**
+	 * Sets the input for the viewer (left or right).
+	 * 
+	 * @param viewer the graphical viewer
+	 * @param input the diagram object
+	 */
+	private void setInput(GraphicalViewer viewer, ControlFlowGraphDiagram diagram){
+		if(viewer != null && diagram != null)
+			viewer.setContents(diagram);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#getContents(boolean)
 	 */
@@ -112,43 +174,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		ScalableFreeformRootEditPart root2 = new ScalableFreeformRootEditPart();
 		fRight.setRootEditPart(root2);
 	}
-
-	/**
-	 * Sets the input for the viewer (left or right).
-	 * 
-	 * @param viewer the graphical viewer
-	 * @param input the diagram object
-	 */
-	private static void setInput(GraphicalViewer viewer, Object input) {
-		if (viewer != null && input != null) {
-			InputStream stream= null;
-			ControlFlowGraphDiagram diagram = null;
-			if (input instanceof IStreamContentAccessor) {
-				IStreamContentAccessor sca= (IStreamContentAccessor) input;
-				if (sca != null) {
-					try {
-						stream = sca.getContents();
-						ObjectInputStream in = new ObjectInputStream(stream);
-						diagram = (ControlFlowGraphDiagram) in.readObject();
-						in.close();
-						stream.close();
-
-					} catch (CoreException ex) {
-						// TODO: implement handling
-						ex.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			
-			viewer.setContents(diagram); 
-		}
-	}
 	
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#handleResizeAncestor(int, int, int, int)
@@ -169,13 +194,15 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#copy(boolean)
 	 */
 	protected void copy(boolean leftToRight) {
-		if (leftToRight) {
-			fRightImage= fLeftImage;
-			setInput(fRight, fRightImage);
+		if (leftToRight) {			
+			diagramRight = diagramLeft;
+			setInput(fRight, diagramRight);
+			
 			setRightDirty(true);
-		} else {
-			fLeftImage= fRightImage;
-			setInput(fLeft, fLeftImage);
+		} else {			
+			diagramLeft = diagramRight;
+			setInput(fLeft, diagramLeft);
+			
 			setLeftDirty(true);
 		}
 	}
