@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* it's opeen */
+
 package com.drgarbage.controlflowgraphfactory.compare;
 
 import java.io.IOException;
