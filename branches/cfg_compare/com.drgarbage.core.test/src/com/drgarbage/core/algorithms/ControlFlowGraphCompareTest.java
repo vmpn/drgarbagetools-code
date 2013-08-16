@@ -1,4 +1,4 @@
-package test;
+package com.drgarbage.core.algorithms;
 
 import static org.junit.Assert.*;
 

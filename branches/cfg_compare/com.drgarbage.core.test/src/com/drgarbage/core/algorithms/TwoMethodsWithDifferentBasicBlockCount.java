@@ -1,4 +1,4 @@
-package test;
+package com.drgarbage.core.algorithms;
 
 public class TwoMethodsWithDifferentBasicBlockCount {
 	
