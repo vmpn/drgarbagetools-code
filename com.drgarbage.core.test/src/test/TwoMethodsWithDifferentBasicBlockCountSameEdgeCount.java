@@ -1,6 +1,6 @@
-package com.drgarbage.core.algorithms;
+package test;
 
-public class TwoMethodsWithSameBasicBlockCountDifferentEdgeCount {
+public class TwoMethodsWithDifferentBasicBlockCountSameEdgeCount {
 	
 	public void fourBasicBlocksFiveEdges(){
 		
@@ -8,11 +8,9 @@ public class TwoMethodsWithSameBasicBlockCountDifferentEdgeCount {
 		
 		if(a == 2){
 			a++;
-			if(a == 3)
-				a--;
 		}
 
-
+		a--;
 	}
 	
 	public void fourBasicBlocksFourEdges(){
@@ -21,7 +19,7 @@ public class TwoMethodsWithSameBasicBlockCountDifferentEdgeCount {
 		
 		if(a == 1)
 			a--;
-		else a++;
+		else return;
 		
 	}
 

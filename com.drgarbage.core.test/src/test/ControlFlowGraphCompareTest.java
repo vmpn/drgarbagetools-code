@@ -1,4 +1,4 @@
-package com.drgarbage.core.algorithms;
+package test;
 
 import static org.junit.Assert.*;
 
@@ -23,7 +23,7 @@ public class ControlFlowGraphCompareTest {
 	
 	@Test
 	public void differentNodeCountNotIsomorph() throws ControlFlowGraphException, IOException {
-		
+				
 		IDirectedGraphExt graphThreeBasicBlocks = ControlFlowGraphGenerator.generateControlFlowGraph(testResources, null, "TwoMethodsWithDifferentBasicBlockCount", "threeBasicBlocks", "()V", true, true, false);
 		IDirectedGraphExt graphOneBasicBlock = ControlFlowGraphGenerator.generateControlFlowGraph(testResources, null, "TwoMethodsWithDifferentBasicBlockCount", "oneBasicBlock", "()V", true, true, false);
 		
