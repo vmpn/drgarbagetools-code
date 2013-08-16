@@ -17,7 +17,7 @@ import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
-public class ControlFlowGraphCompareTest {
+public class ControlFlowGraphCompareUnitTest {
 	
 	String testResources[] = new String[]{this.getClass().getResource("").getPath()};
 	

@@ -11,7 +11,7 @@
   </parent>
   
    <build> 
-       <testSourceDirectory>src/test</testSourceDirectory> 
+       <testSourceDirectory>src/com/drgarbage</testSourceDirectory>
        <plugins> 
            <plugin> 
                <groupId>org.apache.maven.plugins</groupId> 
@@ -23,7 +23,7 @@
                        <phase>test</phase> 
                        <configuration> 
                            <includes> 
-                               <include>**/*Test.java</include> 
+                               <include>**/*UnitTest.java</include> 
                            </includes> 
                        </configuration> 
                        <goals> 
