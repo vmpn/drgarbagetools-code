@@ -136,13 +136,14 @@
 		<module>../com.drgarbage.asm.plugin</module>
 		<module>../com.drgarbage.core</module>
 		<module>../com.drgarbage.core.feature</module>
+		<module>../com.drgarbage.core.test</module>
 		<module>../com.drgarbage.bytecodevisualizer</module>
 		<module>../com.drgarbage.bytecodevisualizer.feature</module>
+		<module>../com.drgarbage.bytecodevisualizer.test</module>
 		<module>../com.drgarbage.controlflowgraphfactory</module>
 		<module>../com.drgarbage.controlflowgraphfactory.feature</module>
 		<module>../com.drgarbage.sourcecodevisualizer</module>
 		<module>../com.drgarbage.sourcecodevisualizer.feature</module>
 		<module>../com.drgarbage.p2repository</module>
-		<module>../com.drgarbage.bytecodevisualizer.test</module>
 	</modules>
 </project>
