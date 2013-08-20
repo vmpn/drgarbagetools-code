@@ -78,17 +78,20 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#updateContent(java.lang.Object, java.lang.Object, java.lang.Object)
 	 */
 	protected void updateContent(Object ancestor, Object left, Object right) {
-		diagramLeft = getControlFlowGraphDiagramFromInput(left);
-		
+		if(diagramLeft == null){
+			diagramLeft = getControlFlowGraphDiagramFromInput(left);
+		}		
 		setInput(fLeft, diagramLeft);
 		
-		graphLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);
 		
-		diagramRight = getControlFlowGraphDiagramFromInput(right);
-		
+		if(diagramRight == null){
+			diagramRight = getControlFlowGraphDiagramFromInput(right);
+		}		
 		setInput(fRight, diagramRight);
 		
+		graphLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		graphRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+
 	}
 
 	/**
