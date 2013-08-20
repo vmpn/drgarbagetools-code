@@ -22,6 +22,7 @@ import java.util.List;
 import org.eclipse.draw2d.geometry.Dimension;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.jface.viewers.ICellEditorValidator;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -75,6 +76,9 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 
 	/** Property ID to use when the text label of this vertex is modified. */
 	public static final String TEXT_LABEL_PROP = "VertexBase.TextLabel";
+	
+	/** Property ID to use then the color of this vertex is modified. */
+	public static final String COLOR_PROP = "VertexBase.Color";
 
 	/*
 	 * Initializes the property descriptors array.
@@ -110,6 +114,9 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 
 	/** Size of this vertex. */
 	private Dimension size = new Dimension(50, 50);
+	
+	/** Color of the vertex */
+	private Color vertexColor = null;
 
 	/** List of outgoing Connections. */
 	private List<Connection> sourceConnections = new ArrayList<Connection>();
@@ -143,7 +150,7 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 
 	/**
-	 * Add an incoming or outgoing connection to this vertex.
+	 * Adds an incoming or outgoing connection to this vertex.
 	 * @param conn a non-null connection instance
 	 * @throws IllegalArgumentException if the connection is null or has not distinct endpoints
 	 */
@@ -161,14 +168,14 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
-	 * Return a pictogram (small icon) describing this model element.
+	 * Returns a pictogram (small icon) describing this model element.
 	 * Children should override this method and return an appropriate Image.
 	 * @return a 16x16 Image or null
 	 */
 	public abstract Image getIcon();
 	
 	/**
-	 * Return the Location of this vertex.
+	 * Returns the Location of this vertex.
 	 * @return a non-null location instance
 	 */
 	public Point getLocation() {
@@ -219,7 +226,7 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
-	 * Return the property value for the given propertyId, or null.
+	 * Returns the property value for the given propertyId, or null.
 	 * <p>The property view uses the IDs from the IPropertyDescriptors array 
 	 * to obtain the value of the corresponding properties.</p>
 	 * @see #descriptors
@@ -242,7 +249,7 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
-	 * Return the Size of this vertex.
+	 * Returns the Size of this vertex.
 	 * @return a non-null Dimension instance
 	 */
 	public Dimension getSize() {
@@ -250,21 +257,21 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
-	 * Return a List of outgoing Connections.
+	 * Returns a List of outgoing Connections.
 	 */
 	public List<Connection> getSourceConnections() {
 		return new ArrayList<Connection>(sourceConnections);
 	}
 	
 	/**
-	 * Return a List of incoming Connections.
+	 * Returns a List of incoming Connections.
 	 */
 	public List<Connection> getTargetConnections() {
 		return new ArrayList<Connection>(targetConnections);
 	}
 	
 	/**
-	 * Remove an incoming or outgoing connection from this vertex.
+	 * Removes an incoming or outgoing connection from this vertex.
 	 * @param conn a non-null connection instance
 	 * @throws IllegalArgumentException if the parameter is null
 	 */
@@ -285,7 +292,7 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
-	 * Set the Location of this vertex.
+	 * Sets the Location of this vertex.
 	 * @param newLocation a non-null Point instance
 	 * @throws IllegalArgumentException if the parameter is null
 	 */
@@ -300,7 +307,7 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	
 	
 	/**
-	 * Set the property value for the given property id.
+	 * Sets the property value for the given property id.
 	 * If no matching id is found, the call is forwarded to the superclass.
 	 * <p>The property view uses the IDs from the IPropertyDescriptors array to set the values
 	 * of the corresponding properties.</p>
@@ -326,7 +333,7 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
-	 * Set the Size of this vertex.
+	 * Sets the Size of this vertex.
 	 * Will not modify the size if newSize is null.
 	 * @param newSize a non-null Dimension instance or null
 	 */
@@ -336,7 +343,27 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 			firePropertyChange(SIZE_PROP, null, size);
 		}
 	}
+	
+	/**
+	 * Sets the Color of this vertex.
+	 * Will not modify the color if newColor is null.
+	 * @param newColor a non-null Color instance or null
+	 */
+	public void setColor(Color newColor) {
+		if (newColor != null) {
+			vertexColor = newColor;
+			firePropertyChange(COLOR_PROP, null, vertexColor);
+		}
+	}	
 
+	/**
+	 * Returns the color of this vertex.
+	 * @return a non-null Color instance
+	 */
+	public Color getColor() {
+		return vertexColor;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
