@@ -19,6 +19,7 @@ package com.drgarbage.controlflowgraphfactory.compare;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -30,13 +31,18 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Layout;
 
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
+import com.drgarbage.visualgraphic.model.VertexBase;
 
 /**
  * The graph merge viewer.
@@ -208,5 +214,40 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			
 			setLeftDirty(true);
 		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createToolItems(org.eclipse.jface.action.ToolBarManager)
+	 */
+	protected void createToolItems(ToolBarManager toolBarManager) {
+		toolBarManager.add(new Separator());
+
+		//TODO: implement actions for algorithms and move the action implementation into the separate java file.
+		IAction a1 = new Action("Alg2"){ //TODO: define text and icon
+			public void run() {
+				//TODO: implement action
+				
+				//TODO: example implementation
+				List<VertexBase> l = diagramLeft.getChildren();
+				for(VertexBase b: l){
+					b.setColor(new Color(null, 255, 0, 0));
+				}
+			}
+		};
+
+		IAction a2 = new Action("Alg2"){ //TODO: define text and icon
+			public void run() {
+				//TODO: implement action
+				
+				//TODO: example implementation
+				List<VertexBase> l = diagramRight.getChildren();
+				for(VertexBase b: l){
+					b.setColor(new Color(null, 255, 0, 0));
+				}
+			}
+		};
+		
+		toolBarManager.add(a1);
+		toolBarManager.add(a2);
 	}
 }
