@@ -35,11 +35,14 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
+import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
@@ -249,5 +252,22 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		toolBarManager.add(a1);
 		toolBarManager.add(a2);
+		
+		/* zoom actions */
+		toolBarManager.add(new Separator());
+		
+		ScalableFreeformRootEditPart rootLeft = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		ScalableFreeformRootEditPart rootRight = (ScalableFreeformRootEditPart) fRight.getRootEditPart();
+		
+		CompareZoomInAction zoomIn = new CompareZoomInAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
+		zoomIn.setAccelerator(SWT.CTRL | 'I');
+		toolBarManager.add(zoomIn);
+		
+		
+		CompareZoomOutAction zoomOut = new CompareZoomOutAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
+		zoomOut.setAccelerator(SWT.CTRL | 'O');
+		toolBarManager.add(zoomOut);
+		
+		
 	}
 }
