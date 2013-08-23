@@ -2,7 +2,7 @@ package com.drgarbage.core.algorithms;
 
 public class TwoMethodsWithDifferentBasicBlockCountSameEdgeCount {
 	
-	public void fourBasicBlocksFiveEdges(){
+	public void threeBasicBlocksThreeEdges(){
 		
 		int a = 2;
 		
@@ -13,13 +13,17 @@ public class TwoMethodsWithDifferentBasicBlockCountSameEdgeCount {
 		a--;
 	}
 	
-	public void fourBasicBlocksFourEdges(){
+	public void fourBasicBlocksThreeEdges(){
 		
 		int a = 1;
 		
 		if(a == 1)
+		try {
 			a--;
-		else return;
+		} catch (Exception e) {
+			return;
+		}
+
 		
 	}
 
