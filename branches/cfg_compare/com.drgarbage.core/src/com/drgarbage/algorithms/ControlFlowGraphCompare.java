@@ -1,6 +1,16 @@
 package com.drgarbage.algorithms;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.drgarbage.controlflowgraph.NodeExt;
+import com.drgarbage.controlflowgraph.intf.IBasicBlock;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
+import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
+import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 /**
  * Class to compare two ControlFlowGraphs
@@ -24,14 +34,29 @@ public class ControlFlowGraphCompare {
 		
 		if(!haveSameEdgeCount()) return false;
 		
+		orderGraphNodesAscending();
+		
+		if(!nodesHaveSameIncomingAndOutgoingEdgeCount()) return false;
+		
 		return true;
 	}
-	
+
+	private void orderGraphNodesAscending() {
+//		Collections.sort((List<NodeExt>) cfgLeft.getNodeList());
+//		Collections.sort((List<NodeExt>) cfgRight.getNodeList());
+	}
+
 	private boolean haveSameNodeCount(){
 		return cfgLeft.getNodeList().size() == cfgRight.getNodeList().size();
 	}
+	
 	private boolean haveSameEdgeCount(){
 		return cfgLeft.getEdgeList().size() == cfgRight.getEdgeList().size();
+	}
+	
+	private boolean nodesHaveSameIncomingAndOutgoingEdgeCount() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }
