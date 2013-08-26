@@ -43,6 +43,9 @@ public class ControlFlowGraphDiagram extends ModelElement {
 	/** List of vertices */
 	private List<VertexBase> vertices = new ArrayList<VertexBase>();
 	
+	/** List of connections */
+	private List<Connection> connections = new ArrayList<Connection>();
+	
 	/**
 	 * Diagram name.
 	 */
@@ -70,12 +73,23 @@ public class ControlFlowGraphDiagram extends ModelElement {
 		s.setId(getUniqueIdCounter());
 		boolean add = vertices.add(s);
 		if (s != null && add) {
+			
+			connections.addAll(s.getTargetConnections());
+			
 			firePropertyChange(CHILD_ADDED_PROP, null, s);
 			return true;
 		}
 		return false;
 	}
 	
+	/**
+	 * Returns all available connections in this diagram
+	 * @return list of connections
+	 */
+	public List<Connection> getConnections() {
+		return connections;
+	}
+
 	/**
 	 * Returns unique id of this diagram for its children. 
 	 * @return id

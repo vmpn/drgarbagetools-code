@@ -32,11 +32,13 @@ import org.eclipse.gef.editparts.AbstractConnectionEditPart;
 import org.eclipse.gef.editpolicies.ConnectionEditPolicy;
 import org.eclipse.gef.editpolicies.ConnectionEndpointEditPolicy;
 import org.eclipse.gef.requests.GroupRequest;
+import org.eclipse.swt.graphics.Color;
 
 import com.drgarbage.visualgraphic.commands.ConnectionDeleteCommand;
 import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.IDirectEditLabelModel;
 import com.drgarbage.visualgraphic.model.ModelElement;
+import com.drgarbage.visualgraphic.model.VertexBase;
 import com.drgarbage.visualgraphic.policy.LabelDirectEditPolicy;
 
 
@@ -161,7 +163,17 @@ class EdgeEditPart extends AbstractConnectionEditPart implements PropertyChangeL
 		else if(Connection.TEXT_LABEL_PROP.equals(property)){
 			String s = (String) event.getNewValue();
 			getLabel().setText(s);
+		} else if (VertexBase.COLOR_PROP.equals(property)) {
+			refreshColors();
 		}
+	}
+
+	/**
+	 * Notifies parent container of changed color.
+	 */
+	protected void refreshColors() {
+		Color c = getCastedModel().getColor();
+		getFigure().setBackgroundColor(c);
 	}
 
 	/* (non-Javadoc)

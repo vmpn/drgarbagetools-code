@@ -44,6 +44,7 @@ import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
+import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
@@ -235,6 +236,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				for(VertexBase b: l){
 					b.setColor(new Color(null, 255, 0, 0));
 				}
+				
+				List<Connection> c = diagramLeft.getConnections();
+				for(Connection con: c){
+					con.setColor(new Color(null, 255, 0, 0));
+				}
 			}
 		};
 
@@ -246,6 +252,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				List<VertexBase> l = diagramRight.getChildren();
 				for(VertexBase b: l){
 					b.setColor(new Color(null, 255, 0, 0));
+				}
+				
+				List<Connection> c = diagramRight.getConnections();
+				for(Connection con: c){
+					con.setColor(new Color(null, 255, 0, 0));
 				}
 			}
 		};
