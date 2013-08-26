@@ -28,7 +28,7 @@ import com.drgarbage.controlflowgraph.intf.IBasicBlock;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
-public class BasicBlock extends NodeExt implements IBasicBlock {
+public class BasicBlock extends NodeExt implements IBasicBlock{
 
 	public BasicBlock() {
 		super();
@@ -70,28 +70,6 @@ public class BasicBlock extends NodeExt implements IBasicBlock {
 			throw new ControlFlowGraphException("getFirstBasicBlockVertex: Basic Block is empty!");
 	
 		return vertices.getNodeExt(vertices.size() - 1);
-	}
-	
-	@Override
-	public int compareTo(NodeExt otherNode) {
-		
-		BasicBlock otherBasicBlock = (BasicBlock) otherNode;
-		
-		try {
-			
-			INodeExt otherBasicBlockFirstNode = otherBasicBlock.getFirstBasicBlockVertex();
-			int byteCodeOffsetFirstNode = otherBasicBlockFirstNode.getByteCodeOffset();
-			
-			if(this.getFirstBasicBlockVertex().getByteCodeOffset() < byteCodeOffsetFirstNode) return -1;
-			
-			if(this.getFirstBasicBlockVertex().getByteCodeOffset() == byteCodeOffsetFirstNode) return 0;
-			
-		} catch (ControlFlowGraphException e) {
-			// TODO: handle exception
-		}
-		
-		return 1;
-
 	}
 
 }

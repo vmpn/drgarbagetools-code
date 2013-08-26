@@ -31,7 +31,7 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  * @version $Revision$
  * $Id$
  */
-public class NodeExt extends Node implements INodeExt, Comparable<NodeExt> {
+public class NodeExt extends Node implements INodeExt {
 
 	/* Variables for Graph Algorithms*/
 	private boolean visited = false;
@@ -314,16 +314,6 @@ public class NodeExt extends Node implements INodeExt, Comparable<NodeExt> {
 		buf.append(" Visited=");
 		buf.append(isVisited());
 		return buf.toString();
-	}
-
-	public int compareTo(NodeExt otherNode) {
-		int otherNodeByteCodeOffset = otherNode.getByteCodeOffset();
-		
-		if(this.getByteCodeOffset() < otherNodeByteCodeOffset) return -1;
-		
-		if(this.getByteCodeOffset() == otherNodeByteCodeOffset) return 0;
-		
-		return 1;
 	}
 
 
