@@ -44,7 +44,7 @@ public class ControlFlowGraphDiagram extends ModelElement {
 	private List<VertexBase> vertices = new ArrayList<VertexBase>();
 	
 	/** List of connections */
-	private List<Connection> connections = new ArrayList<Connection>();
+	private List<Connection> connections = null;
 	
 	/**
 	 * Diagram name.
@@ -74,8 +74,6 @@ public class ControlFlowGraphDiagram extends ModelElement {
 		boolean add = vertices.add(s);
 		if (s != null && add) {
 			
-			connections.addAll(s.getTargetConnections());
-			
 			firePropertyChange(CHILD_ADDED_PROP, null, s);
 			return true;
 		}
@@ -87,6 +85,13 @@ public class ControlFlowGraphDiagram extends ModelElement {
 	 * @return list of connections
 	 */
 	public List<Connection> getConnections() {
+		if(connections == null){
+			connections = new ArrayList<Connection>();
+			
+			for(VertexBase vb : vertices)
+				connections.addAll(vb.getTargetConnections());
+		}
+		
 		return connections;
 	}
 
