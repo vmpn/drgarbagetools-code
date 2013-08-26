@@ -163,7 +163,7 @@ class EdgeEditPart extends AbstractConnectionEditPart implements PropertyChangeL
 		else if(Connection.TEXT_LABEL_PROP.equals(property)){
 			String s = (String) event.getNewValue();
 			getLabel().setText(s);
-		} else if (VertexBase.COLOR_PROP.equals(property)) {
+		} else if (Connection.COLOR_PROP.equals(property)) {
 			refreshColors();
 		}
 	}
