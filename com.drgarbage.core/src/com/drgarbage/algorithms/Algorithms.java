@@ -16,6 +16,7 @@
 
 package com.drgarbage.algorithms;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class Algorithms {
 	private static KnuthStevensonTransformation fKnuthStevensonTransformation = new KnuthStevensonTransformation();
 	private static SpanningTreeBFS fSpanningTreeBFS;
 	private static FindBackEdgesDFS fFindBackEdgesDFS;
+	private static BFSOrderedTraversal fBFSOrderedTraversal;
 
 	/**
 	 * Finds a spanning tree for the given graph. The original graph is 
@@ -136,6 +138,26 @@ public class Algorithms {
 		}
 
 		return fKnuthStevensonTransformation.getTransformedGraph();
+	}
+	
+	/**
+	 * Does a Breadth First Search, but the Order in which Edges are visited are determined by Bytecode Adresses
+	 * @param graph
+	 * @return ordered node list of the graph
+	 */
+	public static ArrayList<INodeExt> doBFSOrderedTraversal(IDirectedGraphExt graph){
+		
+		if(fBFSOrderedTraversal == null){
+			fBFSOrderedTraversal = new BFSOrderedTraversal();
+		}
+
+		try {
+			fBFSOrderedTraversal.start(graph, graph.getNodeList().getNodeExt(0));
+		} catch (ControlFlowGraphException e) {
+			CorePlugin.getDefault().getLog().log(new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, e.getMessage(), e));
+		}
+		
+		return fBFSOrderedTraversal.getOrderedNodes();
 	}
 
 	/**
