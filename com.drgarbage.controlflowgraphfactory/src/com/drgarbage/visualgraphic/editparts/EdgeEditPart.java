@@ -38,7 +38,6 @@ import com.drgarbage.visualgraphic.commands.ConnectionDeleteCommand;
 import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.IDirectEditLabelModel;
 import com.drgarbage.visualgraphic.model.ModelElement;
-import com.drgarbage.visualgraphic.model.VertexBase;
 import com.drgarbage.visualgraphic.policy.LabelDirectEditPolicy;
 
 
@@ -173,7 +172,7 @@ class EdgeEditPart extends AbstractConnectionEditPart implements PropertyChangeL
 	 */
 	protected void refreshColors() {
 		Color c = getCastedModel().getColor();
-		getFigure().setBackgroundColor(c);
+		getFigure().setForegroundColor(c);
 	}
 
 	/* (non-Javadoc)
