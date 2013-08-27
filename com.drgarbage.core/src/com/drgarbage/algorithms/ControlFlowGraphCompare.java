@@ -1,16 +1,8 @@
 package com.drgarbage.algorithms;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
-import com.drgarbage.controlflowgraph.NodeExt;
-import com.drgarbage.controlflowgraph.intf.IBasicBlock;
+import java.util.ArrayList;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
-import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
-import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 /**
  * Class to compare two ControlFlowGraphs
@@ -34,16 +26,9 @@ public class ControlFlowGraphCompare {
 		
 		if(!haveSameEdgeCount()) return false;
 		
-		orderGraphNodesAscending();
-		
 		if(!nodesHaveSameIncomingAndOutgoingEdgeCount()) return false;
 		
 		return true;
-	}
-
-	private void orderGraphNodesAscending() {
-//		Collections.sort((List<NodeExt>) cfgLeft.getNodeList());
-//		Collections.sort((List<NodeExt>) cfgRight.getNodeList());
 	}
 
 	private boolean haveSameNodeCount(){
@@ -55,8 +40,28 @@ public class ControlFlowGraphCompare {
 	}
 	
 	private boolean nodesHaveSameIncomingAndOutgoingEdgeCount() {
-		// TODO Auto-generated method stub
-		return false;
+		
+		System.out.println("NEW COMPARE:");
+		
+		ArrayList<INodeExt> cfgLeftOrderdNodes = Algorithms.doBFSOrderedTraversal(cfgLeft);
+		ArrayList<INodeExt> cfgRightOrderdNodes = Algorithms.doBFSOrderedTraversal(cfgRight);
+		System.out.println(cfgLeftOrderdNodes.size());
+		
+		for(int i = 0; i < cfgLeftOrderdNodes.size(); i++){
+			
+			INodeExt leftNode = cfgLeftOrderdNodes.get(i);
+			INodeExt rightNode = cfgRightOrderdNodes.get(i);
+			
+			System.out.println("LeftNode: "+leftNode.getByteCodeString() +" , "+leftNode.getByteCodeOffset()+" , "+leftNode.getIncomingEdgeList().size()+"/"+leftNode.getOutgoingEdgeList().size());
+			System.out.println("RightNode: "+rightNode.getByteCodeString() +" , "+rightNode.getByteCodeOffset()+" , "+rightNode.getIncomingEdgeList().size()+"/"+rightNode.getOutgoingEdgeList().size());
+
+			
+			if(leftNode.getIncomingEdgeList().size() != rightNode.getIncomingEdgeList().size() ||
+					leftNode.getOutgoingEdgeList().size() != rightNode.getOutgoingEdgeList().size())
+				return false;
+		}
+
+		return true;
 	}
 	
 }
