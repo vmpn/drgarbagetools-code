@@ -12,9 +12,7 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 
-public class BFSOrderedTraversal extends BFSBase {
-	
-	private ArrayList<INodeExt> orderedNodes;
+public abstract class BFSOrderedTraversal extends BFSBase {
 	
 	@Override
 	/**
@@ -29,9 +27,7 @@ public class BFSOrderedTraversal extends BFSBase {
 		}
 
 		if(debug)log("Start node: " + start.toString() + " " + start.getData() + " " + start.getOutgoingEdgeList().toString());
-		
-		orderedNodes = new ArrayList<INodeExt>();
-		
+				
 		bfs(start);
 	}
 	
@@ -66,9 +62,7 @@ public class BFSOrderedTraversal extends BFSBase {
 					continue;
 				}
 				visitEdge(edge);
-				
-				System.out.println("Visited Edge: " +edge.getSource().getByteCodeOffset()+" -> "+ edge.getTarget().getByteCodeOffset());
-				
+								
 				INodeExt targetNode = edge.getTarget();
 				if(!targetNode.isVisited()){
 					enqueue(queue, targetNode);
@@ -77,32 +71,4 @@ public class BFSOrderedTraversal extends BFSBase {
 			}
 		}
 	}
-	
-	public ArrayList<INodeExt> getOrderedNodes(){
-		return orderedNodes;
-	}
-
-	@Override
-	protected void visitedNode(INodeExt node) {
-		orderedNodes.add(node);
-	}
-
-	@Override
-	protected void visitedEdge(IEdgeExt edge) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void enqueue(INodeExt node) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void dequeue(INodeExt node) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
