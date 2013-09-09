@@ -44,6 +44,7 @@ public class Algorithms {
 	/* static algorithms */
 	private static KnuthStevensonTransformation fKnuthStevensonTransformation = new KnuthStevensonTransformation();
 	private static SpanningTreeBFS fSpanningTreeBFS;
+	private static SpanningTreeOrderedBFS fSpanningTreeOrderedBFS;
 	private static FindBackEdgesDFS fFindBackEdgesDFS;
 	private static BFSOrderedTraversal fBFSOrderedTraversal;
 
@@ -141,23 +142,26 @@ public class Algorithms {
 	}
 	
 	/**
-	 * Does a Breadth First Search, but the Order in which Edges are visited are determined by Bytecode Adresses
+	 * Finds a spanning tree for the given graph. The spanning tree is created with the help of an ordered BFS traversal. A new graph is created if
+	 * the <b>createNewGraph</b> is true, otherwise the original graph is 
+	 * modified
 	 * @param graph
-	 * @return ordered node list of the graph
+	 * @param createNewGraph - true or false 
+	 * @return the ordered spanning tree graph
 	 */
-	public static ArrayList<INodeExt> doBFSOrderedTraversal(IDirectedGraphExt graph){
-		
-		if(fBFSOrderedTraversal == null){
-			fBFSOrderedTraversal = new BFSOrderedTraversal();
+	public static IDirectedGraphExt doOrderedSpanningTreeAlgorithm(IDirectedGraphExt graph, boolean createNewGraph){
+		if(fSpanningTreeOrderedBFS == null){
+			fSpanningTreeOrderedBFS = new SpanningTreeOrderedBFS();
 		}
-
+		
 		try {
-			fBFSOrderedTraversal.start(graph, graph.getNodeList().getNodeExt(0));
+			fSpanningTreeOrderedBFS.setCreateNewGraph(createNewGraph);
+			fSpanningTreeOrderedBFS.start(graph);
 		} catch (ControlFlowGraphException e) {
 			CorePlugin.getDefault().getLog().log(new Status(IStatus.ERROR, CorePlugin.PLUGIN_ID, e.getMessage(), e));
 		}
-		
-		return fBFSOrderedTraversal.getOrderedNodes();
+
+		return fSpanningTreeOrderedBFS.getSpanningTree();
 	}
 
 	/**
