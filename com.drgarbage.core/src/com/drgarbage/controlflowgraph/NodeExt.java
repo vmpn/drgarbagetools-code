@@ -35,6 +35,7 @@ public class NodeExt extends Node implements INodeExt {
 
 	/* Variables for Graph Algorithms*/
 	private boolean visited = false;
+	private boolean highlighted = false;
 	private MarkEnum mark = MarkEnum.DEFAULT;
 	private IBasicBlock basicBlock = null;
 	private int counter = 0;
@@ -314,6 +315,14 @@ public class NodeExt extends Node implements INodeExt {
 		buf.append(" Visited=");
 		buf.append(isVisited());
 		return buf.toString();
+	}
+
+	public boolean isHighlighted() {
+		return highlighted;
+	}
+
+	public void setHighlighted(boolean highlighted) {
+		this.highlighted = highlighted;
 	}
 
 
