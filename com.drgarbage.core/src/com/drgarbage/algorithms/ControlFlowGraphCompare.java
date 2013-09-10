@@ -58,7 +58,7 @@ public class ControlFlowGraphCompare {
 		
 		if(!haveSameNodeCount()) return false;
 		
-		if(!haveSameEdgeCount()) return false;
+		//if(!haveSameEdgeCount()) return false;
 		
 		if(!nodesHaveSameIncomingAndOutgoingEdgeCount()) return false;
 		
@@ -74,29 +74,43 @@ public class ControlFlowGraphCompare {
 	}
 	
 	private boolean nodesHaveSameIncomingAndOutgoingEdgeCount() {
-		return true;
 		
-//		System.out.println("NEW COMPARE:");
-//		
-//		ArrayList<INodeExt> cfgLeftOrderdNodes = Algorithms.doBFSOrderedTraversal(cfgLeft);
-//		ArrayList<INodeExt> cfgRightOrderdNodes = Algorithms.doBFSOrderedTraversal(cfgRight);
-//		System.out.println(cfgLeftOrderdNodes.size());
-//		
-//		for(int i = 0; i < cfgLeftOrderdNodes.size(); i++){
-//			
-//			INodeExt leftNode = cfgLeftOrderdNodes.get(i);
-//			INodeExt rightNode = cfgRightOrderdNodes.get(i);
-//			
-//			System.out.println("LeftNode: "+leftNode.getByteCodeString() +" , "+leftNode.getByteCodeOffset()+" , "+leftNode.getIncomingEdgeList().size()+"/"+leftNode.getOutgoingEdgeList().size());
-//			System.out.println("RightNode: "+rightNode.getByteCodeString() +" , "+rightNode.getByteCodeOffset()+" , "+rightNode.getIncomingEdgeList().size()+"/"+rightNode.getOutgoingEdgeList().size());
-//
-//			
-//			if(leftNode.getIncomingEdgeList().size() != rightNode.getIncomingEdgeList().size() ||
-//					leftNode.getOutgoingEdgeList().size() != rightNode.getOutgoingEdgeList().size())
-//				return false;
-//		}
-//
-//		return true;
+		boolean isomorph = true;
+		
+		System.out.println("NEW COMPARE:");
+		
+		IDirectedGraphExt cfgLeftSpanningTree = Algorithms.doOrderedSpanningTreeAlgorithm(cfgLeft, false);
+		IDirectedGraphExt cfgRightSpanningTree = Algorithms.doOrderedSpanningTreeAlgorithm(cfgRight, false);
+		
+		Algorithms.printGraph(cfgLeftSpanningTree);
+		Algorithms.printGraph(cfgRightSpanningTree);
+		
+		for(int i = 0; i < cfgLeftSpanningTree.getNodeList().size(); i++){
+			boolean tmp = true;
+			
+			INodeExt leftNode = cfgLeftSpanningTree.getNodeList().getNodeExt(i);
+			INodeExt rightNode = cfgRightSpanningTree.getNodeList().getNodeExt(i);
+			
+			System.out.println("LeftNode: "+leftNode.getByteCodeString() +" , "+leftNode.getByteCodeOffset()+" , "+leftNode.getIncomingEdgeList().size()+"/"+leftNode.getOutgoingEdgeList().size());
+			System.out.println("RightNode: "+rightNode.getByteCodeString() +" , "+rightNode.getByteCodeOffset()+" , "+rightNode.getIncomingEdgeList().size()+"/"+rightNode.getOutgoingEdgeList().size());
+
+			if(leftNode.getByteCodeOffset() != rightNode.getByteCodeOffset()) {
+				isomorph = false;
+				tmp = false;
+			}
+			
+			if(leftNode.getOutgoingEdgeList().size() != rightNode.getOutgoingEdgeList().size()) {
+				isomorph = false;
+				tmp = false;
+			}
+			
+			if(tmp) {
+				leftNode.setHighlighted(true);
+				rightNode.setHighlighted(true);
+			}
+		}
+
+		return isomorph;
 	}
 	
 }
