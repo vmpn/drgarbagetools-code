@@ -52,7 +52,9 @@ public class LayoutAlgorithmsUtils {
         INodeListExt nodes = graph.getNodeList();
         IEdgeListExt edges = graph.getEdgeList();
         
-        HashMap<VertexBase, INodeExt> hashTable = new HashMap<VertexBase, INodeExt>();   
+        HashMap<VertexBase, INodeExt> hashTable = new HashMap<VertexBase, INodeExt>();
+        HashMap<INodeExt, VertexBase> nodeVertexMap = new HashMap<INodeExt, VertexBase>();
+
         List<Connection> connections = new ArrayList<Connection>();
         
         /* nodes */
@@ -108,9 +110,12 @@ public class LayoutAlgorithmsUtils {
 			else{
 				node.setVertexType(INodeType.NODE_TYPE_SIMPLE);
 			}
+			
+			node.setByteCodeOffset(vb.getBytecodeoffset());
 
 			nodes.add(node);
 			hashTable.put(vb, node);
+			nodeVertexMap.put(node, vb);
 			
 			List<Connection> targetConnection = vb.getTargetConnections();
 			Iterator<Connection> itTargetConnections = targetConnection.iterator();
@@ -118,6 +123,9 @@ public class LayoutAlgorithmsUtils {
 				connections.add(itTargetConnections.next());
 			}
 		}
+		
+		graph.getUserObject().put("vertexBaseNodeMap", hashTable);
+		graph.getUserObject().put("nodeVertexMap", nodeVertexMap);
 
 		/* edges */
 		Connection con = null;
