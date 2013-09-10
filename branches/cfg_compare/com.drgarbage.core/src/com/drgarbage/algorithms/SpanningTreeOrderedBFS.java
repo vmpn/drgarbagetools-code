@@ -50,6 +50,9 @@ public class SpanningTreeOrderedBFS extends BFSOrderedTraversal {
 	 */
 	@Override
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
+		
+		resetVisitedFlags(graph);
+
 		if(createNewGraph){
 			spanningTree = GraphExtentionFactory.createDirectedGraphExtention();
 			mapNodeList = new HashMap<INodeExt, INodeExt>();
@@ -77,6 +80,16 @@ public class SpanningTreeOrderedBFS extends BFSOrderedTraversal {
 		
 		/* start algorithm */
 		super.start(graph, graph.getNodeList().getNodeExt(0));
+	}
+
+	private void resetVisitedFlags(IDirectedGraphExt graph) {
+		for(int i = 0; i < graph.getEdgeList().size(); i++){
+			graph.getEdgeList().getEdgeExt(i).setVisited(false);
+		}
+		
+		for(int i = 0; i < graph.getNodeList().size(); i++){
+			graph.getNodeList().getNodeExt(i).setVisited(false);
+		}
 	}
 
 	/**
