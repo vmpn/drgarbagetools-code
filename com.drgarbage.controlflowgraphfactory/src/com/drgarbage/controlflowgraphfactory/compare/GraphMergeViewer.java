@@ -19,6 +19,7 @@ package com.drgarbage.controlflowgraphfactory.compare;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -39,7 +40,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
+import com.drgarbage.algorithms.Algorithms;
+import com.drgarbage.algorithms.ControlFlowGraphCompare;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
+import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
@@ -65,8 +69,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	private GraphicalViewer fLeft;
 	private GraphicalViewer fRight;
 	
-	private IDirectedGraphExt graphLeft = null;
-	private IDirectedGraphExt graphRight = null;
+	private IDirectedGraphExt cfgLeft = null;
+	private IDirectedGraphExt cfgRight = null;
 	
 			
 	/**
@@ -99,8 +103,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}		
 		setInput(fRight, diagramRight);
 		
-		graphLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
-		graphRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 
 	}
 
@@ -227,24 +231,45 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		toolBarManager.add(new Separator());
 
 		//TODO: implement actions for algorithms and move the action implementation into the separate java file.
-		IAction a1 = new Action("Alg2"){ //TODO: define text and icon
+		IAction a1 = new Action("TD"){ //TODO: define text and icon
 			public void run() {
 				//TODO: implement action
 				
-				//TODO: example implementation
-				List<VertexBase> l = diagramLeft.getChildren();
-				for(VertexBase b: l){
-					b.setColor(new Color(null, 255, 0, 0));
+				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+				comp.isIsomorph();
+				
+//				//TODO: example implementation
+//				List<VertexBase> l = diagramLeft.getChildren();
+//				for(VertexBase b: l){
+//					b.setColor(new Color(null, 255, 0, 0));
+//				}
+//				
+//				List<Connection> c = diagramLeft.getConnections();
+//				for(Connection con: c){
+//					con.setColor(new Color(null, 255, 0, 0));
+//				}
+				
+				HashMap<INodeExt, VertexBase> bla = (HashMap<INodeExt, VertexBase>) cfgLeft.getUserObject().get("nodeVertexMap");
+				
+				for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
+					
+					if(cfgLeft.getNodeList().getNodeExt(i).isHighlighted()){
+						bla.get(cfgLeft.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
+					}	
 				}
 				
-				List<Connection> c = diagramLeft.getConnections();
-				for(Connection con: c){
-					con.setColor(new Color(null, 255, 0, 0));
+				HashMap<INodeExt, VertexBase> bla2 = (HashMap<INodeExt, VertexBase>) cfgRight.getUserObject().get("nodeVertexMap");
+				
+				for(int i = 0; i < cfgRight.getNodeList().size(); i++){
+					
+					if(cfgRight.getNodeList().getNodeExt(i).isHighlighted()){
+						bla2.get(cfgRight.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
+					}	
 				}
 			}
 		};
 
-		IAction a2 = new Action("Alg2"){ //TODO: define text and icon
+		IAction a2 = new Action("BU"){ //TODO: define text and icon
 			public void run() {
 				//TODO: implement action
 				
