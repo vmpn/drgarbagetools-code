@@ -367,6 +367,8 @@ public class ControlFlowGraphDiagramFactory {
 			}
 
 			r.setSize(new Dimension(nodeWeigth, nodeHeight));
+			
+			r.setBytecodeoffset(node.getByteCodeOffset());
 
 			node.setData(r);
 
