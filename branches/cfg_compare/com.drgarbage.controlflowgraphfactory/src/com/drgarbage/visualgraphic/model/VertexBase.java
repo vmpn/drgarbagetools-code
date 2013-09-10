@@ -79,6 +79,9 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	
 	/** Property ID to use then the color of this vertex is modified. */
 	public static final String COLOR_PROP = "VertexBase.Color";
+	
+	/** Property ID to use then the color of this vertex is modified. */
+	public static final String BYTECODEOFFSET_PROP = "VertexBase.Bytecodeoffset";
 
 	/*
 	 * Initializes the property descriptors array.
@@ -117,6 +120,9 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	
 	/** Color of the vertex */
 	private Color vertexColor = null;
+	
+	/** Bytecodeoffset of the vertex */
+	private int bytecodeoffset = -1;
 
 	/** List of outgoing Connections. */
 	private List<Connection> sourceConnections = new ArrayList<Connection>();
@@ -369,6 +375,14 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	 */
 	public String toString() {
 		return this.getLabel();
+	}
+
+	public int getBytecodeoffset() {
+		return bytecodeoffset;
+	}
+
+	public void setBytecodeoffset(int bytecodeoffset) {
+		this.bytecodeoffset = bytecodeoffset;
 	}
 
 }
