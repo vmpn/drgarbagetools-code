@@ -238,5 +238,9 @@ public interface INodeExt {
 	  * @see com.drgarbage.controlflowgraph.intf.INodeType
 	  */
 	public int getVertexType();
+	
+	public boolean isHighlighted();
+
+	public void setHighlighted(boolean highlighted);
 
 }
