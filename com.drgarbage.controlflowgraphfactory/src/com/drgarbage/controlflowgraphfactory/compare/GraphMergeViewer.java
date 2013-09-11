@@ -276,21 +276,24 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				comp.isIsomorphBasicBlock();
 				//TODO: implement action
 				
-				HashMap<INodeExt, VertexBase> bla = (HashMap<INodeExt, VertexBase>) cfgLeft.getUserObject().get("nodeVertexMap");
+				HashMap<INodeExt, VertexBase> nodeVertexBaseMapLeft = (HashMap<INodeExt, VertexBase>) cfgLeft.getUserObject().get("nodeVertexMap");
 				
 				for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
-					
-					if(cfgLeft.getNodeList().getNodeExt(i).isHighlighted()){
-						bla.get(cfgLeft.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
+					INodeExt node = cfgLeft.getNodeList().getNodeExt(i);
+						
+					if(node.isHighlighted()){
+						colorNode(nodeVertexBaseMapLeft, node);
 					}	
 				}
 				
-				HashMap<INodeExt, VertexBase> bla2 = (HashMap<INodeExt, VertexBase>) cfgRight.getUserObject().get("nodeVertexMap");
+				HashMap<INodeExt, VertexBase> nodeVertexBaseMapRight = (HashMap<INodeExt, VertexBase>) cfgRight.getUserObject().get("nodeVertexMap");
 				
 				for(int i = 0; i < cfgRight.getNodeList().size(); i++){
+					INodeExt node = cfgRight.getNodeList().getNodeExt(i);
 					
-					if(cfgRight.getNodeList().getNodeExt(i).isHighlighted()){
-						bla2.get(cfgRight.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
+					if(node.isHighlighted()){
+						colorNode(nodeVertexBaseMapRight, node);
+						//nodeVertexBaseMapRight.get(node).setColor(new Color(null, 0, 255, 0));
 					}	
 				}
 				
@@ -304,6 +307,15 @@ public class GraphMergeViewer extends ContentMergeViewer {
 //				for(Connection con: c){
 //					con.setColor(new Color(null, 255, 0, 0));
 //				}
+			}
+
+			private void colorNode( HashMap<INodeExt, VertexBase> nodeVertexBaseMap, INodeExt node) {
+				switch(node.getMark()) {
+					case GREEN:	nodeVertexBaseMap.get(node).setColor(new Color(null, 0, 255, 0)); break;
+					case RED:	nodeVertexBaseMap.get(node).setColor(new Color(null, 255, 0, 0)); break;
+				default:
+					break;
+				}
 			}
 		};
 		
