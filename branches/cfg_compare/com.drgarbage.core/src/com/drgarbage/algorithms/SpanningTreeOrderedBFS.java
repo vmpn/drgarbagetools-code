@@ -17,6 +17,8 @@ public class SpanningTreeOrderedBFS extends BFSOrderedTraversal {
 	 */
 	private IDirectedGraphExt spanningTree;
 	
+	private int traverseCount = 0;
+	
 	/**
 	 * Map of nodes <b>old graph</b> <-> <b>new graph</b>
 	 */
@@ -50,6 +52,8 @@ public class SpanningTreeOrderedBFS extends BFSOrderedTraversal {
 	 */
 	@Override
 	public void start(IDirectedGraphExt graph) throws ControlFlowGraphException{
+		
+		traverseCount = 0;
 		
 		resetVisitedFlags(graph);
 
@@ -131,6 +135,9 @@ public class SpanningTreeOrderedBFS extends BFSOrderedTraversal {
 	@Override
 	protected void visitedNode(INodeExt node) {
 		System.out.println("Visited Node: " +node.getByteCodeOffset());
+		
+		node.setCounter(traverseCount++);
+		
 		/* nothing to do */
 	}
 
