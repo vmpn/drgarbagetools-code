@@ -236,7 +236,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				//TODO: implement action
 				
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
-				comp.isIsomorph();
+				comp.isIsomorphCFG();
 				
 //				//TODO: example implementation
 //				List<VertexBase> l = diagramLeft.getChildren();
@@ -269,20 +269,41 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			}
 		};
 
-		IAction a2 = new Action("BU"){ //TODO: define text and icon
+		IAction a2 = new Action("BBTD"){ //TODO: define text and icon
 			public void run() {
+				
+				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+				comp.isIsomorphBasicBlock();
 				//TODO: implement action
 				
-				//TODO: example implementation
-				List<VertexBase> l = diagramRight.getChildren();
-				for(VertexBase b: l){
-					b.setColor(new Color(null, 255, 0, 0));
+				HashMap<INodeExt, VertexBase> bla = (HashMap<INodeExt, VertexBase>) cfgLeft.getUserObject().get("nodeVertexMap");
+				
+				for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
+					
+					if(cfgLeft.getNodeList().getNodeExt(i).isHighlighted()){
+						bla.get(cfgLeft.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
+					}	
 				}
 				
-				List<Connection> c = diagramRight.getConnections();
-				for(Connection con: c){
-					con.setColor(new Color(null, 255, 0, 0));
+				HashMap<INodeExt, VertexBase> bla2 = (HashMap<INodeExt, VertexBase>) cfgRight.getUserObject().get("nodeVertexMap");
+				
+				for(int i = 0; i < cfgRight.getNodeList().size(); i++){
+					
+					if(cfgRight.getNodeList().getNodeExt(i).isHighlighted()){
+						bla2.get(cfgRight.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
+					}	
 				}
+				
+//				//TODO: example implementation
+//				List<VertexBase> l = diagramRight.getChildren();
+//				for(VertexBase b: l){
+//					b.setColor(new Color(null, 255, 0, 0));
+//				}
+//				
+//				List<Connection> c = diagramRight.getConnections();
+//				for(Connection con: c){
+//					con.setColor(new Color(null, 255, 0, 0));
+//				}
 			}
 		};
 		
