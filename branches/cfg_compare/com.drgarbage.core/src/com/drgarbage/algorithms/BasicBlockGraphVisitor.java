@@ -212,6 +212,9 @@ public class BasicBlockGraphVisitor extends DFSForward {
 			
 			basicBlocksList.add(n);
 			firstNode = n.getFirstBasicBlockVertex();
+			
+			n.setByteCodeOffset(firstNode.getByteCodeOffset());
+			
 			if(debug)log("  first node: " + firstNode.getByteCodeOffset());
 			
 			incomimgList = firstNode.getIncomingEdgeList();
