@@ -12,6 +12,7 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
+import com.drgarbage.controlflowgraph.intf.MarkEnum;
 
 /**
  * Class to compare two ControlFlowGraphs
@@ -167,12 +168,42 @@ public class ControlFlowGraphCompare {
 		INodeListExt basicBlockVertices1 = node1.getBasicBlockVertices();
 		INodeListExt basicBlockVertices2 = node2.getBasicBlockVertices();
 		
-		for(int i = 0; i < basicBlockVertices1.size(); i++){
-			basicBlockVertices1.getNodeExt(i).setHighlighted(true);
+//		for(int i = 0; i < basicBlockVertices1.size(); i++){
+//			basicBlockVertices1.getNodeExt(i).setHighlighted(true);
+//			basicBlockVertices1.getNodeExt(i).setMark(MarkEnum.GREEN);
+//		}
+//		
+//		for(int i = 0; i < basicBlockVertices2.size(); i++){
+//			basicBlockVertices2.getNodeExt(i).setHighlighted(true);
+//			basicBlockVertices2.getNodeExt(i).setMark(MarkEnum.GREEN);
+//		}
+		
+		if(basicBlockVertices1.size() > basicBlockVertices2.size()) {
+			for(int i = 0; i < basicBlockVertices1.size(); i++){
+				basicBlockVertices1.getNodeExt(i).setHighlighted(true);
+				basicBlockVertices1.getNodeExt(i).setMark(MarkEnum.GREEN);
+				
+				if(i < basicBlockVertices2.size()) {
+					basicBlockVertices2.getNodeExt(i).setHighlighted(true);
+					basicBlockVertices2.getNodeExt(i).setMark(MarkEnum.GREEN);
+				}
+				
+				else basicBlockVertices1.getNodeExt(i).setMark(MarkEnum.RED);
+			}
 		}
 		
-		for(int i = 0; i < basicBlockVertices2.size(); i++){
-			basicBlockVertices2.getNodeExt(i).setHighlighted(true);
+		else {
+			for(int i = 0; i < basicBlockVertices2.size(); i++){
+				basicBlockVertices2.getNodeExt(i).setHighlighted(true);
+				basicBlockVertices2.getNodeExt(i).setMark(MarkEnum.GREEN);
+				
+				if(i < basicBlockVertices1.size()) {
+					basicBlockVertices1.getNodeExt(i).setHighlighted(true);
+					basicBlockVertices1.getNodeExt(i).setMark(MarkEnum.GREEN);
+				}
+				
+				else basicBlockVertices2.getNodeExt(i).setMark(MarkEnum.RED);
+			}
 		}
 		
 		return isIsomorph;
@@ -212,7 +243,10 @@ public class ControlFlowGraphCompare {
 		}
 		
 		node1.setHighlighted(true);
+		node1.setMark(MarkEnum.GREEN);
+		
 		node2.setHighlighted(true);
+		node2.setMark(MarkEnum.GREEN);
 		
 		return isIsomorph;
 	}
