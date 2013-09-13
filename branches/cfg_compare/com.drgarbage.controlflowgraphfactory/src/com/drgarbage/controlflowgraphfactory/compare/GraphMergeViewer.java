@@ -224,6 +224,31 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}
 	}
 	
+	private void swap(){
+		
+		ControlFlowGraphDiagram tmp = null;
+		
+		tmp = diagramRight;
+		
+		diagramRight = diagramLeft;
+		setInput(fRight, diagramRight);
+		setRightDirty(true);
+		
+		diagramLeft = tmp;
+		setInput(fLeft, diagramLeft);
+		
+		setLeftDirty(true);
+	}
+	
+	protected void clear(){
+		
+		setInput(fRight, diagramRight);
+		setRightDirty(true);
+
+		setInput(fLeft, diagramLeft);
+		setLeftDirty(true);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createToolItems(org.eclipse.jface.action.ToolBarManager)
 	 */
@@ -319,9 +344,24 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			}
 		};
 		
+		IAction a3 = new Action("SWAP"){ //TODO: define text and icon
+			public void run() {
+				swap();
+			}
+		};
+		
+		IAction a4 = new Action("CLEAR"){ //TODO: define text and icon
+			public void run() {
+				clear();
+			}
+		};
+		
 		toolBarManager.add(a1);
 		toolBarManager.add(a2);
-		
+		toolBarManager.add(new Separator());
+		toolBarManager.add(a3);
+		toolBarManager.add(new Separator());
+		toolBarManager.add(a4);
 		/* zoom actions */
 		toolBarManager.add(new Separator());
 		
