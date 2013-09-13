@@ -112,9 +112,10 @@ public class SpanningTreeOrderedBFS extends BFSOrderedTraversal {
 	 */
 	@Override
 	protected void visitedEdge(IEdgeExt edge) {
+		System.out.println("visited edge: " +edge.getSource().getByteCodeOffset()+" -> "+ edge.getTarget().getByteCodeOffset());
+
 		if(!edge.getTarget().isVisited()){
 			if(createNewGraph){
-				System.out.println("visited edge: " +edge.getSource().getByteCodeOffset()+" -> "+ edge.getTarget().getByteCodeOffset());
 				/* find the source and target node, create new edge */
 				INodeExt source = mapNodeList.get(edge.getSource());
 				INodeExt target = mapNodeList.get(edge.getTarget());

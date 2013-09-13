@@ -2,6 +2,10 @@ package com.drgarbage.algorithms;
 
 import java.awt.font.ImageGraphicAttribute;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeMap;
+
+import org.eclipse.swt.widgets.Tree;
 
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.ControlFlowGraphGenerator;
@@ -63,21 +67,32 @@ public class ControlFlowGraphCompare {
 		backEdgesCfgLeft = removeBackEdges(cfgLeft);
 		backEdgesCfgRight = removeBackEdges(cfgRight);
 		
+		System.out.println("CFG");
+		Algorithms.printGraph(cfgLeft);
+		System.out.println("--------------------");
+		Algorithms.printGraph(cfgRight);
+		
 		cfgLeftSpanningTree = Algorithms.doOrderedSpanningTreeAlgorithm(cfgLeft, false);
 		cfgRightSpanningTree = Algorithms.doOrderedSpanningTreeAlgorithm(cfgRight, false);
+		
+		System.out.println("CFG Spanning Trees");
+		Algorithms.printGraph(cfgLeftSpanningTree);
+		System.out.println("--------------------");
+		Algorithms.printGraph(cfgRightSpanningTree);
 		
 		INodeExt root1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 		INodeExt root2 = cfgRightSpanningTree.getNodeList().getNodeExt(0);
 		
-		if(cfgLeftSpanningTree.getNodeList().size() > cfgRightSpanningTree.getNodeList().size()) {
-			if(topDownOrderedSubtree(root1, root2)) return true;
-		}
+//		if(cfgLeftSpanningTree.getNodeList().size() > cfgRightSpanningTree.getNodeList().size()) {
+//			if(topDownOrderedSubtree(root1, root2)) return true;
+//		}
+//		
+//		else {
+//			if(topDownOrderedSubtree(root2, root1)) return true;
+//		}
 		
-		else {
-			if(topDownOrderedSubtree(root2, root1)) return true;
-		}
-		
-		return false;
+		return topDownOrderedSubtree(root1, root2);
+
 	}
 	
 	public boolean isIsomorphBasicBlock() {
@@ -108,6 +123,11 @@ public class ControlFlowGraphCompare {
 		}
 		
 		IDirectedGraphExt basicBlockGraphRight = basicBlockVisitor2.getBasicBlockGraph();
+		
+		System.out.println("BB");
+		Algorithms.printGraph(basicBlockGraphLeft);
+		System.out.println("--------------------");
+		Algorithms.printGraph(basicBlockGraphRight);
 
 		
 		basicBlockGraphLeftSpanningTree = Algorithms.doOrderedSpanningTreeAlgorithm(basicBlockGraphLeft, false);
@@ -121,15 +141,15 @@ public class ControlFlowGraphCompare {
 		IBasicBlock root1 = (IBasicBlock) basicBlockGraphLeftSpanningTree.getNodeList().getNodeExt(0);
 		IBasicBlock root2 = (IBasicBlock) basicBlockGraphRightSpanningTree.getNodeList().getNodeExt(0);
 		
-		if(basicBlockGraphLeftSpanningTree.getNodeList().size() > basicBlockGraphRightSpanningTree.getNodeList().size()) {
-			if(topDownOrderedSubtreeBasicBlock(root1, root2)) return true;
-		}
+//		if(basicBlockGraphLeftSpanningTree.getNodeList().size() > basicBlockGraphRightSpanningTree.getNodeList().size()) {
+//			if(topDownOrderedSubtreeBasicBlock(root1, root2)) return true;
+//		}
+//		
+//		else {
+//			if(topDownOrderedSubtreeBasicBlock(root2, root1)) return true;
+//		}
 		
-		else {
-			if(topDownOrderedSubtreeBasicBlock(root2, root1)) return true;
-		}
-		
-		return false;
+		return topDownOrderedSubtreeBasicBlock(root1, root2);
 	}
 	
 	private boolean topDownOrderedSubtreeBasicBlock(IBasicBlock node1, IBasicBlock node2) {
@@ -143,25 +163,27 @@ public class ControlFlowGraphCompare {
 		int childCount1 = node1.getOutgoingEdgeList().size();
 		int childCount2 = node2.getOutgoingEdgeList().size();
 		
-		if(childCount1 > childCount2){
-			return false;
+		if(childCount1 > childCount2) {
+			isIsomorph = false;
 		}
 
-		IBasicBlock v1, v2;
-		
-		if(childCount1 > 0) {
-			v1 = (IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(0).getTarget();
-			v2 = (IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(0).getTarget();
+		else {
+			IBasicBlock v1, v2;
 			
-			if(!topDownOrderedSubtreeBasicBlock(v1, v2))
-				isIsomorph = false;
-			
-			for(int i = 1; i < childCount1; i++) {
-				v1 = (IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
-				v2 = (IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+			if(childCount1 > 0) {
+				v1 = (IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(0).getTarget();
+				v2 = (IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(0).getTarget();
 				
-				if(!topDownOrderedSubtreeBasicBlock(v1, v2));
+				if(!topDownOrderedSubtreeBasicBlock(v1, v2))
 					isIsomorph = false;
+				
+				for(int i = 1; i < childCount1; i++) {
+					v1 = (IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+					v2 = (IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+					
+					if(!topDownOrderedSubtreeBasicBlock(v1, v2));
+						isIsomorph = false;
+				}
 			}
 		}
 		
@@ -214,41 +236,71 @@ public class ControlFlowGraphCompare {
 		System.out.println("comparing nodes: " +node1.getByteCodeOffset()+"/"+node1.getCounter() +" - "+ node2.getByteCodeOffset()+"/"+node2.getCounter());
 
 		if(node1.getCounter() != node2.getCounter()){
-			return false;
+			isIsomorph = false;
 		}
 		
-		int childCount1 = node1.getOutgoingEdgeList().size();
-		int childCount2 = node2.getOutgoingEdgeList().size();
-		
-		if(childCount1 > childCount2){
-			return false;
-		}
-
-		INodeExt v1, v2;
-		
-		if(childCount1 > 0) {
-			v1 = node1.getOutgoingEdgeList().getEdgeExt(0).getTarget();
-			v2 = node2.getOutgoingEdgeList().getEdgeExt(0).getTarget();
+		if(isIsomorph) {
 			
-			if(!topDownOrderedSubtree(v1, v2))
+			IEdgeListExt node1Children = node1.getOutgoingEdgeList();
+			IEdgeListExt node2Children = node2.getOutgoingEdgeList();
+			
+			int childCount1 = node1Children.size();
+			int childCount2 = node2Children.size();
+			
+			if(childCount1 > childCount2) {
 				isIsomorph = false;
-			
-			for(int i = 1; i < childCount1; i++) {
-				v1 = node1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
-				v2 = node2.getOutgoingEdgeList().getEdgeExt(i).getTarget();
-				
-				if(!topDownOrderedSubtree(v1, v2));
-					isIsomorph = false;
 			}
+	
+			else {
+				INodeExt v1, v2;
+								
+				if(childCount1 > 0) {
+					
+					ArrayList<IEdgeExt> node1SortedEdges = sortEdges(node1Children);
+					ArrayList<IEdgeExt> node2SortedEdges = sortEdges(node2Children);
+
+					v1 = node1SortedEdges.get(0).getTarget();
+					v2 = node2SortedEdges.get(0).getTarget();
+					
+					if(node1.getCounter() == 3){
+						for(int i = 0; i < node1.getOutgoingEdgeList().size(); i++){
+							System.out.println("NOOOODES");
+							System.out.println(node1.getOutgoingEdgeList().getEdgeExt(i).getSource().getByteCodeOffset() +"->"+node1.getOutgoingEdgeList().getEdgeExt(i).getTarget().getByteCodeOffset());
+						}
+					}
+
+					
+					if(!topDownOrderedSubtree(v1, v2))
+						isIsomorph = false;
+					
+					for(int i = 1; i < childCount1; i++) {
+						v1 = node1SortedEdges.get(i).getTarget();
+						v2 = node2SortedEdges.get(i).getTarget();
+						
+						if(!topDownOrderedSubtree(v1, v2));
+							isIsomorph = false;
+					}
+				}
+			}
+			node1.setHighlighted(true);
+			node1.setMark(MarkEnum.GREEN);
+			
+			node2.setHighlighted(true);
+			node2.setMark(MarkEnum.GREEN);
+		}
+		return isIsomorph;
+	}
+	
+	private ArrayList<IEdgeExt> sortEdges(IEdgeListExt edgeList){
+		
+		TreeMap<Integer, IEdgeExt> tmpEdgeList = new TreeMap<Integer, IEdgeExt>();
+		
+		for(int i = 0; i < edgeList.size(); i++){
+			tmpEdgeList.put(edgeList.getEdgeExt(i).getTarget().getByteCodeOffset(), edgeList.getEdgeExt(i));
 		}
 		
-		node1.setHighlighted(true);
-		node1.setMark(MarkEnum.GREEN);
+		return new ArrayList<IEdgeExt>(tmpEdgeList.values());
 		
-		node2.setHighlighted(true);
-		node2.setMark(MarkEnum.GREEN);
-		
-		return isIsomorph;
 	}
 
 	private boolean haveSameNodeCount(){
