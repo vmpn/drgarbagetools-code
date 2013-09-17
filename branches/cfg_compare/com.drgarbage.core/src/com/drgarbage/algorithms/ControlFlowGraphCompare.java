@@ -2,7 +2,9 @@ package com.drgarbage.algorithms;
 
 import java.awt.font.ImageGraphicAttribute;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.eclipse.swt.widgets.Tree;
@@ -170,7 +172,7 @@ public class ControlFlowGraphCompare {
 		else {
 			IBasicBlock v1, v2;
 			
-			if(childCount1 > 0) {
+			if(childCount1 > 0 && childCount1 < 3) {
 				v1 = (IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(0).getTarget();
 				v2 = (IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(0).getTarget();
 				
@@ -180,6 +182,35 @@ public class ControlFlowGraphCompare {
 				for(int i = 1; i < childCount1; i++) {
 					v1 = (IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
 					v2 = (IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+					
+					if(!topDownOrderedSubtreeBasicBlock(v1, v2));
+						isIsomorph = false;
+				}
+			}
+			
+			/* for switch cases */
+			if(childCount1 > 2) {
+				List<IBasicBlock> edgeList1 = new ArrayList<IBasicBlock>();
+				List<IBasicBlock> edgeList2 = new ArrayList<IBasicBlock>();
+				
+				/* quickfix to reverse order of edges */
+				for(int i = childCount1; i > 0; i--) {
+					edgeList1.add((IBasicBlock) node1.getOutgoingEdgeList().getEdgeExt(i-1).getTarget());
+				}
+				
+				for(int i = childCount2; i > 0; i--) {
+					edgeList2.add((IBasicBlock) node2.getOutgoingEdgeList().getEdgeExt(i-1).getTarget());
+				}
+				
+				v1 = edgeList1.get(0);
+				v2 = edgeList2.get(0);
+				
+				if(!topDownOrderedSubtreeBasicBlock(v1, v2))
+					isIsomorph = false;
+				
+				for(int i = 1; i < childCount1; i++) {
+					v1 = edgeList1.get(i);
+					v2 = edgeList2.get(i);
 					
 					if(!topDownOrderedSubtreeBasicBlock(v1, v2));
 						isIsomorph = false;
