@@ -242,6 +242,14 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	
 	protected void clear(){
 		
+		// TODO: quickfix, reset also color, not just the flag
+		for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
+			cfgLeft.getNodeList().getNodeExt(i).setHighlighted(false);
+		}
+		for(int i = 0; i < cfgRight.getNodeList().size(); i++){
+			cfgRight.getNodeList().getNodeExt(i).setHighlighted(false);
+		}
+		
 		setInput(fRight, diagramRight);
 		setRightDirty(true);
 
@@ -334,7 +342,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 //				}
 			}
 
-			private void colorNode( HashMap<INodeExt, VertexBase> nodeVertexBaseMap, INodeExt node) {
+			private void colorNode(HashMap<INodeExt, VertexBase> nodeVertexBaseMap, INodeExt node) {
 				switch(node.getMark()) {
 					case GREEN:	nodeVertexBaseMap.get(node).setColor(new Color(null, 0, 255, 0)); break;
 					case RED:	nodeVertexBaseMap.get(node).setColor(new Color(null, 255, 0, 0)); break;
