@@ -149,4 +149,300 @@ public class PaperIASTEDTest {
 	}
 	
 	
+	public void m3(int d){
+		int a = 0;
+
+		for(int i= 0; i < d; i++){
+			switch(d){
+			case 0: a = 2;
+			break;
+			case 1: d = 10;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+			return;
+			case 2: d = 11;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+				return;
+			case 3: a--;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+			return;
+			}
+		}
+		a++;
+		
+		for(int i= 0; i < d; i++){
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			
+			if(d > 10){
+				d++;
+			}
+			else{
+				d--;
+			}
+		}
+		
+		switch(d){
+		case 0: a = 2;
+		break;
+		case 1: d = 10;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+				for(int i= 0; i < d; i++){
+					if(d > a){
+						d++;
+					}
+					else{
+						d--;
+					}
+					
+					if(d > 10){
+						d++;
+					}
+					else{
+						d--;
+					}
+				}
+			}
+			return;
+		case 2: d = 11;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			return;
+		case 3: a--;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			return;
+		}
+	}
+	
+	
+	public void m3a(int d){
+		int a = 0;
+
+		for(int i= 0; i < d; i++){
+			a++;
+			switch(d){
+			case 0: a = 2;
+			break;
+			case 1: d = 10;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+			return;
+			case 2: d = 11;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+				return;
+			case 3: a--;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+			return;
+			}
+		}
+		a++;
+		
+		for(int i= 0; i < d; i++){
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			
+			if(d > 10){
+				d++;
+			}
+			else{
+				d--;
+			}
+		}
+		
+		switch(d){
+		case 0: a = 2;
+		break;
+		case 1: d = 10;
+			a++;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+				for(int i= 0; i < d; i++){
+					if(d > a){
+						d++;
+					}
+					else{
+						d--;
+					}
+					
+					if(d > 10){
+						d++;
+					}
+					else{
+						d--;
+					}
+				}
+			}
+			return;
+		case 2: d = 11;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			return;
+		case 3: a--;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			return;
+		}
+	}
+	
+	public void m3b(int d){
+		int a = 0;
+
+		if(d > a){
+			d++;
+		}
+		else{
+			d--;
+		}
+		for(int i= 0; i < d; i++){
+			switch(d){
+			case 0: a = 2;
+			break;
+			case 1: d = 10;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+			return;
+			case 2: d = 11;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+				return;
+			case 3: a--;
+				if(d > a){
+					d++;
+				}
+				else{
+					d--;
+				}
+			return;
+			}
+		}
+		a++;
+		
+		for(int i= 0; i < d; i++){
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			
+			if(d > 10){
+				d++;
+			}
+			else{
+				d--;
+			}
+		}
+		
+		switch(d){
+		case 0: a = 2;
+		break;
+		case 1: d = 10;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+				for(int i= 0; i < d; i++){
+					if(d > a){
+						d++;
+					}
+					else{
+						d--;
+					}
+					
+					if(d > 10){
+						d++;
+					}
+					else{
+						d--;
+					}
+				}
+			}
+			return;
+		case 2: d = 11;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			return;
+		case 3: a--;
+			if(d > a){
+				d++;
+			}
+			else{
+				d--;
+			}
+			return;
+		}
+	}
 }
