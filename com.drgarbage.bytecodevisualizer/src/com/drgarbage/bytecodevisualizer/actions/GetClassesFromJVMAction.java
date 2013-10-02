@@ -23,6 +23,7 @@ import org.eclipse.debug.ui.IDebugView;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugElement;
 import org.eclipse.swt.widgets.Event;
 
+import com.drgarbage.bytecode.jdi.dialogs.FilteredTypeDialog;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerConstants;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
@@ -57,7 +58,7 @@ public class GetClassesFromJVMAction extends DebugViewAction {
 	@Override
 	public void run() {
 		
-		new ClassFilteredList();
+		new FilteredTypeDialog();
 			
 			//TODO: implement export to build path
 		

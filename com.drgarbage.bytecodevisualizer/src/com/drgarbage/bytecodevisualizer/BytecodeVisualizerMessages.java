@@ -196,7 +196,6 @@ public class BytecodeVisualizerMessages extends NLS {
 	
 	/* FilteredList for Class file */
 	public static String CFL_hint_text;
-	public static String CFL_matching_class_name_text;
 	public static String CFL_tooltip_browse_folder;
 	public static String CFL_browse_btn_label;
 	public static String CFL_directory_prompt_text;
