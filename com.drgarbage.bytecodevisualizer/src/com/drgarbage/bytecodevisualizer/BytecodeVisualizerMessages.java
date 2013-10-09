@@ -195,12 +195,17 @@ public class BytecodeVisualizerMessages extends NLS {
 	public static String OSA_return_type_mismatched;
 	
 	/* FilteredList for Class file */
-	public static String CFL_hint_text;
-	public static String CFL_tooltip_browse_folder;
-	public static String CFL_browse_btn_label;
-	public static String CFL_directory_prompt_text;
-	public static String CFL_copy_to_btn_text;
-	public static String CFL_close_text;
+	public static String JDI_Export_Dialog_hint_text;
+	public static String JDI_Export_Dialog_Define_Class_Folder;
+	public static String JDI_Export_Dialog_tooltip_browse_folder;
+	public static String JDI_Export_Dialog_browse_btn_label;
+	public static String JDI_Export_Dialog_copy_to_btn_text;
+	public static String JDI_Export_Dialog_close_text;
+	public static String JDI_Export_Dialog_Export_Selected_Classes;
+	
+	public static String Buildpath_Dialog_Abr;
+	public static String Buildpath_Dialog_Title;
+	public static String Buildpath_Dialog_Message;
 	
 	
 }
