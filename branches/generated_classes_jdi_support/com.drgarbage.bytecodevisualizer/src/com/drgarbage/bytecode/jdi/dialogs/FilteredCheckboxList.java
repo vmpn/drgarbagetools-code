@@ -16,7 +16,6 @@
 
 package com.drgarbage.bytecode.jdi.dialogs;
 
-
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;

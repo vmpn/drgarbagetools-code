@@ -16,19 +16,14 @@
 
 package com.drgarbage.bytecodevisualizer.actions;
 
-import java.util.List;
-
-import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugView;
-import org.eclipse.jdt.internal.debug.core.model.JDIDebugElement;
 import org.eclipse.swt.widgets.Event;
 
-import com.drgarbage.bytecode.jdi.dialogs.FilteredTypeDialog;
+import com.drgarbage.bytecode.jdi.dialogs.JDIExportFromJvmDialog;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerConstants;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
-import com.sun.jdi.ReferenceType;
-import com.sun.jdi.VirtualMachine;
+import com.drgarbage.core.img.CoreImg;
 
 /**
  * An action for reading classes from the JVM. 
@@ -36,7 +31,6 @@ import com.sun.jdi.VirtualMachine;
  * @author Sergej Alekseev
  * @version $Revision$ $Id$
  */
-@SuppressWarnings("restriction")
 public class GetClassesFromJVMAction extends DebugViewAction {
 
 	public static final String ACTION_READ_CLASSES_FROM_JVM = "com.drgarbage.bytecodevisualizer.actions.Read_Classes_From_JVM";
@@ -48,8 +42,8 @@ public class GetClassesFromJVMAction extends DebugViewAction {
 				debugView
 				);
 
-		setImageDescriptor(BytecodeVisualizerPlugin.getDefault().getImageRegistry().
-				getDescriptor(BytecodeVisualizerConstants.IMG16E_TOGGLE_BREAKPOINT));//TODO: define new icon
+		setImageDescriptor(CoreImg.bytecodeViewer_New_16x16);
+		
 	}
 
 	/* (non-Javadoc)
@@ -57,12 +51,7 @@ public class GetClassesFromJVMAction extends DebugViewAction {
 	 */
 	@Override
 	public void run() {
-		
-		new FilteredTypeDialog();
-			
-			//TODO: implement export to build path
-		
-		
+		new JDIExportFromJvmDialog().open();
 	}
 
 	/* (non-Javadoc)
