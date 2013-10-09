@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.NewFolderDialog;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
@@ -103,13 +104,11 @@ public class ProjectBuildPathDialog extends TitleAreaDialog {
 	 */
 	protected Control createDialogArea(Composite parent) {
 		/* create a composite with standard margins and spacing */
-		
-		
 		getShell().setText(BytecodeVisualizerMessages.Buildpath_Dialog_Abr);
 		
 		setTitle(BytecodeVisualizerMessages.Buildpath_Dialog_Title); 
 		setMessage(BytecodeVisualizerMessages.Buildpath_Dialog_Message);
-		setTitleImage(DebugPluginImages.getImage(IInternalDebugUIConstants.IMG_EDIT_SRC_LOC_WIZ));
+		setTitleImage(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/exportdir_wiz.png").createImage());
 		
 		Composite composite = new Composite(parent, SWT.NONE);
 		
