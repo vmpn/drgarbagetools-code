@@ -173,8 +173,7 @@ public class JDIExportFromJvmDialog {
 		selectComposite.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 		
 		selectAll = new Button(selectComposite, SWT.PUSH);
-		selectAll.setText("select all");
-		selectAll.setToolTipText("select all");
+		selectAll.setText(BytecodeVisualizerMessages.JDI_Export_Dialog_Select_All);
 		selectAll.addListener(SWT.Selection, new Listener() {
 			
 			/* (non-Javadoc)
@@ -188,8 +187,7 @@ public class JDIExportFromJvmDialog {
 		});
 		
 		deselectAll = new Button(selectComposite, SWT.PUSH);
-		deselectAll.setText("deselect all");
-		deselectAll.setToolTipText("deselect all");
+		deselectAll.setText(BytecodeVisualizerMessages.JDI_Export_Dialog_Deselect_All);
 		deselectAll.addListener(SWT.Selection, new Listener() {
 			
 			/* (non-Javadoc)
@@ -288,7 +286,9 @@ public class JDIExportFromJvmDialog {
 											.addFileExtension("class");
 
 									monitor.subTask(className);
-									createFile(path, null);
+									byte[] content = getClassFileContent(className);
+									
+									createFile(path, content, null);
 									monitor.worked(1);
 
 								} catch (CoreException e1) {
@@ -421,6 +421,7 @@ public class JDIExportFromJvmDialog {
 	 * Creates an empty file in the given workspace path.
 	 * 
 	 * @param filePath the path of the file resource to be created
+	 * @param content the file content as a byte array
 	 * @param monitor monitor a progress monitor, or <code>null</code> 
 	 *         if progress reporting is not desired
 	 * @return the new file resource handle
@@ -428,10 +429,10 @@ public class JDIExportFromJvmDialog {
 	 * 
 	 * @see {@link IContainer#getFile(IPath) }
 	 */
-	protected IFile createFile(IPath filePath, IProgressMonitor monitor) throws CoreException {
+	protected IFile createFile(IPath filePath, byte[] content, IProgressMonitor monitor) throws CoreException {
 		IFile f = IDEWorkbenchPlugin.getPluginWorkspace().getRoot().getFile(filePath);
 		if(!f.exists()){
-			InputStream contents = new ByteArrayInputStream(new byte[0]);
+			InputStream contents = new ByteArrayInputStream(content);
 			f.create(contents, true, monitor);
 		}
 		return f;
@@ -462,7 +463,7 @@ public class JDIExportFromJvmDialog {
 	 * 
 	 * @param fl the filtered checkbox list
 	 */
-	public void fillList(FilteredTree fl) {
+	private void fillList(FilteredTree fl) {
 		Object o = DebugUITools.getDebugContext();
 		List<String> listOfClasses = new ArrayList<String>();
 
@@ -481,6 +482,62 @@ public class JDIExportFromJvmDialog {
 		viewer.setInput(listOfClasses.toArray());
 	}
 
+	/**
+	 * TODO: description
+	 * @param className
+	 * @return
+	 */
+	private byte[] getClassFileContent(String className){
+		return new byte[0];
+//		Object o = DebugUITools.getDebugContext();
+//
+//		ReferenceType ref = null;
+//		if (o instanceof JDIDebugElement) {
+//			JDIDebugElement jdiDebugElement = (JDIDebugElement) o;
+//			com.sun.jdi.VirtualMachine vm = jdiDebugElement
+//					.getJavaDebugTarget().getVM();
+//
+//			List<ReferenceType> classes = vm.classesByName(className);
+//			if(classes.size() != 0){
+//				ref = classes.get(0);
+//			}
+//		}
+//		
+//		int constantPoolCount = ref.constantPoolCount(); 
+//		byte[]  constantPool = ref.constantPool();
+//		
+//		byte[] classFile = new byte[10 + constantPool.length];
+//		
+////		CA FE BA BE                                      /* u4 magic */
+////		00 00                                            /* u2 minor_version=0 */
+////		00 32                                            /* u2 major_version=50 */
+////		                                                 /* java 1.6 */
+////		00 80                                            /* u2 constant_pool_count=128 */
+////		07 00 02                                         /* [1] CONSTANT_Class name_index=2 */
+////		01 00 1D 54 65 73 74 43 61 73 65 46 6F 72 42 79  /* [2] CONSTANT_Utf8 length=29; bytes="TestCaseForByteCodeVisualizer" */
+////		74 65 43 6F 64 65 56 69 73 75 61 6C 69 7A 65 72
+//		
+//		classFile[0] = (byte) ((12 << 4) + 10);
+//		classFile[1] = (byte) ((15 << 4) + 14);
+//		classFile[2] = (byte) ((11 << 4) + 10);
+//		classFile[3] = (byte) ((11 << 4) + 14);
+//		
+//		classFile[4] = 0x0;
+//		classFile[5] = 0x0;
+//		classFile[6] = 0x0;
+//		classFile[7] = 0x32;
+//		
+//		classFile[8] = 0x0;
+//		classFile[9] = (byte)constantPoolCount;
+//		
+//		
+//		for(int i = 0; i < constantPool.length; i++){
+//			classFile[i + 10] = constantPool[i];
+//		}
+//		
+//		return classFile;
+	}
+	
 	/**
 	 * Simple implementation of the Tree content provider.
 	 * @see {@link ITreeContentProvider}
