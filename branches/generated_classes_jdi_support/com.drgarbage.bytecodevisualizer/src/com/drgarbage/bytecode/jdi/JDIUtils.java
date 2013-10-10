@@ -16,6 +16,18 @@
 
 package com.drgarbage.bytecode.jdi;
 
+
+import java.util.List;
+
+import com.drgarbage.asm.ClassWriter;
+import com.drgarbage.asm.FieldVisitor;
+import com.drgarbage.asm.MethodVisitor;
+import com.drgarbage.bytecode.ByteCodeConstants;
+import com.drgarbage.javasrc.JavaLexicalConstants;
+import com.sun.jdi.ClassType;
+import com.sun.jdi.Field;
+import com.sun.jdi.InterfaceType;
+import com.sun.jdi.Method;
 import com.sun.jdi.ReferenceType;
 
 /**
@@ -34,10 +46,9 @@ public class JDIUtils {
 	 * @param ref ReferenceType object
 	 * @return byte array
 	 */
-	public static byte[] getClassFileContent(ReferenceType ref){
-//		return new byte[0];
+	public static byte[] referenceTypetoByteArray(ReferenceType ref) {
 		
-		/*
+	/*
 		ClassFile {
 		u4             magic;
 		u2             minor_version;
@@ -56,108 +67,111 @@ public class JDIUtils {
 	    u2             attributes_count;
 	    attribute_info attributes[attributes_count];
 	 }
-	 */
-		 
+	*/
 		
-		
-		short u4_magic_len = 4;
-		short u2_minor_version_len = 2;
-		short u2_major_version_len = 2;
-		short constant_pool_count_len = 2;
-		short u2_access_flags_len = 2;
-		short u2_this_class_len = 2;
-		short u2_super_class_len = 2;
-		short u2_interfaces_count_len = 2;
-		short u2_fields_count_len = 2;
-		short u2_methods_count_len = 2;
-		short u2_attributes_count_len = 2;
+		ClassWriter cw = new ClassWriter(0);
 
-		byte[]  constantPool = ref.constantPool();
+		int version = (ref.minorVersion() << 16) + (ref.majorVersion());
+		int access = ref.modifiers();
+		String name = toFullyQualifiedName(ref.name());
+		String signature = ref.genericSignature();
 		
-		int array_length = 
-				u4_magic_len + 
-				u2_minor_version_len + 
-				u2_major_version_len +
-				constant_pool_count_len +
-				constantPool.length +
-				u2_access_flags_len +
-				u2_this_class_len +
-				u2_super_class_len +
-				u2_interfaces_count_len +
-				u2_fields_count_len +
-				u2_methods_count_len +
-				u2_attributes_count_len
-				; 
-		
-		byte[] classFile = new byte[array_length];
-		
-		int offset = 0;
-		
-		/* u4 magic; */
-		classFile[offset++] = (byte) ((12 << 4) + 10);
-		classFile[offset++] = (byte) ((15 << 4) + 14);
-		classFile[offset++] = (byte) ((11 << 4) + 10);
-		classFile[offset++] = (byte) ((11 << 4) + 14);
-		
-		/* u2 minor_version; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x0; //TODO: assign minor version
-		
-		/* u2 major_version; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x32; //TODO: assign major version
-		
-		/* u2 constant_pool_count; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = (byte)ref.constantPoolCount(); //TODO: assign count
-		
-		/* cp_info constant_pool[constant_pool_count-1]; */
-		for(int i = 0; i < constantPool.length; i++){
-			classFile[offset++] = constantPool[i];
+		String superName = null;
+		String[] interfacesList = null; 
+		if (ref instanceof ClassType) {
+			ClassType classType = (ClassType) ref;
+			superName = toFullyQualifiedName(classType.superclass().name());
+
+			List<InterfaceType> interfaces = classType.interfaces();
+			if (interfaces != null && interfaces.size() > 0) {
+				interfacesList = new String[interfaces.size()];
+				for (int i = 0; i < interfaces.size(); ++i) {
+					InterfaceType iType  = interfaces.get(i);
+					interfacesList[i] = toFullyQualifiedName(iType.name());
+				}
+			}
 		}
+   	
+		if (ref instanceof InterfaceType) {
+			superName = "java/lang/Object";
+			
+			InterfaceType interfaceType = (InterfaceType) ref;
+
+			List<InterfaceType> interfaces = interfaceType.superinterfaces();
+			if (interfaces != null && interfaces.size() > 0) {
+				interfacesList = new String[interfaces.size()];
+				for (int i = 0; i < interfaces.size(); ++i) {
+					InterfaceType iType  = interfaces.get(i);
+					interfacesList[i] = toFullyQualifiedName(iType.name());
+				}
+			}
+		}
+	
+		cw.visit(version, 
+				access, 
+				name, 
+				signature, 
+				superName, 
+				interfacesList);
 		
-		/* u2             access_flags; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = (byte)ref.modifiers(); //TODO: assign access flags
+	/*
+		u2             fields_count;
+	    field_info     fields[fields_count];
+	*/
+		FieldVisitor fv;	
+		List<Field> fields = ref.allFields();
+		for(Field f : fields){
+			fv = cw.visitField(
+					f.modifiers(), 
+					f.name(),
+					f.signature(),
+					f.genericSignature(),
+					null);
+			fv.visitEnd();
+		}
+
+	/*
+	    u2             methods_count;
+	    method_info    methods[methods_count];
+	*/
+//		MethodVisitor mv;
+//		List<Method> methods = ref.allMethods();
+//		for(Method m: methods){
+//			mv = cw.visitMethod(
+//					m.modifiers(), 
+//					m.name(), 
+//					m.signature(), 
+//					m.genericSignature(), 
+//					null);
+//			
+//			//TODO: visit code
+//			mv.visitCode();
+//			
+//			mv.visitMaxs(0, 0); /* no access via JDI */
+//			mv.visitEnd();
+//		}
+
 		
+	/*
+	    u2             attributes_count;
+	    attribute_info attributes[attributes_count];
+	*/
+	
+		//TODO: implement attributes  
 		
-		/* u2             this_class; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x2;	//TODO: assign this class index
-		
-		
-		/* u2             super_class; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x4; //TODO: assign super class index
-		
-		/* u2             interfaces_count; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x0;
-		
-		/* u2             interfaces[interfaces_count]; */
-		//TODO: implement interfaces
-		
-		/* u2             fields_count; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x0;
-		
-	    /* field_info     fields[fields_count]; */
-		//TODO: implement field_info
-	    
-		/* u2             methods_count; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x0;
-		
-	    /* method_info    methods[methods_count]; */
-		//TODO: implement method_info
-		
-		/* u2             attributes_count; */
-		classFile[offset++] = 0x0;
-		classFile[offset++] = 0x0;
-		
-	    /* attribute_info attributes[attributes_count]; */
-		//TODO: implement attribute_info
-		
-		return classFile;
+		/* finish the class */
+		cw.visitEnd();
+		return cw.toByteArray();
 	}
+	
+	/**
+	 * Returns the fully qualified name (as returned by Class.getName(), 
+	 * where '.' are replaced by '/'. 
+	 * @param name the class name in dot notation e.g <code>java.lang.Object</code>
+	 * @return the fully qualified name e.g <code>java/lang/Object</code>
+	 */
+	public static String toFullyQualifiedName(String name) {
+		return name.replace(JavaLexicalConstants.DOT, ByteCodeConstants.CLASS_NAME_SLASH);
+	}
+
 }

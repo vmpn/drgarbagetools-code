@@ -505,7 +505,7 @@ public class JDIExportFromJvmDialog {
 						ref = classes.get(0);
 					}
 				}
-		return JDIUtils.getClassFileContent(ref);
+		return JDIUtils.referenceTypetoByteArray(ref);
 	}
 	
 	/**
