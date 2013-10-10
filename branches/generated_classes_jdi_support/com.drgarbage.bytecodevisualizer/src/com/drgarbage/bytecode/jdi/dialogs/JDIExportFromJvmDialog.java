@@ -72,6 +72,7 @@ import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
+import com.drgarbage.bytecode.jdi.JDIUtils;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerMessages;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.sun.jdi.ReferenceType;
@@ -481,61 +482,30 @@ public class JDIExportFromJvmDialog {
 		
 		viewer.setInput(listOfClasses.toArray());
 	}
-
+	
 	/**
-	 * TODO: description
-	 * @param className
-	 * @return
+	 * Returns the class file content as a byte array for
+	 * the given class name.
+	 * 
+	 * @param className the fully qualified class name
+	 * @return byte array
+	 * @see JDIUtils#getClassFileContent(ReferenceType)
 	 */
-	private byte[] getClassFileContent(String className){
-		return new byte[0];
-//		Object o = DebugUITools.getDebugContext();
-//
-//		ReferenceType ref = null;
-//		if (o instanceof JDIDebugElement) {
-//			JDIDebugElement jdiDebugElement = (JDIDebugElement) o;
-//			com.sun.jdi.VirtualMachine vm = jdiDebugElement
-//					.getJavaDebugTarget().getVM();
-//
-//			List<ReferenceType> classes = vm.classesByName(className);
-//			if(classes.size() != 0){
-//				ref = classes.get(0);
-//			}
-//		}
-//		
-//		int constantPoolCount = ref.constantPoolCount(); 
-//		byte[]  constantPool = ref.constantPool();
-//		
-//		byte[] classFile = new byte[10 + constantPool.length];
-//		
-////		CA FE BA BE                                      /* u4 magic */
-////		00 00                                            /* u2 minor_version=0 */
-////		00 32                                            /* u2 major_version=50 */
-////		                                                 /* java 1.6 */
-////		00 80                                            /* u2 constant_pool_count=128 */
-////		07 00 02                                         /* [1] CONSTANT_Class name_index=2 */
-////		01 00 1D 54 65 73 74 43 61 73 65 46 6F 72 42 79  /* [2] CONSTANT_Utf8 length=29; bytes="TestCaseForByteCodeVisualizer" */
-////		74 65 43 6F 64 65 56 69 73 75 61 6C 69 7A 65 72
-//		
-//		classFile[0] = (byte) ((12 << 4) + 10);
-//		classFile[1] = (byte) ((15 << 4) + 14);
-//		classFile[2] = (byte) ((11 << 4) + 10);
-//		classFile[3] = (byte) ((11 << 4) + 14);
-//		
-//		classFile[4] = 0x0;
-//		classFile[5] = 0x0;
-//		classFile[6] = 0x0;
-//		classFile[7] = 0x32;
-//		
-//		classFile[8] = 0x0;
-//		classFile[9] = (byte)constantPoolCount;
-//		
-//		
-//		for(int i = 0; i < constantPool.length; i++){
-//			classFile[i + 10] = constantPool[i];
-//		}
-//		
-//		return classFile;
+	private byte[] getClassFileContent(String className) {
+		Object o = DebugUITools.getDebugContext();
+		
+				ReferenceType ref = null;
+				if (o instanceof JDIDebugElement) {
+					JDIDebugElement jdiDebugElement = (JDIDebugElement) o;
+					com.sun.jdi.VirtualMachine vm = jdiDebugElement
+							.getJavaDebugTarget().getVM();
+		
+					List<ReferenceType> classes = vm.classesByName(className);
+					if(classes.size() != 0){
+						ref = classes.get(0);
+					}
+				}
+		return JDIUtils.getClassFileContent(ref);
 	}
 	
 	/**
