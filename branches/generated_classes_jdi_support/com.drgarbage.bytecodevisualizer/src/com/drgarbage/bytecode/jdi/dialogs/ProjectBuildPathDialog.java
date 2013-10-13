@@ -131,6 +131,7 @@ public class ProjectBuildPathDialog extends TitleAreaDialog {
 		fPathViewer.getControl().setLayoutData(new GridData(GridData.FILL_BOTH));
 		fPathViewer.getControl().setFont(parent.getFont());
 		fPathViewer.setInput(fJavaProject.getResource().getWorkspace().getRoot());
+		fPathViewer.expandAll();
 		
 		/*create a new folder button */
 		Button button = new Button(composite, SWT.PUSH);
