@@ -22,6 +22,7 @@ import java.util.List;
 import com.drgarbage.asm.ClassWriter;
 import com.drgarbage.asm.FieldVisitor;
 import com.drgarbage.asm.MethodVisitor;
+import com.drgarbage.asm.Opcodes;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.javasrc.JavaLexicalConstants;
 import com.sun.jdi.ClassType;
@@ -134,22 +135,25 @@ public class JDIUtils {
 	    u2             methods_count;
 	    method_info    methods[methods_count];
 	*/
-//		MethodVisitor mv;
-//		List<Method> methods = ref.allMethods();
-//		for(Method m: methods){
-//			mv = cw.visitMethod(
-//					m.modifiers(), 
-//					m.name(), 
-//					m.signature(), 
-//					m.genericSignature(), 
-//					null);
-//			
-//			//TODO: visit code
-//			mv.visitCode();
-//			
-//			mv.visitMaxs(0, 0); /* no access via JDI */
-//			mv.visitEnd();
-//		}
+		MethodVisitor mv;
+		List<Method> methods = ref.allMethods();
+		for(Method m: methods){
+			mv = cw.visitMethod(
+					m.modifiers(), 
+					m.name(), 
+					m.signature(), 
+					m.genericSignature(), 
+					null);
+			
+			if(hasCode(m)){
+				//TODO: visit code
+				mv.visitInsn(Opcodes.NOP);
+				
+			}
+			
+			mv.visitMaxs(0, 0); /* no access via JDI */
+			mv.visitEnd();
+		}
 
 		
 	/*
@@ -162,6 +166,17 @@ public class JDIUtils {
 		/* finish the class */
 		cw.visitEnd();
 		return cw.toByteArray();
+	}
+	
+	public static boolean hasCode(Method m){
+		if(m.isAbstract() || m.isNative()){
+			return false;
+		}
+		
+		if(m.bytecodes() != null && m.bytecodes().length > 0){
+			return true;
+		}
+		return false;
 	}
 	
 	/**
