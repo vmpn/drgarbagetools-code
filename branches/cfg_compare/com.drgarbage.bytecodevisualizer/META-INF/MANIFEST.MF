@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Export-Package: com.drgarbage.asm.render.impl;x-friends:="com.drgarbag
- e.core.test"
+Export-Package: com.drgarbage.asm.render.impl;x-friends:="com.drgarbage.core.test",
+ com.drgarbage.bytecodevisualizer
 Bundle-ActivationPolicy: lazy
 Bundle-Name: %pluginName
 Bundle-Localization: plugin
