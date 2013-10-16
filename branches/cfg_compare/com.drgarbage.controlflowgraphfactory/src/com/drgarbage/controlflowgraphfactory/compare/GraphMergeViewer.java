@@ -52,6 +52,8 @@ import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+
 /**
  * The graph merge viewer.
  * 
@@ -266,6 +268,16 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		//TODO: implement actions for algorithms and move the action implementation into the separate java file.
 		IAction a1 = new Action("TD"){ //TODO: define text and icon
 			public void run() {
+				try {
+					myException();
+					System.out.println("we are in try");
+				} catch (Throwable e) {
+					// TODO Auto-generated catch block
+					System.out.println("we are in catch");
+					BytecodeVisualizerPlugin.log(e);
+					System.out.println("log call ended");
+				}
+				
 				//TODO: implement action
 				
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
@@ -299,6 +311,19 @@ public class GraphMergeViewer extends ContentMergeViewer {
 						bla2.get(cfgRight.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
 					}	
 				}
+			}
+
+			// exception testing. ignore me
+			private void myException() throws Throwable{
+				Throwable t = new Throwable("this is my excetion");
+				
+				StackTraceElement[] trace = new StackTraceElement[] {
+					new StackTraceElement("ClassName", "methodName", "fileName", 5)	
+				};
+				
+				t.setStackTrace(trace);
+				
+				throw t;
 			}
 		};
 
