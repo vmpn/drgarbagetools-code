@@ -28,6 +28,7 @@ import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
@@ -42,8 +43,11 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
@@ -52,7 +56,8 @@ import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
-import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+
+
 
 /**
  * The graph merge viewer.
@@ -268,18 +273,16 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		//TODO: implement actions for algorithms and move the action implementation into the separate java file.
 		IAction a1 = new Action("TD"){ //TODO: define text and icon
 			public void run() {
+				
+				//TODO: Auto-generated block test
 				try {
-					myException();
-					System.out.println("we are in try");
-				} catch (Throwable e) {
-					// TODO Auto-generated catch block
-					System.out.println("we are in catch");
-					BytecodeVisualizerPlugin.log(e);
-					System.out.println("log call ended");
+						myException();
+					} 
+				catch (Throwable e) {
+						ControlFlowFactoryPlugin.log(e);
 				}
 				
 				//TODO: implement action
-				
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
 				comp.isIsomorphCFG();
 				
@@ -316,15 +319,14 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			// exception testing. ignore me
 			private void myException() throws Throwable{
 				Throwable t = new Throwable("this is my excetion");
-				
 				StackTraceElement[] trace = new StackTraceElement[] {
 					new StackTraceElement("ClassName", "methodName", "fileName", 5)	
 				};
-				
 				t.setStackTrace(trace);
 				
 				throw t;
 			}
+			
 		};
 
 		IAction a2 = new Action("BBTD"){ //TODO: define text and icon
