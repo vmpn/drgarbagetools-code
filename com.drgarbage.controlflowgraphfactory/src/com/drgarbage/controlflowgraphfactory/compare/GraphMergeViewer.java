@@ -18,7 +18,9 @@ package com.drgarbage.controlflowgraphfactory.compare;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.LineNumberReader;
 import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -276,10 +278,25 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				
 				//TODO: Auto-generated block test
 				try {
-						myException();
+						//if you want to see real-time exceptions in the log, 
+						//put your try block here
+						//only test (division by zero)
+						int i = 5, k = 0;
+						int result = i/k;
+																
 					} 
+				
 				catch (Throwable e) {
-						ControlFlowFactoryPlugin.log(e);
+					// DISCOOMENT WITH WANT TO SEE ONLY ONE RECORD IN TRACE
+					StackTraceElement[] trace = new StackTraceElement[] {
+						new StackTraceElement(
+								Thread.currentThread().getStackTrace()[1].getClassName(), 
+								Thread.currentThread().getStackTrace()[1].getMethodName().toString(),
+								Thread.currentThread().getStackTrace()[1].getFileName().toString(), 
+								Thread.currentThread().getStackTrace()[1].getLineNumber())	
+					};
+					e.setStackTrace(trace);	
+					ControlFlowFactoryPlugin.log(e);
 				}
 				
 				//TODO: implement action
@@ -318,15 +335,23 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 			// exception testing. ignore me
 			private void myException() throws Throwable{
-				Throwable t = new Throwable("this is my excetion");
+				Throwable t = new Throwable("this excetion was generated manually");
+				
+				int lnr = getLineNumber();
+				String className = this.getClass().getName();
+				
 				StackTraceElement[] trace = new StackTraceElement[] {
-					new StackTraceElement("ClassName", "methodName", "fileName", 5)	
+					new StackTraceElement(className, "methodName", "fileName", lnr)	
 				};
 				t.setStackTrace(trace);
 				
 				throw t;
 			}
 			
+			private int getLineNumber() {
+			    return Thread.currentThread().getStackTrace()[2].getLineNumber();
+			}
+			//end testing
 		};
 
 		IAction a2 = new Action("BBTD"){ //TODO: define text and icon
