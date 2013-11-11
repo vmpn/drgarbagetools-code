@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
-import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+//import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
@@ -251,19 +251,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	
 	protected void clear(){
 		
-		// TODO: quickfix, reset also color, not just the flag
-		for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
-			cfgLeft.getNodeList().getNodeExt(i).setHighlighted(false);
-		}
-		for(int i = 0; i < cfgRight.getNodeList().size(); i++){
-			cfgRight.getNodeList().getNodeExt(i).setHighlighted(false);
-		}
-		
-		setInput(fRight, diagramRight);
-		setRightDirty(true);
-
-		setInput(fLeft, diagramLeft);
-		setLeftDirty(true);
 	}
 	
 	/* (non-Javadoc)
@@ -276,132 +263,16 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IAction a1 = new Action("TD"){ //TODO: define text and icon
 			public void run() {
 				
-				//TODO: Auto-generated block test
-				try {
-						//if you want to see real-time exceptions in the log, 
-						//put your try block here
-						//only test (division by zero)
-						int i = 5, k = 0;
-						int result = i/k;
-																
-					} 
-				
-				catch (Throwable e) {
-					// DISCOOMENT WITH WANT TO SEE ONLY ONE RECORD IN TRACE
-					StackTraceElement[] trace = new StackTraceElement[] {
-						new StackTraceElement(
-								Thread.currentThread().getStackTrace()[1].getClassName(), 
-								Thread.currentThread().getStackTrace()[1].getMethodName().toString(),
-								Thread.currentThread().getStackTrace()[1].getFileName().toString(), 
-								Thread.currentThread().getStackTrace()[1].getLineNumber())	
-					};
-					e.setStackTrace(trace);	
-					ControlFlowFactoryPlugin.log(e);
-				}
-				
-				//TODO: implement action
-				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
-				comp.isIsomorphCFG();
-				
-//				//TODO: example implementation
-//				List<VertexBase> l = diagramLeft.getChildren();
-//				for(VertexBase b: l){
-//					b.setColor(new Color(null, 255, 0, 0));
-//				}
-//				
-//				List<Connection> c = diagramLeft.getConnections();
-//				for(Connection con: c){
-//					con.setColor(new Color(null, 255, 0, 0));
-//				}
-				
-				HashMap<INodeExt, VertexBase> bla = (HashMap<INodeExt, VertexBase>) cfgLeft.getUserObject().get("nodeVertexMap");
-				
-				for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
-					
-					if(cfgLeft.getNodeList().getNodeExt(i).isHighlighted()){
-						bla.get(cfgLeft.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
-					}	
-				}
-				
-				HashMap<INodeExt, VertexBase> bla2 = (HashMap<INodeExt, VertexBase>) cfgRight.getUserObject().get("nodeVertexMap");
-				
-				for(int i = 0; i < cfgRight.getNodeList().size(); i++){
-					
-					if(cfgRight.getNodeList().getNodeExt(i).isHighlighted()){
-						bla2.get(cfgRight.getNodeList().getNodeExt(i)).setColor(new Color(null, 0, 255, 0));
-					}	
-				}
+				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);	
 			}
 
-			// exception testing. ignore me
-			private void myException() throws Throwable{
-				Throwable t = new Throwable("this excetion was generated manually");
-				
-				int lnr = getLineNumber();
-				String className = this.getClass().getName();
-				
-				StackTraceElement[] trace = new StackTraceElement[] {
-					new StackTraceElement(className, "methodName", "fileName", lnr)	
-				};
-				t.setStackTrace(trace);
-				
-				throw t;
-			}
-			
-			private int getLineNumber() {
-			    return Thread.currentThread().getStackTrace()[2].getLineNumber();
-			}
-			//end testing
 		};
 
 		IAction a2 = new Action("BBTD"){ //TODO: define text and icon
 			public void run() {
-				
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
-				comp.isIsomorphBasicBlock();
-				//TODO: implement action
-				
-				HashMap<INodeExt, VertexBase> nodeVertexBaseMapLeft = (HashMap<INodeExt, VertexBase>) cfgLeft.getUserObject().get("nodeVertexMap");
-				
-				for(int i = 0; i < cfgLeft.getNodeList().size(); i++){
-					INodeExt node = cfgLeft.getNodeList().getNodeExt(i);
-						
-					if(node.isHighlighted()){
-						colorNode(nodeVertexBaseMapLeft, node);
-					}	
-				}
-				
-				HashMap<INodeExt, VertexBase> nodeVertexBaseMapRight = (HashMap<INodeExt, VertexBase>) cfgRight.getUserObject().get("nodeVertexMap");
-				
-				for(int i = 0; i < cfgRight.getNodeList().size(); i++){
-					INodeExt node = cfgRight.getNodeList().getNodeExt(i);
-					
-					if(node.isHighlighted()){
-						colorNode(nodeVertexBaseMapRight, node);
-						//nodeVertexBaseMapRight.get(node).setColor(new Color(null, 0, 255, 0));
-					}	
-				}
-				
-//				//TODO: example implementation
-//				List<VertexBase> l = diagramRight.getChildren();
-//				for(VertexBase b: l){
-//					b.setColor(new Color(null, 255, 0, 0));
-//				}
-//				
-//				List<Connection> c = diagramRight.getConnections();
-//				for(Connection con: c){
-//					con.setColor(new Color(null, 255, 0, 0));
-//				}
 			}
 
-			private void colorNode(HashMap<INodeExt, VertexBase> nodeVertexBaseMap, INodeExt node) {
-				switch(node.getMark()) {
-					case GREEN:	nodeVertexBaseMap.get(node).setColor(new Color(null, 0, 255, 0)); break;
-					case RED:	nodeVertexBaseMap.get(node).setColor(new Color(null, 255, 0, 0)); break;
-				default:
-					break;
-				}
-			}
 		};
 		
 		IAction a3 = new Action("SWAP"){ //TODO: define text and icon
