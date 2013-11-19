@@ -264,6 +264,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			public void run() {
 				
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);	
+				comp.topDownTreeTraversal(cfgLeft);
 			}
 
 		};
