@@ -25,7 +25,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 /**
  * Class to compare two ControlFlowGraphs
- * @author Sergej Alekseev, Artem Garishin
+ * @author Adam Kajrys, Andreas Karoly, Artem Garishin
  *
  * @version $Revision$
  * $Id$
@@ -71,7 +71,7 @@ public class ControlFlowGraphCompare {
 	 * @param graph
 	 * @return
 	 */
-	public boolean topDownTreeTraversal(IDirectedGraphExt graph) {
+	private boolean topDownTreeTraversal(IDirectedGraphExt graph) {
 		
 		//cfgLeftSpanningTree = Algorithms.doOrderedSpanningTreeAlgorithm(graph, false);
 		backEdgesCfgLeft = removeBackEdges(graph);
@@ -88,38 +88,39 @@ public class ControlFlowGraphCompare {
 		
 		
 		//DEBUG PURPOSES
-//		PrintWriter writer;
-//		try {
-//			writer = new PrintWriter("E:/Programms/debug.txt", "UTF-8");
-//			writer.println("nodes:");
-//			INodeListExt nodes = graph.getNodeList();
-//			for(int i = 0; i < nodes.size(); i++){
-//				writer.println("  " + nodes.getNodeExt(i).getCounter());
-//				nodes.getNodeExt(i).setLongDescr(Integer.toString(nodes.getNodeExt(i).getCounter()));
-//				//nodes.getNodeExt(i).set
-//				writer.println(nodes.getNodeExt(i).getLongDescr());
-//			}
-//			
-//			writer.println("edges:");
-//			
-//			IEdgeListExt edges = graph.getEdgeList();
-//			for(int i = 0; i < edges.size(); i++ ){
-//				writer.println("  " + edges.getEdgeExt(i).getSource().getCounter() 
-//						+ "->" + edges.getEdgeExt(i).getTarget().getCounter());
-//			}
-//			writer.close();
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (UnsupportedEncodingException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("E:/Programms/debug.txt", "UTF-8");
+			writer.println("nodes:");
+			INodeListExt nodes = graph.getNodeList();
+			for(int i = 0; i < nodes.size(); i++){
+				writer.println("  " + nodes.getNodeExt(i).getCounter());
+				nodes.getNodeExt(i).setLongDescr(Integer.toString(nodes.getNodeExt(i).getCounter()));
+				//nodes.getNodeExt(i).set
+				writer.println(nodes.getNodeExt(i).getLongDescr());
+			}
+			
+			writer.println("edges:");
+			
+			IEdgeListExt edges = graph.getEdgeList();
+			for(int i = 0; i < edges.size(); i++ ){
+				writer.println("  " + edges.getEdgeExt(i).getSource().getCounter() 
+						+ "->" + edges.getEdgeExt(i).getTarget().getCounter());
+			}
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//END DEBUG PURPOSES
-		return true;
-		
+		return true;	
 	}
+	
+	
 	private boolean topDownOrderedSubtreeBasicBlock(IBasicBlock node1, IBasicBlock node2) {
 		boolean isIsomorph = true;
 		return isIsomorph;
@@ -128,6 +129,86 @@ public class ControlFlowGraphCompare {
 	private boolean topDownOrderedSubtree(INodeExt node1, INodeExt node2) {
 		boolean isIsomorph = true;
 		return isIsomorph;
+	}
+
+	public boolean topDownOrderedSubtreeIsomorphism(IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
+		
+		backEdgesCfgLeft = removeBackEdges(graphLeft);
+		backEdgesCfgRight = removeBackEdges(graphRight);
+		
+		INodeExt root1 = graphLeft.getNodeList().getNodeExt(0);		
+		INodeExt root2 = graphRight.getNodeList().getNodeExt(0);
+		
+		TopDownTreeTraversal tdtt = new TopDownTreeTraversal();
+		
+		try {
+			tdtt.start(graphLeft, root1);
+			tdtt.start(graphRight, root2);
+		} catch (ControlFlowGraphException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		if(graphLeft.getNodeList().size() > graphRight.getNodeList().size())
+			return false;
+		
+		INodeExt rootLeft = graphLeft.getNodeList().getNodeExt(0);
+		INodeExt rootRight = graphRight.getNodeList().getNodeExt(0);
+		
+		if(mapOrderedSubtree(rootLeft, rootRight))
+			return true;
+		
+		return false;
+	}
+
+	private boolean mapOrderedSubtree(INodeExt node1, INodeExt node2) {
+		
+		if(node1.getCounter() != node2.getCounter())
+			return false;
+		
+		IEdgeListExt node1OutgoingEdges = node1.getOutgoingEdgeList();
+		IEdgeListExt node2OutgoingEdges = node2.getOutgoingEdgeList();
+		
+		int node1ChildCount = node1OutgoingEdges.size();
+		int node2ChildCount = node2OutgoingEdges.size();
+		
+		if(node1ChildCount > node2ChildCount)
+			return false;
+		
+		INodeExt v1, v2;
+		
+		if(node1ChildCount > 0) {
+			
+			ArrayList<IEdgeExt> node1SortedEdges = sortEdges(node1OutgoingEdges);
+			ArrayList<IEdgeExt> node2SortedEdges = sortEdges(node2OutgoingEdges);
+			
+			v1 = node1SortedEdges.get(0).getTarget();
+			v2 = node2SortedEdges.get(0).getTarget();
+			
+			if(!mapOrderedSubtree(v1, v2))
+				return false;
+			
+			for(int i = 1; i < node1ChildCount; i++) {
+				System.out.println("ololodasdas    " + i + " of " + node1ChildCount);
+				v1 = node1SortedEdges.get(i).getTarget();
+				v2 = node2SortedEdges.get(i).getTarget();
+				
+				if(!topDownOrderedSubtree(v1, v2));
+					return false;
+			}
+		}
+		
+		return true;
+	}
+
+	private ArrayList<IEdgeExt> sortEdges(IEdgeListExt edgeList) {
+		TreeMap<Integer, IEdgeExt> tmpEdgeList = new TreeMap<Integer, IEdgeExt>();
+		
+		for(int i = 0; i < edgeList.size(); i++){
+			tmpEdgeList.put(edgeList.getEdgeExt(i).getTarget().getCounter(), edgeList.getEdgeExt(i));
+		}
+		
+		return new ArrayList<IEdgeExt>(tmpEdgeList.values());
 	}
 	
 	
