@@ -139,11 +139,12 @@ public class ControlFlowGraphCompare {
 		INodeExt root1 = graphLeft.getNodeList().getNodeExt(0);		
 		INodeExt root2 = graphRight.getNodeList().getNodeExt(0);
 		
-		TopDownTreeTraversal tdtt = new TopDownTreeTraversal();
+		TopDownTreeTraversal tdtt1 = new TopDownTreeTraversal();
+		TopDownTreeTraversal tdtt2 = new TopDownTreeTraversal();
 		
 		try {
-			tdtt.start(graphLeft, root1);
-			//tdtt.start(graphRight, root2);
+			tdtt1.start(graphLeft, root1);
+			tdtt2.start(graphRight, root2);
 		} catch (ControlFlowGraphException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -173,8 +174,10 @@ public class ControlFlowGraphCompare {
 
 	private boolean mapOrderedSubtree(INodeExt node1, INodeExt node2) {
 		
-		if(node1.getCounter() != node2.getCounter())
+		if(node1.getCounter() != node2.getCounter()) {
+			System.out.println("FALSE RETURN LABEL " + node1.getCounter() + " != " + node2.getCounter());
 			return false;
+		}
 		
 		IEdgeListExt node1OutgoingEdges = node1.getOutgoingEdgeList();
 		IEdgeListExt node2OutgoingEdges = node2.getOutgoingEdgeList();
@@ -182,8 +185,10 @@ public class ControlFlowGraphCompare {
 		int node1ChildCount = node1OutgoingEdges.size();
 		int node2ChildCount = node2OutgoingEdges.size();
 		
-		if(node1ChildCount > node2ChildCount)
+		if(node1ChildCount > node2ChildCount) {
+			System.out.println("FALSE RETURN CHILDCOUNT " + node1.getCounter() + " != " + node2.getCounter());
 			return false;
+		}
 		
 		INodeExt v1, v2;
 		
@@ -202,16 +207,13 @@ public class ControlFlowGraphCompare {
 				return false;
 			
 			for(int i = 1; i < node1ChildCount; i++) {
-				System.out.println("node " + node1OutgoingEdges.getEdgeExt(i).getSource().getCounter());
-				System.out.println("ololodasdas    " + i + " of " + node1ChildCount);
 //				v1 = node1SortedEdges.get(i).getTarget();
 //				v2 = node2SortedEdges.get(i).getTarget();
 				
 				v1 = node1OutgoingEdges.getEdgeExt(i).getTarget();
 				v2 = node2OutgoingEdges.getEdgeExt(i).getTarget();
 				
-				System.out.println("passed");
-				if(!mapOrderedSubtree(v1, v2));
+				if(!mapOrderedSubtree(v1, v2))
 					return false;
 			}
 		}
