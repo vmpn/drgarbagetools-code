@@ -189,11 +189,12 @@ public class ControlFlowGraphCompare {
 				return false;
 			
 			for(int i = 1; i < node1ChildCount; i++) {
+				System.out.println("node" + node1SortedEdges.get(i).getSource().getCounter());
 				System.out.println("ololodasdas    " + i + " of " + node1ChildCount);
 				v1 = node1SortedEdges.get(i).getTarget();
 				v2 = node2SortedEdges.get(i).getTarget();
-				
-				if(!topDownOrderedSubtree(v1, v2));
+				System.out.println("passed");
+				if(!mapOrderedSubtree(v1, v2));
 					return false;
 			}
 		}
