@@ -143,10 +143,20 @@ public class ControlFlowGraphCompare {
 		
 		try {
 			tdtt.start(graphLeft, root1);
-			tdtt.start(graphRight, root2);
+			//tdtt.start(graphRight, root2);
 		} catch (ControlFlowGraphException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}
+		
+		System.out.println("left graph:");
+		for(int i = 0; i < graphLeft.getNodeList().size(); i++) {
+			System.out.println(graphLeft.getNodeList().getNodeExt(i).getCounter());
+		}
+		
+		System.out.println("left right:");
+		for(int i = 0; i < graphRight.getNodeList().size(); i++) {
+			System.out.println(graphRight.getNodeList().getNodeExt(i).getCounter());
 		}
 		
 		if(graphLeft.getNodeList().size() > graphRight.getNodeList().size())
@@ -179,20 +189,27 @@ public class ControlFlowGraphCompare {
 		
 		if(node1ChildCount > 0) {
 			
-			ArrayList<IEdgeExt> node1SortedEdges = sortEdges(node1OutgoingEdges);
-			ArrayList<IEdgeExt> node2SortedEdges = sortEdges(node2OutgoingEdges);
+//			ArrayList<IEdgeExt> node1SortedEdges = sortEdges(node1OutgoingEdges);
+//			ArrayList<IEdgeExt> node2SortedEdges = sortEdges(node2OutgoingEdges);
 			
-			v1 = node1SortedEdges.get(0).getTarget();
-			v2 = node2SortedEdges.get(0).getTarget();
+//			v1 = node1SortedEdges.get(0).getTarget();
+//			v2 = node2SortedEdges.get(0).getTarget();
+			
+			v1 = node1OutgoingEdges.getEdgeExt(0).getTarget();
+			v2 = node2OutgoingEdges.getEdgeExt(0).getTarget();
 			
 			if(!mapOrderedSubtree(v1, v2))
 				return false;
 			
 			for(int i = 1; i < node1ChildCount; i++) {
-				System.out.println("node" + node1SortedEdges.get(i).getSource().getCounter());
+				System.out.println("node " + node1OutgoingEdges.getEdgeExt(i).getSource().getCounter());
 				System.out.println("ololodasdas    " + i + " of " + node1ChildCount);
-				v1 = node1SortedEdges.get(i).getTarget();
-				v2 = node2SortedEdges.get(i).getTarget();
+//				v1 = node1SortedEdges.get(i).getTarget();
+//				v2 = node2SortedEdges.get(i).getTarget();
+				
+				v1 = node1OutgoingEdges.getEdgeExt(i).getTarget();
+				v2 = node2OutgoingEdges.getEdgeExt(i).getTarget();
+				
 				System.out.println("passed");
 				if(!mapOrderedSubtree(v1, v2));
 					return false;
