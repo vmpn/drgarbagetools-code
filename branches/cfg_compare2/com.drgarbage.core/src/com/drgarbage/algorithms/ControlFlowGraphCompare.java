@@ -111,24 +111,26 @@ public class ControlFlowGraphCompare {
 		
 		if(node1ChildCount > 0) {
 			
-//			ArrayList<IEdgeExt> node1SortedEdges = sortEdges(node1OutgoingEdges);
-//			ArrayList<IEdgeExt> node2SortedEdges = sortEdges(node2OutgoingEdges);
+			ArrayList<IEdgeExt> node1SortedEdges = sortEdges(node1OutgoingEdges);
+			ArrayList<IEdgeExt> node2SortedEdges = sortEdges(node2OutgoingEdges);
 			
-//			v1 = node1SortedEdges.get(0).getTarget();
-//			v2 = node2SortedEdges.get(0).getTarget();
+			v1 = node1SortedEdges.get(0).getTarget();
+			v2 = node2SortedEdges.get(0).getTarget();
 			
-			v1 = node1OutgoingEdges.getEdgeExt(0).getTarget();
-			v2 = node2OutgoingEdges.getEdgeExt(0).getTarget();
+			
+			// do we really need sortEdges() in this scenario? we traverse in the storing sequence anyway
+//			v1 = node1OutgoingEdges.getEdgeExt(0).getTarget();
+//			v2 = node2OutgoingEdges.getEdgeExt(0).getTarget();
 			
 			if(!mapOrderedSubtree(v1, v2))
 				return false;
 			
 			for(int i = 1; i < node1ChildCount; i++) {
-//				v1 = node1SortedEdges.get(i).getTarget();
-//				v2 = node2SortedEdges.get(i).getTarget();
+				v1 = node1SortedEdges.get(i).getTarget();
+				v2 = node2SortedEdges.get(i).getTarget();
 				
-				v1 = node1OutgoingEdges.getEdgeExt(i).getTarget();
-				v2 = node2OutgoingEdges.getEdgeExt(i).getTarget();
+//				v1 = node1OutgoingEdges.getEdgeExt(i).getTarget();
+//				v2 = node2OutgoingEdges.getEdgeExt(i).getTarget();
 				
 				if(!mapOrderedSubtree(v1, v2))
 					return false;
