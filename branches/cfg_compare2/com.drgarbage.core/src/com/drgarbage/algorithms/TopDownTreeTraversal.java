@@ -1,5 +1,7 @@
 package com.drgarbage.algorithms;
 
+import com.drgarbage.controlflowgraph.ControlFlowGraphException;
+import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 
@@ -14,7 +16,12 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  */
 
 public class TopDownTreeTraversal extends BFSBase {
-	int ctr = 0;
+	private int ctr = 0;
+	
+	public void traverse(IDirectedGraphExt graph, INodeExt node) throws ControlFlowGraphException {
+		ctr = 0;
+		start(graph, node);
+	}
 
 	/* (non-Javadoc)
 	 * @see com.drgarbage.algorithms.BFSBase#visitedNode(com.drgarbage.controlflowgraph.intf.INodeExt)
@@ -30,7 +37,7 @@ public class TopDownTreeTraversal extends BFSBase {
 	 */
 	@Override
 	protected void visitedEdge(IEdgeExt edge) {
-		// nothing to do
+		/* nothing to do */
 		
 	}
 
@@ -39,7 +46,7 @@ public class TopDownTreeTraversal extends BFSBase {
 	 */
 	@Override
 	protected void enqueue(INodeExt node) {
-		// nothing to do
+		/* nothing to do */
 		
 	}
 
@@ -48,7 +55,7 @@ public class TopDownTreeTraversal extends BFSBase {
 	 */
 	@Override
 	protected void dequeue(INodeExt node) {
-		// nothing to do
+		/* nothing to do */
 		
 	}
 
