@@ -233,7 +233,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}
 	}
 	
-	private void swap(){
+	private void swap() {
 		
 		ControlFlowGraphDiagram tmp = null;
 		
@@ -245,8 +245,12 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		diagramLeft = tmp;
 		setInput(fLeft, diagramLeft);
-		
 		setLeftDirty(true);
+		
+		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		
+		// TODO: the path text in the viewer is not swapped
 	}
 	
 	protected void clear(){
