@@ -274,9 +274,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 		};
 
-		IAction a2 = new Action("BBTD"){ //TODO: define text and icon
+		IAction a2 = new Action("BUTT"){ //TODO: define text and icon
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+				
+				System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
 			}
 
 		};

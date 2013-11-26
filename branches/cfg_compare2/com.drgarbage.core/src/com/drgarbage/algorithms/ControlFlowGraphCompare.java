@@ -139,6 +139,38 @@ public class ControlFlowGraphCompare {
 		
 		return true;
 	}
+	
+	public boolean bottomUpUnorderedSubtreeIsomorphism (IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
+		backEdgesCfgLeft = removeBackEdges(graphLeft);
+		backEdgesCfgRight = removeBackEdges(graphRight);
+		
+		// question: operating on a spanning tree decreases complexity but then we'll also have to check the removed
+		// edges. also we have to think about a strategy to remove the edges.
+		// see Algorithms.doOrderedSpanningTreeAlgorithm() in old branch
+		// for now this is sufficient because we order according to the storing sequence
+		cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, true);
+		cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, true);
+		
+		/* clear visited flags in nodes and edges */
+		GraphUtils.clearGraph(graphLeft);
+		GraphUtils.clearGraph(graphRight);
+		
+		INodeExt root1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);		
+		INodeExt root2 = cfgRightSpanningTree.getNodeList().getNodeExt(0);
+		
+		BottomUpTreeTraversal butt = new BottomUpTreeTraversal();
+		
+		try {
+			butt.traverse(cfgLeftSpanningTree, root1);
+		} catch (ControlFlowGraphException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		printGraph(cfgLeftSpanningTree, "butt graph");
+		
+		return true;
+	}
 
 	private ArrayList<IEdgeExt> sortEdges(IEdgeListExt edgeList) {
 		TreeMap<Integer, IEdgeExt> tmpEdgeList = new TreeMap<Integer, IEdgeExt>();
