@@ -296,6 +296,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		};
 		
 		toolBarManager.add(a1);
+		toolBarManager.add(new Separator());
 		toolBarManager.add(a2);
 		toolBarManager.add(new Separator());
 		toolBarManager.add(a3);

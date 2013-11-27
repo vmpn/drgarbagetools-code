@@ -45,7 +45,7 @@ public class BottomUpTreeTraversal extends BFSBase {
 				
 				children.put(parent, children.get(parent) - 1);
 				
-				if(children.get(parent).intValue() == 0)
+				if(children.get(parent) == 0)
 					leafQueue.add(parent);
 			}	
 		}

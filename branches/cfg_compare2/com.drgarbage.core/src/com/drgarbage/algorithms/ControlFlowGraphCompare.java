@@ -3,7 +3,10 @@ package com.drgarbage.algorithms;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
@@ -66,6 +69,7 @@ public class ControlFlowGraphCompare {
 			
 			tdtt.traverse(cfgLeftSpanningTree, root1);
 			tdtt.traverse(cfgRightSpanningTree, root2);
+			
 			
 		} catch (ControlFlowGraphException e1) {
 			// TODO Auto-generated catch block
@@ -162,15 +166,70 @@ public class ControlFlowGraphCompare {
 		
 		try {
 			butt.traverse(cfgLeftSpanningTree, root1);
+			butt.traverse(cfgRightSpanningTree, root2);
 		} catch (ControlFlowGraphException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		printGraph(cfgLeftSpanningTree, "butt graph");
+		printGraph(cfgLeftSpanningTree, "spanning tree left");
+		printGraph(cfgRightSpanningTree, "spanning tree right");
+		
+		HashMap<INodeExt, Integer> code1 = new HashMap<INodeExt, Integer>();
+		HashMap<INodeExt, Integer> code2 = new HashMap<INodeExt, Integer>();
+		
+		List <INodeExt> l1 = new ArrayList<INodeExt>();
+		List <INodeExt> l2 = new ArrayList<INodeExt>();
+		
+		TreeTraversal.postOrderTreeListTraversal(cfgLeftSpanningTree, l1);
+		TreeTraversal.postOrderTreeListTraversal(cfgRightSpanningTree, l2);
+		
+
+		HashMap<ArrayList<Integer>, Integer> CODE = new HashMap <ArrayList<Integer>, Integer>();
+		
+		ArrayList<Integer> l = new ArrayList<Integer>();
+		int num = 1;
+		
+		for(INodeExt v : l1) {
+			if(v.getOutgoingEdgeList().size() == 0)
+				code1.put(v, 1);
+			
+			else {
+				l.clear();
+				
+				for(int i = 0; i < v.getOutgoingEdgeList().size(); i++) {
+					INodeExt w = v.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+					
+					l.add(code1.get(w));
+				}
+				
+				sortIsomorphismCodes(l);
+				
+				if(CODE.containsKey(l))
+					code1.put(v, CODE.get(l));
+				
+				else {
+					CODE.put(l, ++num);
+					code1.put(v, num);
+				}
+					
+			}
+		}
+		
+		for(int i = 0; i < l2.size(); i++) {
+			INodeExt n = l2.get(i);
+			System.out.println(n.getCounter());
+		}
 		
 		return true;
 	}
+
+	
+	private void sortIsomorphismCodes(ArrayList<Integer> l) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 	private ArrayList<IEdgeExt> sortEdges(IEdgeListExt edgeList) {
 		TreeMap<Integer, IEdgeExt> tmpEdgeList = new TreeMap<Integer, IEdgeExt>();
