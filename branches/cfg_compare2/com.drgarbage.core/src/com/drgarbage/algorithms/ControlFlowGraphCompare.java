@@ -5,8 +5,12 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
@@ -31,6 +35,8 @@ public class ControlFlowGraphCompare {
 	private IEdgeListExt backEdgesCfgLeft = null, backEdgesCfgRight = null;
 	private IDirectedGraphExt cfgLeftSpanningTree = null, cfgRightSpanningTree = null; 
 	private IDirectedGraphExt basicBlockGraphLeftSpanningTree = null, basicBlockGraphRightSpanningTree = null;
+	
+	private int num;
 	
 	public ControlFlowGraphCompare(IDirectedGraphExt cfgLeft, IDirectedGraphExt cfgRight){
 		this.cfgLeft = cfgLeft;
@@ -148,10 +154,6 @@ public class ControlFlowGraphCompare {
 		backEdgesCfgLeft = removeBackEdges(graphLeft);
 		backEdgesCfgRight = removeBackEdges(graphRight);
 		
-		// question: operating on a spanning tree decreases complexity but then we'll also have to check the removed
-		// edges. also we have to think about a strategy to remove the edges.
-		// see Algorithms.doOrderedSpanningTreeAlgorithm() in old branch
-		// for now this is sufficient because we order according to the storing sequence
 		cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, true);
 		cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, true);
 		
@@ -175,24 +177,66 @@ public class ControlFlowGraphCompare {
 		printGraph(cfgLeftSpanningTree, "spanning tree left");
 		printGraph(cfgRightSpanningTree, "spanning tree right");
 		
+		/* maps node to its equivalence class */
 		HashMap<INodeExt, Integer> code1 = new HashMap<INodeExt, Integer>();
 		HashMap<INodeExt, Integer> code2 = new HashMap<INodeExt, Integer>();
 		
-		List <INodeExt> l1 = new ArrayList<INodeExt>();
-		List <INodeExt> l2 = new ArrayList<INodeExt>();
+		/* holds nodes in post order */
+		List<INodeExt> l1 = new ArrayList<INodeExt>();
+		List<INodeExt> l2 = new ArrayList<INodeExt>();
 		
 		TreeTraversal.postOrderTreeListTraversal(cfgLeftSpanningTree, l1);
 		TreeTraversal.postOrderTreeListTraversal(cfgRightSpanningTree, l2);
 		
-
+		/* maps a equivalence class to its equivalence class number */
 		HashMap<ArrayList<Integer>, Integer> CODE = new HashMap <ArrayList<Integer>, Integer>();
 		
 		ArrayList<Integer> l = new ArrayList<Integer>();
-		int num = 1;
+		num = 1; /* number of known equivalence classes */
 		
-		for(INodeExt v : l1) {
+		isomorphismEquivalenceClassPartition(code1, l1, CODE, l);
+		isomorphismEquivalenceClassPartition(code2, l2, CODE, l);
+		
+		
+		INodeExt r1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
+		l.clear();
+		
+		HashMap<INodeExt, INodeExt> map = new HashMap<INodeExt, INodeExt>();
+		
+		for(INodeExt v : l2) {
+			if(code1.get(r1).equals(code2.get(v))) {
+				map.put(r1, v);
+				mapBottomUpUnorderedSubtree(r1, v, code1, code2, map);
+			}
+		}
+		
+		System.out.println("map print:");
+		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+		    INodeExt key = entry.getKey();
+		    INodeExt value = entry.getValue();
+		    
+		    System.out.println(key.getCounter() + " -> " + value.getCounter());
+		}
+		
+		if(map.size() == cfgLeftSpanningTree.getNodeList().size())
+			return true;
+		
+		return false;
+	}
+	
+	/**
+	 * @param code
+	 * @param list
+	 * @param CODE
+	 * @param l
+	 * @return
+	 */
+	private int isomorphismEquivalenceClassPartition(
+			HashMap<INodeExt, Integer> code, List<INodeExt> list,
+			HashMap<ArrayList<Integer>, Integer> CODE, ArrayList<Integer> l) {
+		for(INodeExt v : list) {
 			if(v.getOutgoingEdgeList().size() == 0)
-				code1.put(v, 1);
+				code.put(v, 1);
 			
 			else {
 				l.clear();
@@ -200,35 +244,49 @@ public class ControlFlowGraphCompare {
 				for(int i = 0; i < v.getOutgoingEdgeList().size(); i++) {
 					INodeExt w = v.getOutgoingEdgeList().getEdgeExt(i).getTarget();
 					
-					l.add(code1.get(w));
+					l.add(code.get(w));
 				}
 				
-				sortIsomorphismCodes(l);
+				Collections.sort(l);
 				
 				if(CODE.containsKey(l))
-					code1.put(v, CODE.get(l));
+					code.put(v, CODE.get(l));
 				
 				else {
 					CODE.put(l, ++num);
-					code1.put(v, num);
+					code.put(v, num);
+				}	
+			}
+		}
+		return num;
+	}
+
+	private void mapBottomUpUnorderedSubtree(INodeExt r1, INodeExt r2,
+			HashMap<INodeExt, Integer> code1, HashMap<INodeExt, Integer> code2, HashMap<INodeExt, INodeExt> m) {
+		ArrayList<INodeExt> l2 = new ArrayList<INodeExt>();
+		
+		for(int i = 0; i < r2.getOutgoingEdgeList().size(); i++)
+			l2.add(r2.getOutgoingEdgeList().getEdgeExt(i).getTarget());
+		
+		INodeExt v, w;
+		
+		for(int i = 0; i < r1.getOutgoingEdgeList().size(); i++) {
+			v = r1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+			
+			Iterator<INodeExt> items = l2.iterator();
+			while(items.hasNext()) {
+				w = items.next();
+				if(code1.get(v).equals(code2.get(w))) {
+					m.put(v, w);
+					items.remove();
+					mapBottomUpUnorderedSubtree(v, w, code1, code2, m);
+					break;
 				}
-					
 			}
 		}
 		
-		for(int i = 0; i < l2.size(); i++) {
-			INodeExt n = l2.get(i);
-			System.out.println(n.getCounter());
-		}
-		
-		return true;
 	}
 
-	
-	private void sortIsomorphismCodes(ArrayList<Integer> l) {
-		// TODO Auto-generated method stub
-		
-	}
 
 
 	private ArrayList<IEdgeExt> sortEdges(IEdgeListExt edgeList) {
