@@ -71,7 +71,6 @@ import com.drgarbage.visualgraphic.model.VertexBase;
 public class GraphMergeViewer extends ContentMergeViewer {
 	
 	private static final String BUNDLE_NAME= "org.eclipse.compare.internal.ImageMergeViewerResources"; //$NON-NLS-1$
-	
 	private ControlFlowGraphDiagram diagramLeft;
 	private ControlFlowGraphDiagram diagramRight;
 
@@ -81,7 +80,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	private IDirectedGraphExt cfgLeft = null;
 	private IDirectedGraphExt cfgRight = null;
 	
-			
 	/**
 	 * Creates a graph merge viewer.
 	 * 
@@ -257,6 +255,41 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 	}
 	
+	/**
+	 * goes through the graphs and colors needed nodes
+	 */
+	public void colorNode() {
+		for (int i = 0; i < cfgLeft.getNodeList().size(); i++) {
+			if (cfgLeft.getNodeList().getNodeExt(i).getMark() != null)
+				colorNode(cfgLeft.getNodeList().getNodeExt(i));
+		}
+
+		for (int i = 0; i < cfgRight.getNodeList().size(); i++) {
+			if (cfgRight.getNodeList().getNodeExt(i).getMark() != null)
+				colorNode(cfgRight.getNodeList().getNodeExt(i));
+		}
+
+	}
+	/**
+	 * Colors nodes depending from property getMark
+	 * @param node
+	 */
+	private void colorNode(INodeExt node) {
+
+		VertexBase vb = (VertexBase) node.getData();
+		switch (node.getMark()) {
+		case GREEN:
+			vb.setColor(new Color(null, 0, 255, 0));
+			break;
+		case RED:
+			vb.setColor(new Color(null, 255, 0, 0));
+			break;
+		default:
+			break;
+		}
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createToolItems(org.eclipse.jface.action.ToolBarManager)
 	 */
@@ -266,10 +299,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		//TODO: implement actions for algorithms and move the action implementation into the separate java file.
 		IAction a1 = new Action("TD"){ //TODO: define text and icon
 			public void run() {
-				
-				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);	
-				//comp.topDownTreeTraversal(cfgLeft);
-				System.out.println("is isomorph: " + comp.topDownOrderedSubtreeIsomorphism(cfgLeft, cfgRight));
+				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+				System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+				colorNode();
 			}
 
 		};
@@ -277,14 +309,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IAction a2 = new Action("BUTT"){ //TODO: define text and icon
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
-				
 				System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-				
-				
-				//VertexBase vb = (VertexBase) cfgLeft.getNodeList().getNodeExt(0).getData()
-				
+				colorNode();
 			}
-
 		};
 		
 		IAction a3 = new Action("SWAP"){ //TODO: define text and icon

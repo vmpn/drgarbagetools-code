@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.TreeMap;
 
 import org.eclipse.draw2d.graph.DirectedGraph;
@@ -44,7 +46,6 @@ public class ControlFlowGraphCompare {
 		this.cfgLeft = cfgLeft;
 		this.cfgRight = cfgRight;
 	}
-
 
 	public boolean topDownOrderedSubtreeIsomorphism(IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
 
@@ -112,7 +113,7 @@ public class ControlFlowGraphCompare {
 
 		IEdgeListExt node1OutgoingEdges = node1.getOutgoingEdgeList();
 		IEdgeListExt node2OutgoingEdges = node2.getOutgoingEdgeList();
-
+		
 		int node1ChildCount = node1OutgoingEdges.size();
 		int node2ChildCount = node2OutgoingEdges.size();
 
@@ -480,42 +481,6 @@ public class ControlFlowGraphCompare {
 		}
 
 		return backEdges;
-	}
-
-	/**
-	 * FOR DEBUG PURPOSES ONLY
-	 * @param graph
-	 */
-	private void artemsDebugPrinter(IDirectedGraphExt graph) {
-		//DEBUG PURPOSES
-		PrintWriter writer;
-		try {
-			writer = new PrintWriter("E:/Programms/debug.txt", "UTF-8");
-			writer.println("nodes:");
-			INodeListExt nodes = graph.getNodeList();
-			for(int i = 0; i < nodes.size(); i++){
-				writer.println("  " + nodes.getNodeExt(i).getCounter());
-				nodes.getNodeExt(i).setLongDescr(Integer.toString(nodes.getNodeExt(i).getCounter()));
-				//nodes.getNodeExt(i).set
-				writer.println(nodes.getNodeExt(i).getLongDescr());
-			}
-
-			writer.println("edges:");
-
-			IEdgeListExt edges = graph.getEdgeList();
-			for(int i = 0; i < edges.size(); i++ ){
-				writer.println("  " + edges.getEdgeExt(i).getSource().getCounter() 
-						+ "->" + edges.getEdgeExt(i).getTarget().getCounter());
-			}
-			writer.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//END DEBUG PURPOSES
 	}
 
 	/* debug only */

@@ -226,6 +226,14 @@ public abstract class VertexBase extends ModelElement implements IDirectEditLabe
 	}
 	
 	/**
+	 * Returns the color of this vertex.
+	 * @return a non-null Color instance
+	 */
+	public Color getColor() {
+		return vertexColor;
+	}
+	
+	/**
 	 * Returns an array of IPropertyDescriptors for this vertex.
 	 * <p>The returned array is used to fill the property view, when the edit-part corresponding
 	 * to this model element is selected.</p>
