@@ -279,6 +279,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
 				
 				System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+				
+				
+				//VertexBase vb = (VertexBase) cfgLeft.getNodeList().getNodeExt(0).getData()
+				
 			}
 
 		};
