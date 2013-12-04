@@ -252,7 +252,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	}
 	
 	protected void clear(){
-		
+		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);		
 	}
 	
 	/**
@@ -301,6 +302,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
 				System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+				
+				/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
+				
 				colorNode();
 			}
 

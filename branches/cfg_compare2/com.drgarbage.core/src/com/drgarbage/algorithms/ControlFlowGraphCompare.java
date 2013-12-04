@@ -24,6 +24,7 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.INodeListExt;
+import com.drgarbage.controlflowgraph.intf.MarkEnum;
 
 /**
  * Class to compare two ControlFlowGraphs
@@ -39,7 +40,8 @@ public class ControlFlowGraphCompare {
 	private IEdgeListExt backEdgesCfgLeft = null, backEdgesCfgRight = null;
 	private IDirectedGraphExt cfgLeftSpanningTree = null, cfgRightSpanningTree = null; 
 	private IDirectedGraphExt basicBlockGraphLeftSpanningTree = null, basicBlockGraphRightSpanningTree = null;
-
+	
+	private MarkEnum mark;
 	private int num;
 
 	public ControlFlowGraphCompare(IDirectedGraphExt cfgLeft, IDirectedGraphExt cfgRight){
@@ -154,6 +156,8 @@ public class ControlFlowGraphCompare {
 	}
 
 	public boolean topDownUnorderedSubtreeIsomorphism(IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
+		//TODO at BottonUpUnorderedSubtreeIsomorphism we have same actions in the beginning
+		// new method init for both to prepare the trees for further processing
 		backEdgesCfgLeft = removeBackEdges(graphLeft);
 		backEdgesCfgRight = removeBackEdges(graphRight);
 
@@ -161,8 +165,13 @@ public class ControlFlowGraphCompare {
 		// edges. also we have to think about a strategy to remove the edges.
 		// see Algorithms.doOrderedSpanningTreeAlgorithm() in old branch
 		// for now this is sufficient because we order according to the storing sequence
-		cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, true);
-		cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, true);
+		
+		//we have parameter false to leave 
+		cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, false);
+		cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, false);
+		
+		//TODO switch 2nd parameter to true if you want not corrupt cfgLeft and cfgRight graphs,
+		// could require map
 
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
@@ -313,8 +322,8 @@ public class ControlFlowGraphCompare {
 		backEdgesCfgLeft = removeBackEdges(graphLeft);
 		backEdgesCfgRight = removeBackEdges(graphRight);
 
-		cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, true);
-		cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, true);
+		cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, false);
+		cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, false);
 
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
@@ -373,12 +382,20 @@ public class ControlFlowGraphCompare {
 		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
 			INodeExt key = entry.getKey();
 			INodeExt value = entry.getValue();
-
+						
+			key.setMark(MarkEnum.GREEN);
+			value.setMark(MarkEnum.GREEN);
+//			
+//			cfgLeft.getNodeList().getNodeExt(key.getCounter()).setMark(mark.GREEN);
+//			cfgRight.getNodeList().getNodeExt(value.getCounter()).setMark(mark.GREEN);
+//			
 			System.out.println(key.getCounter() + " -> " + value.getCounter());
 		}
 
 		if(map.size() == cfgLeftSpanningTree.getNodeList().size())
 			return true;
+		
+			
 
 		return false;
 	}
