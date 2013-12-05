@@ -15,8 +15,24 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  * $Id$
  */
 public class TreeTraversal {
+	
+	public static void preorderTreeListTraversal(IDirectedGraphExt graph, List<INodeExt> l) {
+		INodeExt root = graph.getNodeList().getNodeExt(0);
+		
+		recPreorderSubtreeTraversal(graph, root, l);
+	}
 
-	public static void postOrderTreeListTraversal(IDirectedGraphExt graph, List<INodeExt> l) {
+	private static void recPreorderSubtreeTraversal(IDirectedGraphExt graph,
+			INodeExt node, List<INodeExt> l) {
+		
+		l.add(node);
+		
+		for(int i = 0; i < node.getOutgoingEdgeList().size(); i++) {
+			recPostorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), l);
+		}
+	}
+
+	public static void postorderTreeListTraversal(IDirectedGraphExt graph, List<INodeExt> l) {
 		INodeExt root = graph.getNodeList().getNodeExt(0);
 		
 		recPostorderSubtreeTraversal(graph, root, l);
