@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
+import com.drgarbage.controlflowgraph.intf.GraphUtils;
 //import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
@@ -118,7 +119,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	/**
 	 * Reads the Input Object and returns the corresponding ControlFlowGraphDiagram
 	 * 
-	 * @param input
+	 * @param input the diagram object
 	 * @return a ControlFlowGraphDiagram representing the Input
 	 */
 	private ControlFlowGraphDiagram getControlFlowGraphDiagramFromInput(Object input) {
@@ -231,6 +232,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}
 	}
 	
+	/**
+	 * Swaps the left graph with the right graph in the viewer.
+	 */
 	private void swap() {
 		
 		ControlFlowGraphDiagram tmp = null;
@@ -251,15 +255,26 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		// TODO: the path text in the viewer is not swapped
 	}
 	
+	/**
+	 * Resets the graphs and and the view.
+	 */
 	protected void clear(){
 		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
-		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);		
+		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		
+		setInput(fRight, diagramRight);
+		setInput(fLeft, diagramLeft);
+		setRightDirty(true);
+		setLeftDirty(true);
 	}
 	
 	/**
-	 * goes through the graphs and colors needed nodes
+	 * Iterates through the graphs and calls colorNode() if a nodes mark is set
+	 * 
+	 * @see com.drgarbage.controlflowgraphfactory.compare.GraphMergeViewer#colorNode(INodeExt)
 	 */
-	public void colorNode() {
+	@SuppressWarnings("restriction")
+	public void colorNodes() {
 		for (int i = 0; i < cfgLeft.getNodeList().size(); i++) {
 			if (cfgLeft.getNodeList().getNodeExt(i).getMark() != null)
 				colorNode(cfgLeft.getNodeList().getNodeExt(i));
@@ -272,9 +287,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 	}
 	/**
-	 * Colors nodes depending from property getMark
-	 * @param node
+	 * Colors a node depending on its property getMark
+	 * @param node Node to be colored
 	 */
+	@SuppressWarnings("restriction")
 	private void colorNode(INodeExt node) {
 
 		VertexBase vb = (VertexBase) node.getData();
@@ -305,7 +321,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				
 				/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
 				
-				colorNode();
+				colorNodes();
 			}
 
 		};
@@ -314,7 +330,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
 				System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-				colorNode();
+				
+				colorNodes();
 			}
 		};
 		
