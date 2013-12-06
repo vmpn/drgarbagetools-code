@@ -273,8 +273,8 @@ public class ControlFlowGraphCompare {
 			HashMap<INodeExt, Integer> size2,
 			HashMap<INodeExt, HashSet<INodeExt>> b) {
 
-		if (node1.getCounter() != node2.getCounter())
-			return false;
+//		if (node1.getCounter() != node2.getCounter()) // i don't know why this is in the book
+//			return false;
 
 		if (node1.getOutgoingEdgeList().size() == 0)
 			return true;
@@ -373,10 +373,11 @@ public class ControlFlowGraphCompare {
 			INodeExt v1 = node1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
 
 			for (int j = 0; j < node2ChildCount; j++) {
-				INodeExt v2 = node2.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+				INodeExt v2 = node2.getOutgoingEdgeList().getEdgeExt(j).getTarget();
 				
 				if (topDownUnorderedSubtreeIsomorphismRec(v1, height1, size1, v2, height2, size2, b)) {
 					IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(nodeMapT1G.get(v1), nodeMapT2G.get(v2));
+					
 					g.getEdgeList().add(edge); 
 				}
 			}
