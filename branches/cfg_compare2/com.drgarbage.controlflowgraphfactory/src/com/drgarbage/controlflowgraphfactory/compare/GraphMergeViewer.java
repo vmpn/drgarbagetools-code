@@ -46,11 +46,10 @@ import org.eclipse.swt.widgets.Composite;
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
 import com.drgarbage.controlflowgraph.intf.GraphUtils;
-//import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
-import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
@@ -140,11 +139,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 						// TODO: implement handling
 						ex.printStackTrace();
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						ControlFlowFactoryPlugin.log(e);
+
 					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						ControlFlowFactoryPlugin.log(e);
 					}
 				}
 			}
@@ -253,6 +251,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
 		// TODO: the path text in the viewer is not swapped
+		//HOTODO: how to grab the components where the path/file is?
 	}
 	
 	/**
@@ -312,8 +311,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	protected void createToolItems(ToolBarManager toolBarManager) {
 		toolBarManager.add(new Separator());
-
-		//TODO: implement actions for algorithms and move the action implementation into the separate java file.
 		IAction a1 = new Action("TD"){ //TODO: define text and icon
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
