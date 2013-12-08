@@ -26,6 +26,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
  * $Id:ControlFlowFactoryResource.java 279 2007-07-07 15:39:32Z aleks $
  */
 public class ControlFlowFactoryResource {
+	/* compare algorithm icons */
+	public static final ImageDescriptor top_down_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "top-down-subtree-16x16.png");
+	public static final ImageDescriptor bottom_up_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "bottom-up-subtree-16x16.png");
+	
 	/* placing algorithm icons */
 	public static final ImageDescriptor positioning_serial_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "positioning-serial-16x16.png");
 	public static final ImageDescriptor positioning_hierarchical_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "positioning-hierarchical-16x16.png");

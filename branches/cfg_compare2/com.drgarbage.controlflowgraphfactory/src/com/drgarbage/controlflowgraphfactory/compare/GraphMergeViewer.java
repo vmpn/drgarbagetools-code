@@ -53,6 +53,7 @@ import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
+import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
@@ -137,6 +138,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 					} catch (CoreException ex) {
 						// TODO: implement handling
+						System.out.println(ex.getMessage());
 						ex.printStackTrace();
 					} catch (IOException e) {
 						ControlFlowFactoryPlugin.log(e);
@@ -269,28 +271,30 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	
 	/**
 	 * Iterates through the graphs and calls colorNode() if a nodes mark is set
+	 * TODO: the method must be moved to graphUtils(Where is exactly this package?)
 	 * 
-	 * @see com.drgarbage.controlflowgraphfactory.compare.GraphMergeViewer#colorNode(INodeExt)
+	 * @see com.drgarbage.controlflowgraphfactory.compare.GraphMergeViewer#colorNodeByMark(INodeExt)
 	 */
 	@SuppressWarnings("restriction")
-	public void colorNodes() {
+	public void colorNodesByMarks() {
 		for (int i = 0; i < cfgLeft.getNodeList().size(); i++) {
 			if (cfgLeft.getNodeList().getNodeExt(i).getMark() != null)
-				colorNode(cfgLeft.getNodeList().getNodeExt(i));
+				colorNodeByMark(cfgLeft.getNodeList().getNodeExt(i));
 		}
 
 		for (int i = 0; i < cfgRight.getNodeList().size(); i++) {
 			if (cfgRight.getNodeList().getNodeExt(i).getMark() != null)
-				colorNode(cfgRight.getNodeList().getNodeExt(i));
+				colorNodeByMark(cfgRight.getNodeList().getNodeExt(i));
 		}
 
 	}
 	/**
 	 * Colors a node depending on its property getMark
+	 * TODO: the method must be moved to graphUtils(Where is exactly this package?)
 	 * @param node Node to be colored
 	 */
 	@SuppressWarnings("restriction")
-	private void colorNode(INodeExt node) {
+	private void colorNodeByMark(INodeExt node) {
 
 		VertexBase vb = (VertexBase) node.getData();
 		switch (node.getMark()) {
@@ -311,26 +315,25 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	protected void createToolItems(ToolBarManager toolBarManager) {
 		toolBarManager.add(new Separator());
-		IAction a1 = new Action("TD"){ //TODO: define text and icon
+		IAction a1 = new Action("Top Down"){
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
 				System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-				
 				/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
-				
-				colorNodes();
+				colorNodesByMarks();
 			}
-
+		
 		};
+		a1.setImageDescriptor(ControlFlowFactoryResource.top_down_16x16);
 
-		IAction a2 = new Action("BUTT"){ //TODO: define text and icon
+		IAction a2 = new Action("Bottom Up"){
 			public void run() {
 				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
 				System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-				
-				colorNodes();
+				colorNodesByMarks();
 			}
 		};
+		a2.setImageDescriptor(ControlFlowFactoryResource.bottom_up_16x16);
 		
 		IAction a3 = new Action("SWAP"){ //TODO: define text and icon
 			public void run() {
