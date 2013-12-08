@@ -42,6 +42,7 @@ import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.jface.dialogs.MessageDialog;
 
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
@@ -58,8 +59,6 @@ import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
-
-
 
 
 /**
@@ -137,9 +136,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 						stream.close();
 
 					} catch (CoreException ex) {
-						// TODO: implement handling
-						System.out.println(ex.getMessage());
-						ex.printStackTrace();
+						MessageDialog.openInformation(null, "Core Exception", ex.getMessage());
+						
 					} catch (IOException e) {
 						ControlFlowFactoryPlugin.log(e);
 
