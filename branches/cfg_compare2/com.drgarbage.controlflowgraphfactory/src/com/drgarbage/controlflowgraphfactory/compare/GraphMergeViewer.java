@@ -43,6 +43,7 @@ import com.drgarbage.algorithms.ControlFlowGraphCompare;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.MarkEnum;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpAlgAction;
@@ -51,6 +52,8 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.SwapGraphsAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownAlgAction;
+import com.drgarbage.core.CoreMessages;
+import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
@@ -199,13 +202,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 						stream.close();
 
 					} catch (CoreException ex) {
-						MessageDialog.openInformation(null, "Core Exception", ex.getMessage());
-						
+						ControlFlowFactoryPlugin.log(ex);
+						Messages.error(ControlFlowFactoryMessages.GraphCompare_Error_Coudl_not_open_or_create_diagram 
+								+ CoreMessages.ExceptionAdditionalMessage);;
 					} catch (IOException e) {
 						ControlFlowFactoryPlugin.log(e);
-
+						Messages.error(ControlFlowFactoryMessages.GraphCompare_Error_Coudl_not_open_or_create_diagram 
+								+ CoreMessages.ExceptionAdditionalMessage);;
 					} catch (ClassNotFoundException e) {
 						ControlFlowFactoryPlugin.log(e);
+						Messages.error(ControlFlowFactoryMessages.GraphCompare_Error_Coudl_not_open_or_create_diagram 
+								+ CoreMessages.ExceptionAdditionalMessage);;
 					}
 				}
 			}
