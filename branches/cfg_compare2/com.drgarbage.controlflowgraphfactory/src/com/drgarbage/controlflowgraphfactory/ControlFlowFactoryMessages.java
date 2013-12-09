@@ -202,5 +202,6 @@ public class ControlFlowFactoryMessages extends NLS {
 	public static String GraphCompare_ResetGraphsView_Text;
 	public static String GraphCompare_SwapGraphs_Text;
 	public static String GraphCompare_Error_Coudl_not_open_or_create_diagram;
+	public static String GraphCompare_Error_Can_not_save_diagram;
 	
 }

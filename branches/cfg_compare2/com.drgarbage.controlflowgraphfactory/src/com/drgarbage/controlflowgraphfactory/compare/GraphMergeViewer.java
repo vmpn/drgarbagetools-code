@@ -16,9 +16,12 @@
 
 package com.drgarbage.controlflowgraphfactory.compare;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ResourceBundle;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -29,6 +32,7 @@ import org.eclipse.compare.internal.ImageMergeViewer;
 import org.eclipse.compare.internal.Utilities;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.Graphics;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
@@ -40,7 +44,11 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
+import com.drgarbage.algorithms.MaxMatchTreeDFS;
+import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
+import com.drgarbage.controlflowgraph.intf.IEdgeExt;
+import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.MarkEnum;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
@@ -55,6 +63,7 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownAlgAction;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
+import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
@@ -80,6 +89,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	
 	/* set to true if the content has been swapped */ 
 	private boolean swaped = false;
+	
+	/* Color constants */
+	final static Color RED      		= new Color(null, 224, 0, 0);
+	final static Color GREEN      		= new Color(null, 0, 224, 0);
 	
 	/**
 	 * Creates a graph merge viewer.
@@ -237,9 +250,36 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#getContents(boolean)
 	 */
-	protected byte[] getContents(boolean left) {
+	protected byte[] getContents(boolean left) {		
+		try{
+			if(left){
+				return modelToByteArray(diagramLeft);
+			}
+			else{
+				return modelToByteArray(diagramRight);
+			}
+		} catch (IOException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(ControlFlowFactoryMessages.GraphCompare_Error_Can_not_save_diagram 
+					+ CoreMessages.ExceptionAdditionalMessage);;
+		}
+
 		/* We can't modify the contents of right or left side, just return null. */
 		return null;
+	}
+	
+	/**
+	 * Converts a graph diagram to a byte array.
+	 * @param model the control flow graph diagram
+	 * @return byte array
+	 * @throws IOException
+	 */
+	private byte[] modelToByteArray(ControlFlowGraphDiagram model) throws IOException{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(out);
+		oos.writeObject(model);
+		oos.close();
+		return out.toByteArray();
 	}
 	
 	/* (non-Javadoc)
@@ -340,11 +380,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 				VertexBase vb = (VertexBase) node.getData();
 				
 				if(node.getMark() == MarkEnum.GREEN ) {
-					vb.setColor(new Color(null, 0, 255, 0));
+					vb.setColor(GREEN);
 				}
 				else{
 					if(node.getMark() == MarkEnum.RED ) {
-						vb.setColor(new Color(null, 255, 0, 0));
+						vb.setColor(RED);
 					}
 				}
 			}
