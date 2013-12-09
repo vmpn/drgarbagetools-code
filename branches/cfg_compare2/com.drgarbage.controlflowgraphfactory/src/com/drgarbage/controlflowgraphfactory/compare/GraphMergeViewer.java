@@ -18,11 +18,7 @@ package com.drgarbage.controlflowgraphfactory.compare;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.LineNumberReader;
 import java.io.ObjectInputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -30,33 +26,29 @@ import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.jface.dialogs.MessageDialog;
 
-import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
-import com.drgarbage.controlflowgraph.intf.GraphUtils;
-import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
-import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
+import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpAlgAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.ClearGraphsAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
-import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
+import com.drgarbage.controlflowgraphfactory.compare.actions.SwapGraphsAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownAlgAction;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
-import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
@@ -233,7 +225,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	/**
 	 * Swaps the left graph with the right graph in the viewer.
 	 */
-	private void swap() {
+	public void doSwapGraphs() {
 		
 		ControlFlowGraphDiagram tmp = null;
 		
@@ -254,10 +246,24 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		//HOTODO: how to grab the components where the path/file is?
 	}
 	
+	public void doTopDownAlg() {
+		ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+		System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+		/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
+		colorNodesByMarks();
+		
+	}
+
+	public void doBottomUpAlg() {
+		ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+		System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+		colorNodesByMarks();
+	}
+	
 	/**
 	 * Resets the graphs and and the view.
 	 */
-	protected void clear(){
+	public void doClearGraphs(){
 		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
@@ -313,45 +319,13 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	protected void createToolItems(ToolBarManager toolBarManager) {
 		toolBarManager.add(new Separator());
-		IAction a1 = new Action("Top Down"){
-			public void run() {
-				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
-				System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-				/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
-				colorNodesByMarks();
-			}
 		
-		};
-		a1.setImageDescriptor(ControlFlowFactoryResource.top_down_16x16);
-
-		IAction a2 = new Action("Bottom Up"){
-			public void run() {
-				ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
-				System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-				colorNodesByMarks();
-			}
-		};
-		a2.setImageDescriptor(ControlFlowFactoryResource.bottom_up_16x16);
+		/* graph compare algorithms actions */
+		toolBarManager.add(new TopDownAlgAction(this));
+		toolBarManager.add(new BottomUpAlgAction(this));
+		toolBarManager.add(new ClearGraphsAction(this));
+		toolBarManager.add(new SwapGraphsAction(this));
 		
-		IAction a3 = new Action("SWAP"){ //TODO: define text and icon
-			public void run() {
-				swap();
-			}
-		};
-		
-		IAction a4 = new Action("CLEAR"){ //TODO: define text and icon
-			public void run() {
-				clear();
-			}
-		};
-		
-		toolBarManager.add(a1);
-		toolBarManager.add(new Separator());
-		toolBarManager.add(a2);
-		toolBarManager.add(new Separator());
-		toolBarManager.add(a3);
-		toolBarManager.add(new Separator());
-		toolBarManager.add(a4);
 		/* zoom actions */
 		toolBarManager.add(new Separator());
 		
@@ -362,11 +336,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		zoomIn.setAccelerator(SWT.CTRL | 'I');
 		toolBarManager.add(zoomIn);
 		
-		
 		CompareZoomOutAction zoomOut = new CompareZoomOutAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
 		zoomOut.setAccelerator(SWT.CTRL | 'O');
 		toolBarManager.add(zoomOut);
-		
-		
 	}
+
 }
