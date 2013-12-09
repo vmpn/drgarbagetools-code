@@ -199,7 +199,7 @@ public class ControlFlowFactoryMessages extends NLS {
 	
 	public static String GraphCompare_TopDownAlgorithm_Text;
 	public static String GraphCompare_BottomUpAlgorithm_Text;
-	public static String GraphCompare_ClearGraphs_Text;
+	public static String GraphCompare_ResetGraphsView_Text;
 	public static String GraphCompare_SwapGraphs_Text;
 	
 }

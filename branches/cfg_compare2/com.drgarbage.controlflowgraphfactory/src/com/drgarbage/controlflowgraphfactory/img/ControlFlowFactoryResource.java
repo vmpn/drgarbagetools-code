@@ -29,7 +29,7 @@ public class ControlFlowFactoryResource {
 	/* compare algorithm icons */
 	public static final ImageDescriptor graph_compare_top_down_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "top-down-subtree-16x16.png");
 	public static final ImageDescriptor graph_compare_bottom_up_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "bottom-up-subtree-16x16.png");
-	public static final ImageDescriptor graph_compare_clearGraphs_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "clear-subtree-16x16.png");
+	public static final ImageDescriptor graph_compare_ResetGraphsView_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "clear-subtree-16x16.png");
 	
 	/* placing algorithm icons */
 	public static final ImageDescriptor positioning_serial_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "positioning-serial-16x16.png");

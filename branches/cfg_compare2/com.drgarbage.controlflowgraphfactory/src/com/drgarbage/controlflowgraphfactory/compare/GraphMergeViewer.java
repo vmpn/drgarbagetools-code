@@ -25,6 +25,8 @@ import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
+import org.eclipse.compare.internal.ImageMergeViewer;
+import org.eclipse.compare.internal.Utilities;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.gef.GraphicalViewer;
@@ -40,10 +42,11 @@ import org.eclipse.swt.widgets.Composite;
 import com.drgarbage.algorithms.ControlFlowGraphCompare;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.MarkEnum;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpAlgAction;
-import com.drgarbage.controlflowgraphfactory.compare.actions.ClearGraphsAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.ResetCompareGraphsViewAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.SwapGraphsAction;
@@ -62,15 +65,18 @@ import com.drgarbage.visualgraphic.model.VertexBase;
  */
 public class GraphMergeViewer extends ContentMergeViewer {
 	
-	private static final String BUNDLE_NAME= "org.eclipse.compare.internal.ImageMergeViewerResources"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME= "org.eclipse.compare.contentmergeviewer.TextMergeViewerResources"; //$NON-NLS-1$
+	
+	/* diagram reference */
 	private ControlFlowGraphDiagram diagramLeft;
 	private ControlFlowGraphDiagram diagramRight;
 
+	/* graphical viewer references */
 	private GraphicalViewer fLeft;
 	private GraphicalViewer fRight;
 	
-	private IDirectedGraphExt cfgLeft = null;
-	private IDirectedGraphExt cfgRight = null;
+	/* set to true if the content has been swapped */ 
+	private boolean swaped = false;
 	
 	/**
 	 * Creates a graph merge viewer.
@@ -83,10 +89,79 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		super(styles, ResourceBundle.getBundle(BUNDLE_NAME), mp); /* default actions */
 
 		buildControl(parent);
-		String title= "Graph Compare";  //Utilities.getString(getResourceBundle(), "title"); //$NON-NLS-1$
+		String title= "Graph Compare";
 		getControl().setData(CompareUI.COMPARE_VIEWER_TITLE, title);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createControls(org.eclipse.swt.widgets.Composite)
+	 */
+	public void createControls(Composite composite) {
+		/* creates the left viewer */
+		fLeft = new ScrollingGraphicalViewer();
+		fLeft.createControl(composite);
+		
+		fLeft.getControl().setBackground(ColorConstants.listBackground);
+		fLeft.setEditPartFactory(new DiagramEditPartFactory());
 
+		ScalableFreeformRootEditPart root = new ScalableFreeformRootEditPart();
+		fLeft.setRootEditPart(root);
+
+		/* creates the right viewer */
+		fRight = new ScrollingGraphicalViewer();
+		fRight.createControl(composite);
+		
+		fRight.getControl().setBackground(ColorConstants.listBackground);
+		fRight.setEditPartFactory(new DiagramEditPartFactory());
+
+		ScalableFreeformRootEditPart root2 = new ScalableFreeformRootEditPart();
+		fRight.setRootEditPart(root2);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createToolItems(org.eclipse.jface.action.ToolBarManager)
+	 */
+	protected void createToolItems(ToolBarManager toolBarManager) {
+		toolBarManager.add(new Separator());
+		
+		/* graph compare algorithms actions */
+		toolBarManager.add(new TopDownAlgAction(this));
+		toolBarManager.add(new BottomUpAlgAction(this));
+		
+		toolBarManager.add(new Separator());
+		toolBarManager.add(new ResetCompareGraphsViewAction(this));
+		toolBarManager.add(new SwapGraphsAction(this));
+		
+		/* zoom actions */
+		toolBarManager.add(new Separator());
+		
+		ScalableFreeformRootEditPart rootLeft = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		ScalableFreeformRootEditPart rootRight = (ScalableFreeformRootEditPart) fRight.getRootEditPart();
+		
+		CompareZoomInAction zoomIn = new CompareZoomInAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
+		zoomIn.setAccelerator(SWT.CTRL | 'I');
+		toolBarManager.add(zoomIn);
+		
+		CompareZoomOutAction zoomOut = new CompareZoomOutAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
+		zoomOut.setAccelerator(SWT.CTRL | 'O');
+		toolBarManager.add(zoomOut);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#handleResizeLeftRight(int, int, int, int, int, int)
+	 */
+	protected void handleResizeLeftRight(int x, int y, int width1, int centerWidth, int width2, int height) {
+		fLeft.getControl().setBounds(x, y, width1, height);
+		fRight.getControl().setBounds(x + width1 + centerWidth, y, width2, height);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#handleResizeAncestor(int, int, int, int)
+	 */
+	protected void handleResizeAncestor(int x, int y, int width, int height) {
+		/* nothing to do */
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#updateContent(java.lang.Object, java.lang.Object, java.lang.Object)
 	 */
@@ -94,24 +169,20 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		if(diagramLeft == null){
 			diagramLeft = getControlFlowGraphDiagramFromInput(left);
 		}		
-		setInput(fLeft, diagramLeft);
-		
 		
 		if(diagramRight == null){
 			diagramRight = getControlFlowGraphDiagramFromInput(right);
 		}		
-		setInput(fRight, diagramRight);
 		
-		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
-		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
-
+		setInput(fLeft, diagramLeft);
+		setInput(fRight, diagramRight);
 	}
 
 	/**
-	 * Reads the Input Object and returns the corresponding ControlFlowGraphDiagram
+	 * Reads the Input Object and returns a control flow graph diagram object.
 	 * 
 	 * @param input the diagram object
-	 * @return a ControlFlowGraphDiagram representing the Input
+	 * @return a control flow graph diagram object
 	 */
 	private ControlFlowGraphDiagram getControlFlowGraphDiagramFromInput(Object input) {
 		if (input != null) {
@@ -165,47 +236,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	}
 	
 	/* (non-Javadoc)
-	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createControls(org.eclipse.swt.widgets.Composite)
-	 */
-	public void createControls(Composite composite) {
-		
-		/* creates the left viewer */
-		fLeft = new ScrollingGraphicalViewer();
-		fLeft.createControl(composite);
-		
-		fLeft.getControl().setBackground(ColorConstants.listBackground);
-		fLeft.setEditPartFactory(new DiagramEditPartFactory());
-
-		ScalableFreeformRootEditPart root = new ScalableFreeformRootEditPart();
-		fLeft.setRootEditPart(root);
-
-		/* creates the right viewer */
-		fRight = new ScrollingGraphicalViewer();
-		fRight.createControl(composite);
-		
-		fRight.getControl().setBackground(ColorConstants.listBackground);
-		fRight.setEditPartFactory(new DiagramEditPartFactory());
-
-		ScalableFreeformRootEditPart root2 = new ScalableFreeformRootEditPart();
-		fRight.setRootEditPart(root2);
-	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#handleResizeAncestor(int, int, int, int)
-	 */
-	protected void handleResizeAncestor(int x, int y, int width, int height) {
-		/* nothing to do */
-	}
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#handleResizeLeftRight(int, int, int, int, int, int)
-	 */
-	protected void handleResizeLeftRight(int x, int y, int width1, int centerWidth, int width2, int height) {
-		fLeft.getControl().setBounds(x, y, width1, height);
-		fRight.getControl().setBounds(x+width1+centerWidth, y, width2, height);
-	}
-	
-	/* (non-Javadoc)
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#copy(boolean)
 	 */
 	protected void copy(boolean leftToRight) {
@@ -223,122 +253,95 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	}
 	
 	/**
-	 * Swaps the left graph with the right graph in the viewer.
+	 * Swaps the right and left contents of the compare viewer.
 	 */
 	public void doSwapGraphs() {
-		
-		ControlFlowGraphDiagram tmp = null;
-		
-		tmp = diagramRight;
-		
+		ControlFlowGraphDiagram tmp = diagramRight;
 		diagramRight = diagramLeft;
-		setInput(fRight, diagramRight);
-		setRightDirty(true);
-		
 		diagramLeft = tmp;
+		
+		setInput(fRight, diagramRight);
 		setInput(fLeft, diagramLeft);
-		setLeftDirty(true);
 		
-		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
-		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		/* update header */
+		swapHeader();
 		
-		// TODO: the path text in the viewer is not swapped
-		//HOTODO: how to grab the components where the path/file is?
+		/* set the swaped flag */
+		swaped = swaped ? false: true;
 	}
 	
+	
+	/**
+	 * Swaps the header configuration.
+	 */
+	protected void swapHeader(){
+		CompareConfiguration mp  = getCompareConfiguration();
+		String lTmp = mp.getLeftLabel(getInput());
+		mp.setLeftLabel(mp.getRightLabel(getInput()));
+		mp.setRightLabel(lTmp);
+		
+		updateHeader();
+	}
+	
+	/**
+	 * Executes the top down subtree algorithm.
+	 */
 	public void doTopDownAlg() {
+		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+		
 		System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
 		/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
-		colorNodesByMarks();
-		
+		colorNodesByMarks(cfgLeft);
+		colorNodesByMarks(cfgRight);
 	}
 
+	/**
+	 * Executes the bottom up subtree algorithm.
+	 */
 	public void doBottomUpAlg() {
+		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		ControlFlowGraphCompare comp = new ControlFlowGraphCompare(cfgLeft, cfgRight);
+		
 		System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-		colorNodesByMarks();
+		colorNodesByMarks(cfgLeft);
+		colorNodesByMarks(cfgRight);
 	}
 	
 	/**
-	 * Resets the graphs and and the view.
+	 * Resets the viewer and update the input.
 	 */
-	public void doClearGraphs(){
-		cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
-		cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
-		
+	public void doResetViewer(){
 		setInput(fRight, diagramRight);
 		setInput(fLeft, diagramLeft);
-		setRightDirty(true);
-		setLeftDirty(true);
+		
+		if(swaped){
+			swapHeader();
+			swaped = false;
+		}
 	}
 	
 	/**
-	 * Iterates through the graphs and calls colorNode() if a nodes mark is set
-	 * TODO: the method must be moved to graphUtils(Where is exactly this package?)
-	 * 
-	 * @see com.drgarbage.controlflowgraphfactory.compare.GraphMergeViewer#colorNodeByMark(INodeExt)
+	 * Sets the nodes color in the diagram according the coloring marks.
 	 */
-	@SuppressWarnings("restriction")
-	public void colorNodesByMarks() {
-		for (int i = 0; i < cfgLeft.getNodeList().size(); i++) {
-			if (cfgLeft.getNodeList().getNodeExt(i).getMark() != null)
-				colorNodeByMark(cfgLeft.getNodeList().getNodeExt(i));
+	public static void colorNodesByMarks(IDirectedGraphExt graph) {
+		for (int i = 0; i < graph.getNodeList().size(); i++) {
+			if (graph.getNodeList().getNodeExt(i).getMark() != null){
+				INodeExt node = graph.getNodeList().getNodeExt(i);
+				VertexBase vb = (VertexBase) node.getData();
+				
+				if(node.getMark() == MarkEnum.GREEN ) {
+					vb.setColor(new Color(null, 0, 255, 0));
+				}
+				else{
+					if(node.getMark() == MarkEnum.RED ) {
+						vb.setColor(new Color(null, 255, 0, 0));
+					}
+				}
+			}
 		}
-
-		for (int i = 0; i < cfgRight.getNodeList().size(); i++) {
-			if (cfgRight.getNodeList().getNodeExt(i).getMark() != null)
-				colorNodeByMark(cfgRight.getNodeList().getNodeExt(i));
-		}
-
-	}
-	/**
-	 * Colors a node depending on its property getMark
-	 * TODO: the method must be moved to graphUtils(Where is exactly this package?)
-	 * @param node Node to be colored
-	 */
-	@SuppressWarnings("restriction")
-	private void colorNodeByMark(INodeExt node) {
-
-		VertexBase vb = (VertexBase) node.getData();
-		switch (node.getMark()) {
-		case GREEN:
-			vb.setColor(new Color(null, 0, 255, 0));
-			break;
-		case RED:
-			vb.setColor(new Color(null, 255, 0, 0));
-			break;
-		default:
-			break;
-		}
-	}
-	
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createToolItems(org.eclipse.jface.action.ToolBarManager)
-	 */
-	protected void createToolItems(ToolBarManager toolBarManager) {
-		toolBarManager.add(new Separator());
-		
-		/* graph compare algorithms actions */
-		toolBarManager.add(new TopDownAlgAction(this));
-		toolBarManager.add(new BottomUpAlgAction(this));
-		toolBarManager.add(new ClearGraphsAction(this));
-		toolBarManager.add(new SwapGraphsAction(this));
-		
-		/* zoom actions */
-		toolBarManager.add(new Separator());
-		
-		ScalableFreeformRootEditPart rootLeft = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
-		ScalableFreeformRootEditPart rootRight = (ScalableFreeformRootEditPart) fRight.getRootEditPart();
-		
-		CompareZoomInAction zoomIn = new CompareZoomInAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
-		zoomIn.setAccelerator(SWT.CTRL | 'I');
-		toolBarManager.add(zoomIn);
-		
-		CompareZoomOutAction zoomOut = new CompareZoomOutAction(rootLeft.getZoomManager(), rootRight.getZoomManager());
-		zoomOut.setAccelerator(SWT.CTRL | 'O');
-		toolBarManager.add(zoomOut);
 	}
 
 }

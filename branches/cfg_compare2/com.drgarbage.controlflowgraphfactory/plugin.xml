@@ -154,7 +154,7 @@
            class="com.drgarbage.controlflowgraphfactory.compare.GraphMergeViewerCreator"
            extensions="graph, graph.dot"
            id="com.drgarbage.bytecodevisualizer.compare.GraphMergeViewer"
-           label="%compare.GraphCompare_label">
+           label="Graph Compare">
      </viewer>
    </extension>
    <!--

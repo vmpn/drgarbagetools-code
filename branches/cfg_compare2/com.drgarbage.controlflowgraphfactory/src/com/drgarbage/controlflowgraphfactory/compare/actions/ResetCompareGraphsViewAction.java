@@ -21,7 +21,7 @@ import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
 
 /**
  * <p>
- * Implementation of the action to clear graph compare view.
+ * Implementation of the action to reset graph compare view.
  * </p>
  * 
  * @author Sergej Alekseev
@@ -30,16 +30,16 @@ import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
  * 
  * @see BaseCompareAction
  */
-public class ClearGraphsAction extends BaseCompareAction {
+public class ResetCompareGraphsViewAction extends BaseCompareAction {
 
 	/**
 	 * Creates an action.
 	 * @param cmv
 	 */
-	public ClearGraphsAction(GraphMergeViewer cmv) {
+	public ResetCompareGraphsViewAction(GraphMergeViewer cmv) {
 		super(cmv);
-		setImageDescriptor(ControlFlowFactoryResource.graph_compare_clearGraphs_16x16);
-		setToolTipText(ControlFlowFactoryMessages.GraphCompare_ClearGraphs_Text);
+		setImageDescriptor(ControlFlowFactoryResource.graph_compare_ResetGraphsView_16x16);
+		setToolTipText(ControlFlowFactoryMessages.GraphCompare_ResetGraphsView_Text);
 	}
 
 	/* (non-Javadoc)
@@ -47,6 +47,6 @@ public class ClearGraphsAction extends BaseCompareAction {
 	 */
 	@Override
 	public void run() {
-		viewer.doClearGraphs();
+		viewer.doResetViewer();
 	}
 }
