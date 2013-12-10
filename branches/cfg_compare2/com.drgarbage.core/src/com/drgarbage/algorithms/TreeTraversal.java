@@ -1,14 +1,15 @@
 package com.drgarbage.algorithms;
 
-import java.util.List;
-
+import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 
 /**
- * Class for Tree Traversal traversal of a tree.
- * Combines Post and Preorder tree traversal methods
+ * Class for Tree Traversal.
+ * Combines Post and Pre-order tree traversal methods
+ * 
  * @author Artem Garishin, Adam Kajrys
  *
  * @version $Revision$
@@ -16,36 +17,56 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  */
 public class TreeTraversal {
 	
-	public static void preorderTreeListTraversal(IDirectedGraphExt graph, List<INodeExt> l) {
+	/**
+	 * Traverses a graph in pre-order and returns a node list in that order.
+	 * 
+	 * @param graph the graph
+	 * @return node list in pre-order
+	 */
+	public static INodeListExt doPreorderTreeListTraversal(IDirectedGraphExt graph) {
 		INodeExt root = graph.getNodeList().getNodeExt(0);
 		
-		recPreorderSubtreeTraversal(graph, root, l);
+		INodeListExt nodeList = GraphExtentionFactory.createNodeListExtention();
+		
+		recPreorderSubtreeTraversal(graph, root, nodeList);
+		
+		return nodeList;
 	}
 
 	private static void recPreorderSubtreeTraversal(IDirectedGraphExt graph,
-			INodeExt node, List<INodeExt> l) {
+			INodeExt node, INodeListExt nodeList) {
 		
-		l.add(node);
+		nodeList.add(node);
 		
 		for(int i = 0; i < node.getOutgoingEdgeList().size(); i++) {
-			recPostorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), l);
+			recPostorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), nodeList);
 		}
 	}
 
-	public static void postorderTreeListTraversal(IDirectedGraphExt graph, List<INodeExt> l) {
+	/**
+	 * Traverses a graph in post-order and returns a node list in that order.
+	 * 
+	 * @param graph the graph
+	 * @return node list in post-order
+	 */
+	public static INodeListExt doPostorderTreeListTraversal(IDirectedGraphExt graph) {
 		INodeExt root = graph.getNodeList().getNodeExt(0);
 		
-		recPostorderSubtreeTraversal(graph, root, l);
+		INodeListExt nodeList = GraphExtentionFactory.createNodeListExtention();
+		
+		recPostorderSubtreeTraversal(graph, root, nodeList);
+		
+		return nodeList;
 	}
 
 	private static void recPostorderSubtreeTraversal(IDirectedGraphExt graph,
-			INodeExt node, List<INodeExt> l) {
+			INodeExt node, INodeListExt nodeList) {
 
 		for(int i = 0; i < node.getOutgoingEdgeList().size(); i++) {
-			recPostorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), l);
+			recPostorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), nodeList);
 		}
 		
-		l.add(node);
+		nodeList.add(node);
 		
 	}
 }
