@@ -39,7 +39,7 @@ public class SwapGraphsAction extends BaseCompareAction {
 	public SwapGraphsAction(GraphMergeViewer cmv) {
 		super(cmv);
 		setImageDescriptor(ControlFlowFactoryResource.icon_overview_16x16); //TODO: define icon
-		setToolTipText(ControlFlowFactoryMessages.GraphCompare_BottomUpAlgorithm_Text);
+		setToolTipText(ControlFlowFactoryMessages.GraphCompare_SwapGraphs_Text);
 	}
 
 	/* (non-Javadoc)
