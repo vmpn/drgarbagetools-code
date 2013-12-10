@@ -138,8 +138,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * @see org.eclipse.compare.contentmergeviewer.ContentMergeViewer#createToolItems(org.eclipse.jface.action.ToolBarManager)
 	 */
 	protected void createToolItems(ToolBarManager toolBarManager) {
-		toolBarManager.add(new Separator());
-		
+
+		/* remove not needed standard components*/
+		toolBarManager.removeAll();
+	
 		/* graph compare algorithms actions */
 		toolBarManager.add(new TopDownAlgAction(this));
 		toolBarManager.add(new BottomUpAlgAction(this));
