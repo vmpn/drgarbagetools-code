@@ -29,7 +29,7 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  */
 public class ControlFlowGraphCompare {
 	
-	private int num;
+//	private int num;
 
 	/**
 	 * Starts the top down ordered subtree isomorphism algorithm
@@ -404,7 +404,7 @@ public class ControlFlowGraphCompare {
 	 * @param graphRight
 	 * @return true if isomorphic subtree was found
 	 */
-	public boolean bottomUpUnorderedSubtreeIsomorphism(
+	public static boolean bottomUpUnorderedSubtreeIsomorphism(
 			IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
 		
 		IEdgeListExt backEdgesCfgLeft = removeBackEdges(graphLeft);
@@ -437,24 +437,20 @@ public class ControlFlowGraphCompare {
 //		printGraph(cfgLeftSpanningTree, "spanning tree left");
 //		printGraph(cfgRightSpanningTree, "spanning tree right");
 		//=========================================================
-		
-		/* maps node to its equivalence class */
-		HashMap<INodeExt, Integer> code1 = new HashMap<INodeExt, Integer>();
-		HashMap<INodeExt, Integer> code2 = new HashMap<INodeExt, Integer>();
 
 		/* holds nodes in post order */
 		INodeListExt l1 = TreeTraversal.doPostorderTreeListTraversal(cfgLeftSpanningTree);
 		INodeListExt l2 = TreeTraversal.doPostorderTreeListTraversal(cfgRightSpanningTree);
-
-		/* maps a equivalence class to its equivalence class number */
-		HashMap<ArrayList<Integer>, Integer> CODE = new HashMap<ArrayList<Integer>, Integer>();
 		
 		/* number of known equivalence classes */
-		num = 1;
-
-		/*  */
-		isomorphismEquivalenceClassPartition(code1, l1, CODE);
-		isomorphismEquivalenceClassPartition(code2, l2, CODE);
+//		num = 1;
+		
+		/* maps node to its equivalence class */
+//		HashMap<INodeExt, Integer> code1 = new HashMap<INodeExt, Integer>();
+//		HashMap<INodeExt, Integer> code2 = new HashMap<INodeExt, Integer>();
+		
+		HashMap<INodeExt, Integer> code1 = isomorphismEquivalenceClassPartition(l1);
+		HashMap<INodeExt, Integer> code2 = isomorphismEquivalenceClassPartition(l2);
 
 		INodeExt r1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 
@@ -470,20 +466,21 @@ public class ControlFlowGraphCompare {
 			}
 		}
 
-		// TODO remove after debugging is finished 
-		System.out.println("map print:");
-		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-			INodeExt key = entry.getKey();
-			INodeExt value = entry.getValue();
-			
-			System.out.println(key.getCounter() + " -> " + value.getCounter());
-		}
-		//===========================================================================
+//		// TODO remove after debugging is finished 
+//		System.out.println("map print:");
+//		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+//			INodeExt key = entry.getKey();
+//			INodeExt value = entry.getValue();
+//			
+//			System.out.println(key.getCounter() + " -> " + value.getCounter());
+//		}
+//		//===========================================================================
 		
 		setMarksOfNodesInMap(map);
 
-		if (map.size() == cfgLeftSpanningTree.getNodeList().size())
+		if (map.size() == cfgLeftSpanningTree.getNodeList().size()){
 			return true;
+		}
 		
 		// TODO: check removed edges
 
@@ -497,14 +494,15 @@ public class ControlFlowGraphCompare {
 	 * @param nodeList list containing nodes of graph in post order
 	 * @param CODE maps equivalence class of children nodes (list) to equivalence class of parent
 	 */
-	private void isomorphismEquivalenceClassPartition(
-			HashMap<INodeExt, Integer> code, 
-			INodeListExt nodeList,
-			HashMap<ArrayList<Integer>, Integer> CODE) {
+	private static HashMap<INodeExt, Integer>  isomorphismEquivalenceClassPartition(INodeListExt nodeList) {
 		
-		/* equivalence classes of children nodes */
-		//ArrayList<Integer> l = new ArrayList<Integer>();
+		/* maps node to its equivalence class */
+		HashMap<INodeExt, Integer> code = new HashMap<INodeExt, Integer>();
 		
+		/* maps a equivalence class to its equivalence class number */
+		HashMap<ArrayList<Integer>, Integer> CODE = new HashMap<ArrayList<Integer>, Integer>();
+		
+		int num = 1;
 		for (int i = 0; i < nodeList.size(); i++) {
 			INodeExt v = nodeList.getNodeExt(i);
 			
@@ -538,6 +536,8 @@ public class ControlFlowGraphCompare {
 				}
 			}
 		}
+		
+		return code;
 	}
 
 	
@@ -551,7 +551,7 @@ public class ControlFlowGraphCompare {
 	 * @param code2 map containing the equivalence class of the nodes in the right graph
 	 * @param map map which will be filled in this method
 	 */
-	private void mapBottomUpUnorderedSubtree(
+	private static void mapBottomUpUnorderedSubtree(
 			INodeExt root1, 
 			INodeExt root2,
 			HashMap<INodeExt, Integer> code1, 
@@ -560,8 +560,9 @@ public class ControlFlowGraphCompare {
 		
 		ArrayList<INodeExt> l = new ArrayList<INodeExt>();
 
-		for (int i = 0; i < root2.getOutgoingEdgeList().size(); i++)
+		for (int i = 0; i < root2.getOutgoingEdgeList().size(); i++){
 			l.add(root2.getOutgoingEdgeList().getEdgeExt(i).getTarget());
+		}
 
 		INodeExt v, w;
 
@@ -606,7 +607,7 @@ public class ControlFlowGraphCompare {
 	 * 
 	 * @param graph the graph
 	 */
-	private IEdgeListExt removeBackEdges(IDirectedGraphExt graph) {
+	private static IEdgeListExt removeBackEdges(IDirectedGraphExt graph) {
 
 		IEdgeListExt backEdges = Algorithms.doFindBackEdgesAlgorithm(graph);
 		GraphUtils.clearGraph(graph);
@@ -632,7 +633,7 @@ public class ControlFlowGraphCompare {
 	 * 
 	 * @see com.drgarbage.controlflowgraph.intf.INodeExt#setMark(MarkEnum)
 	 */
-	private void setMarksOfNodesInMap(HashMap<INodeExt, INodeExt> map) {
+	private static void setMarksOfNodesInMap(HashMap<INodeExt, INodeExt> map) {
 		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
 			INodeExt key = entry.getKey();
 			INodeExt value = entry.getValue();
