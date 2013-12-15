@@ -43,7 +43,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
-import com.drgarbage.algorithms.ControlFlowGraphCompare;
+import com.drgarbage.algorithms.CFGCompareBottomUp;
+import com.drgarbage.algorithms.CFGCompareTopDown;
 import com.drgarbage.algorithms.MaxMatchTreeDFS;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -338,10 +339,12 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	public void doTopDownAlg() {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
-		ControlFlowGraphCompare comp = new ControlFlowGraphCompare();
+		CFGCompareTopDown compare = new CFGCompareTopDown();
+		//TODO create another function that compares firstly the graphs, then invokes 
+		//TopDownUnorderedSubtreeIsomorphism under prepared trees
 		
-		System.out.println("unordered is isomorph: " + comp.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
-		/* cfg left and right are now corrupted (converted to spanning trees. see todo in called function */
+		System.out.println("unordered is isomorph: " + compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+		
 		colorNodesByMarks(cfgLeft);
 		colorNodesByMarks(cfgRight);
 	}
@@ -352,10 +355,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	public void doBottomUpAlg() {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
-		ControlFlowGraphCompare comp = new ControlFlowGraphCompare();
+		CFGCompareBottomUp compare = new CFGCompareBottomUp();
 		
 		/* start to compare graphs */
-		comp.compareGraphsBottomUp(cfgLeft, cfgRight);
+		compare.compareGraphsBottomUp(cfgLeft, cfgRight);
 		
 		colorNodesByMarks(cfgLeft);
 		colorNodesByMarks(cfgRight);
