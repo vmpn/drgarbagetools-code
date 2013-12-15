@@ -354,7 +354,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		ControlFlowGraphCompare comp = new ControlFlowGraphCompare();
 		
-		System.out.println("is isomorph: " + comp.bottomUpUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+		/* start to compare graphs */
+		comp.compareGraphsBottomUp(cfgLeft, cfgRight);
+		
 		colorNodesByMarks(cfgLeft);
 		colorNodesByMarks(cfgRight);
 	}

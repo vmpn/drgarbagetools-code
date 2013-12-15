@@ -28,8 +28,6 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  *          21:34:04Z artemgarishin77 $
  */
 public class ControlFlowGraphCompare {
-	
-//	private int num;
 
 	/**
 	 * Starts the top down ordered subtree isomorphism algorithm
@@ -67,15 +65,15 @@ public class ControlFlowGraphCompare {
 			e1.printStackTrace();
 		}
 
-		if (cfgLeftSpanningTree.getNodeList().size() > cfgRightSpanningTree.getNodeList().size())
+		if (cfgLeftSpanningTree.getNodeList().size() > cfgRightSpanningTree.getNodeList().size()){
 			return false;
-
+		}
 		INodeExt rootLeft = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 		INodeExt rootRight = cfgRightSpanningTree.getNodeList().getNodeExt(0);
 
-		if (mapOrderedSubtree(rootLeft, rootRight))
+		if (mapOrderedSubtree(rootLeft, rootRight)){
 			return true;
-
+		}	
 		return false;
 
 		// TODO: check removed edges
@@ -136,9 +134,7 @@ public class ControlFlowGraphCompare {
 
 		IDirectedGraphExt cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, false);
 		IDirectedGraphExt cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, false);
-		//TODO switch 2nd parameter to true if you don't want to corrupt cfgLeft and cfgRight graphs,
-		// could require map
-
+		
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
 		GraphUtils.clearGraph(graphRight);
@@ -274,17 +270,17 @@ public class ControlFlowGraphCompare {
 //		if (node1.getCounter() != node2.getCounter()) // i don't know why this is in the book
 //			return false;
 
-		if (node1.getOutgoingEdgeList().size() == 0)
+		if (node1.getOutgoingEdgeList().size() == 0){
 			return true;
-
+		}
 		int node1ChildCount = node1.getOutgoingEdgeList().size();
 		int node2ChildCount = node2.getOutgoingEdgeList().size();
 
 		if (node1ChildCount > node2ChildCount
 				|| height1.get(node1) > height2.get(node2)
-				|| size1.get(node1) > size2.get(node2))
+				|| size1.get(node1) > size2.get(node2)){
 			return false;
-
+		}	
 		HashMap<INodeExt, INodeExt> nodeMapT1G = new HashMap<INodeExt, INodeExt>();
 		HashMap<INodeExt, INodeExt> nodeMapT2G = new HashMap<INodeExt, INodeExt>();
 
@@ -398,57 +394,42 @@ public class ControlFlowGraphCompare {
 	}
 
 	/**
-	 * Starts the bottom up unordered subtree isomorphism algorithm
+	 * transform the graphs into trees and call 
+	 * bottomUpUnorderedSubtreeIsomorphism for further compare
 	 * 
 	 * @param graphLeft
 	 * @param graphRight
-	 * @return true if isomorphic subtree was found
 	 */
-	public static boolean bottomUpUnorderedSubtreeIsomorphism(
+	public static void compareGraphsBottomUp(
 			IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
-		
+
 		IEdgeListExt backEdgesCfgLeft = removeBackEdges(graphLeft);
 		IEdgeListExt backEdgesCfgRight = removeBackEdges(graphRight);
 
 		IDirectedGraphExt cfgLeftSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphLeft, false);
 		IDirectedGraphExt cfgRightSpanningTree = Algorithms.doSpanningTreeAlgorithm(graphRight, false);
-		//TODO switch 2nd parameter to true if you don't want to corrupt cfgLeft and cfgRight graphs,
-		// could require map
-
+		
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
 		GraphUtils.clearGraph(graphRight);
-
-		// TODO remove after debugging is done
-//		INodeExt root1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
-//		INodeExt root2 = cfgRightSpanningTree.getNodeList().getNodeExt(0);
-//
-//		BottomUpTreeTraversal butt = new BottomUpTreeTraversal();
-//
-//		try {
-//			butt.traverse(cfgLeftSpanningTree, root1);
-//			butt.traverse(cfgRightSpanningTree, root2);
-//		} catch (ControlFlowGraphException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		/* print spanning trees for debugging */
-//		printGraph(cfgLeftSpanningTree, "spanning tree left");
-//		printGraph(cfgRightSpanningTree, "spanning tree right");
-		//=========================================================
-
+		
+		bottomUpUnorderedSubtreeIsomorphism(cfgLeftSpanningTree, cfgRightSpanningTree);
+	}
+	
+	/**
+	 * compares two trees using bottom-up subtree isomorphism
+	 * 
+	 * @param cfgLeftSpanningTree
+	 * @param cfgRightSpanningTree
+	 */
+	public static void bottomUpUnorderedSubtreeIsomorphism(
+			IDirectedGraphExt cfgLeftSpanningTree, IDirectedGraphExt cfgRightSpanningTree) {
+		
 		/* holds nodes in post order */
 		INodeListExt l1 = TreeTraversal.doPostorderTreeListTraversal(cfgLeftSpanningTree);
 		INodeListExt l2 = TreeTraversal.doPostorderTreeListTraversal(cfgRightSpanningTree);
 		
-		/* number of known equivalence classes */
-//		num = 1;
-		
 		/* maps node to its equivalence class */
-//		HashMap<INodeExt, Integer> code1 = new HashMap<INodeExt, Integer>();
-//		HashMap<INodeExt, Integer> code2 = new HashMap<INodeExt, Integer>();
-		
 		HashMap<INodeExt, Integer> code1 = isomorphismEquivalenceClassPartition(l1);
 		HashMap<INodeExt, Integer> code2 = isomorphismEquivalenceClassPartition(l2);
 
@@ -465,26 +446,15 @@ public class ControlFlowGraphCompare {
 				mapBottomUpUnorderedSubtree(r1, v, code1, code2, map);
 			}
 		}
-
-//		// TODO remove after debugging is finished 
-//		System.out.println("map print:");
-//		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-//			INodeExt key = entry.getKey();
-//			INodeExt value = entry.getValue();
-//			
-//			System.out.println(key.getCounter() + " -> " + value.getCounter());
-//		}
-//		//===========================================================================
-		
 		setMarksOfNodesInMap(map);
-
 		if (map.size() == cfgLeftSpanningTree.getNodeList().size()){
-			return true;
+			System.out.println("trees are isomorph");
+		}
+		else{
+			System.out.println("trees are not isomorph");
 		}
 		
-		// TODO: check removed edges
-
-		return false;
+		// TODO: check removed edges(do we need them?)
 	}
 
 	/**
@@ -493,6 +463,7 @@ public class ControlFlowGraphCompare {
 	 * @param code maps a node to its equivalence class
 	 * @param nodeList list containing nodes of graph in post order
 	 * @param CODE maps equivalence class of children nodes (list) to equivalence class of parent
+	 * @return code equivalence class
 	 */
 	private static HashMap<INodeExt, Integer>  isomorphismEquivalenceClassPartition(INodeListExt nodeList) {
 		
@@ -627,10 +598,9 @@ public class ControlFlowGraphCompare {
 	}
 	
 	/**
-	 * Marks all nodes in map as green
-	 * 
+	 * Sets properties SetMark as GREEN according to input parameter map
+	 * The marked nodes will be in visualization green colored
 	 * @param map map containing nodes
-	 * 
 	 * @see com.drgarbage.controlflowgraph.intf.INodeExt#setMark(MarkEnum)
 	 */
 	private static void setMarksOfNodesInMap(HashMap<INodeExt, INodeExt> map) {
