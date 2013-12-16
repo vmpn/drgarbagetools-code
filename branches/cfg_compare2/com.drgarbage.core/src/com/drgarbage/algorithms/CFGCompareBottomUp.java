@@ -24,7 +24,7 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  * 
  * @author Artem Garishin, Adam Kajrys
  * 
- * @version $Revision:$ $Id:$
+ * @version $Revision$ $Id$
  */
 public class CFGCompareBottomUp {
 	
@@ -68,7 +68,7 @@ public class CFGCompareBottomUp {
 		HashMap<INodeExt, Integer> code1 = isomorphismEquivalenceClassPartition(l1);
 		HashMap<INodeExt, Integer> code2 = isomorphismEquivalenceClassPartition(l2);
 
-		INodeExt r1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
+		INodeExt root1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 
 		/* maps nodes in the left graph to nodes in the right graph */
 		HashMap<INodeExt, INodeExt> map = new HashMap<INodeExt, INodeExt>();
@@ -76,9 +76,9 @@ public class CFGCompareBottomUp {
 		for (int i = 0; i < l2.size(); i++) {
 			INodeExt v = l2.getNodeExt(i);
 			
-			if (code1.get(r1).equals(code2.get(v))) {
-				map.put(r1, v);
-				mapBottomUpUnorderedSubtree(r1, v, code1, code2, map);
+			if (code1.get(root1).equals(code2.get(v))) {
+				map.put(root1, v);
+				mapBottomUpUnorderedSubtree(root1, v, code1, code2, map);
 			}
 		}
 		setMarksOfNodesInMap(map);

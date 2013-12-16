@@ -24,7 +24,7 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  * 
  * @author Artem Garishin, Adam Kajrys
  * 
- * @version $Revision:$ $Id:$
+ * @version $Revision$ $Id$
  */
 public class CFGCompareTopDown {
 	
@@ -118,15 +118,13 @@ public class CFGCompareTopDown {
 	}
 	
 	/**
-	 * Starts the top down unordered subtree isomorphism algorithm
-	 * 
+	 * transform the graphs into trees and call 
+	 * topDownUnorderedSubtreeIsomorphism function for further comparison
 	 * @param graphLeft
 	 * @param graphRight
-	 * @return true if isomorphic subtree was found
 	 */
-	public boolean topDownUnorderedSubtreeIsomorphism(
-			IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
-		
+	public void doCompareGraphsTopDown(IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight)
+	{
 		IEdgeListExt backEdgesCfgLeft = removeBackEdges(graphLeft);
 		IEdgeListExt backEdgesCfgRight = removeBackEdges(graphRight);
 
@@ -136,7 +134,19 @@ public class CFGCompareTopDown {
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
 		GraphUtils.clearGraph(graphRight);
-
+		topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
+	}
+	
+	/**
+	 * Starts the top down unordered subtree isomorphism algorithm
+	 * 
+	 * @param graphLeft
+	 * @param graphRight
+	 * @return true if isomorphic subtree was found
+	 */
+	public void topDownUnorderedSubtreeIsomorphism(
+			IDirectedGraphExt cfgLeftSpanningTree, IDirectedGraphExt cfgRightSpanningTree) {
+		
 		INodeExt root1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 		INodeExt root2 = cfgRightSpanningTree.getNodeList().getNodeExt(0);
 
@@ -196,13 +206,10 @@ public class CFGCompareTopDown {
 				}
 			}
 			
+			System.out.println("graphs are isomorph");	
 		}
-		
 		setMarksOfNodesInMap(m);
-
 		// TODO: check removed edges
-		
-		return isIsomorph;
 	}
 	
 	/**

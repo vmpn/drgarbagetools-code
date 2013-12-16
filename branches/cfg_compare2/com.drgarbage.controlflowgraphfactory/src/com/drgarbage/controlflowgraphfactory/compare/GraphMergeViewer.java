@@ -340,10 +340,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		CFGCompareTopDown compare = new CFGCompareTopDown();
-		//TODO create another function that compares firstly the graphs, then invokes 
-		//TopDownUnorderedSubtreeIsomorphism under prepared trees
 		
-		System.out.println("unordered is isomorph: " + compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight));
+		/* start to compare graphs */
+		compare.doCompareGraphsTopDown(cfgLeft, cfgRight);
 		
 		colorNodesByMarks(cfgLeft);
 		colorNodesByMarks(cfgRight);
