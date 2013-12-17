@@ -155,6 +155,7 @@ public class CFGCompareBottomUp {
 	 * @param node2 node in the right graph
 	 * @param code1 map containing the equivalence class of the nodes in the left graph
 	 * @param code2 map containing the equivalence class of the nodes in the right graph
+	 * @return key is a node in the left graph, value the equivalent node in the subtree of the right graph
 	 */
 	private static HashMap<INodeExt, INodeExt> mapBottomUpUnorderedSubtree(
 			INodeExt node1, 
