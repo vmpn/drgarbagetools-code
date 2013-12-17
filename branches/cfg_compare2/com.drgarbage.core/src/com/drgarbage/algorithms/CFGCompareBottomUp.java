@@ -2,14 +2,8 @@ package com.drgarbage.algorithms;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.TreeMap;
-
-import com.drgarbage.controlflowgraph.ControlFlowGraphException;
-import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.GraphUtils;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
@@ -82,10 +76,10 @@ public class CFGCompareBottomUp {
 			}
 		}
 		setMarksOfNodesInMap(map);
-		if (map.size() == cfgLeftSpanningTree.getNodeList().size()){
+		if (map.size() == cfgLeftSpanningTree.getNodeList().size()) {
 			System.out.println("trees are isomorph");
 		}
-		else{
+		else {
 			System.out.println("trees are not isomorph");
 		}
 		
@@ -113,13 +107,12 @@ public class CFGCompareBottomUp {
 			INodeExt v = nodeList.getNodeExt(i);
 			
 			/* all leaves have equivalence class of 1 */
-			if (v.getOutgoingEdgeList().size() == 0)
+			if (v.getOutgoingEdgeList().size() == 0) {
 				code.put(v, 1);
+			}
 
 			else {
 				ArrayList<Integer> l = new ArrayList<Integer>();
-				//l.clear(); // does not have the same effect
-				System.out.println("listprint " + l.toString() + "   size " + l.size());
 
 				for (int j = 0; j < v.getOutgoingEdgeList().size(); j++) {
 					INodeExt w = v.getOutgoingEdgeList().getEdgeExt(j).getTarget();
@@ -132,8 +125,9 @@ public class CFGCompareBottomUp {
 				
 				/* if a node with the same equivalence classes of children nodes already exists
 				 * assign the same equivalence class to that node */
-				if (CODE.containsKey(l))
+				if (CODE.containsKey(l)) {
 					code.put(v, CODE.get(l));
+				}
 
 				/* else: create new equivalence class */
 				else {
@@ -166,7 +160,7 @@ public class CFGCompareBottomUp {
 		HashMap<INodeExt, INodeExt> map = new HashMap<INodeExt, INodeExt>();
 		ArrayList<INodeExt> l = new ArrayList<INodeExt>();
 
-		for (int i = 0; i < node2.getOutgoingEdgeList().size(); i++){
+		for (int i = 0; i < node2.getOutgoingEdgeList().size(); i++) {
 			l.add(node2.getOutgoingEdgeList().getEdgeExt(i).getTarget());
 		}
 
