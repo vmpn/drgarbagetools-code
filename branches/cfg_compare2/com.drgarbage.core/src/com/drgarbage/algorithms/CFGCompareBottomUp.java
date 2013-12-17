@@ -78,7 +78,7 @@ public class CFGCompareBottomUp {
 			
 			if (code1.get(root1).equals(code2.get(v))) {
 				map.put(root1, v);
-				mapBottomUpUnorderedSubtree(root1, v, code1, code2, map);
+				map.putAll(mapBottomUpUnorderedSubtree(root1, v, code1, code2));
 			}
 		}
 		setMarksOfNodesInMap(map);
@@ -151,29 +151,28 @@ public class CFGCompareBottomUp {
 	 * Mapping the nodes of the left graph to equivalent nodes
 	 * in the subtree of the right graph
 	 * 
-	 * @param root1 root of left graph
-	 * @param root2 root of right graph
+	 * @param node1 node in the left graph
+	 * @param node2 node in the right graph
 	 * @param code1 map containing the equivalence class of the nodes in the left graph
 	 * @param code2 map containing the equivalence class of the nodes in the right graph
-	 * @param map map which will be filled in this method
 	 */
-	private static void mapBottomUpUnorderedSubtree(
-			INodeExt root1, 
-			INodeExt root2,
+	private static HashMap<INodeExt, INodeExt> mapBottomUpUnorderedSubtree(
+			INodeExt node1, 
+			INodeExt node2,
 			HashMap<INodeExt, Integer> code1, 
-			HashMap<INodeExt, Integer> code2,
-			HashMap<INodeExt, INodeExt> map) {
+			HashMap<INodeExt, Integer> code2) {
 		
+		HashMap<INodeExt, INodeExt> map = new HashMap<INodeExt, INodeExt>();
 		ArrayList<INodeExt> l = new ArrayList<INodeExt>();
 
-		for (int i = 0; i < root2.getOutgoingEdgeList().size(); i++){
-			l.add(root2.getOutgoingEdgeList().getEdgeExt(i).getTarget());
+		for (int i = 0; i < node2.getOutgoingEdgeList().size(); i++){
+			l.add(node2.getOutgoingEdgeList().getEdgeExt(i).getTarget());
 		}
 
 		INodeExt v, w;
 
-		for (int i = 0; i < root1.getOutgoingEdgeList().size(); i++) {
-			v = root1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
+		for (int i = 0; i < node1.getOutgoingEdgeList().size(); i++) {
+			v = node1.getOutgoingEdgeList().getEdgeExt(i).getTarget();
 
 			Iterator<INodeExt> items = l.iterator();
 			while (items.hasNext()) {
@@ -182,12 +181,13 @@ public class CFGCompareBottomUp {
 					map.put(v, w);
 					items.remove();
 					
-					mapBottomUpUnorderedSubtree(v, w, code1, code2, map);
-					
+					map.putAll(mapBottomUpUnorderedSubtree(v, w, code1, code2));
+										
 					break;
 				}
 			}
 		}
+		return map;
 
 	}	
 	
