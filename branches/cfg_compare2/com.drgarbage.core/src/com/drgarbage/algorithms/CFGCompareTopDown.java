@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -134,7 +135,13 @@ public class CFGCompareTopDown {
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
 		GraphUtils.clearGraph(graphRight);
-		topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
+//		topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
+		
+		/* execute top down subtree isomorphism algorithm */
+		TopDownSubtreeIsomorthism tsi = new TopDownSubtreeIsomorthism();
+		Map<INodeExt, INodeExt> M = tsi.topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
+		
+		setMarksOfNodesInMap(M);
 	}
 	
 	/**
@@ -404,7 +411,7 @@ public class CFGCompareTopDown {
 	 * @param map map containing nodes
 	 * @see com.drgarbage.controlflowgraph.intf.INodeExt#setMark(MarkEnum)
 	 */
-	private static void setMarksOfNodesInMap(HashMap<INodeExt, INodeExt> map) {
+	private static void setMarksOfNodesInMap(Map<INodeExt, INodeExt> map) {
 		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
 			INodeExt key = entry.getKey();
 			INodeExt value = entry.getValue();
