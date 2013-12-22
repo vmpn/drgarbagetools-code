@@ -33,8 +33,9 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
 
 
 /**
- * The implementation of the the Top-Down-Subtree Isomorthism Algorithm by  Gabriel Valiente.
- * This example from the the book "Algorithms on Trees and Graphs" is used as reference:
+ * The Top-Down-Subtree Isomorphism algorithm. The implementation is based 
+ * on the algorithm published by Gabriel Valiente in his book "Algorithms on Trees and Graphs". 
+ * The following example from this book is used as a reference:
  * <pre>
  *   T_1                  T_2
  *          v7               _____ w18 ____________ 
@@ -58,30 +59,18 @@ public class TopDownSubtreeIsomorthism {
 
 	/**
 	 * The data structure for building the bipartite node relation according 
-	 * the Top-Down-Subtree Isomorthism Algorithm by  Gabriel Valiente.
+	 * to the Algorithm of Gabriel Valiente.
 	 * <br>
-	 * Citation from the book "Algorithms on Trees and Graphs":
-	 * <pre>
-	 * Let p be the number of children of node v in T_1 and 
-	 * let q be the number of children of the node w in T_2.
-	 * Let also v_1, ... , v_p and w_1, ..., w_q be the children 
-	 * of nodes v and w, respectively. Build a bipartite graph 
-	 * G={ {v_1, ..., v_p }, { w_1, ..., w_q }, E } on p + q vertices,
-	 * with an edge (w_i, w_j) in E if and only if the node v_i 
-	 * can be mapped to the node w_j. Then, node v can be mapped to 
-	 * node w if and only if G has a maximum cardinality bipartite 
-	 * matching with p edges.
-	 * </pre>
 	 * 
-	 * The mapping is done in a matrix which is used for building
-	 * the bipartite graph: 
+	 * The mapping is done as a matrix e.g:
 	 * 	<pre>
 	 *   ---- Matrix---
-	 *   (v6 w17 1) (v6 w12 1) (v6 w4 1) 
-	 *   (v5 w17 1) (v5 w12 1) (v5 w4 1) 
-	 *   (v1 w17 1) (v1 w12 1) (v1 w4 1) 
+	 *   (v4 w11 1) (v4 w5 1) 
+	 *   (v3 w11 1) (v3 w5 0) 
 	 *   --------------
 	 * </pre>
+	 * Each element of the matrix is a set of (v_i, w_j,  <code>true</code> or <code>false</code> ). 
+	 * <code>true</code> if the edge exists and <code>false</code> otherwise. 
 	 */
 	protected class MatrixEntry{
 		protected INodeExt v;
@@ -171,8 +160,194 @@ public class TopDownSubtreeIsomorthism {
 			}
 		}
 	}
-	
-	
+
+	/**
+	 * Citation from: "Algorithms on Trees and Graphs":
+	 * <pre>
+	 * Let p be the number of children of node v in T_1 and 
+	 * let q be the number of children of the node w in T_2.
+	 * Let also v_1, ... , v_p and w_1, ..., w_q be the children 
+	 * of nodes v and w, respectively. Build a bipartite graph 
+	 * G={ {v_1, ..., v_p }, { w_1, ..., w_q }, E } on p + q vertices,
+	 * with an edge (w_i, w_j) in E if and only if the node v_i 
+	 * can be mapped to the node w_j. Then, node v can be mapped to 
+	 * node w if and only if G has a maximum cardinality bipartite 
+	 * matching with p edges.
+	 * </pre>
+	 * 
+	 * According to the {@link TopDownSubtreeIsomorthism example}
+	 * the execution of the top-down traverse method solves following 
+	 * maximum cardinality bipartite matching problems.
+	 * 
+	 * In order to decide if node v7 can be mapped to node w18
+	 * the following matrix is created:
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v6 w17 1) (v6 w12 1) (v6 w4 1) 
+	 *   (v5 w17 1) (v5 w12 1) (v5 w4 1) 
+	 *   (v1 w17 1) (v1 w12 1) (v1 w4 1) 
+	 *   --------------
+	 * </pre>
+	 * and maximum cardinality bipartite matching is calculated: 
+	 * <pre>
+	 *   === Matching 
+	 *   v1->w17
+	 *   v6->w12
+	 *   v5->w4
+	 *   =======
+	 * </pre>
+	 * However, stating this bipartite matching problem involves (recursively)
+	 * solving further maximum cardinality bipartite matching problems:
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v4 w3 1) (v4 w1 1) 
+	 *   (v3 w3 1) (v3 w1 0) 
+	 *   --------------
+	 *   === Matching 
+	 *   v3->w3
+	 *   v4->w1
+	 *   =======
+	 * </pre>
+	 * 
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v2 w2 1) 
+	 *   --------------
+	 *   === Matching 
+	 *   v2->w2
+	 *   =======
+	 * </pre>
+	 * 
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v4 w11 1) (v4 w5 1)
+	 *   (v3 w11 1) (v3 w5 0) 
+	 *   --------------
+	 *   === Matching 
+	 *   v4->w5
+	 *   v3->w11
+	 *   =======
+	 * </pre>
+	 * 
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v2 w9 1) (v2 w10 1)  
+	 *   --------------
+	 *   === Matching 
+	 *   v2->w9
+	 *   =======
+	 * </pre>
+	 * 
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v4 w13 1) (v4 w16 1) (v4 w14 1) 
+	 *   (v3 w13 0) (v3 w16 1) (v3 w14 0)   
+	 *   --------------
+	 *   === Matching 
+	 *   v4->w13
+	 *   v3->w16
+	 *   =======
+	 * </pre>
+	 * 
+	 * <pre>
+	 *   ---- Matrix---
+	 *   (v2 w15 1)   
+	 *   --------------
+	 *   === Matching 
+	 *   v2->w15
+	 *   =======
+	 * </pre>
+	 * 
+	 * @param v node of the T_1
+	 * @param w node of the T_2
+	 * @return 0 or 1
+	 */
+	private int traverseTopDown(INodeExt v, INodeExt w){
+		
+		debug(v.getData().toString() + " <-> " + w.getData().toString());
+
+		/* 
+		 * p is number of children of v 
+		 * q is number of chilfren of w
+		 */
+		int p  = v.getOutgoingEdgeList().size();
+		int q = w.getOutgoingEdgeList().size();
+
+		/* v is a leaf*/
+		if(p == 0){
+			return 1;
+		}
+
+		/* if( p > q || v.height > w.height || v.size > w.size */
+		if(p > q || v.getHeight() > w.getHeight() || v.getWidth() > w.getWidth() ){
+			return 0;
+		}
+
+		IEdgeListExt out1 = v.getOutgoingEdgeList();
+		IEdgeListExt out2 = w.getOutgoingEdgeList();
+
+		MatrixEntry matrix2[][] = new MatrixEntry[p][q];
+		for(int i = 0; i < p; i++){
+			for(int j = 0; j < q; j++){
+				INodeExt child1 = out1.getEdgeExt(i).getTarget();
+				INodeExt child2 = out2.getEdgeExt(j).getTarget();
+
+				MatrixEntry me = new MatrixEntry();
+				me.v = child1;
+				me.w = child2;
+
+				matrix2[i][j] = me;
+				me.isomorph = traverseTopDown(child1, child2);
+			}
+		}
+
+		if(p != 0 && q != 0){
+			int size[] = {p, q};
+			
+			/* DEBUG */
+			printMatrix(matrix2, size);
+			
+			/* create a bipartite graph from the matrix */
+			List<INodeExt> part1 = new ArrayList<INodeExt>();
+			List<INodeExt> part2 = new ArrayList<INodeExt>();
+			IDirectedGraphExt graph = createBibartitGraph(matrix2, size, part1, part2);
+			
+			/* an optimization to avoid the creation of an empty matrix */
+			if(graph.getEdgeList().size() == 0){
+				return 1;
+			}
+
+			/* find max bipartite matching */
+			MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching();
+			mbm.start(graph, part1, part2);
+
+ 
+			debug(" === Matching ");
+			for(IEdgeExt e: mbm.getMatchingEdgeList()){
+
+				debug(((INodeExt)e.getSource().getData()).getData()
+						+ "->" 
+						+ ((INodeExt)e.getTarget().getData()).getData());
+
+				
+				List<IEdgeExt> list = B.get(e.getSource().getData());
+				if(list == null){
+					list = new ArrayList<IEdgeExt>();
+					B.put((INodeExt) e.getSource().getData(), list);
+				}
+
+				for(IEdgeExt ee: mbm.getMatchingEdgeList()){
+					if(ee.getSource().getData().equals(e.getSource().getData())){
+						list.add(ee);
+					}
+				}
+			}
+			debug(" =======");
+		}
+
+		return 1;
+	}
+
 	/**
 	 * This method reconstructs the top-down unordered subtree isomorphism mapping
 	 * <code>V_1 X V_2 subset M</code> included the solution 
@@ -241,97 +416,7 @@ public class TopDownSubtreeIsomorthism {
 
 		}
 	}
-
-
-	private int traverseTopDown(INodeExt v1, INodeExt w1){
-		
-		debug(v1.getData().toString() + " <-> " + w1.getData().toString());
-
-		/* 
-		 * p is number of children of v 
-		 * q is number of chilfren of w
-		 */
-		int p  = v1.getOutgoingEdgeList().size();
-		int q = w1.getOutgoingEdgeList().size();
-
-
-		/* v is a leaf*/
-		if(p == 0){
-			return 1;
-		}
-
-		/* if( p > q || v.height > w.height || v.size > w.size */
-		if(p > q || v1.getHeight() > w1.getHeight() || v1.getWidth() > w1.getWidth() ){
-			return 0;
-		}
-
-
-		IEdgeListExt out1 = v1.getOutgoingEdgeList();
-		IEdgeListExt out2 = w1.getOutgoingEdgeList();
-
-		MatrixEntry matrix2[][] = new MatrixEntry[p][q];
-		for(int i = 0; i < p; i++){
-			for(int j = 0; j < q; j++){
-				INodeExt child1 = out1.getEdgeExt(i).getTarget();
-				INodeExt child2 = out2.getEdgeExt(j).getTarget();
-
-				MatrixEntry me = new MatrixEntry();
-				me.v = child1;
-				me.w = child2;
-
-				matrix2[i][j] = me;
-
-				me.isomorph = traverseTopDown(child1, child2);
-			}
-		}
-
-		if(p != 0 && q != 0){
-			int size[] = {p, q};
-			
-			/* DEBUG */
-			printMatrix(matrix2, size);
-			
-			/* create a bipartite graph from the matrix */
-			List<INodeExt> part1 = new ArrayList<INodeExt>();
-			List<INodeExt> part2 = new ArrayList<INodeExt>();
-			IDirectedGraphExt graph = createBibartitGraph(matrix2, size, part1, part2);
-			
-			/* an optimization to avoid the creation of an empty matrix */
-			if(graph.getEdgeList().size() == 0){
-				return 1;
-			}
-
-			/* find max bipartite matching */
-			MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching();
-			mbm.start(graph, part1, part2);
-
- 
-			debug(" === Matching ");
-			for(IEdgeExt e: mbm.getMatchingEdgeList()){
-
-				debug(((INodeExt)e.getSource().getData()).getData()
-						+ "->" 
-						+ ((INodeExt)e.getTarget().getData()).getData());
-
-				
-				List<IEdgeExt> list = B.get(e.getSource().getData());
-				if(list == null){
-					list = new ArrayList<IEdgeExt>();
-					B.put((INodeExt) e.getSource().getData(), list);
-				}
-
-				for(IEdgeExt ee: mbm.getMatchingEdgeList()){
-					if(ee.getSource().getData().equals(e.getSource().getData())){
-						list.add(ee);
-					}
-				}
-			}
-			debug(" =======");
-		}
-
-		return 1;
-	}
-
+	
 	/**
 	 * Creates a bipartite graph from the matrix.
 	 * 
