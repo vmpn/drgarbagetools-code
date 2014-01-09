@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -65,15 +64,17 @@ public class CFGCompareTopDown {
 			e1.printStackTrace();
 		}
 
-		if (cfgLeftSpanningTree.getNodeList().size() > cfgRightSpanningTree.getNodeList().size()){
+		if (cfgLeftSpanningTree.getNodeList().size() > cfgRightSpanningTree.getNodeList().size()) {
 			return false;
 		}
+		
 		INodeExt rootLeft = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 		INodeExt rootRight = cfgRightSpanningTree.getNodeList().getNodeExt(0);
 
-		if (mapOrderedSubtree(rootLeft, rootRight)){
+		if (mapOrderedSubtree(rootLeft, rootRight)) {
 			return true;
 		}	
+		
 		return false;
 
 		// TODO: check removed edges
@@ -81,8 +82,9 @@ public class CFGCompareTopDown {
 	
 	private boolean mapOrderedSubtree(INodeExt node1, INodeExt node2) {
 
-		if (node1.getCounter() != node2.getCounter())
+		if (node1.getCounter() != node2.getCounter()) {
 			return false;
+		}
 
 		IEdgeListExt node1OutgoingEdges = node1.getOutgoingEdgeList();
 		IEdgeListExt node2OutgoingEdges = node2.getOutgoingEdgeList();
@@ -90,8 +92,9 @@ public class CFGCompareTopDown {
 		int node1ChildCount = node1OutgoingEdges.size();
 		int node2ChildCount = node2OutgoingEdges.size();
 
-		if (node1ChildCount > node2ChildCount)
+		if (node1ChildCount > node2ChildCount) {
 			return false;
+		}
 
 		INodeExt v1, v2;
 
@@ -103,15 +106,17 @@ public class CFGCompareTopDown {
 			v1 = node1SortedEdges.get(0).getTarget();
 			v2 = node2SortedEdges.get(0).getTarget();
 
-			if (!mapOrderedSubtree(v1, v2))
+			if (!mapOrderedSubtree(v1, v2)) {
 				return false;
+			}
 
 			for (int i = 1; i < node1ChildCount; i++) {
 				v1 = node1SortedEdges.get(i).getTarget();
 				v2 = node2SortedEdges.get(i).getTarget();
 
-				if (!mapOrderedSubtree(v1, v2))
+				if (!mapOrderedSubtree(v1, v2)) {
 					return false;
+				}
 			}
 		}
 
@@ -124,8 +129,7 @@ public class CFGCompareTopDown {
 	 * @param graphLeft
 	 * @param graphRight
 	 */
-	public void doCompareGraphsTopDown(IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight)
-	{
+	public void doCompareGraphsTopDown(IDirectedGraphExt graphLeft, IDirectedGraphExt graphRight) {
 		IEdgeListExt backEdgesCfgLeft = removeBackEdges(graphLeft);
 		IEdgeListExt backEdgesCfgRight = removeBackEdges(graphRight);
 
@@ -135,13 +139,8 @@ public class CFGCompareTopDown {
 		/* clear visited flags in nodes and edges */
 		GraphUtils.clearGraph(graphLeft);
 		GraphUtils.clearGraph(graphRight);
-//		topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
 		
-		/* execute top down subtree isomorphism algorithm */
-		TopDownSubtreeIsomorthism tsi = new TopDownSubtreeIsomorthism();
-		Map<INodeExt, INodeExt> M = tsi.topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
-		
-		setMarksOfNodesInMap(M);
+		topDownUnorderedSubtreeIsomorphism(graphLeft, graphRight);
 	}
 	
 	/**
@@ -157,20 +156,20 @@ public class CFGCompareTopDown {
 		INodeExt root1 = cfgLeftSpanningTree.getNodeList().getNodeExt(0);
 		INodeExt root2 = cfgRightSpanningTree.getNodeList().getNodeExt(0);
 
-		TopDownTreeTraversal tdtt = new TopDownTreeTraversal();
-
-		try {
-			tdtt.traverse(cfgLeftSpanningTree, root1);
-			tdtt.traverse(cfgRightSpanningTree, root2);
-
-		} catch (ControlFlowGraphException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//		TopDownTreeTraversal tdtt = new TopDownTreeTraversal();
+//
+//		try {
+//			tdtt.traverse(cfgLeftSpanningTree, root1);
+//			tdtt.traverse(cfgRightSpanningTree, root2);
+//
+//		} catch (ControlFlowGraphException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 
 		/* print spanning trees for debugging */ // TODO remove after debugging is done
-		printGraph(cfgLeftSpanningTree, "spanning tree left");
-		printGraph(cfgRightSpanningTree, "spanning tree right");
+//		printGraph(cfgLeftSpanningTree, "spanning tree left");
+//		printGraph(cfgRightSpanningTree, "spanning tree right");
 
 		HashMap<INodeExt, Integer> height1 = new HashMap<INodeExt, Integer>();
 		HashMap<INodeExt, Integer> size1 = new HashMap<INodeExt, Integer>();
@@ -180,8 +179,9 @@ public class CFGCompareTopDown {
 
 		HashMap<INodeExt, HashSet<INodeExt>> b = new HashMap<INodeExt, HashSet<INodeExt>>(); 
 		
-		for(int i = 0; i < cfgLeftSpanningTree.getNodeList().size(); i++)
+		for(int i = 0; i < cfgLeftSpanningTree.getNodeList().size(); i++) {
 			b.put(cfgLeftSpanningTree.getNodeList().getNodeExt(i), new HashSet<INodeExt>());
+		}
 
 		computeHeightAndSizeOfNodesInTree(cfgLeftSpanningTree, height1, size1);
 		computeHeightAndSizeOfNodesInTree(cfgRightSpanningTree, height2, size2);
@@ -226,7 +226,7 @@ public class CFGCompareTopDown {
 	 * @param height maps a node to its height
 	 * @param size maps a node to its size
 	 */
-	private void computeHeightAndSizeOfNodesInTree(
+	private void computeHeightAndSizeOfNodesInTree( // TODO return HashMap<INodeExt, HeightSizePair>
 			IDirectedGraphExt graph,
 			HashMap<INodeExt, Integer> height, 
 			HashMap<INodeExt, Integer> size) {
@@ -255,6 +255,10 @@ public class CFGCompareTopDown {
 		}
 
 	}
+//	private class HeightSizePair { 
+//		public int height; 
+//		public int size; 
+//	}
 
 	/**
 	 * topDownUnorderedSubtreeIsomorphism uses recursion
@@ -279,20 +283,23 @@ public class CFGCompareTopDown {
 			HashMap<INodeExt, Integer> size2,
 			HashMap<INodeExt, HashSet<INodeExt>> b) {
 
-//		if (node1.getCounter() != node2.getCounter()) // i don't know why this is in the book
+//		if (node1.getCounter() != node2.getCounter()) { // i don't know why this is in the book
 //			return false;
-
+//		}
+	
 		if (node1.getOutgoingEdgeList().size() == 0){
 			return true;
 		}
+		
 		int node1ChildCount = node1.getOutgoingEdgeList().size();
 		int node2ChildCount = node2.getOutgoingEdgeList().size();
 
 		if (node1ChildCount > node2ChildCount
 				|| height1.get(node1) > height2.get(node2)
-				|| size1.get(node1) > size2.get(node2)){
+				|| size1.get(node1) > size2.get(node2)) {
 			return false;
-		}	
+		}
+		
 		HashMap<INodeExt, INodeExt> nodeMapT1G = new HashMap<INodeExt, INodeExt>();
 		HashMap<INodeExt, INodeExt> nodeMapT2G = new HashMap<INodeExt, INodeExt>();
 
@@ -390,7 +397,12 @@ public class CFGCompareTopDown {
 
 		}
 
-		MaxCardBipartiteMatching mcbm = new MaxCardBipartiteMatching();
+//		MaxCardBipartiteMatching mcbm = new MaxCardBipartiteMatching();
+//		mcbm.start(g, partition1, partition2);
+//		
+//		List<IEdgeExt> l = mcbm.getMatchingEdgeList();
+		
+		MaxCardBipartiteMatchingNaive mcbm = new MaxCardBipartiteMatchingNaive();
 		mcbm.start(g, partition1, partition2);
 		
 		List<IEdgeExt> l = mcbm.getMatchingEdgeList();
@@ -411,7 +423,7 @@ public class CFGCompareTopDown {
 	 * @param map map containing nodes
 	 * @see com.drgarbage.controlflowgraph.intf.INodeExt#setMark(MarkEnum)
 	 */
-	private static void setMarksOfNodesInMap(Map<INodeExt, INodeExt> map) {
+	private static void setMarksOfNodesInMap(HashMap<INodeExt, INodeExt> map) {
 		for (Entry<INodeExt, INodeExt> entry : map.entrySet()) {
 			INodeExt key = entry.getKey();
 			INodeExt value = entry.getValue();
