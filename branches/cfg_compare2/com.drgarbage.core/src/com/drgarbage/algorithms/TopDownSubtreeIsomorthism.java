@@ -318,7 +318,7 @@ public class TopDownSubtreeIsomorthism {
 			}
 
 			/* find max bipartite matching */
-			MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching();
+			MaxCardBipartiteMatchingNaive mbm = new MaxCardBipartiteMatchingNaive();
 			mbm.start(graph, part1, part2);
 
  

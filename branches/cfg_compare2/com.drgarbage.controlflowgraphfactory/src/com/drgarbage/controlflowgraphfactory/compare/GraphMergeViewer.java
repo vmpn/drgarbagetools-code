@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -46,6 +47,7 @@ import org.eclipse.swt.widgets.Composite;
 import com.drgarbage.algorithms.CFGCompareBottomUp;
 import com.drgarbage.algorithms.CFGCompareTopDown;
 import com.drgarbage.algorithms.MaxMatchTreeDFS;
+import com.drgarbage.algorithms.TopDownSubtreeIsomorthism;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
@@ -339,13 +341,16 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	public void doTopDownAlg() {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
-		CFGCompareTopDown compare = new CFGCompareTopDown();
+		
+		TopDownSubtreeIsomorthism  compare = new TopDownSubtreeIsomorthism();
 		
 		/* start to compare graphs */
-		compare.doCompareGraphsTopDown(cfgLeft, cfgRight);
+		Map<INodeExt, INodeExt> map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
 		
-		colorNodesByMarks(cfgLeft);
-		colorNodesByMarks(cfgRight);
+		for(Map.Entry<INodeExt, INodeExt> entry : map.entrySet()){
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		}
 	}
 
 	/**
