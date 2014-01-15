@@ -53,7 +53,8 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * 
  * @author Sergej Alekseev
  * 
- * @version $Revision$ $Id$
+ * @version $Revision$ 
+ * $Id$
  */
 public class TopDownSubtreeIsomorthism {
 
@@ -318,12 +319,11 @@ public class TopDownSubtreeIsomorthism {
 			}
 
 			/* find max bipartite matching */
-			MaxCardBipartiteMatchingNaive mbm = new MaxCardBipartiteMatchingNaive();
+			MaxBipartiteMatching mbm = new MaxBipartiteMatching();
 			mbm.start(graph, part1, part2);
 
- 
 			debug(" === Matching ");
-			for(IEdgeExt e: mbm.getMatchingEdgeList()){
+			for(IEdgeExt e: mbm.getMatchedEdges()){
 
 				debug(((INodeExt)e.getSource().getData()).getData()
 						+ "->" 
@@ -336,7 +336,7 @@ public class TopDownSubtreeIsomorthism {
 					B.put((INodeExt) e.getSource().getData(), list);
 				}
 
-				for(IEdgeExt ee: mbm.getMatchingEdgeList()){
+				for(IEdgeExt ee: mbm.getMatchedEdges()){
 					if(ee.getSource().getData().equals(e.getSource().getData())){
 						list.add(ee);
 					}
