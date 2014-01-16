@@ -266,7 +266,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		} catch (IOException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(ControlFlowFactoryMessages.GraphCompare_Error_Can_not_save_diagram 
-					+ CoreMessages.ExceptionAdditionalMessage);;
+					+ CoreMessages.ExceptionAdditionalMessage);
 		}
 
 		/* We can't modify the contents of right or left side, just return null. */
@@ -345,7 +345,13 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		TopDownSubtreeIsomorthism  compare = new TopDownSubtreeIsomorthism();
 		
 		/* start to compare graphs */
-		Map<INodeExt, INodeExt> map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+		Map<INodeExt, INodeExt> map = null;
+		try {
+			map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+		} catch (ControlFlowGraphException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(e.getMessage());
+		}
 		
 		for(Map.Entry<INodeExt, INodeExt> entry : map.entrySet()){
 			((VertexBase) entry.getKey().getData()).setColor(GREEN);
