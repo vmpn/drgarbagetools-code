@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.GraphUtils;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -88,23 +89,60 @@ public class TopDownSubtreeIsomorthism {
 	 * @param leftTree the tree <code>T_1</code>
 	 * @param rightTree the tree <code>T_2</code>
 	 * @return the map of matched nodes
+	 * @throws ControlFlowGraphException 
 	 */
 	public Map<INodeExt, INodeExt> topDownUnorderedSubtreeIsomorphism(
-			IDirectedGraphExt leftTree, IDirectedGraphExt rightTree) {
+			IDirectedGraphExt leftTree, IDirectedGraphExt rightTree) throws ControlFlowGraphException {
+		
+		/* get root nodes */
+		INodeExt rootLeft = null;
+		for(int i = 0; i < leftTree.getNodeList().size(); i++){
+			INodeExt n = leftTree.getNodeList().getNodeExt(i);
+			if(n.getIncomingEdgeList().size() == 0){
+				rootLeft = n;
+			}
+		}
+		
+		if(rootLeft == null){
+			throw new ControlFlowGraphException("The left tree has no root. The graph is propably not a tree.");
+		}
+		
+		INodeExt rootRight = null;
+		for(int i = 0; i < rightTree.getNodeList().size(); i++){
+			INodeExt n = rightTree.getNodeList().getNodeExt(i);
+			if(n.getIncomingEdgeList().size() == 0){
+				rootRight = n;
+			}
+		}
+		
+		if(rootRight == null){
+			throw new ControlFlowGraphException("The right tree has no root. The graph is propably not a tree.");
+		}
 
+		return topDownUnorderedSubtreeIsomorphism(leftTree, rootLeft, rightTree, rootRight);
+		
+	}
+	
+	public Map<INodeExt, INodeExt> topDownUnorderedSubtreeIsomorphism(
+			IDirectedGraphExt leftTree, 
+			INodeExt rootLeft, 
+			IDirectedGraphExt rightTree,
+			INodeExt rootRight) {
+
+		/* check tree size */
+		if(leftTree.getNodeList().size() > rightTree.getNodeList().size()){
+			return null;
+		}
+		
 		/* clear tree graphs */
 		GraphUtils.clearGraph(leftTree);
 		GraphUtils.clearGraphColorMarks(leftTree);
 		GraphUtils.clearGraph(rightTree);
 		GraphUtils.clearGraphColorMarks(rightTree);
 
-		/* get root nodes */
-		INodeExt root1 = leftTree.getNodeList().getNodeExt(0);
-		INodeExt root2 = rightTree.getNodeList().getNodeExt(0);
-
 		/* compute size and heights for all nodes of both trees */
-		compute_Size_Height(root1);
-		compute_Size_Height(root2);
+		compute_Size_Height(rootLeft);
+		compute_Size_Height(rootRight);
 		
 		/* DEBUG */
 		printtHeightSize(leftTree.getNodeList());
@@ -113,11 +151,11 @@ public class TopDownSubtreeIsomorthism {
 		
 		B = new HashMap<INodeExt, List<IEdgeExt>>();
 		Map<INodeExt, INodeExt> M  = new HashMap<INodeExt, INodeExt>();
-		traverseTopDown(root1, root2);
+		traverseTopDown(rootLeft, rootRight);
 
 		/* reconstruct the subtree */
-		M.put(root1, root2);
-		reconstruct(root1, M);
+		M.put(rootLeft, rootRight);
+		reconstruct(rootLeft, M);
 		
 		return M;
 	}
@@ -381,10 +419,14 @@ public class TopDownSubtreeIsomorthism {
 			INodeExt  node = outEdges.getEdgeExt(i).getTarget();
 
 			/* for all matchings */
-			debug("    -> Matches for "
-					+ node.getData());
+			debug("    -> Matches for " + node.getData());
 
 			List<IEdgeExt> edges = B.get(node);
+			if(edges == null){
+				debug("ERROR: not matches for " + node.getData());
+				return;
+			}
+			
 			for(IEdgeExt e: edges){
 				INodeExt nodeV = (INodeExt)e.getSource().getData();
 				INodeExt nodeW = (INodeExt)e.getTarget().getData();
