@@ -12,6 +12,11 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
 
 import junit.framework.TestCase;
 
+/**
+* @author Artem Garishin
+* @version $Revision$
+* $Id$
+*/
 public class MaxWeightedBipartiteMatchingTest extends TestCase{
 
 	/**

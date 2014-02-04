@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,7 +15,11 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.MarkEnum;
-
+/**
+* @author Artem Garishin
+* @version $Revision$
+* $Id$
+*/
 public class MaxWeightedBipartiteMatching {
 	
 	private Set<IEdgeExt> matchedEdges = new HashSet<IEdgeExt>(); 
