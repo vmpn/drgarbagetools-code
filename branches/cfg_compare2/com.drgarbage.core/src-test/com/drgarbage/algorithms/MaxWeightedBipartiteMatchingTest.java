@@ -75,7 +75,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	}
 	
 	/**
-	 * 
+	 * Testcase matrix 4x4
 	 * 
 	 * @return the test set
 	 */
@@ -85,9 +85,11 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
        INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
        t.graph.getNodeList().add(a1);
        t.partA.add(a1);
+       
        INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
        t.graph.getNodeList().add(a2);
        t.partA.add(a2);
+       
        INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
        t.graph.getNodeList().add(a3);
        t.partA.add(a3);
@@ -96,12 +98,15 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
        t.graph.getNodeList().add(b1);
        t.partB.add(b1);
+       
        INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
        t.graph.getNodeList().add(b2);
        t.partB.add(b2);
+       
        INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
        t.graph.getNodeList().add(b3);
        t.partB.add(b3);
+       
        INodeExt b4 = GraphExtentionFactory.createNodeExtention("b4");
        t.graph.getNodeList().add(b4);
        t.partB.add(b4);
@@ -125,7 +130,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
        t.graph.getEdgeList().add(edge);
        
        edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
-       edge.setCounter(10);
+       edge.setCounter(9);
        t.graph.getEdgeList().add(edge);
 
        edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
@@ -140,6 +145,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
        
 		return t;
 	}
+	
 	private TestSet createTestSet2(){
 		TestSet t = new TestSet();
 	   //PartA
@@ -195,6 +201,66 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		return t;
 	}
 	/**
+	 * Test case when vertices are added to bipartite graph in trivial order
+	 * Example: G = a1 + a3 + a2 
+	 * @return
+	 */
+	private TestSet createTestSet3(){
+		TestSet t = new TestSet();
+	   //PartA
+       INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
+       t.graph.getNodeList().add(a1);
+       t.partA.add(a1);
+       INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
+       t.graph.getNodeList().add(a3);
+       t.partA.add(a3);
+       INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
+       t.graph.getNodeList().add(a2);
+       t.partA.add(a2);
+       
+       //PartB       
+       INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
+       t.graph.getNodeList().add(b2);
+       t.partB.add(b2);
+       INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
+       t.graph.getNodeList().add(b3);
+       t.partB.add(b3);
+       INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
+       t.graph.getNodeList().add(b1);
+       t.partB.add(b1);
+       
+       
+       //set edges and weights
+       
+       IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
+       edge.setCounter(3);
+       t.graph.getEdgeList().add(edge);
+       
+       edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
+       edge.setCounter(5);
+       t.graph.getEdgeList().add(edge);
+		       
+       edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
+       edge.setCounter(3);
+       t.graph.getEdgeList().add(edge);
+
+       edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
+       edge.setCounter(1);
+       t.graph.getEdgeList().add(edge);
+       
+       edge = GraphExtentionFactory.createEdgeExtention(a3, b2);
+       edge.setCounter(1);
+       t.graph.getEdgeList().add(edge);
+
+       edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
+       edge.setCounter(3);
+       t.graph.getEdgeList().add(edge);
+
+
+		return t;
+	}
+	
+	/**
 	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
 	 * @see #createTestSet1()
 	 */
@@ -206,12 +272,26 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		//printMatchedEdges(m.getMatchedEdges());
 		//assertEquals(19, m.getMaxWeightAll());
 	}
+	
 	/**
 	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
 	 * @see #createTestSet2()
 	 */
 	public final void testMaxCardBipartiteMatching2() {	
 		TestSet t = createTestSet2();
+		//printGraph(t.graph);
+		m.start(t.graph, t.partA, t.partB);
+		
+		//printMatchedEdges(m.getMatchedEdges());
+		//assertEquals(19, m.getMaxWeightAll());
+	}
+	
+	/**
+	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+	 * @see #createTestSet2()
+	 */
+	public final void testMaxCardBipartiteMatching3() {	
+		TestSet t = createTestSet3();
 		//printGraph(t.graph);
 		m.start(t.graph, t.partA, t.partB);
 		

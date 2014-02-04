@@ -63,8 +63,8 @@ public class MaxWeightedBipartiteMatching {
 		}
 		
 		/* debug positions*/
-		printMap(mapPartA);
-		printMap(mapPartB);
+		//printMap(mapPartA);
+		//printMap(mapPartB);
 		    
 		/*map vertices to graph properly*/
 		for(int i = 0; i < partA.size(); i++){
@@ -87,14 +87,48 @@ public class MaxWeightedBipartiteMatching {
 	 * @param matrix
 	 */
 	public void printWeighedtMatrix(IEdgeExt[][] matrix){
+		System.out.println();
 		System.out.println("===Matrix===");
+		
+		/* output B headers */
+		String headerB = "  ";
+		for(int i = 0; i < mapPartB.size(); i++){
+		for(Entry<INodeExt, Integer> entry : mapPartB.entrySet()){
+				if(entry.getValue().equals((Integer)i)){
+					headerB += entry.getKey().getData()+ " ";
+				}				
+			}
+		}
+		System.out.print(headerB);
+		System.out.println();
+		
+		/* output content of matrix */
+		boolean noA = true;
 		for(int i = 0; i < matrix.length; i++){
-			for(int j = 0; j < matrix.length; j++){
-				if(matrix[i][j] != null){
-					System.out.print(matrix[i][j].getCounter()+" ");
+			/* output for A headers */
+			for(Entry<INodeExt, Integer> entry : mapPartA.entrySet()){
+				if(entry.getValue().equals((Integer)i)){
+					System.out.print(entry.getKey().getData()+ " ");
+					noA = true;
+					break;
 				}
 				else{
-					System.out.print("0 ");
+					noA = false;
+				}
+			}
+			
+			/* when there are no real A, dummy A nodes are added to the matrix(the matrix must be NxN) */
+			if(!noA){
+				System.out.print("a"+(i+1)+" ");
+				noA = true;
+			}
+			/* output cost matrix (null edges are outputed as zero)*/
+			for(int j = 0; j < matrix.length; j++){
+				if(matrix[i][j] != null){
+					System.out.print(matrix[i][j].getCounter()+"  ");
+				}
+				else{
+					System.out.print("0  ");
 				}
 			}
 			System.out.print("\n");
