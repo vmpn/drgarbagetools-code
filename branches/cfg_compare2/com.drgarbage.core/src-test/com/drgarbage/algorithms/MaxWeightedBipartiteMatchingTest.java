@@ -75,7 +75,8 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	}
 	
 	/**
-	 * Testcase matrix 4x4
+	 * TODO: describe the graph
+	 * 
 	 * 
 	 * @return the test set
 	 */
@@ -141,11 +142,47 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
        edge.setCounter(1);
        t.graph.getEdgeList().add(edge);
        
-		       
-       
-		return t;
+       return t;
 	}
 	
+	/**
+	 * The test set 2. <br>
+	 * The graph <code>G = (A + B, E)</code>:
+	 * <pre>
+	 *   a1 --- b1
+	 *       /
+	 *      /
+	 *   a2  -- b2
+	 *      \ /
+	 *      / \
+	 *   a3 --- b3
+	 * </pre>
+	 * <code>A =(a1, a2, a3)</code>, <code>B =(b1, b2, b3)</code>
+	 * and <code>E =((a1 - b1), (a2 - b1), (a2 - b2), (a2 - b3), (a3 - b2), (a3 - b3))</code>
+	 * <br>
+	 * 
+	 * The following weights are assigned to the edges:
+	 * <pre>
+	 * (a1 - b1)  3
+	 * (a2 - b1)  5
+	 * (a2 - b2)  3
+	 * (a2 - b3)  1
+	 * (a3 - b2)  1
+	 * (a3 - b3)  3
+	 * </pre>
+	 * 
+	 * Expected matching <code>M = (a1-b1, a2-b2, a3-b3)</code> 
+	 * with |M|=3 and W = 3 + 3 + 3 = 9:
+	 * <pre>
+	 *   a1 --- b1
+	 *   
+	 *      
+	 *   a2  -- b2
+	 *      
+	 *      
+	 *   a3 --- b3
+	 * 
+	 * </pre>*/
 	private TestSet createTestSet2(){
 		TestSet t = new TestSet();
 	   //PartA
@@ -201,19 +238,39 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		return t;
 	}
 	/**
-	 * Test case when vertices are added to bipartite graph in trivial order
-	 * Example: G = a1 + a3 + a2 
-	 * @return
-	 */
+	 * The test set 3. <br>
+	 * The graph <code>G = (A + B, E)</code>:
+	 * <pre>
+	 * TODO: change the layout: 
+	 *   a1 ---- b1
+	 *      \ /
+	 *      /\
+	 *   a2 --\- b2
+	 *        /\
+	 *       /  \
+	 *   a3  ----- b3
+	 * </pre>
+	 * <code>A =(a1, a2, a3)</code>, <code>B =(b1, b2, b3)</code>
+	 * and <code>E =((a1 - b1), (a2 - b1), (a2 - b2), (a2 - b3), (a3 - b2), (a3 - b3))</code>
+	 * <br>
+	 * 
+	 * The following weights are assigned to the edges:
+	 * <pre>
+	 * (a1 - b1)  1
+	 * (a2 - b1)  5
+	 * (a2 - b2)  1
+	 * (a2 - b3)  1
+	 * (a3 - b2)  6
+	 * (a3 - b3)  1
+	 * </pre> 
+	 * */
 	private TestSet createTestSet3(){
 		TestSet t = new TestSet();
 	   //PartA
        INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
        t.graph.getNodeList().add(a1);
        t.partA.add(a1);
-       INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
-       t.graph.getNodeList().add(a3);
-       t.partA.add(a3);
+       
        INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
        t.graph.getNodeList().add(a2);
        t.partA.add(a2);
@@ -233,31 +290,22 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
        //set edges and weights
        
        IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
-       edge.setCounter(3);
+       edge.setCounter(10);
+       t.graph.getEdgeList().add(edge);
+       
+       edge = GraphExtentionFactory.createEdgeExtention(a1, b3);
+       edge.setCounter(5);
        t.graph.getEdgeList().add(edge);
        
        edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
-       edge.setCounter(5);
+       edge.setCounter(11);
        t.graph.getEdgeList().add(edge);
 		       
        edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
-       edge.setCounter(3);
+       edge.setCounter(9);
        t.graph.getEdgeList().add(edge);
 
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
-       edge.setCounter(1);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a3, b2);
-       edge.setCounter(1);
-       t.graph.getEdgeList().add(edge);
-
-       edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
-       edge.setCounter(3);
-       t.graph.getEdgeList().add(edge);
-
-
-		return t;
+       return t;
 	}
 	
 	/**
@@ -269,8 +317,8 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		//printGraph(t.graph);
 		m.start(t.graph, t.partA, t.partB);
 		
-		//printMatchedEdges(m.getMatchedEdges());
-		//assertEquals(19, m.getMaxWeightAll());
+		printMatchedEdges(m.getMatchedEdges());
+		assertEquals(19, m.getMaxWeightAll());
 	}
 	
 	/**
@@ -282,8 +330,8 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		//printGraph(t.graph);
 		m.start(t.graph, t.partA, t.partB);
 		
-		//printMatchedEdges(m.getMatchedEdges());
-		//assertEquals(19, m.getMaxWeightAll());
+		printMatchedEdges(m.getMatchedEdges());
+		assertEquals(9, m.getMaxWeightAll());
 	}
 	
 	/**
@@ -295,8 +343,8 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		//printGraph(t.graph);
 		m.start(t.graph, t.partA, t.partB);
 		
-		//printMatchedEdges(m.getMatchedEdges());
-		//assertEquals(19, m.getMaxWeightAll());
+		printMatchedEdges(m.getMatchedEdges());
+		assertEquals(19, m.getMaxWeightAll());
 	}
 	
 	/**

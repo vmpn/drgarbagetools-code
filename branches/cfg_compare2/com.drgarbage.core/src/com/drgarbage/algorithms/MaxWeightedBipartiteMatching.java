@@ -24,10 +24,15 @@ public class MaxWeightedBipartiteMatching {
 	
 	private Set<IEdgeExt> matchedEdges = new HashSet<IEdgeExt>(); 
 	private IEdgeExt[][] matrix;
+	private int[][] numberedMatrix;
+	private int matrixSize;
+	
 	private Map<INodeExt, Integer> mapPartA = new HashMap<INodeExt, Integer>();
 	private Map<INodeExt, Integer> mapPartB = new HashMap<INodeExt, Integer>();
+	private int[] matchedRows;
 	
 	public Set<IEdgeExt> getMatchedEdges() {
+		
 		return matchedEdges;
 	}
 	/**
@@ -39,32 +44,61 @@ public class MaxWeightedBipartiteMatching {
 	public void start(IDirectedGraphExt graph, List<INodeExt> partA, List<INodeExt> partB) {
 	
 		buildCostMatrix(partA, partB);
-		//TODO: attach hungarian method here
+		HungarianAlgorithm alg = new HungarianAlgorithm(numberedMatrix);
+		matchedRows = alg.execute();
 		
+		for(int i = 0; i < matrix.length; i++){
+			if(matrix[i][matchedRows[i]] != null){
+				matchedEdges.add(matrix[i][matchedRows[i]]);
+			}
+		}
 	}
 	
+	/**
+	 * build a simple squared matrix of weights
+	 * @param matrix
+	 * @return
+	 */
+	private int[][] getNumberedMatrix(IEdgeExt[][] matrix){
+		numberedMatrix = new int [matrixSize][matrixSize];
+		for (int[] row : numberedMatrix){
+		    Arrays.fill(row, 0);
+		}
+		
+		for(int i = 0; i < matrixSize; i++){
+			for(int j = 0; j < matrixSize; j++){
+				if(matrix[i][j] != null){
+					numberedMatrix[i][j] = matrix[i][j].getCounter();
+				}
+			}
+		}
+		return numberedMatrix;
+ 	}
+	/**
+	 * Constructs a matrix of edges
+	 * @param partA
+	 * @param partB
+	 */
 	private void buildCostMatrix(List<INodeExt> partA, List<INodeExt> partB){
 		
 		/* declare matrix with highest number of vertices of B*/
+		matrixSize = partB.size(); 
 		int n = partB.size();
 		this.matrix = new IEdgeExt[n][n];
 		
-		/* define sequence of vertices in the matrix*/
+		/* define sequence of A-vertices in the matrix*/
 		int index = 0;
 		for(INodeExt node: partA){
 			mapPartA.put(node, index);
 			index++;
 		}
 
+		/* define sequence of B-vertices in the matrix*/
 		index = 0;
 		for(INodeExt node: partB){
 			mapPartB.put(node, index);
 			index++;
 		}
-		
-		/* debug positions*/
-		//printMap(mapPartA);
-		//printMap(mapPartB);
 		    
 		/*map vertices to graph properly*/
 		for(int i = 0; i < partA.size(); i++){
@@ -78,10 +112,24 @@ public class MaxWeightedBipartiteMatching {
 				this.matrix[indexA][indexB] = node.getOutgoingEdgeList().getEdgeExt(j);
 			}
 		}
+		numberedMatrix = getNumberedMatrix(matrix);
 		printWeighedtMatrix(matrix);
 	}
 	
 	/*-------------------------------------DEBUG-------------------------------------------*/
+	/**
+	 * calculate weights of matched edges 
+	 * @return
+	 */
+	public int getMaxWeightAll(){
+		int count = 0;
+		for(IEdgeExt edges: this.matchedEdges){
+			count += edges.getCounter();
+		}
+		
+		return count;
+	}
+	
 	/**
 	 * prints the matrix of edges
 	 * @param matrix
@@ -117,12 +165,12 @@ public class MaxWeightedBipartiteMatching {
 				}
 			}
 			
-			/* when there are no real A, dummy A nodes are added to the matrix(the matrix must be NxN) */
+			/* when there are no real A, dummy A nodes are added to the matrix output(the matrix must be NxN) */
 			if(!noA){
 				System.out.print("a"+(i+1)+" ");
 				noA = true;
 			}
-			/* output cost matrix (null edges are outputed as zero)*/
+			/* output cost matrix (null edges are output as zero)*/
 			for(int j = 0; j < matrix.length; j++){
 				if(matrix[i][j] != null){
 					System.out.print(matrix[i][j].getCounter()+"  ");
