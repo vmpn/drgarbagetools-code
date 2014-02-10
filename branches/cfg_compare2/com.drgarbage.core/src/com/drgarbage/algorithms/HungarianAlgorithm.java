@@ -1,6 +1,11 @@
 package com.drgarbage.algorithms;
 import java.util.Arrays;
 
+/**
+* @author Artem Garishin
+* @version $Revision:$
+* $Id:$
+*/
 public class HungarianAlgorithm {
 	private final int[][] costMatrix;
 	private final int rows, cols, size;
@@ -44,7 +49,7 @@ public class HungarianAlgorithm {
 		Arrays.fill(matchBtoA, -1);
 	}
 		
-	/**
+		/**
 		 * Execute the algorithm.
 		 * start point
 		 */
@@ -73,7 +78,7 @@ public class HungarianAlgorithm {
 			int pos = fetchUnmatchedFromA();
 			System.out.println("pos="+pos);
 			
-			/* if number of matched vertices less than dimension - not perfect matching */
+			/* if number of matched vertices less than dimension - not max matching */
 			while (pos < size) {
 				
 				initializePhase(pos);

@@ -32,7 +32,6 @@ public class MaxWeightedBipartiteMatching {
 	private int[] matchedRows;
 	
 	public Set<IEdgeExt> getMatchedEdges() {
-		
 		return matchedEdges;
 	}
 	/**
@@ -46,8 +45,16 @@ public class MaxWeightedBipartiteMatching {
 		buildCostMatrix(partA, partB);
 		HungarianAlgorithm alg = new HungarianAlgorithm(numberedMatrix);
 		matchedRows = alg.execute();
+		collectMatchedEdges(matchedRows);
+	}
+	/**
+	 * 
+	 * adds matched edges from matrix into Set matchedEdges
+	 * @param matchedRows
+	 */
+	private void collectMatchedEdges(int []matchedRows){
 		
-		for(int i = 0; i < matrix.length; i++){
+		for(int i = 0; i < matrixSize; i++){
 			if(matrix[i][matchedRows[i]] != null){
 				matchedEdges.add(matrix[i][matchedRows[i]]);
 			}
@@ -56,8 +63,8 @@ public class MaxWeightedBipartiteMatching {
 	
 	/**
 	 * build a simple squared matrix of weights
-	 * @param matrix
-	 * @return
+	 * @param int matrix
+	 * @return int[][] numberedMatrix
 	 */
 	private int[][] getNumberedMatrix(IEdgeExt[][] matrix){
 		numberedMatrix = new int [matrixSize][matrixSize];
@@ -74,6 +81,7 @@ public class MaxWeightedBipartiteMatching {
 		}
 		return numberedMatrix;
  	}
+	
 	/**
 	 * Constructs a matrix of edges
 	 * @param partA
@@ -100,7 +108,7 @@ public class MaxWeightedBipartiteMatching {
 			index++;
 		}
 		    
-		/*map vertices to graph properly*/
+		/*map vertices to graph properly according to the sequence*/
 		for(int i = 0; i < partA.size(); i++){
 			
 			INodeExt node = partA.get(i); 
@@ -112,6 +120,8 @@ public class MaxWeightedBipartiteMatching {
 				this.matrix[indexA][indexB] = node.getOutgoingEdgeList().getEdgeExt(j);
 			}
 		}
+		
+		/*get integer matrix with weights*/
 		numberedMatrix = getNumberedMatrix(matrix);
 		printWeighedtMatrix(matrix);
 	}
@@ -121,7 +131,7 @@ public class MaxWeightedBipartiteMatching {
 	 * calculate weights of matched edges 
 	 * @return
 	 */
-	public int getMaxWeightAll(){
+	public int getMaxWeightMatchedEdges(){
 		int count = 0;
 		for(IEdgeExt edges: this.matchedEdges){
 			count += edges.getCounter();

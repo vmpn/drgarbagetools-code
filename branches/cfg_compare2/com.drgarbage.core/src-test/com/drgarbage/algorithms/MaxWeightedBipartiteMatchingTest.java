@@ -242,26 +242,35 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 * The graph <code>G = (A + B, E)</code>:
 	 * <pre>
 	 * TODO: change the layout: 
-	 *   a1 ---- b1
-	 *      \ /
-	 *      /\
-	 *   a2 --\- b2
-	 *        /\
-	 *       /  \
-	 *   a3  ----- b3
+	 *   a1 ----- b1
+	 *       \ /
+	 *       /\
+	 *   a2 ---\-- b2
+	 *          \
+	 *           \
+	 *   	      b3
 	 * </pre>
-	 * <code>A =(a1, a2, a3)</code>, <code>B =(b1, b2, b3)</code>
-	 * and <code>E =((a1 - b1), (a2 - b1), (a2 - b2), (a2 - b3), (a3 - b2), (a3 - b3))</code>
+	 * <code>A =(a1, a2)</code>, <code>B =(b1, b2, b3)</code>
+	 * and <code>E =((a1 - b1), (a1 - b3), (a2 - b1), (a2 - b2)</code>
 	 * <br>
 	 * 
 	 * The following weights are assigned to the edges:
 	 * <pre>
-	 * (a1 - b1)  1
-	 * (a2 - b1)  5
-	 * (a2 - b2)  1
-	 * (a2 - b3)  1
-	 * (a3 - b2)  6
-	 * (a3 - b3)  1
+	 * (a1 - b1)  10
+	 * (a1 - b3)  5
+	 * (a2 - b1)  11
+	 * (a2 - b2)  9
+	 * 
+	 *  Expected matching <code>M = (a1-b1, a2-b2)</code> 
+	 * with |M|=2 and W = 10 + 9 = 19:
+	 * <pre>
+	 *   a1 --10-- b1
+	 *   
+	 *      
+	 *   a2 --9--- b2
+	 *      
+	 *      
+	 *   		   b3
 	 * </pre> 
 	 * */
 	private TestSet createTestSet3(){
@@ -318,7 +327,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		m.start(t.graph, t.partA, t.partB);
 		
 		printMatchedEdges(m.getMatchedEdges());
-		assertEquals(19, m.getMaxWeightAll());
+		assertEquals(19, m.getMaxWeightMatchedEdges());
 	}
 	
 	/**
@@ -331,7 +340,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		m.start(t.graph, t.partA, t.partB);
 		
 		printMatchedEdges(m.getMatchedEdges());
-		assertEquals(9, m.getMaxWeightAll());
+		assertEquals(9, m.getMaxWeightMatchedEdges());
 	}
 	
 	/**
@@ -344,7 +353,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		m.start(t.graph, t.partA, t.partB);
 		
 		printMatchedEdges(m.getMatchedEdges());
-		assertEquals(19, m.getMaxWeightAll());
+		assertEquals(19, m.getMaxWeightMatchedEdges());
 	}
 	
 	/**
