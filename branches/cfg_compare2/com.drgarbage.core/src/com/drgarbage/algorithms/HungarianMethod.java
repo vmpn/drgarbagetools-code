@@ -49,7 +49,7 @@ public class HungarianMethod {
 	/**
 	 * Map to store original weights.
 	 */
-	Map<IEdgeExt, Integer> weights = new HashMap<IEdgeExt, Integer>(); 
+	private Map<IEdgeExt, Integer> weights = new HashMap<IEdgeExt, Integer>(); 
 
 	/**
 	 * Default constructor.
@@ -498,7 +498,7 @@ public class HungarianMethod {
 	 * @param msg the text message 
 	 * @see #DEBUG
 	 */
-	private static void debug(String msg){
+	protected static void debug(String msg){
 		if(!DEBUG) return;
 		
 		System.out.println(msg);
@@ -510,7 +510,7 @@ public class HungarianMethod {
 	 * @param partA the first node partition  
 	 * @param partB the second node partition
 	 */
-	private static void printBipartiteGraph(List<INodeExt> partA, List<INodeExt> partB) {
+	protected static void printBipartiteGraph(List<INodeExt> partA, List<INodeExt> partB) {
 		if(!DEBUG){
 			return;
 		}

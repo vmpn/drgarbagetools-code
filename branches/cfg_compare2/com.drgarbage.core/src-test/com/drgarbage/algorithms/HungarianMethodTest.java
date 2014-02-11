@@ -368,4 +368,48 @@ public class HungarianMethodTest extends TestCase {
 		
 		System.out.println("OK: sum = " + weight + "\n");
 	}	
+	
+	/**
+	 * Input:
+	 *  <pre>
+	 *  	10 1 3
+	 *  	 5 6 0
+	 *  	 1 4 0
+	 *  </pre>
+	 * 
+	 * Result:
+	 *  <pre>
+	 *  	- 1 -
+	 *  	- - 2
+	 *  	1 - -
+	 *  </pre>
+	 * 
+	 * Sum 1 + 2 + 1 = 4
+	 * 
+	 */
+	public void testExecuteHungarianMethod6() {
+		
+		int [][] weights = {
+				{10, 1, 3},
+				{ 5, 6, 0},
+				{ 1, 4, 0}
+		};
+		
+		printMatrix( weights);
+		
+		TestSet t = createTestSet2(weights);
+		
+		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		assertEquals(3, edges.size());
+		
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(2, weight);
+		
+		System.out.println("OK: sum = " + weight + "\n");
+	}	
 }

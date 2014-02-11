@@ -1,207 +1,284 @@
+/**
+ * Copyright (c) 2008-2014, Dr. Garbage Community
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.drgarbage.algorithms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import com.drgarbage.controlflowgraph.intf.GraphUtils;
+import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
-import com.drgarbage.controlflowgraph.intf.MarkEnum;
+
 /**
-* @author Artem Garishin
-* @version $Revision$
-* $Id$
-*/
-public class MaxWeightedBipartiteMatching {
+ * Algorithm for finding a maximum weighted matching in a bipartite graph.
+ * The maximum weighted matching is defined as a matching where the sum 
+ * of the edge values in the matching have a maximal value. 
+ * This algorithm uses the {@link HungarianMethod Hungarian method}.
+ * Complexity of the algorithm is <code>O(mn^2)</code>.
+ * If the graph is not complete bipartite, missing edges are inserted 
+ * with zero value.
+ * 
+ * NOTE: The edge property counter is used for storing weights. 
+ *  
+ * @see HungarianMethod
+ * 
+ * @author Artem Garishin, Sergej Alekssev
+ * @version $Revision$
+ * $Id$
+ */
+public class MaxWeightedBipartiteMatching extends HungarianMethod{
 	
-	private Set<IEdgeExt> matchedEdges = new HashSet<IEdgeExt>(); 
-	private IEdgeExt[][] matrix;
-	private int[][] numberedMatrix;
-	private int matrixSize;
-	
-	private Map<INodeExt, Integer> mapPartA = new HashMap<INodeExt, Integer>();
-	private Map<INodeExt, Integer> mapPartB = new HashMap<INodeExt, Integer>();
-	private int[] matchedRows;
-	
-	public Set<IEdgeExt> getMatchedEdges() {
-		return matchedEdges;
-	}
 	/**
-	 * Starts matching algorithm.
+	 * Default constructor.
+	 */
+	public MaxWeightedBipartiteMatching() {
+		DEBUG = false;
+	}
+	
+	/**
+	 * Creates an algorithm object.
+	 * @param b set to <code>true</code> for debugging
+	 */
+	public MaxWeightedBipartiteMatching(boolean b) {
+		super(b);
+	}
+
+	/**
+	 * Executes the algorithm Max Weighted Bipartite Matching.
 	 * @param graph the bipartite graph
 	 * @param partA the first partition
 	 * @param partB the second partition
-	 */
-	public void start(IDirectedGraphExt graph, List<INodeExt> partA, List<INodeExt> partB) {
-	
-		buildCostMatrix(partA, partB);
-		HungarianAlgorithm alg = new HungarianAlgorithm(numberedMatrix);
-		matchedRows = alg.execute();
-		collectMatchedEdges(matchedRows);
-	}
-	/**
 	 * 
-	 * adds matched edges from matrix into Set matchedEdges
-	 * @param matchedRows
+	 * @return the list of matched edges 
 	 */
-	private void collectMatchedEdges(int []matchedRows){
+	public List<IEdgeExt>  execute(IDirectedGraphExt graph, List<INodeExt> partA, List<INodeExt> partB) {
 		
-		for(int i = 0; i < matrixSize; i++){
-			if(matrix[i][matchedRows[i]] != null){
-				matchedEdges.add(matrix[i][matchedRows[i]]);
+		List<INodeExt> partAnew = new ArrayList<INodeExt>();
+		List<INodeExt> partBnew = new ArrayList<INodeExt>();
+		IDirectedGraphExt graphNew = createSymetricalCompleteBipartiteGraph(partA, partAnew, partB, partBnew);
+		printBipartiteGraph(partAnew, partBnew);
+		
+		convertMinToMax(graphNew);
+		printBipartiteGraph(partAnew, partBnew);
+		
+		debug("Execute Hungarian Method");
+		
+		List<IEdgeExt>  list = super.execute(graphNew, partAnew, partBnew);
+		List<IEdgeExt> listOrig = new ArrayList<IEdgeExt>(list.size());
+		for(IEdgeExt e: list){
+			if(e.getData() != null){ /* skip dummy edges */
+				listOrig.add((IEdgeExt) e.getData());
 			}
 		}
+		
+		return listOrig;
 	}
 	
 	/**
-	 * build a simple squared matrix of weights
-	 * @param int matrix
-	 * @return int[][] numberedMatrix
+	 * Creates a <b>symmetrical complete bipartite graph</b> <code>G=(A + B, E)</code>. 
+	 * <br>
+	 * The <b>complete</b> bipartite graph is graph where every vertex
+	 * of the first partition is connected to every vertex of 
+	 * the second partition
+	 * <code>G=(A + B, E)</code> and <code>E = A x B</code>.
+	 * <br>
+	 * The <b>symmetrical</b> bipartite graph is graph where the number 
+	 * of vertices in the first partition is equal to the number
+	 * of vertices in the second partition.
+	 * <code>|A| = |B|</code>.
+	 * <br> 
+	 * The dummy vertices and dummy edges with the value zero 
+	 * are added to make the graph symmetrical and complete.
+	 * 
+	 * @param graph the bipartite graph
+	 * @param partAnew the reference to the new list
+	 * @param partA the first partition
+	 * @param partBnew the reference to the new list
+	 * @return the symmetrical complete bipartite graph 
 	 */
-	private int[][] getNumberedMatrix(IEdgeExt[][] matrix){
-		numberedMatrix = new int [matrixSize][matrixSize];
-		for (int[] row : numberedMatrix){
-		    Arrays.fill(row, 0);
-		}
-		
-		for(int i = 0; i < matrixSize; i++){
-			for(int j = 0; j < matrixSize; j++){
-				if(matrix[i][j] != null){
-					numberedMatrix[i][j] = matrix[i][j].getCounter();
-				}
-			}
-		}
-		return numberedMatrix;
- 	}
-	
-	/**
-	 * Constructs a matrix of edges
-	 * @param partA
-	 * @param partB
-	 */
-	private void buildCostMatrix(List<INodeExt> partA, List<INodeExt> partB){
-		
-		/* declare matrix with highest number of vertices of B*/
-		matrixSize = partB.size(); 
-		int n = partB.size();
-		this.matrix = new IEdgeExt[n][n];
-		
-		/* define sequence of A-vertices in the matrix*/
-		int index = 0;
-		for(INodeExt node: partA){
-			mapPartA.put(node, index);
-			index++;
+	private IDirectedGraphExt createSymetricalCompleteBipartiteGraph(
+			List<INodeExt> partA, 
+			List<INodeExt> partAnew, 
+			List<INodeExt> partB, 
+			List<INodeExt> partBnew){
+
+		/* create a  graph */
+		IDirectedGraphExt graph = GraphExtentionFactory.createDirectedGraphExtention();
+
+		/* copy vertices */
+		for(INodeExt n: partA){
+			INodeExt a = GraphExtentionFactory.createNodeExtention(n);
+			graph.getNodeList().add(a);
+			partAnew.add(a); 
 		}
 
-		/* define sequence of B-vertices in the matrix*/
-		index = 0;
-		for(INodeExt node: partB){
-			mapPartB.put(node, index);
-			index++;
+		for(INodeExt n: partB){
+			INodeExt b = GraphExtentionFactory.createNodeExtention(n);
+			graph.getNodeList().add(b);
+			partBnew.add(b); 
 		}
-		    
-		/*map vertices to graph properly according to the sequence*/
-		for(int i = 0; i < partA.size(); i++){
-			
-			INodeExt node = partA.get(i); 
-			for(int j = 0; j <node.getOutgoingEdgeList().size(); j++){	 
-			
-				INodeExt target = node.getOutgoingEdgeList().getEdgeExt(j).getTarget();
-				int indexA = mapPartA.get(node);
-				int indexB = mapPartB.get(target);
-				this.matrix[indexA][indexB] = node.getOutgoingEdgeList().getEdgeExt(j);
+		
+		/* make the graph symmetrical by adding dummy vertices */
+		if(partA.size() > partB.size()){
+			int diff = partA.size() - partB.size();
+			for(int i = 0; i < diff; i++){
+				INodeExt b = GraphExtentionFactory.createNodeExtention(null);
+				graph.getNodeList().add(b);
+				partBnew.add(b);
+			}
+		}
+		else{
+			int diff = partB.size() - partA.size();
+			for(int i = 0; i < diff; i++){
+				INodeExt a = GraphExtentionFactory.createNodeExtention(null);
+				graph.getNodeList().add(a);
+				partAnew.add(a); 
 			}
 		}
 		
-		/*get integer matrix with weights*/
-		numberedMatrix = getNumberedMatrix(matrix);
-		printWeighedtMatrix(matrix);
-	}
-	
-	/*-------------------------------------DEBUG-------------------------------------------*/
-	/**
-	 * calculate weights of matched edges 
-	 * @return
-	 */
-	public int getMaxWeightMatchedEdges(){
-		int count = 0;
-		for(IEdgeExt edges: this.matchedEdges){
-			count += edges.getCounter();
-		}
+		/* create edges */
+		IEdgeListExt edges = graph.getEdgeList();
 		
-		return count;
-	}
-	
-	/**
-	 * prints the matrix of edges
-	 * @param matrix
-	 */
-	public void printWeighedtMatrix(IEdgeExt[][] matrix){
-		System.out.println();
-		System.out.println("===Matrix===");
-		
-		/* output B headers */
-		String headerB = "  ";
-		for(int i = 0; i < mapPartB.size(); i++){
-		for(Entry<INodeExt, Integer> entry : mapPartB.entrySet()){
-				if(entry.getValue().equals((Integer)i)){
-					headerB += entry.getKey().getData()+ " ";
-				}				
-			}
-		}
-		System.out.print(headerB);
-		System.out.println();
-		
-		/* output content of matrix */
-		boolean noA = true;
-		for(int i = 0; i < matrix.length; i++){
-			/* output for A headers */
-			for(Entry<INodeExt, Integer> entry : mapPartA.entrySet()){
-				if(entry.getValue().equals((Integer)i)){
-					System.out.print(entry.getKey().getData()+ " ");
-					noA = true;
-					break;
+		for(INodeExt aNew: partAnew){
+			
+			Set<INodeExt> s = new HashSet<INodeExt>();
+			s.addAll(partBnew);
+			
+			Object o = aNew.getData();
+			if(o != null){
+				INodeExt n = (INodeExt)o;
+
+				IEdgeListExt in = n.getIncomingEdgeList();
+				for(int i = 0; i < in.size(); i++){
+					IEdgeExt e = in.getEdgeExt(i);
+
+					int b = partB.indexOf(e.getSource());
+					INodeExt bNew = partBnew.get(b);
+					
+					IEdgeExt edgeNew = GraphExtentionFactory.createEdgeExtention(bNew, aNew);
+					edgeNew.setData(e);
+					edgeNew.setCounter(e.getCounter());
+					edges.add(edgeNew);
+					
+					s.remove(bNew);
 				}
-				else{
-					noA = false;
+
+				IEdgeListExt out = n.getOutgoingEdgeList();
+				for(int i = 0; i < out.size(); i++){
+					IEdgeExt e = out.getEdgeExt(i);
+
+					int b = partB.indexOf(e.getTarget());
+					INodeExt bNew = partBnew.get(b);
+					
+					IEdgeExt edgeNew = GraphExtentionFactory.createEdgeExtention(aNew, bNew);
+					edgeNew.setData(e);
+					edgeNew.setCounter(e.getCounter());
+					edges.add(edgeNew);
+					
+					s.remove(bNew);
 				}
 			}
 			
-			/* when there are no real A, dummy A nodes are added to the matrix output(the matrix must be NxN) */
-			if(!noA){
-				System.out.print("a"+(i+1)+" ");
-				noA = true;
+			/*make the graph complete by adding the dummy edges */
+			for(INodeExt n: s){
+				IEdgeExt edgeNew = GraphExtentionFactory.createEdgeExtention(aNew, n);
+				edgeNew.setData(null);
+				edgeNew.setCounter(0);
+				edges.add(edgeNew);
 			}
-			/* output cost matrix (null edges are output as zero)*/
-			for(int j = 0; j < matrix.length; j++){
-				if(matrix[i][j] != null){
-					System.out.print(matrix[i][j].getCounter()+"  ");
-				}
-				else{
-					System.out.print("0  ");
-				}
-			}
-			System.out.print("\n");
-		}	
+			
+			
+		}		
+		
+		return graph;
 	}
 	
 	/**
-	 * prints map
-	 * @param Map<INodeExt, Integer>
+	 * Conversion for maximization is realized by multiplication 
+	 * all weights by -1 and adding a constant value (max value + 1)
+	 * to each weight in order to have positive numbers.
+	 *  
+	 * @param graph the bipartite graph
 	 */
-	public void printMap(Map<INodeExt, Integer> map){
-		for(Entry<INodeExt, Integer> entry : map.entrySet()){
-			INodeExt node = entry.getKey();
-            Integer i = entry.getValue();
-            System.out.println(node.getData().toString() + "-" + i);
+	private void convertMinToMax(IDirectedGraphExt graph) {
+
+		int max = 0;
+		IEdgeListExt edges = graph.getEdgeList();
+		
+		/* find the max value */
+		for(int j = 0; j < edges.size(); j++){
+			IEdgeExt e = edges.getEdgeExt(j);
+			if(max < e.getCounter()){
+				max = e.getCounter();
+			}
 		}
+		
+		debug("MaxValue: " + max);
+		
+		for(int j = 0; j < edges.size(); j++){
+			IEdgeExt e = edges.getEdgeExt(j);
+			e.setCounter((e.getCounter() * -1) + max + 1);
+		}
+	}
+	
+	/**
+	 * Prints the bipartite graph as a matrix for
+	 * debugging purposes.
+	 * @param partA the first node partition  
+	 * @param partB the second node partition
+	 */
+	protected static void printBipartiteGraph(List<INodeExt> partA, List<INodeExt> partB) {
+		if(!DEBUG){
+			return;
+		}
+		
+		StringBuffer buf = new StringBuffer();
+		buf.append('\t');
+		
+		for(INodeExt n: partB){
+			buf.append(((INodeExt)n.getData()).getData().toString());
+			buf.append(' ');	
+		}
+		buf.append('\n');
+		
+		for(INodeExt n: partA){
+			buf.append(((INodeExt)n.getData()).getData().toString());
+			buf.append('\t');
+			
+			IEdgeListExt edges = n.getIncomingEdgeList();
+			for (int i = 0; i < edges.size(); i++) {
+				IEdgeExt e = edges.getEdgeExt(i);
+				buf.append(e.getCounter());
+				buf.append("  ");
+			}
+			
+			edges = n.getOutgoingEdgeList();
+			for (int i = 0; i < edges.size(); i++) {
+				IEdgeExt e = edges.getEdgeExt(i);
+				buf.append(e.getCounter());
+				buf.append("  ");
+			}
+			
+			buf.append('\n');	
+		}
+		
+		debug(buf.toString());
 	}
 }
