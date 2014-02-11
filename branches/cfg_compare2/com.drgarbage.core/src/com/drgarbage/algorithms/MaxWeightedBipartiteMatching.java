@@ -69,7 +69,7 @@ public class MaxWeightedBipartiteMatching extends HungarianMethod{
 	 * @return the list of matched edges 
 	 */
 	public List<IEdgeExt>  execute(IDirectedGraphExt graph, List<INodeExt> partA, List<INodeExt> partB) {
-		
+
 		List<INodeExt> partAnew = new ArrayList<INodeExt>();
 		List<INodeExt> partBnew = new ArrayList<INodeExt>();
 		IDirectedGraphExt graphNew = createSymetricalCompleteBipartiteGraph(partA, partAnew, partB, partBnew);
@@ -222,7 +222,7 @@ public class MaxWeightedBipartiteMatching extends HungarianMethod{
 		int max = 0;
 		IEdgeListExt edges = graph.getEdgeList();
 		
-		/* find the max value */
+		/* find the maximum value */
 		for(int j = 0; j < edges.size(); j++){
 			IEdgeExt e = edges.getEdgeExt(j);
 			if(max < e.getCounter()){
@@ -230,55 +230,11 @@ public class MaxWeightedBipartiteMatching extends HungarianMethod{
 			}
 		}
 		
-		debug("MaxValue: " + max);
+		debug("Multiply by -1 and add maximum value: " + max);
 		
 		for(int j = 0; j < edges.size(); j++){
 			IEdgeExt e = edges.getEdgeExt(j);
 			e.setCounter((e.getCounter() * -1) + max + 1);
 		}
-	}
-	
-	/**
-	 * Prints the bipartite graph as a matrix for
-	 * debugging purposes.
-	 * @param partA the first node partition  
-	 * @param partB the second node partition
-	 */
-	protected static void printBipartiteGraph(List<INodeExt> partA, List<INodeExt> partB) {
-		if(!DEBUG){
-			return;
-		}
-		
-		StringBuffer buf = new StringBuffer();
-		buf.append('\t');
-		
-		for(INodeExt n: partB){
-			buf.append(((INodeExt)n.getData()).getData().toString());
-			buf.append(' ');	
-		}
-		buf.append('\n');
-		
-		for(INodeExt n: partA){
-			buf.append(((INodeExt)n.getData()).getData().toString());
-			buf.append('\t');
-			
-			IEdgeListExt edges = n.getIncomingEdgeList();
-			for (int i = 0; i < edges.size(); i++) {
-				IEdgeExt e = edges.getEdgeExt(i);
-				buf.append(e.getCounter());
-				buf.append("  ");
-			}
-			
-			edges = n.getOutgoingEdgeList();
-			for (int i = 0; i < edges.size(); i++) {
-				IEdgeExt e = edges.getEdgeExt(i);
-				buf.append(e.getCounter());
-				buf.append("  ");
-			}
-			
-			buf.append('\n');	
-		}
-		
-		debug(buf.toString());
 	}
 }

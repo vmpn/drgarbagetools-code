@@ -83,13 +83,12 @@ public class HungarianMethod {
 			IEdgeExt e = edgeList1.getEdgeExt(k);
 			weights.put(e, e.getCounter());
 		}
-		
 
 		/* subtract minimum value from rows and columns to create lots of zeroes */
 		reduceGraph(partA, partB);
 		printBipartiteGraph(partA, partB);
 
-		/* START iteration */
+		/* start iteration */
 		List<INodeExt> coveredNodes = getMin(graph, partA, partB);
 		debug("Min=" + coveredNodes.size());
 
@@ -103,7 +102,6 @@ public class HungarianMethod {
 			coveredNodes = getMin(graph, partA, partB);
 			debug("Min=" + coveredNodes.size());
 		}
-		/* END */
 
 		GraphUtils.clearGraph(graph);
 		return findMatching(graph, partA, partB);
@@ -488,7 +486,7 @@ public class HungarianMethod {
 	 * Debugging flag. Set <code>true</code> to enable printing the
 	 * debugging messages.
 	 */
-	protected static boolean DEBUG = true;
+	protected static boolean DEBUG = false;
 	
 	/**
 	 * Prints a message for debugging purposes.

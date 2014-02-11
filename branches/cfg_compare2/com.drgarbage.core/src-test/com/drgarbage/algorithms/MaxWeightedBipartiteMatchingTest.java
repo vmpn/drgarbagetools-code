@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2008-2014, Dr. Garbage Community
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.drgarbage.algorithms;
 
 import java.util.ArrayList;
@@ -11,12 +26,16 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 
 /**
-* @author Artem Garishin
-* @version $Revision$
-* $Id$
-*/
+ * Test class for {@link com.drgarbage.algorithms.MaxWeightedBipartiteMatching}
+ * 
+ * @author Artem Garishin, Sergej Alekseev
+ * @version $Revision$
+ * $Id$
+ */
 public class MaxWeightedBipartiteMatchingTest extends TestCase{
 
+	protected boolean DEBUG = false;
+	
 	/**
 	 * Test set consists of a bipartite graph and two partitions.
 	 */
@@ -24,7 +43,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		 IDirectedGraphExt graph = GraphExtentionFactory.createDirectedGraphExtention();
 		 List<INodeExt> partA = new ArrayList<INodeExt>(); 
 		 List<INodeExt> partB = new ArrayList<INodeExt>();
-	}	
+	}
 	
 	/**
 	 * The test set <br>
@@ -32,115 +51,39 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 * @param weights the weights to be assigned to the edges
 	 * @return the test set
 	 */
-	private TestSet createTestSet2(int [][] weights){
+	private TestSet createTestSet(int [][] weights){
 		TestSet t = new TestSet();
 
-        INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
-        t.graph.getNodeList().add(a1);
-        t.partA.add(a1);
-        INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
-        t.graph.getNodeList().add(a2);
-        t.partA.add(a2);
-        INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
-        t.graph.getNodeList().add(a3);
-        t.partA.add(a3);
-        
-        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
-        t.graph.getNodeList().add(b1);
-        t.partB.add(b1);
-        INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
-        t.graph.getNodeList().add(b2);
-        t.partB.add(b2);
-        INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
-        t.graph.getNodeList().add(b3);
-        t.partB.add(b3);
-        
-        IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
-        edge.setCounter(weights[0][0]);
-        t.graph.getEdgeList().add(edge);
-        
-		edge = GraphExtentionFactory.createEdgeExtention(a1, b2);
-		edge.setCounter(weights[0][1]);
-		t.graph.getEdgeList().add(edge);
 		
-		edge = GraphExtentionFactory.createEdgeExtention(a1, b3);
-		edge.setCounter(weights[0][2]);
-		t.graph.getEdgeList().add(edge);
-		
-        edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
-        edge.setCounter(weights[1][0]);
-		t.graph.getEdgeList().add(edge);
-		
-		edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
-		edge.setCounter(weights[1][1]);
-		t.graph.getEdgeList().add(edge);
-		
-//		edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
-//		edge.setCounter(weights[1][2]);
-//		t.graph.getEdgeList().add(edge);
+		for(int i = 0; i < weights.length; i++){
+			INodeExt a1 = GraphExtentionFactory.createNodeExtention("a" + i);
+			t.graph.getNodeList().add(a1);
+	        t.partA.add(a1);
+	        
 
-		edge = GraphExtentionFactory.createEdgeExtention(a3, b1);
-        edge.setCounter(weights[2][0]);
-		t.graph.getEdgeList().add(edge);
+	        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b" + i);
+	        t.graph.getNodeList().add(b1);
+	        t.partB.add(b1);
+		}
 		
-		edge = GraphExtentionFactory.createEdgeExtention(a3, b2);
-        edge.setCounter(weights[2][1]);
-		t.graph.getEdgeList().add(edge);
-		
-//		edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
-//        edge.setCounter(weights[2][2]);
-//		t.graph.getEdgeList().add(edge);
+		for(int i = 0; i < weights.length; i++){
+			for(int j = 0; j < weights.length; j++){
+				/* ignore zero values */
+				if(weights[i][j] != 0){
+					INodeExt a = t.partA.get(i);
+					INodeExt b = t.partB.get(j);
+					IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a, b);
+					edge.setCounter(weights[i][j]);
+					t.graph.getEdgeList().add(edge);
+				}
+			}
+		}
 		
 		return t;
 	}
 	
 	/**
-	 * For debugging purposes only.
-	 * @param matrix the matrix
-	 */
-	private void printMatrix(int[][] matrix){
-		for(int i = 0; i < matrix.length; i++){
-			for(int j = 0; j < matrix.length; j++){
-				System.out.print(matrix[i][j]);
-				System.out.print(' ');
-			}
-			System.out.println();
-		}
-	}
-
-	
-	public void testExecuteMax1() {
-		
-		int [][] weights = {
-				{10, 1, 3},
-				{ 5, 6, 2},
-				{ 1, 4, 8}
-		};
-		
-		printMatrix( weights);
-		
-		TestSet t = createTestSet2(weights);
-		
-		List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(true).execute(t.graph, t.partA, t.partB);
-		assertEquals(2, edges.size());
-		
-		int weight = 0;
-    	for(IEdgeExt e : edges){
-    		weight += e.getCounter();
-    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
-    	}
-		
-		assertEquals(4, weight);
-		
-		System.out.println("OK: sum = " + weight + "\n");
-		
-		
-		
-				
-	}
-	
-	/**
-	 * The test set 1. <br>
+	 * The test 1. <br>
 	 * The graph <code>G = (A + B, E)</code>:
 	 * <pre>
 	 *   a1 --- b1
@@ -311,10 +254,167 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 * </ol>
 	 * 
 	 */
-	public final void testT1() {
-		//TODO: to be done
+	public void testMax1() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 0, 0 },
+				{ 5, 1, 1 },
+				{ 0, 6, 1 }
+		};
+		
+		System.out.println("Input:");
+		printMatrix( weights);
+		
+		TestSet t = createTestSet(weights);
+		if(DEBUG)printGraph(t.graph);
+		
+		List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+		assertEquals(2, edges.size());
+		
+		System.out.println("Output:");
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(11, weight);
+		
+		System.out.println("\nOK, sum = " + weight);
+		System.out.println("------------");
+	}
+	
+	/**
+	 * Test
+	 */
+	public void testMax2() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 10, 1, 3  },
+				{  5, 6, 2  },
+				{  1, 4, 14 }
+		};
+		
+		System.out.println("Input:");
+		printMatrix( weights);
+		
+		TestSet t = createTestSet(weights);
+		if(DEBUG)printGraph(t.graph);
+		
+		List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+		assertEquals(3, edges.size());
+		
+		System.out.println("Output:");
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(30, weight);
+		
+		System.out.println("\nOK, sum = " + weight);
+		System.out.println("------------");
+	}
+	
+	/**
+	 * Test
+	 */
+	public void testMax3() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 10, 1,  3, 20 },
+				{  5, 6,  2,  3 },
+				{  1, 4,  0,  0 },
+				{  1, 4, 14, 33 },
+		};
+		
+		System.out.println("Input:");
+		printMatrix( weights);
+		
+		TestSet t = createTestSet(weights);
+		if(DEBUG)printGraph(t.graph);
+		
+		List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+		assertEquals(3, edges.size());
+		
+		System.out.println("Output:");
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(49, weight);
+		
+		System.out.println("\nOK, sum = " + weight);
+		System.out.println("------------");
+	}
+	
+	
+	/* 
+	 * The Methods in this section are used for purely debugging purposes 
+	 */
+	
+	
+	/**
+	 * For debugging purposes only.
+	 * @param matrix the matrix
+	 */
+	private void printMatrix(int[][] matrix){
+		StringBuffer buf = new StringBuffer();
+		
+		buf.append("   ");
+		for(int i = 0; i < matrix.length; i++){
+			buf.append('a');
+			buf.append(i);
+			buf.append('\t');
+		}
+		buf.append('\n');
+		
+		for(int i = 0; i < matrix.length; i++){
+			buf.append('b');
+			buf.append(i);
+			buf.append(' ');
+			for(int j = 0; j < matrix.length; j++){
+				buf.append(matrix[i][j]);
+				buf.append('\t');
+			}
+			buf.append('\n');
+		}
+		
+		System.out.println(buf.toString());
 	}
 
+	/**
+	 * Prints the graph.
+	 * @param g the graph
+	 */
+	private void printGraph(IDirectedGraphExt g) {
+		if(!DEBUG){
+			return;
+		}
+		
+		System.out.println("Print Graph:");
+
+		System.out.println("Nodes:");
+		for (int i = 0; i < g.getNodeList().size(); i++) {
+			System.out.println("  " + g.getNodeList().getNodeExt(i).getData());
+		}
+
+		System.out.println("Edges:");
+		for (int i = 0; i < g.getEdgeList().size(); i++) {
+			IEdgeExt e = g.getEdgeList().getEdgeExt(i);
+			System.out.println("  " 
+					+ e.getSource().getData() 
+					+ " - "
+					+ e.getTarget().getData());
+		}
+	}
+	
 	
 	//TODO: define test cases
 

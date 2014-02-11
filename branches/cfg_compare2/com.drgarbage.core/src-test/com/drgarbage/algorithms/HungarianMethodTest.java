@@ -35,6 +35,8 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  */
 public class HungarianMethodTest extends TestCase {
 	
+	protected boolean DEBUG = false;
+	
 	/**
 	 * Test set consists of a bipartite graph and two partitions.
 	 */
@@ -167,20 +169,21 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 */
 	public void testExecuteHungarianMethod1() {
-		
+		System.out.println("-------------");
 		int [][] weights = {
 				{10, 9, 3},
 				{ 5, 6, 7},
 				{ 1, 4, 8}
 		};
-		
+		System.out.println("Input:");
 		printMatrix( weights);
 		
 		TestSet t = createTestSet2(weights);
 		
-		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
 		
+		System.out.println("Output");
 		int weight = 0;
     	for(IEdgeExt e : edges){
     		weight += e.getCounter();
@@ -189,7 +192,8 @@ public class HungarianMethodTest extends TestCase {
 		
 		assertEquals(10, weight);
 		
-		System.out.println("OK: sum = " + weight + "\n");
+		System.out.println("OK: sum = " + weight);
+		System.out.println("-------------");
 	}
 	
 	/**
@@ -211,18 +215,18 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 */
 	public void testExecuteHungarianMethod2() {
-		
+		System.out.println("-------------");
 		int [][] weights = {
 				{ 1, 9, 3},
 				{ 5, 1, 7},
 				{ 10, 4, 1}
 		};
-		
+		System.out.println("Input:");
 		printMatrix( weights);
 		
 		TestSet t = createTestSet2(weights);
 		
-		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
 		
 		int weight = 0;
@@ -233,7 +237,8 @@ public class HungarianMethodTest extends TestCase {
 		
 		assertEquals(3, weight);
 		
-		System.out.println("OK: sum = " + weight + "\n");
+		System.out.println("OK: sum = " + weight);
+		System.out.println("-------------");
 	}
 	
 	
@@ -256,18 +261,18 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 */
 	public void testExecuteHungarianMethod3() {
-		
+		System.out.println("-------------");
 		int [][] weights = {
 				{10, 1, 3},
 				{ 5, 6, 2},
 				{ 1, 4, 8}
 		};
-		
+		System.out.println("Input:");
 		printMatrix( weights);
 		
 		TestSet t = createTestSet2(weights);
 		
-		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
 		
 		int weight = 0;
@@ -278,7 +283,8 @@ public class HungarianMethodTest extends TestCase {
 		
 		assertEquals(4, weight);
 		
-		System.out.println("OK: sum = " + weight + "\n");
+		System.out.println("OK: sum = " + weight);
+		System.out.println("-------------");
 	}	
 	
 	/**
@@ -300,18 +306,18 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 */
 	public void testExecuteHungarianMethod4() {
-		
+		System.out.println("-------------");
 		int [][] weights = {
 				{10, 1, 3},
 				{ 5, 6, 2},
 				{ 1, 4, 0}
 		};
-		
+		System.out.println("Input:");
 		printMatrix( weights);
 		
 		TestSet t = createTestSet2(weights);
 		
-		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
 		
 		int weight = 0;
@@ -322,7 +328,8 @@ public class HungarianMethodTest extends TestCase {
 		
 		assertEquals(4, weight);
 		
-		System.out.println("OK: sum = " + weight + "\n");
+		System.out.println("OK: sum = " + weight);
+		System.out.println("-------------");
 	}	
 	
 	/**
@@ -344,18 +351,18 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 */
 	public void testExecuteHungarianMethod5() {
-		
+		System.out.println("-------------");
 		int [][] weights = {
 				{10, 1, 3},
 				{ 5, 6, 0},
 				{ 1, 4, 0}
 		};
-		
+		System.out.println("Input:");
 		printMatrix( weights);
 		
 		TestSet t = createTestSet2(weights);
 		
-		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
 		
 		int weight = 0;
@@ -366,7 +373,8 @@ public class HungarianMethodTest extends TestCase {
 		
 		assertEquals(2, weight);
 		
-		System.out.println("OK: sum = " + weight + "\n");
+		System.out.println("OK: sum = " + weight);
+		System.out.println("-------------");
 	}	
 	
 	/**
@@ -388,18 +396,18 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 */
 	public void testExecuteHungarianMethod6() {
-		
+		System.out.println("-------------");
 		int [][] weights = {
 				{10, 1, 3},
 				{ 5, 6, 0},
 				{ 1, 4, 0}
 		};
-		
+		System.out.println("Input:");
 		printMatrix( weights);
 		
 		TestSet t = createTestSet2(weights);
 		
-		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
 		
 		int weight = 0;
@@ -410,6 +418,7 @@ public class HungarianMethodTest extends TestCase {
 		
 		assertEquals(2, weight);
 		
-		System.out.println("OK: sum = " + weight + "\n");
+		System.out.println("OK: sum = " + weight);
+		System.out.println("-------------");
 	}	
 }
