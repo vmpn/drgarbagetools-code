@@ -45,59 +45,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * $Id$
  */
 public class HungarianMethod {
-
-	/** Set to true to activate debugging messages */
-	private boolean DEBUG = false;
-	
-	/**
-	 * Prints a message for debugging purposes.
-	 * @param txt a text message
-	 */
-	private void debug(String txt){
-		if(DEBUG) System.out.println(txt);
-	}
-	
-	/**
-	 * Prints the bipartite graph as a matrix for
-	 * debugging purposes.
-	 * @param partA the first node partition  
-	 * @param partB the second node partition
-	 */
-	private void printBipartiteGraph(List<INodeExt> partA, List<INodeExt> partB) {
-
-		StringBuffer buf = new StringBuffer();
-		buf.append('\t');
 		
-		for(INodeExt n: partB){
-			buf.append(n.getData().toString());
-			buf.append(' ');	
-		}
-		buf.append('\n');
-		
-		for(INodeExt n: partA){
-			buf.append(n.getData().toString());
-			buf.append('\t');
-			
-			IEdgeListExt edges = n.getIncomingEdgeList();
-			for (int i = 0; i < edges.size(); i++) {
-				IEdgeExt e = edges.getEdgeExt(i);
-				buf.append(e.getCounter());
-				buf.append("  ");
-			}
-			
-			edges = n.getOutgoingEdgeList();
-			for (int i = 0; i < edges.size(); i++) {
-				IEdgeExt e = edges.getEdgeExt(i);
-				buf.append(e.getCounter());
-				buf.append("  ");
-			}
-			
-			buf.append('\n');	
-		}
-		
-		debug(buf.toString());
-	}
-	
 	/**
 	 * Map to store original weights.
 	 */
@@ -471,7 +419,7 @@ public class HungarianMethod {
 	 * 
 	 * @return the list of matched edges
 	 * 
-	 * @see MaxBipartiteMatching
+	 * @see MaxCardBipartiteMatching
 	 */
 	private List<IEdgeExt> findMatching(IDirectedGraphExt graph1, List<INodeExt> partA1, List<INodeExt> partB1){
 
@@ -513,7 +461,7 @@ public class HungarianMethod {
 		printBipartiteGraph(partA2, partB2);
 
 		/* execute the augmenting path algorithm */
-		MaxBipartiteMatching mbm = new MaxBipartiteMatching();
+		MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching();
 		mbm.start(graph, partA2, partB2);
 
 		Set<IEdgeExt> edges = mbm.getMatchedEdges();
@@ -531,4 +479,73 @@ public class HungarianMethod {
 
 		return origEdges;
 	}
+	
+	/* 
+	 * The Methods in this section are used for purely debugging purposes 
+	 */
+	
+	/**
+	 * Debugging flag. Set <code>true</code> to enable printing the
+	 * debugging messages.
+	 */
+	protected static boolean DEBUG = true;
+	
+	/**
+	 * Prints a message for debugging purposes.
+	 * <br> 
+	 * NOTE: The method is disabled if the debugging flag set to false.
+	 * 
+	 * @param msg the text message 
+	 * @see #DEBUG
+	 */
+	private static void debug(String msg){
+		if(!DEBUG) return;
+		
+		System.out.println(msg);
+	}
+	
+	/**
+	 * Prints the bipartite graph as a matrix for
+	 * debugging purposes.
+	 * @param partA the first node partition  
+	 * @param partB the second node partition
+	 */
+	private static void printBipartiteGraph(List<INodeExt> partA, List<INodeExt> partB) {
+		if(!DEBUG){
+			return;
+		}
+		
+		StringBuffer buf = new StringBuffer();
+		buf.append('\t');
+		
+		for(INodeExt n: partB){
+			buf.append(n.getData().toString());
+			buf.append(' ');	
+		}
+		buf.append('\n');
+		
+		for(INodeExt n: partA){
+			buf.append(n.getData().toString());
+			buf.append('\t');
+			
+			IEdgeListExt edges = n.getIncomingEdgeList();
+			for (int i = 0; i < edges.size(); i++) {
+				IEdgeExt e = edges.getEdgeExt(i);
+				buf.append(e.getCounter());
+				buf.append("  ");
+			}
+			
+			edges = n.getOutgoingEdgeList();
+			for (int i = 0; i < edges.size(); i++) {
+				IEdgeExt e = edges.getEdgeExt(i);
+				buf.append(e.getCounter());
+				buf.append("  ");
+			}
+			
+			buf.append('\n');	
+		}
+		
+		debug(buf.toString());
+	}
+
 }

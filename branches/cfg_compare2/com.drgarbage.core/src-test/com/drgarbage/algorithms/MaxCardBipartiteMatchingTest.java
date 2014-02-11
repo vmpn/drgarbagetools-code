@@ -27,18 +27,18 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 
 /**
- * Test class for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+ * Test class for {@link com.drgarbage.algorithms.MaxCardBipartiteMatching}
  * 
  * @author Sergej Alekseev
  * @version $Revision$
  * $Id$
  */
-public class MaxBipartiteMatchingTest extends TestCase {
+public class MaxCardBipartiteMatchingTest extends TestCase {
 
 	/**
 	 * Matching algorithm to be tested.
 	 */
-	MaxBipartiteMatching m = new MaxBipartiteMatching();
+	MaxCardBipartiteMatching m = new MaxCardBipartiteMatching();
 	
 	/**
 	 * Test set consists of a bipartite graph and two partitions.
@@ -390,7 +390,7 @@ public class MaxBipartiteMatchingTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+	 * Test method for {@link com.drgarbage.algorithms.MaxCardBipartiteMatching}
 	 * @see #createTestSet1()
 	 */
 	public final void testMaxCardBipartiteMatching1() {	
@@ -403,7 +403,7 @@ public class MaxBipartiteMatchingTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+	 * Test method for {@link com.drgarbage.algorithms.MaxCardBipartiteMatching}
 	 * @see #createTestSet2()
 	 */
 	public final void testMaxCardBipartiteMatching2() {		
@@ -416,7 +416,7 @@ public class MaxBipartiteMatchingTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+	 * Test method for {@link com.drgarbage.algorithms.MaxCardBipartiteMatching}
 	 * @see #createTestSet3()
 	 */
 	public final void testMaxCardBipartiteMatching3() {		
@@ -429,7 +429,7 @@ public class MaxBipartiteMatchingTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+	 * Test method for {@link com.drgarbage.algorithms.MaxCardBipartiteMatching}
 	 * @see #createTestSet4()
 	 */
 	public final void testMaxCardBipartiteMatching4() {		
@@ -442,7 +442,7 @@ public class MaxBipartiteMatchingTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
+	 * Test method for {@link com.drgarbage.algorithms.MaxCardBipartiteMatching}
 	 * @see #createTestSet5()
 	 */
 	public final void testMaxCardBipartiteMatching5() {		

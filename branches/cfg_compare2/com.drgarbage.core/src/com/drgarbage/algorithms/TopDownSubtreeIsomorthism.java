@@ -123,6 +123,15 @@ public class TopDownSubtreeIsomorthism {
 		
 	}
 	
+	/**
+	 * Executes the Top Down Subtree isomorphism algorithm.
+	 * 
+	 * @param leftTree the tree <code>T_1</code>
+	 * @param rootLeft the root node of the left tree
+	 * @param rightTree the tree <code>T_2</code>
+	 * @param rootRight the root node of the right tree
+	 * @return the map of matched nodes
+	 */
 	public Map<INodeExt, INodeExt> topDownUnorderedSubtreeIsomorphism(
 			IDirectedGraphExt leftTree, 
 			INodeExt rootLeft, 
@@ -357,7 +366,7 @@ public class TopDownSubtreeIsomorthism {
 			}
 
 			/* find max bipartite matching */
-			MaxBipartiteMatching mbm = new MaxBipartiteMatching();
+			MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching();
 			mbm.start(graph, part1, part2);
 
 			debug(" === Matching ");
