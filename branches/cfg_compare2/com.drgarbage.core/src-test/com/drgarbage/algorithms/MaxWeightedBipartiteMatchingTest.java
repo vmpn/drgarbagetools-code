@@ -2,15 +2,13 @@ package com.drgarbage.algorithms;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+import junit.framework.TestCase;
 
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
-
-import junit.framework.TestCase;
 
 /**
 * @author Artem Garishin
@@ -20,340 +18,125 @@ import junit.framework.TestCase;
 public class MaxWeightedBipartiteMatchingTest extends TestCase{
 
 	/**
-	 * Matching algorithm to be tested.
-	 */
-	MaxWeightedBipartiteMatching m = new MaxWeightedBipartiteMatching();
-	
-	/**
 	 * Test set consists of a bipartite graph and two partitions.
 	 */
 	class TestSet{
 		 IDirectedGraphExt graph = GraphExtentionFactory.createDirectedGraphExtention();
 		 List<INodeExt> partA = new ArrayList<INodeExt>(); 
 		 List<INodeExt> partB = new ArrayList<INodeExt>();
-	}
+	}	
 	
 	/**
-	 * Prints the graph.
-	 * @param g the graph
-	 */
-	private static void printGraph(IDirectedGraphExt g) {
-
-		System.out.println("Print Graph:");
-
-		System.out.println("Nodes:");
-		for (int i = 0; i < g.getNodeList().size(); i++) {
-			System.out.println("  " + g.getNodeList().getNodeExt(i).getData());
-		}
-
-		System.out.println("Edges:");
-		for (int i = 0; i < g.getEdgeList().size(); i++) {
-			IEdgeExt e = g.getEdgeList().getEdgeExt(i);
-			System.out.println("  " 
-					+ e.getSource().getData() 
-					+ " - "
-					+ e.getTarget().getData()
-					+ " : "
-					+ e.getCounter());
-		}
-	}
-	
-	/**
-	 * Prints the matched edges list.
-	 * @param edges matching set
-	 */
-	private static void printMatchedEdges(Set<IEdgeExt> edges){
-		System.out.println("Matched edges:");
-		for(IEdgeExt e: edges){
-			System.out.println("  " 
-					+ e.getSource().getData() 
-					+ " - "
-					+ e.getTarget().getData()
-					+ " : "
-					+ e.getCounter());
-		}
-	}
-	
-	/**
-	 * TODO: describe the graph
-	 * 
-	 * 
+	 * The test set <br>
+	 *  
+	 * @param weights the weights to be assigned to the edges
 	 * @return the test set
 	 */
-	private TestSet createTestSet1(){
+	private TestSet createTestSet2(int [][] weights){
 		TestSet t = new TestSet();
-	   //PartA
-       INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
-       t.graph.getNodeList().add(a1);
-       t.partA.add(a1);
-       
-       INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
-       t.graph.getNodeList().add(a2);
-       t.partA.add(a2);
-       
-       INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
-       t.graph.getNodeList().add(a3);
-       t.partA.add(a3);
-	   
-       //PartB       
-       INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
-       t.graph.getNodeList().add(b1);
-       t.partB.add(b1);
-       
-       INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
-       t.graph.getNodeList().add(b2);
-       t.partB.add(b2);
-       
-       INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
-       t.graph.getNodeList().add(b3);
-       t.partB.add(b3);
-       
-       INodeExt b4 = GraphExtentionFactory.createNodeExtention("b4");
-       t.graph.getNodeList().add(b4);
-       t.partB.add(b4);
-       
-       
-       //set edges and weights
-       IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
-       edge.setCounter(5);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
-       edge.setCounter(2);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
-       edge.setCounter(6);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a1, b2);
-       edge.setCounter(8);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
-       edge.setCounter(9);
-       t.graph.getEdgeList().add(edge);
 
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
-       edge.setCounter(4);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a1, b4);
-       edge.setCounter(1);
-       t.graph.getEdgeList().add(edge);
-       
-       return t;
-	}
-	
-	/**
-	 * The test set 2. <br>
-	 * The graph <code>G = (A + B, E)</code>:
-	 * <pre>
-	 *   a1 --- b1
-	 *       /
-	 *      /
-	 *   a2  -- b2
-	 *      \ /
-	 *      / \
-	 *   a3 --- b3
-	 * </pre>
-	 * <code>A =(a1, a2, a3)</code>, <code>B =(b1, b2, b3)</code>
-	 * and <code>E =((a1 - b1), (a2 - b1), (a2 - b2), (a2 - b3), (a3 - b2), (a3 - b3))</code>
-	 * <br>
-	 * 
-	 * The following weights are assigned to the edges:
-	 * <pre>
-	 * (a1 - b1)  3
-	 * (a2 - b1)  5
-	 * (a2 - b2)  3
-	 * (a2 - b3)  1
-	 * (a3 - b2)  1
-	 * (a3 - b3)  3
-	 * </pre>
-	 * 
-	 * Expected matching <code>M = (a1-b1, a2-b2, a3-b3)</code> 
-	 * with |M|=3 and W = 3 + 3 + 3 = 9:
-	 * <pre>
-	 *   a1 --- b1
-	 *   
-	 *      
-	 *   a2  -- b2
-	 *      
-	 *      
-	 *   a3 --- b3
-	 * 
-	 * </pre>*/
-	private TestSet createTestSet2(){
-		TestSet t = new TestSet();
-	   //PartA
-       INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
-       t.graph.getNodeList().add(a1);
-       t.partA.add(a1);
-       INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
-       t.graph.getNodeList().add(a2);
-       t.partA.add(a2);
-       INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
-       t.graph.getNodeList().add(a3);
-       t.partA.add(a3);
-       
-       //PartB       
-       INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
-       t.graph.getNodeList().add(b1);
-       t.partB.add(b1);
-       INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
-       t.graph.getNodeList().add(b2);
-       t.partB.add(b2);
-       INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
-       t.graph.getNodeList().add(b3);
-       t.partB.add(b3);
-       
-       
-       //set edges and weights
-       
-       IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
-       edge.setCounter(3);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
-       edge.setCounter(5);
-       t.graph.getEdgeList().add(edge);
-		       
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
-       edge.setCounter(3);
-       t.graph.getEdgeList().add(edge);
+        INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
+        t.graph.getNodeList().add(a1);
+        t.partA.add(a1);
+        INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
+        t.graph.getNodeList().add(a2);
+        t.partA.add(a2);
+        INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
+        t.graph.getNodeList().add(a3);
+        t.partA.add(a3);
+        
+        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
+        t.graph.getNodeList().add(b1);
+        t.partB.add(b1);
+        INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
+        t.graph.getNodeList().add(b2);
+        t.partB.add(b2);
+        INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
+        t.graph.getNodeList().add(b3);
+        t.partB.add(b3);
+        
+        IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
+        edge.setCounter(weights[0][0]);
+        t.graph.getEdgeList().add(edge);
+        
+		edge = GraphExtentionFactory.createEdgeExtention(a1, b2);
+		edge.setCounter(weights[0][1]);
+		t.graph.getEdgeList().add(edge);
+		
+		edge = GraphExtentionFactory.createEdgeExtention(a1, b3);
+		edge.setCounter(weights[0][2]);
+		t.graph.getEdgeList().add(edge);
+		
+        edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
+        edge.setCounter(weights[1][0]);
+		t.graph.getEdgeList().add(edge);
+		
+		edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
+		edge.setCounter(weights[1][1]);
+		t.graph.getEdgeList().add(edge);
+		
+//		edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
+//		edge.setCounter(weights[1][2]);
+//		t.graph.getEdgeList().add(edge);
 
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
-       edge.setCounter(1);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a3, b2);
-       edge.setCounter(1);
-       t.graph.getEdgeList().add(edge);
-
-       edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
-       edge.setCounter(3);
-       t.graph.getEdgeList().add(edge);
-
-
+		edge = GraphExtentionFactory.createEdgeExtention(a3, b1);
+        edge.setCounter(weights[2][0]);
+		t.graph.getEdgeList().add(edge);
+		
+		edge = GraphExtentionFactory.createEdgeExtention(a3, b2);
+        edge.setCounter(weights[2][1]);
+		t.graph.getEdgeList().add(edge);
+		
+//		edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
+//        edge.setCounter(weights[2][2]);
+//		t.graph.getEdgeList().add(edge);
+		
 		return t;
 	}
+	
 	/**
-	 * The test set 3. <br>
-	 * The graph <code>G = (A + B, E)</code>:
-	 * <pre>
-	 * TODO: change the layout: 
-	 *   a1 ----- b1
-	 *       \ /
-	 *       /\
-	 *   a2 ---\-- b2
-	 *          \
-	 *           \
-	 *   	      b3
-	 * </pre>
-	 * <code>A =(a1, a2)</code>, <code>B =(b1, b2, b3)</code>
-	 * and <code>E =((a1 - b1), (a1 - b3), (a2 - b1), (a2 - b2)</code>
-	 * <br>
-	 * 
-	 * The following weights are assigned to the edges:
-	 * <pre>
-	 * (a1 - b1)  10
-	 * (a1 - b3)  5
-	 * (a2 - b1)  11
-	 * (a2 - b2)  9
-	 * 
-	 *  Expected matching <code>M = (a1-b1, a2-b2)</code> 
-	 * with |M|=2 and W = 10 + 9 = 19:
-	 * <pre>
-	 *   a1 --10-- b1
-	 *   
-	 *      
-	 *   a2 --9--- b2
-	 *      
-	 *      
-	 *   		   b3
-	 * </pre> 
-	 * */
-	private TestSet createTestSet3(){
-		TestSet t = new TestSet();
-	   //PartA
-       INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
-       t.graph.getNodeList().add(a1);
-       t.partA.add(a1);
-       
-       INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
-       t.graph.getNodeList().add(a2);
-       t.partA.add(a2);
-       
-       //PartB       
-       INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
-       t.graph.getNodeList().add(b2);
-       t.partB.add(b2);
-       INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
-       t.graph.getNodeList().add(b3);
-       t.partB.add(b3);
-       INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
-       t.graph.getNodeList().add(b1);
-       t.partB.add(b1);
-       
-       
-       //set edges and weights
-       
-       IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
-       edge.setCounter(10);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a1, b3);
-       edge.setCounter(5);
-       t.graph.getEdgeList().add(edge);
-       
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
-       edge.setCounter(11);
-       t.graph.getEdgeList().add(edge);
-		       
-       edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
-       edge.setCounter(9);
-       t.graph.getEdgeList().add(edge);
+	 * For debugging purposes only.
+	 * @param matrix the matrix
+	 */
+	private void printMatrix(int[][] matrix){
+		for(int i = 0; i < matrix.length; i++){
+			for(int j = 0; j < matrix.length; j++){
+				System.out.print(matrix[i][j]);
+				System.out.print(' ');
+			}
+			System.out.println();
+		}
+	}
 
-       return t;
-	}
 	
-	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
-	 * @see #createTestSet1()
-	 */
-	public final void testMaxCardBipartiteMatching1() {	
-		TestSet t = createTestSet1();
-		//printGraph(t.graph);
-		m.start(t.graph, t.partA, t.partB);
+	public void testExecuteMax1() {
 		
-		printMatchedEdges(m.getMatchedEdges());
-		assertEquals(19, m.getMaxWeightMatchedEdges());
-	}
-	
-	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
-	 * @see #createTestSet2()
-	 */
-	public final void testMaxCardBipartiteMatching2() {	
-		TestSet t = createTestSet2();
-		//printGraph(t.graph);
-		m.start(t.graph, t.partA, t.partB);
+		int [][] weights = {
+				{10, 1, 3},
+				{ 5, 6, 2},
+				{ 1, 4, 8}
+		};
 		
-		printMatchedEdges(m.getMatchedEdges());
-		assertEquals(9, m.getMaxWeightMatchedEdges());
-	}
-	
-	/**
-	 * Test method for {@link com.drgarbage.algorithms.MaxBipartiteMatching}
-	 * @see #createTestSet2()
-	 */
-	public final void testMaxCardBipartiteMatching3() {	
-		TestSet t = createTestSet3();
-		//printGraph(t.graph);
-		m.start(t.graph, t.partA, t.partB);
+		printMatrix( weights);
 		
-		printMatchedEdges(m.getMatchedEdges());
-		assertEquals(19, m.getMaxWeightMatchedEdges());
+		TestSet t = createTestSet2(weights);
+		
+		List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(true).execute(t.graph, t.partA, t.partB);
+		assertEquals(2, edges.size());
+		
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(4, weight);
+		
+		System.out.println("OK: sum = " + weight + "\n");
+		
+		
+		
+				
 	}
 	
 	/**
@@ -532,4 +315,344 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		//TODO: to be done
 	}
 
+	
+	//TODO: define test cases
+
+	/*
+	 * 3) MAXIMUM
+	 * 
+	 * <pre>
+	 *   a1 --- b1
+	 *       /
+	 *      /
+	 *   a2  -- b2
+	 *      \ /
+	 *      / \
+	 *   a3 --- b3
+	 * </pre>
+	 * 
+	 * Find maximum:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 1   0   0
+	 *  a2	 5   1   1
+	 *  a3	 0   6   1
+	 *  </pre>
+	 *  
+	 * <pre>
+	 *  	  b1  b2   b3
+	 *  a1	 -1    0    0
+	 *  a2	 -5   -1   -1
+	 *  a3	  0   -6   -1
+	 *  </pre> 
+	 *  
+	 *  +7
+	 *  <pre>
+	 *  	  b1  b2   b3
+	 *  a1	  6    7    7
+	 *  a2	  2    6    6
+	 *  a3	  7    1    6
+	 *  </pre> 
+	 *  
+	 *  
+	 *  
+	 *  
+	 * <li> <b>Reduce the matrix values</b><br>
+	 * 	<pre>
+	 *  	  b1  b2   b3
+	 *  a1	  0    1    1
+	 *  a2	  0    4    4
+	 *  a3	  6    0    5
+	 *  </pre>
+	 *  Reduce the columns by subtracting the minimum value of each column from that column.
+	 *	<pre>
+	 *  	b1  b2  b3
+	 *  a1	  0    1    0
+	 *  a2	  0    4    3
+	 *  a3	  6    0    4
+	 *  </pre> 
+	 * </li>
+	 * 
+	 * <li> <b>Start loop</b><br>
+	 *	<pre>
+	 *  	  b1  b2  b3
+	 *  	  |
+	 *  a1	--0---1---0--
+	 *  	  |
+	 *  a2	  0   4   3
+	 *  	  |
+	 *  a3	--6---0---4--
+	 *  	  |
+	 *  </pre> 
+	 * </li>
+	 *  
+	 *  	  b1  b2  b3
+	 *  a1	  0    1   (0)
+	 *  a2	 (0)   4    3
+	 *  a3	  6   (0)   4
+	 *  
+	 *  Matching:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 1   0  (0)
+	 *  a2	(5)  1   1
+	 *  a3	 0  (6)   1
+	 *  </pre>
+	 *  
+	 *  OK
+	 *  
+	 */
+	
+	
+	/*
+	 * 4) MAXIMUM
+	 * 
+	 * <pre>
+	 *   a1 --- b1
+	 *       /
+	 *      /
+	 *   a2     b2
+	 *      \ /
+	 *      / \
+	 *   a3 --- b3
+	 * </pre>
+	 * 
+	 * Find maximum:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 1   0   0
+	 *  a2	 5   0   1
+	 *  a3	 0   6   1
+	 *  </pre>
+	 *  
+	 * <pre>
+	 *  	  b1  b2   b3
+	 *  a1	 -1    0    0
+	 *  a2	 -5    0   -1
+	 *  a3	  0   -6   -1
+	 *  </pre> 
+	 *  
+	 *  +7
+	 *  <pre>
+	 *  	  b1  b2   b3
+	 *  a1	  6    7    7
+	 *  a2	  2    7    6
+	 *  a3	  7    1    6
+	 *  </pre> 
+	 *  
+	 *  
+	 *  
+	 *  
+	 * <li> <b>Reduce the matrix values</b><br>
+	 * 	<pre>
+	 *  	  b1  b2   b3
+	 *  a1	  0    1    1
+	 *  a2	  0    5    4
+	 *  a3	  6    0    5
+	 *  </pre>
+	 *  Reduce the columns by subtracting the minimum value of each column from that column.
+	 *	<pre>
+	 *  	b1  b2  b3
+	 *  a1	  0    1    0
+	 *  a2	  0    5    3
+	 *  a3	  6    0    4
+	 *  </pre> 
+	 * </li>
+	 * 
+	 * <li> <b>Start loop</b><br>
+	 *	<pre>
+	 *  	  b1  b2  b3
+	 *  	  |
+	 *  a1	--0---1---0--
+	 *  	  |
+	 *  a2	  0   5   3
+	 *  	  |
+	 *  a3	--6---0---4--
+	 *  	  |
+	 *  </pre> 
+	 * </li>
+	 *  
+	 *  	  b1  b2  b3
+	 *  a1	  0    1   (0)
+	 *  a2	 (0)   5    3
+	 *  a3	  6   (0)   4
+	 *  
+	 *  Matching:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 1   0  (0)
+	 *  a2	(5)  1   1
+	 *  a3	 0  (6)   1
+	 *  </pre>
+	 *  
+	 */
+	
+	/*
+	 * 5) MAXIMUM
+	 * 
+	 * <pre>
+	 *   a1 --- b1
+	 *       /
+	 *      /
+	 *   a2     b2
+	 *       /
+	 *      /  
+	 *   a3 --- b3
+	 * </pre>
+	 * 
+	 * Find maximum:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 1   0   0
+	 *  a2	 5   0   0
+	 *  a3	 0   6   1
+	 *  </pre>
+	 *  
+	 * <pre>
+	 *  	  b1  b2   b3
+	 *  a1	 -1    0    0
+	 *  a2	 -5    0    0
+	 *  a3	  0   -6   -1
+	 *  </pre> 
+	 *  
+	 *  +7
+	 *  <pre>
+	 *  	  b1  b2   b3
+	 *  a1	  6    7    7
+	 *  a2	  2    7    7
+	 *  a3	  7    1    6
+	 *  </pre> 
+	 *  
+	 *  
+	 *  
+	 *  
+	 * <li> <b>Reduce the matrix values</b><br>
+	 * 	<pre>
+	 *  	  b1  b2   b3
+	 *  a1	  0    1    1
+	 *  a2	  0    5    5
+	 *  a3	  6    0    5
+	 *  </pre>
+	 *  Reduce the columns by subtracting the minimum value of each column from that column.
+	 *	<pre>
+	 *  	b1  b2  b3
+	 *  a1	  0    1    0
+	 *  a2	  0    5    4
+	 *  a3	  6    0    4
+	 *  </pre> 
+	 * </li>
+	 * 
+	 * <li> <b>Start loop</b><br>
+	 *	<pre>
+	 *  	  b1  b2  b3
+	 *  	  |
+	 *  a1	--0---1---0--
+	 *  	  |
+	 *  a2	  0   5   4
+	 *  	  |
+	 *  a3	--6---0---4--
+	 *  	  |
+	 *  </pre> 
+	 * </li>
+	 *  
+	 *  	  b1  b2  b3
+	 *  a1	  0    1   (0)
+	 *  a2	 (0)   5    4
+	 *  a3	  6   (0)   4
+	 *  
+	 *  Matching:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 1   0  (0)
+	 *  a2	(5)  1   1
+	 *  a3	 0  (6)   1
+	 *  </pre>
+	 *  
+	 */
+	
+	/*
+	 * 6) MAXIMUM
+	 * 
+	 * <pre>
+	 *   a1 --- b1
+	 *       /
+	 *      /
+	 *   a2  -- b2
+	 *      \ /
+	 *      / \
+	 *   a3 --- b3
+	 * </pre>
+	 * 
+	 * Find maximum:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	 3   0   0
+	 *  a2	 1   3   1
+	 *  a3	 0   1   3
+	 *  </pre>
+	 *  
+	 * <pre>
+	 *  	  b1  b2   b3
+	 *  a1	 -3    0    0
+	 *  a2	 -1   -3   -1
+	 *  a3	  0   -1   -3
+	 *  </pre> 
+	 *  
+	 *  +4
+	 *  <pre>
+	 *  	  b1  b2   b3
+	 *  a1	  1    4    4
+	 *  a2	  3    1    3
+	 *  a3	  4    3    1
+	 *  </pre> 
+	 *  
+	 *  
+	 *  
+	 *  
+	 * <li> <b>Reduce the matrix values</b><br>
+	 * 	<pre>
+	 *  	  b1  b2   b3
+	 *  a1	  0    3    3
+	 *  a2	  2    0    2
+	 *  a3	  3    2    0
+	 *  </pre>
+	 *  Reduce the columns by subtracting the minimum value of each column from that column.
+	 *	<pre>
+	 *  	b1  b2  b3
+	 *  a1	  0    3    3
+	 *  a2	  2    0    2
+	 *  a3	  3    2    0
+	 *  </pre> 
+	 *  NO changes
+	 * </li>
+	 * 
+	 * <li> <b>Start loop</b><br>
+	 *	<pre>
+	 *  	  b1  b2  b3
+	 *  a1	--0---3---3--
+	 *  a2	--2---0---2--
+	 *  a3	--3---2---0--
+	 *  </pre> 
+	 * </li>
+	 *  
+	 *  	  b1  b2  b3
+	 *  a1	 (0)   3    3
+	 *  a2	  2   (0)   2
+	 *  a3	  3    2   (0)
+	 *  
+	 *  Matching:
+	 * <pre>
+	 *  	b1  b2  b3
+	 *  a1	(3)  0   0
+	 *  a2	 1  (3)  1
+	 *  a3	 0   1  (3)
+	 *  </pre>
+	 *  
+	 *  OK
+	 *  
+	 */
+
+
+
+	
 }
