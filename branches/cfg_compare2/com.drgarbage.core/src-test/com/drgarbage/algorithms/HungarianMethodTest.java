@@ -149,8 +149,6 @@ public class HungarianMethodTest extends TestCase {
 	}
 	
 	/**
-	 * Test 1
-	 * <br>
 	 * Input:
 	 *  <pre>
 	 *  	10 9 3
@@ -186,6 +184,7 @@ public class HungarianMethodTest extends TestCase {
 		int weight = 0;
     	for(IEdgeExt e : edges){
     		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
     	}
 		
 		assertEquals(10, weight);
@@ -194,8 +193,6 @@ public class HungarianMethodTest extends TestCase {
 	}
 	
 	/**
-	 * Test 1
-	 * <br>
 	 * Input:
 	 *  <pre>
 	 *  	 1 9 3
@@ -231,6 +228,7 @@ public class HungarianMethodTest extends TestCase {
 		int weight = 0;
     	for(IEdgeExt e : edges){
     		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
     	}
 		
 		assertEquals(3, weight);
@@ -240,8 +238,6 @@ public class HungarianMethodTest extends TestCase {
 	
 	
 	/**
-	 * Test 1
-	 * <br>
 	 * Input:
 	 *  <pre>
 	 *  	10 1 3
@@ -277,6 +273,7 @@ public class HungarianMethodTest extends TestCase {
 		int weight = 0;
     	for(IEdgeExt e : edges){
     		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
     	}
 		
 		assertEquals(4, weight);
@@ -284,4 +281,91 @@ public class HungarianMethodTest extends TestCase {
 		System.out.println("OK: sum = " + weight + "\n");
 	}	
 	
+	/**
+	 * Input:
+	 *  <pre>
+	 *  	10 1 3
+	 *  	 5 6 2
+	 *  	 1 4 0
+	 *  </pre>
+	 * 
+	 * Result:
+	 *  <pre>
+	 *  	- 1 -
+	 *  	- - 2
+	 *  	1 - -
+	 *  </pre>
+	 * 
+	 * Sum 1 + 2 + 1 = 4
+	 * 
+	 */
+	public void testExecuteHungarianMethod4() {
+		
+		int [][] weights = {
+				{10, 1, 3},
+				{ 5, 6, 2},
+				{ 1, 4, 0}
+		};
+		
+		printMatrix( weights);
+		
+		TestSet t = createTestSet2(weights);
+		
+		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		assertEquals(3, edges.size());
+		
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(4, weight);
+		
+		System.out.println("OK: sum = " + weight + "\n");
+	}	
+	
+	/**
+	 * Input:
+	 *  <pre>
+	 *  	10 1 3
+	 *  	 5 6 0
+	 *  	 1 4 0
+	 *  </pre>
+	 * 
+	 * Result:
+	 *  <pre>
+	 *  	- 1 -
+	 *  	- - 2
+	 *  	1 - -
+	 *  </pre>
+	 * 
+	 * Sum 1 + 2 + 1 = 4
+	 * 
+	 */
+	public void testExecuteHungarianMethod5() {
+		
+		int [][] weights = {
+				{10, 1, 3},
+				{ 5, 6, 0},
+				{ 1, 4, 0}
+		};
+		
+		printMatrix( weights);
+		
+		TestSet t = createTestSet2(weights);
+		
+		List<IEdgeExt> edges = new HungarianMethod(false).execute(t.graph, t.partA, t.partB);
+		assertEquals(3, edges.size());
+		
+		int weight = 0;
+    	for(IEdgeExt e : edges){
+    		weight += e.getCounter();
+    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+    	}
+		
+		assertEquals(2, weight);
+		
+		System.out.println("OK: sum = " + weight + "\n");
+	}	
 }
