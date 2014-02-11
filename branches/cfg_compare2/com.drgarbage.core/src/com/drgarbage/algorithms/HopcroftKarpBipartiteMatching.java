@@ -19,7 +19,7 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  * @version $Revision$
  * 			$Id$
  */
-public class Hopcroft–KarpBipartiteMatching {
+public class HopcroftKarpBipartiteMatching {
 	private List<INodeExt> g1;
 	private List<INodeExt> g2;
 	
