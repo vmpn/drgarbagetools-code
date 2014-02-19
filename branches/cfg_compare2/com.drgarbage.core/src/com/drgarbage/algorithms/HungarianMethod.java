@@ -407,7 +407,7 @@ public class HungarianMethod {
 	 * To find the matching in the matrix a set of zeros has to be chosen
 	 * so that each row or column has only one selected.
 	 * <br>
-	 * We construct a bipartite graph by selecting the edges with zero weighs
+	 * We construct a bipartite graph by selecting the edges with zero weights
 	 * and apply the augmenting path algorithm to find the matching 
 	 * of maximum cardinality.
 	 * 
@@ -486,7 +486,7 @@ public class HungarianMethod {
 	 * Debugging flag. Set <code>true</code> to enable printing the
 	 * debugging messages.
 	 */
-	protected static boolean DEBUG = false;
+	protected static boolean DEBUG = true;
 	
 	/**
 	 * Prints a message for debugging purposes.

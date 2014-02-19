@@ -234,7 +234,9 @@ public class MaxWeightedBipartiteMatching extends HungarianMethod{
 		
 		for(int j = 0; j < edges.size(); j++){
 			IEdgeExt e = edges.getEdgeExt(j);
-			e.setCounter((e.getCounter() * -1) + max + 1);
+			if(e.getCounter() != 0){
+				e.setCounter((e.getCounter() * -1) + max + 1);
+			}
 		}
 	}
 }

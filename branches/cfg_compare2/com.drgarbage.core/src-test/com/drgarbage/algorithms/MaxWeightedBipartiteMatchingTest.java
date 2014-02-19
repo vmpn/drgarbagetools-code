@@ -34,7 +34,7 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  */
 public class MaxWeightedBipartiteMatchingTest extends TestCase{
 
-	protected boolean DEBUG = false;
+	protected boolean DEBUG = true;
 	
 	/**
 	 * Test set consists of a bipartite graph and two partitions.
@@ -52,36 +52,54 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 * @return the test set
 	 */
 	private TestSet createTestSet(int [][] weights){
+
 		TestSet t = new TestSet();
-
 		
-		for(int i = 0; i < weights.length; i++){
-			INodeExt a1 = GraphExtentionFactory.createNodeExtention("a" + i);
-			t.graph.getNodeList().add(a1);
-	        t.partA.add(a1);
-	        
-
-	        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b" + i);
-	        t.graph.getNodeList().add(b1);
-	        t.partB.add(b1);
-		}
-		
-		for(int i = 0; i < weights.length; i++){
-			for(int j = 0; j < weights.length; j++){
-				/* ignore zero values */
-				if(weights[i][j] != 0){
-					INodeExt a = t.partA.get(i);
-					INodeExt b = t.partB.get(j);
-					IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a, b);
-					edge.setCounter(weights[i][j]);
-					t.graph.getEdgeList().add(edge);
+			for(int i = 0; i < weights.length; i++){
+				INodeExt a1 = GraphExtentionFactory.createNodeExtention("a" + i);
+				t.graph.getNodeList().add(a1);
+		        t.partA.add(a1);
+		        
+	
+		        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b" + i);
+		        t.graph.getNodeList().add(b1);
+		        t.partB.add(b1);
+			}
+			
+			for(int i = 0; i < weights.length; i++){
+				for(int j = 0; j < weights.length; j++){
+					/* ignore zero values */
+					if(weights[i][j] != 0){
+						INodeExt a = t.partA.get(i);
+						INodeExt b = t.partB.get(j);
+						IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a, b);
+						edge.setCounter(weights[i][j]);
+						t.graph.getEdgeList().add(edge);
+					}
 				}
 			}
-		}
-		
 		return t;
 	}
-	
+	/**
+	 * Checks whether the input matrix squared
+	 * @param weights
+	 * @return
+	 */
+	private boolean isSquared(int [][] weights){
+		boolean squared = true;
+			
+			for(int i = 0; i < weights.length; i++){
+				if(weights.length != weights[i].length){
+					squared = false;
+					if(DEBUG){
+						System.out.println("matrix is not squared");
+					}
+				}
+			}
+			
+		return squared;
+	}
+
 	/**
 	 * The test 1. <br>
 	 * The graph <code>G = (A + B, E)</code>:
@@ -264,7 +282,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		};
 		
 		System.out.println("Input:");
-		printMatrix( weights);
+		printMatrix(weights);
 		
 		TestSet t = createTestSet(weights);
 		if(DEBUG)printGraph(t.graph);
@@ -298,7 +316,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		};
 		
 		System.out.println("Input:");
-		printMatrix( weights);
+		printMatrix(weights);
 		
 		TestSet t = createTestSet(weights);
 		if(DEBUG)printGraph(t.graph);
@@ -332,8 +350,11 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 				{  1, 4, 14, 33 },
 		};
 		
+		if(isSquared(weights)){
+			return;
+		}
 		System.out.println("Input:");
-		printMatrix( weights);
+		printMatrix(weights);
 		
 		TestSet t = createTestSet(weights);
 		if(DEBUG)printGraph(t.graph);
@@ -354,6 +375,45 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		System.out.println("------------");
 	}
 	
+	/**
+	 * Test if the matrix is not squared
+	 */
+	public void testMax4() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 0, 0 },
+				{ 5, 1    },
+				{ 0, 6, 1 }
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(t.equals(null)){
+				if(DEBUG)printGraph(t.graph);
+				
+				List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+				assertEquals(2, edges.size());
+				
+				System.out.println("Output:");
+				int weight = 0;
+		    	for(IEdgeExt e : edges){
+		    		weight += e.getCounter();
+		    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+		    	}
+				
+				assertEquals(11, weight);
+				
+				System.out.println("\nOK, sum = " + weight);
+				System.out.println("------------");
+			}
+		}
+	}
 	
 	/* 
 	 * The Methods in this section are used for purely debugging purposes 
