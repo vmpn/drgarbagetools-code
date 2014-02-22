@@ -74,65 +74,33 @@ public class HungarianMethodTest extends TestCase {
 	 * @param weights the weights to be assigned to the edges
 	 * @return the test set
 	 */
-	private TestSet createTestSet2(int [][] weights){
+	private TestSet createTestSet(int [][] weights){
 		TestSet t = new TestSet();
+			
+		for(int i = 0; i < weights.length; i++){
+			INodeExt a1 = GraphExtentionFactory.createNodeExtention("a" + i);
+			t.graph.getNodeList().add(a1);
+	        t.partA.add(a1);
+	        
 
-        INodeExt a1 = GraphExtentionFactory.createNodeExtention("a1");
-        t.graph.getNodeList().add(a1);
-        t.partA.add(a1);
-        INodeExt a2 = GraphExtentionFactory.createNodeExtention("a2");
-        t.graph.getNodeList().add(a2);
-        t.partA.add(a2);
-        INodeExt a3 = GraphExtentionFactory.createNodeExtention("a3");
-        t.graph.getNodeList().add(a3);
-        t.partA.add(a3);
-        
-        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b1");
-        t.graph.getNodeList().add(b1);
-        t.partB.add(b1);
-        INodeExt b2 = GraphExtentionFactory.createNodeExtention("b2");
-        t.graph.getNodeList().add(b2);
-        t.partB.add(b2);
-        INodeExt b3 = GraphExtentionFactory.createNodeExtention("b3");
-        t.graph.getNodeList().add(b3);
-        t.partB.add(b3);
-        
-        IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a1, b1);
-        edge.setCounter(weights[0][0]);
-        t.graph.getEdgeList().add(edge);
-        
-		edge = GraphExtentionFactory.createEdgeExtention(a1, b2);
-		edge.setCounter(weights[0][1]);
-		t.graph.getEdgeList().add(edge);
+	        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b" + i);
+	        t.graph.getNodeList().add(b1);
+	        t.partB.add(b1);
+		}
 		
-		edge = GraphExtentionFactory.createEdgeExtention(a1, b3);
-		edge.setCounter(weights[0][2]);
-		t.graph.getEdgeList().add(edge);
-		
-        edge = GraphExtentionFactory.createEdgeExtention(a2, b1);
-        edge.setCounter(weights[1][0]);
-		t.graph.getEdgeList().add(edge);
-		
-		edge = GraphExtentionFactory.createEdgeExtention(a2, b2);
-		edge.setCounter(weights[1][1]);
-		t.graph.getEdgeList().add(edge);
-		
-		edge = GraphExtentionFactory.createEdgeExtention(a2, b3);
-		edge.setCounter(weights[1][2]);
-		t.graph.getEdgeList().add(edge);
+		for(int i = 0; i < weights.length; i++){
+			for(int j = 0; j < weights.length; j++){
+				//if(weights[i][j] != 0)
+				{
+					INodeExt a = t.partA.get(i);
+					INodeExt b = t.partB.get(j);
+					IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a, b);
+					edge.setCounter(weights[i][j]);
+					t.graph.getEdgeList().add(edge);
+					}
+				}			
+		}
 
-		edge = GraphExtentionFactory.createEdgeExtention(a3, b1);
-        edge.setCounter(weights[2][0]);
-		t.graph.getEdgeList().add(edge);
-		
-		edge = GraphExtentionFactory.createEdgeExtention(a3, b2);
-        edge.setCounter(weights[2][1]);
-		t.graph.getEdgeList().add(edge);
-		
-		edge = GraphExtentionFactory.createEdgeExtention(a3, b3);
-        edge.setCounter(weights[2][2]);
-		t.graph.getEdgeList().add(edge);
-		
 		return t;
 	}
 	
@@ -142,14 +110,38 @@ public class HungarianMethodTest extends TestCase {
 	 */
 	private void printMatrix(int[][] matrix){
 		for(int i = 0; i < matrix.length; i++){
-			for(int j = 0; j < matrix.length; j++){
+			for(int j = 0; j < matrix[i].length; j++){
 				System.out.print(matrix[i][j]);
 				System.out.print(' ');
 			}
 			System.out.println();
 		}
 	}
-	
+	/**
+	 * Prints the graph.
+	 * @param g the graph
+	 */
+	private void printGraph(IDirectedGraphExt g) {
+		if(!DEBUG){
+			return;
+		}
+		
+		System.out.println("Print Graph:");
+
+		System.out.println("Nodes:");
+		for (int i = 0; i < g.getNodeList().size(); i++) {
+			System.out.println("  " + g.getNodeList().getNodeExt(i).getData());
+		}
+
+		System.out.println("Edges:");
+		for (int i = 0; i < g.getEdgeList().size(); i++) {
+			IEdgeExt e = g.getEdgeList().getEdgeExt(i);
+			System.out.println("  " 
+					+ e.getSource().getData() 
+					+ " - "
+					+ e.getTarget().getData());
+		}
+	}
 	/**
 	 * Input:
 	 *  <pre>
@@ -176,9 +168,9 @@ public class HungarianMethodTest extends TestCase {
 				{ 1, 4, 8}
 		};
 		System.out.println("Input:");
-		printMatrix( weights);
+		printMatrix(weights);
 		
-		TestSet t = createTestSet2(weights);
+		TestSet t = createTestSet(weights);
 		
 		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
@@ -224,7 +216,7 @@ public class HungarianMethodTest extends TestCase {
 		System.out.println("Input:");
 		printMatrix( weights);
 		
-		TestSet t = createTestSet2(weights);
+		TestSet t = createTestSet(weights);
 		
 		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
@@ -270,7 +262,7 @@ public class HungarianMethodTest extends TestCase {
 		System.out.println("Input:");
 		printMatrix( weights);
 		
-		TestSet t = createTestSet2(weights);
+		TestSet t = createTestSet(weights);
 		
 		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
@@ -315,7 +307,7 @@ public class HungarianMethodTest extends TestCase {
 		System.out.println("Input:");
 		printMatrix( weights);
 		
-		TestSet t = createTestSet2(weights);
+		TestSet t = createTestSet(weights);
 		
 		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
@@ -333,37 +325,45 @@ public class HungarianMethodTest extends TestCase {
 	}	
 	
 	/**
+	 * TODO: find a problem (expected: 5, was: 8), hint: the first 5 elements are correct min-edges
 	 * Input:
 	 *  <pre>
-	 *  	10 1 3
-	 *  	 5 6 0
-	 *  	 1 4 0
+	 *  	10 19 8  15 1
+	 *  	10 18 7  17 1
+			13 16 9  14 1
+			12 19 8  18 1
+			14 17 10 19 1
 	 *  </pre>
 	 * 
 	 * Result:
 	 *  <pre>
-	 *  	- 1 -
-	 *  	- - 2
-	 *  	1 - -
+	 *  	(10) 19   8   15  1
+	 *  	10   18  (7)  17  1
+			13   16   9  (14) 1
+			12   19   8   18 (1)
+			14   (17) 10  19  1
 	 *  </pre>
 	 * 
-	 * Sum 1 + 2 + 1 = 4
+	 * Sum 10 + 7 + 14 + 1 + 17 = 49
 	 * 
 	 */
 	public void testExecuteHungarianMethod5() {
 		System.out.println("-------------");
 		int [][] weights = {
-				{10, 1, 3},
-				{ 5, 6, 0},
-				{ 1, 4, 0}
+				{ 10, 19, 8, 15, 1},
+				{ 10, 18, 7, 17, 1},
+				{ 13, 16, 9, 14, 1},
+				{ 12, 19, 8, 18, 1},
+				{ 14, 17, 10, 19, 1}
 		};
 		System.out.println("Input:");
-		printMatrix( weights);
+		printMatrix(weights);
 		
-		TestSet t = createTestSet2(weights);
+		TestSet t = createTestSet(weights);
+		printGraph(t.graph);
 		
 		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
-		assertEquals(3, edges.size());
+		assertEquals(5, edges.size());
 		
 		int weight = 0;
     	for(IEdgeExt e : edges){
@@ -371,7 +371,7 @@ public class HungarianMethodTest extends TestCase {
     		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
     	}
 		
-		assertEquals(2, weight);
+		assertEquals(49, weight);
 		
 		System.out.println("OK: sum = " + weight);
 		System.out.println("-------------");
@@ -405,7 +405,7 @@ public class HungarianMethodTest extends TestCase {
 		System.out.println("Input:");
 		printMatrix( weights);
 		
-		TestSet t = createTestSet2(weights);
+		TestSet t = createTestSet(weights);
 		
 		List<IEdgeExt> edges = new HungarianMethod(DEBUG).execute(t.graph, t.partA, t.partB);
 		assertEquals(3, edges.size());
@@ -420,5 +420,7 @@ public class HungarianMethodTest extends TestCase {
 		
 		System.out.println("OK: sum = " + weight);
 		System.out.println("-------------");
-	}	
+	}
+	
+	
 }

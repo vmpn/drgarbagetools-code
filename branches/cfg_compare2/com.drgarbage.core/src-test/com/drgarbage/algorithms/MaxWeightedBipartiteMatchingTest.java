@@ -78,6 +78,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 					}
 				}
 			}
+			
 		return t;
 	}
 	/**
