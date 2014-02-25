@@ -269,7 +269,7 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
-	public final void testTopDownSubtreeIsomorthism1() throws ControlFlowGraphException {	
+	public final void testBottomUpUnorderedSubtreeIsomorphism1() throws ControlFlowGraphException {	
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet1();
 		
@@ -289,7 +289,7 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
-	public final void testTopDownSubtreeIsomorthism2() throws ControlFlowGraphException {		
+	public final void testBottomUpUnorderedSubtreeIsomorphism2() throws ControlFlowGraphException {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet1();
 		printGraph(t.treeLeft);
@@ -303,7 +303,7 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet3()
 	 */
-	public final void testTopDownSubtreeIsomorthism3() throws ControlFlowGraphException {		
+	public final void testBottomUpUnorderedSubtreeIsomorphism3() throws ControlFlowGraphException {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet3();
 		printGraph(t.treeLeft);
@@ -319,7 +319,7 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	 * The input is not a tree.
 	 * @see #createTestSet3()
 	 */
-	public final void testTopDownSubtreeIsomorthism4() {		
+	public final void testBottomUpUnorderedSubtreeIsomorphism4() {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet4();
 		printGraph(t.treeLeft);
