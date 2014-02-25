@@ -90,7 +90,7 @@ public class HungarianMethod {
 
 		/* start iteration */
 		List<INodeExt> coveredNodes = getMin(graph, partA, partB);
-		debug("Min=" + coveredNodes.size());
+		debug("Min Number of covered rows/column=" + coveredNodes.size());
 
 		while(coveredNodes.size() != partA.size()){
 
@@ -100,7 +100,7 @@ public class HungarianMethod {
 			GraphUtils.clearGraph(graph);
 			
 			coveredNodes = getMin(graph, partA, partB);
-			debug("Min=" + coveredNodes.size());
+			debug("Min Number of covered rows/column=" + coveredNodes.size());
 		}
 
 		GraphUtils.clearGraph(graph);
@@ -420,7 +420,8 @@ public class HungarianMethod {
 	 * @see MaxCardBipartiteMatching
 	 */
 	private List<IEdgeExt> findMatching(IDirectedGraphExt graph1, List<INodeExt> partA1, List<INodeExt> partB1){
-
+		debug("findMatching ...");
+		
 		/* create a bipartite subgraph */
 		IDirectedGraphExt graph = GraphExtentionFactory.createDirectedGraphExtention();
 
@@ -456,10 +457,11 @@ public class HungarianMethod {
 			}
 		}
 
+		printGraph(graph);
 		printBipartiteGraph(partA2, partB2);
 
 		/* execute the augmenting path algorithm */
-		MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching();
+		MaxCardBipartiteMatching mbm = new MaxCardBipartiteMatching(DEBUG);
 		mbm.start(graph, partA2, partB2);
 
 		Set<IEdgeExt> edges = mbm.getMatchedEdges();
@@ -473,6 +475,8 @@ public class HungarianMethod {
 			oe.setCounter(weights.get(oe));
 			
 			origEdges.add(oe);
+			
+			debug(oe.getSource().getData() + "-" + oe.getTarget().getData());
 		}
 
 		return origEdges;
@@ -546,4 +550,29 @@ public class HungarianMethod {
 		debug(buf.toString());
 	}
 
+	/**
+	 * Prints the graph.
+	 * @param g the graph
+	 */
+	private static void printGraph(IDirectedGraphExt g) {
+		if(!DEBUG){
+			return;
+		}
+		
+		System.out.println("Print Graph:");
+
+		System.out.println("Nodes:");
+		for (int i = 0; i < g.getNodeList().size(); i++) {
+			System.out.println("  " + g.getNodeList().getNodeExt(i).getData());
+		}
+
+		System.out.println("Edges:");
+		for (int i = 0; i < g.getEdgeList().size(); i++) {
+			IEdgeExt e = g.getEdgeList().getEdgeExt(i);
+			System.out.println("  " 
+					+ e.getSource().getData() 
+					+ " - "
+					+ e.getTarget().getData());
+		}
+	}
 }

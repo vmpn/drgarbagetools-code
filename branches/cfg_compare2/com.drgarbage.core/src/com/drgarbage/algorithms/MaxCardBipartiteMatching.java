@@ -70,10 +70,24 @@ import com.drgarbage.controlflowgraph.intf.MarkEnum;
  */
 public class MaxCardBipartiteMatching {
 
-	private boolean fromAtoB = true; 
 	private List<IEdgeExt> path = null;
 	private Set<IEdgeExt> matchedEdges = new HashSet<IEdgeExt>(); 
 
+	/**
+	 * Default constructor.
+	 */
+	public MaxCardBipartiteMatching(){
+		DEBUG = false;
+	}
+	
+	/**
+	 * Creates an algorithm object.
+	 * @param b set to <code>true</code> for debugging
+	 */
+	public MaxCardBipartiteMatching(boolean b){
+		DEBUG = b;
+	}
+	
 	/**
 	 * @return the matchedEdges
 	 */
@@ -89,25 +103,78 @@ public class MaxCardBipartiteMatching {
 	 * @param partB the second partition
 	 */
 	public void start(IDirectedGraphExt graph, List<INodeExt> partA, List<INodeExt> partB) {
+		debug("MaxCardBipartiteMatching start ...");
+		
 		for(INodeExt n: partA){
 			path = new ArrayList<IEdgeExt>();
 			GraphUtils.clearGraph(graph);
-			fromAtoB = true;
-			
+			n.setMark(MarkEnum.RED);
 			dfs(n);
 		}
+		
+		GraphUtils.clearGraph(graph);
+		GraphUtils.clearGraphColorMarks(graph);
+		
+		debug("MaxCardBipartiteMatching finished");
 	}
 
 	/**
 	 * Depth first search.
 	 * @param node the start node
+	 * @return <code>true</code> if the DFS has to be stopped, 
+	 * otherwise <code>false</code>.
 	 */
-	protected void dfs(INodeExt node){
-		if(node.isVisited())
-			return;
+	protected boolean dfs(INodeExt node){	
+		/* print some debugging information */
+		printNodeInfo(node);
+		printPathInfo(path);
+		
+		if(node.isVisited()){
+			return false;
+		}
 
 		node.setVisited(true);
+		
+		/* 
+		 * Follow edge, already matched in the previous step, 
+		 * if the current node from the partition B is marked
+		 * red (it belongs to the matched edge). 
+		 */
+		if( (path.size() % 2) == 1 &&
+				node.getMark() == MarkEnum.RED){
 
+			IEdgeExt e = findMatchedEdge(node);
+
+			/* print debugging information */
+			printEdgeInfo(e);
+			
+			if(e != null){
+				e.setVisited(true);
+				
+				/* add the edge to the path */
+				path.add(e);
+
+				if(dfs(node.equals(e.getSource()) ? 
+						e.getTarget() : e.getSource())){
+					return true;
+				}
+				
+				/* 
+				 * back from the recursion:
+				 * remove the edge from path 
+				 */
+				path.remove(e);
+				
+				return false;
+			}
+			else{
+				/* should never happen */
+				debug("ERROR: edge not found in the list of mached edges.");
+			}
+		}
+
+		/* the depth first search recursion */
+		
 		/* for all incoming edges */
 		IEdgeListExt inList = node.getIncomingEdgeList();
 		for(int i = 0; i < inList.size(); i++){
@@ -118,12 +185,21 @@ public class MaxCardBipartiteMatching {
 				/* add the edge to path */
 				path.add(e);
 				
+				/* for debugging */
+				printPathInfo(path);
+				
 				/* edge visitor hook */
 				if(visitEdge(e)){
-					return;
+					/* stop the dfs recursion*/
+					return true;
 				}
 
-				dfs(e.getSource());
+				/* 
+				 * stop the recursion if the dfs returns true
+				 */
+				if(dfs(e.getSource())){
+					return true; 
+				}
 
 				/* 
 				 * back from the recursion:
@@ -143,12 +219,21 @@ public class MaxCardBipartiteMatching {
 				/* add the edge to path */
 				path.add(e);
 				
+				/* for debugging */
+				printPathInfo(path);
+				
 				/* edge visitor hook */
 				if(visitEdge(e)){ 
-					return;
+					/* stop the dfs recursion*/
+					return true;
 				}
 
-				dfs(e.getTarget());
+				/* 
+				 * stop the recursion if the dfs returns true
+				 */
+				if(dfs(e.getTarget())){
+					return true;
+				}
 
 				/* 
 				 * back from the recursion:
@@ -157,6 +242,8 @@ public class MaxCardBipartiteMatching {
 				path.remove(e);
 			}
 		}
+		
+		return false;
 	}
 
 	/**
@@ -167,38 +254,22 @@ public class MaxCardBipartiteMatching {
 	 * @return <code>true</code> or <code>false</code>
 	 */
 	public boolean visitEdge(IEdgeExt edge) {
-		if(fromAtoB){ /* A -> B */
-			fromAtoB = false;
-			INodeExt s = edge.getSource();
-			INodeExt t = edge.getTarget();
 
-			/* incoming edge */
-			if(s.isVisited()){
-				if(t.getMark() != MarkEnum.RED){
-					/* an augmenting path found */
-					t.setMark(MarkEnum.RED);
-					
-					switchAugementingPath();
+		edge.setVisited(true);
 
-					/* stop dfs */
-					return true;
-				}
+		if(path.size() % 2 == 1){ /* A -> B */
+			INodeExt n = edge.getSource().isVisited() 
+					? edge.getTarget() /* outgoing edge */
+							: edge.getSource(); /* incoming edge */
+
+			if(n.getMark() != MarkEnum.RED){ /* an augmenting path found */
+				n.setMark(MarkEnum.RED);
+
+				switchAugementingPath();
+
+				/* stop dfs */
+				return true;
 			}
-			/* outgoing edge */
-			else{
-				if(s.getMark() != MarkEnum.RED){
-					/* an augmenting path found */
-					s.setMark(MarkEnum.RED);
-
-					switchAugementingPath();
-
-					/* stop dfs */
-					return true;
-				}
-			}
-		}
-		else{ /* A <- B */
-			fromAtoB = true;
 		}
 
 		return false;
@@ -209,14 +280,132 @@ public class MaxCardBipartiteMatching {
 	 * the list of matched edges.
 	 */
 	private void switchAugementingPath(){
+		debug("Switch path ...");
+		
 		for(int i = path.size() - 1; i >= 0; i--){
+			IEdgeExt e = path.get(i);
 			if(i % 2 == 0){
-				matchedEdges.add(path.get(i));
+				matchedEdges.add(e);
+				
+				/* mark the matched edge */
+				e.setMark(MarkEnum.RED);
 			}
 			else{
-				matchedEdges.remove(path.get(i));
+				matchedEdges.remove(e);
+				
+				/* mark the matched edge */
+				e.setMark(MarkEnum.DEFAULT);
 			}
 		}
 	}
+	
+	/**
+	 * Finds the edge already matched in the previous step.
+	 * @param node the node
+	 * @return the edge or null
+	 */
+	private IEdgeExt findMatchedEdge(INodeExt node) {
+		IEdgeListExt inList = node.getIncomingEdgeList();
+		
+		/* for all incoming edges */
+		for(int i = 0; i < inList.size(); i++){
+			IEdgeExt e = inList.getEdgeExt(i);
+			
+			if(e.isVisited() == false && e.getMark() == MarkEnum.RED){
+				return e;
+			}
+		}
 
+		/* for all outgoing edges */
+		IEdgeListExt outList = node.getOutgoingEdgeList();
+		for(int i = 0; i < outList.size(); i++){		
+			IEdgeExt e = outList.getEdgeExt(i);
+			if(e.isVisited() == false && e.getMark() == MarkEnum.RED){
+				return e;
+			}
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Debugging flag. Set <code>true</code> to enable printing
+	 * debugging messages.
+	 */
+	protected static boolean DEBUG = true;
+	
+	/**
+	 * Prints a message for debugging purposes.
+	 * <br> 
+	 * NOTE: The method is disabled if the debugging flag is false.
+	 * 
+	 * @param msg the text message 
+	 * @see #DEBUG
+	 */
+	protected static void debug(String msg){
+		if(!DEBUG) return;
+		
+		System.out.println(msg);
+	}
+	
+	/**
+	 * Prints the elements of paths for debugging purposes.
+	 * <br> 
+	 * NOTE: The method is disabled if the debugging flag is false.
+	 * 
+	 * @param path the ordered list of edges
+	 * @see #DEBUG
+	 */
+	private void printPathInfo(List<IEdgeExt> path){
+		if(!DEBUG) return;
+	
+		StringBuffer buf = new StringBuffer("Path: ");
+		buf.append("size = ");
+		buf.append(path.size());
+		buf.append(" : ");
+		
+		for(IEdgeExt e: path){
+			buf.append(e.getSource().getData());
+			buf.append("-");
+			buf.append(e.getTarget().getData());
+			buf.append(", " );
+		}
+		
+		debug(buf.toString());
+	}
+	
+	/**
+	 * Prints the property of a node.
+	 * <br> 
+	 * NOTE: The method is disabled if the debugging flag is false.
+	 * 
+	 * @param node the node
+	 * @see #DEBUG
+	 */
+	private void printNodeInfo(INodeExt node){
+		if(!DEBUG) return;
+		
+		debug("node " + node.getData() + " visited=" + node.isVisited()
+				+ " red=" + (node.getMark() == MarkEnum.RED ? "true" : "false"));
+	}
+	
+	/**
+	 * Prints the property of an edge.
+	 * <br> 
+	 * NOTE: The method is disabled if the debugging flag is false.
+	 * 
+	 * @param e the edge
+	 * @see #DEBUG
+	 */
+	private void printEdgeInfo(IEdgeExt e){
+		if(!DEBUG) return;
+		
+		debug("Edge: " + (e == null ? 
+				"null" : 
+					e.getSource().getData() + "-" + e.getTarget().getData()
+					+ " visited=" + e.isVisited()
+					+ " red=" + (e.getMark() == MarkEnum.RED ? "true" : "false")
+				));
+	}
+	
 }

@@ -35,7 +35,7 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  */
 public class HungarianMethodTest extends TestCase {
 	
-	protected boolean DEBUG = false;
+	protected boolean DEBUG = true;
 	
 	/**
 	 * Test set consists of a bipartite graph and two partitions.
