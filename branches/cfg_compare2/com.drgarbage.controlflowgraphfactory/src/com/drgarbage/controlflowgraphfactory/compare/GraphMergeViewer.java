@@ -44,6 +44,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
+import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
 import com.drgarbage.algorithms.CFGCompareBottomUp;
 import com.drgarbage.algorithms.CFGCompareTopDown;
 import com.drgarbage.algorithms.MaxMatchTreeDFS;
@@ -365,13 +366,22 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	public void doBottomUpAlg() {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
-		CFGCompareBottomUp compare = new CFGCompareBottomUp();
+		
+		BottomUpSubtreeIsomorphism compare = new BottomUpSubtreeIsomorphism();
 		
 		/* start to compare graphs */
-		compare.compareGraphsBottomUp(cfgLeft, cfgRight);
+		Map<INodeExt, INodeExt> map = null;
+		try {
+			map = compare.bottomUpUnorderedSubreeIsomorphism(cfgLeft, cfgRight);
+		} catch (ControlFlowGraphException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(e.getMessage());
+		}
 		
-		colorNodesByMarks(cfgLeft);
-		colorNodesByMarks(cfgRight);
+		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		}
 	}
 	
 	/**

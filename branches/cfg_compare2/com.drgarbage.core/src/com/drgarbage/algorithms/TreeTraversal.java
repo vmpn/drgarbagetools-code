@@ -1,5 +1,6 @@
 package com.drgarbage.algorithms;
 
+import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
@@ -24,7 +25,17 @@ public class TreeTraversal {
 	 * @return node list in pre-order
 	 */
 	public static INodeListExt doPreorderTreeListTraversal(IDirectedGraphExt graph) {
-		INodeExt root = graph.getNodeList().getNodeExt(0);
+		INodeExt root = null;
+		for (int i = 0; i < graph.getNodeList().size(); i++) {
+			INodeExt n = graph.getNodeList().getNodeExt(i);
+			if (n.getIncomingEdgeList().size() == 0) {
+				root = n;
+			}
+		}
+
+		if (root == null) {
+			return null;
+		}
 		
 		INodeListExt nodeList = GraphExtentionFactory.createNodeListExtention();
 		
@@ -50,7 +61,17 @@ public class TreeTraversal {
 	 * @return node list in post-order
 	 */
 	public static INodeListExt doPostorderTreeListTraversal(IDirectedGraphExt graph) {
-		INodeExt root = graph.getNodeList().getNodeExt(0);
+		INodeExt root = null;
+		for (int i = 0; i < graph.getNodeList().size(); i++) {
+			INodeExt n = graph.getNodeList().getNodeExt(i);
+			if (n.getIncomingEdgeList().size() == 0) {
+				root = n;
+			}
+		}
+
+		if (root == null) {
+			return null;
+		}
 		
 		INodeListExt nodeList = GraphExtentionFactory.createNodeListExtention();
 		
