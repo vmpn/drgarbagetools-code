@@ -19,7 +19,6 @@ package com.drgarbage.algorithms;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.drgarbage.algorithms.TopDownSubtreeIsomorthismTest.TestSet;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
