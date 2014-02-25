@@ -339,7 +339,7 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	}
 	
 	/**
-	 * Test
+	 * Test with high dimension
 	 */
 	public void testMax3() {
 		System.out.println("------------");
@@ -395,24 +395,22 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 			printMatrix(weights);
 
 			TestSet t = createTestSet(weights);
-			if(t.equals(null)){
-				if(DEBUG)printGraph(t.graph);
+			if(DEBUG)printGraph(t.graph);
 				
-				List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
-				assertEquals(2, edges.size());
-				
-				System.out.println("Output:");
-				int weight = 0;
-		    	for(IEdgeExt e : edges){
-		    		weight += e.getCounter();
-		    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
-		    	}
-				
-				assertEquals(11, weight);
-				
-				System.out.println("\nOK, sum = " + weight);
-				System.out.println("------------");
-			}
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(2, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(11, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
 		}
 	}
 	
@@ -476,98 +474,9 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		}
 	}
 	
-	
-	//TODO: define test cases
-
-	/*
-	 * 3) MAXIMUM
-	 * 
-	 * <pre>
-	 *   a1 --- b1
-	 *       /
-	 *      /
-	 *   a2  -- b2
-	 *      \ /
-	 *      / \
-	 *   a3 --- b3
-	 * </pre>
-	 * 
-	 * Find maximum:
-	 * <pre>
-	 *  	b1  b2  b3
-	 *  a1	 1   0   0
-	 *  a2	 5   1   1
-	 *  a3	 0   6   1
-	 *  </pre>
+	/**
+	 *  testMax5
 	 *  
-	 * <pre>
-	 *  	  b1  b2   b3
-	 *  a1	 -1    0    0
-	 *  a2	 -5   -1   -1
-	 *  a3	  0   -6   -1
-	 *  </pre> 
-	 *  
-	 *  +7
-	 *  <pre>
-	 *  	  b1  b2   b3
-	 *  a1	  6    7    7
-	 *  a2	  2    6    6
-	 *  a3	  7    1    6
-	 *  </pre> 
-	 *  
-	 *  
-	 *  
-	 *  
-	 * <li> <b>Reduce the matrix values</b><br>
-	 * 	<pre>
-	 *  	  b1  b2   b3
-	 *  a1	  0    1    1
-	 *  a2	  0    4    4
-	 *  a3	  6    0    5
-	 *  </pre>
-	 *  Reduce the columns by subtracting the minimum value of each column from that column.
-	 *	<pre>
-	 *  	b1  b2  b3
-	 *  a1	  0    1    0
-	 *  a2	  0    4    3
-	 *  a3	  6    0    4
-	 *  </pre> 
-	 * </li>
-	 * 
-	 * <li> <b>Start loop</b><br>
-	 *	<pre>
-	 *  	  b1  b2  b3
-	 *  	  |
-	 *  a1	--0---1---0--
-	 *  	  |
-	 *  a2	  0   4   3
-	 *  	  |
-	 *  a3	--6---0---4--
-	 *  	  |
-	 *  </pre> 
-	 * </li>
-	 *  
-	 *  	  b1  b2  b3
-	 *  a1	  0    1   (0)
-	 *  a2	 (0)   4    3
-	 *  a3	  6   (0)   4
-	 *  
-	 *  Matching:
-	 * <pre>
-	 *  	b1  b2  b3
-	 *  a1	 1   0  (0)
-	 *  a2	(5)  1   1
-	 *  a3	 0  (6)   1
-	 *  </pre>
-	 *  
-	 *  OK
-	 *  
-	 */
-	
-	
-	/*
-	 * 4) MAXIMUM
-	 * 
 	 * <pre>
 	 *   a1 --- b1
 	 *       /
@@ -578,67 +487,100 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 *   a3 --- b3
 	 * </pre>
 	 * 
-	 * Find maximum:
+	 * <code>A =(a1, a2, a3)</code>, <code>B =(b1, b2, b3)</code>
+	 * and <code>E =((a1 - b1), (a2 - b1), (a2 - b3), (a3 - b2), (a3 - b3))</code>
+	 * <br>
+	 *  The following weights are assigned to the edges:
 	 * <pre>
+	 * (a1 - b1)  1
+	 * (a2 - b1)  5
+	 * (a2 - b3)  1
+	 * (a3 - b2)  6
+	 * (a3 - b3)  1
+	 * </pre>
+	 * 
+	 * Expected matching <code>M = (a2-b1, a3-b2)</code> 
+	 * with |M|=2 and W = 5 + 6 = 11:
+	 * <pre>
+	 *   a1     b1
+	 *       /
+	 *      /
+	 *   a2     b2
+	 *       /
+	 *      / 
+	 *   a3     b3
+	 * </pre>
+	 * 
+	 * ====== <br>
+	 * 
+	 * The steps of algorithm:
+	 *  <ol>
+	 * 	<li> <b>Create a matrix</b><br> 
+	 * 	Ensure that the matrix is square by the addition of dummy rows/columns if necessary.
+	 * 	Assign zero value to the missing edges.
+	 * 	<pre>
 	 *  	b1  b2  b3
-	 *  a1	 1   0   0
-	 *  a2	 5   0   1
-	 *  a3	 0   6   1
+	 *  a1	1   0   0
+	 *  a2	5   0   1
+	 *  a3	0   6   1
 	 *  </pre>
 	 *  
-	 * <pre>
-	 *  	  b1  b2   b3
-	 *  a1	 -1    0    0
-	 *  a2	 -5    0   -1
-	 *  a3	  0   -6   -1
-	 *  </pre> 
-	 *  
-	 *  +7
-	 *  <pre>
-	 *  	  b1  b2   b3
-	 *  a1	  6    7    7
-	 *  a2	  2    7    6
-	 *  a3	  7    1    6
-	 *  </pre> 
-	 *  
-	 *  
-	 *  
+	 * 	</li>
+	 *<li> <b>Convert the matrix from min to max</b><br>
+	 *   Multiply each value in the matrix by -1 and add the max value + 1 to each element
+	 *   except the zero values.
+	 * 	<pre>
+	 *  	b1  b2  b3
+	 *  a1	6   0   0
+	 *  a2	2   0   6
+	 *  a3	0   1   6
+	 *  </pre>
+	 * </li>
 	 *  
 	 * <li> <b>Reduce the matrix values</b><br>
-	 * 	<pre>
-	 *  	  b1  b2   b3
-	 *  a1	  0    1    1
-	 *  a2	  0    5    4
-	 *  a3	  6    0    5
-	 *  </pre>
+	 * Reduce the rows by subtracting the minimum value of each row from that row.
+	 *	<pre>
+	   	b1  b2  b3
+	 *  a1	6   0   0
+	 *  a2	2   0   6
+	 *  a3	0   1   6
+	 *  
+	 *  No changes in this example.
+	 *  </pre> 
 	 *  Reduce the columns by subtracting the minimum value of each column from that column.
 	 *	<pre>
-	 *  	b1  b2  b3
-	 *  a1	  0    1    0
-	 *  a2	  0    5    3
-	 *  a3	  6    0    4
+	  	b1  b2  b3
+	 *  a1	6   0   0
+	 *  a2	2   0   6
+	 *  a3	0   1   6
 	 *  </pre> 
+	 *  No changes in this example.  
 	 * </li>
 	 * 
 	 * <li> <b>Start loop</b><br>
+	 * Cover the zero elements with the minimum number of lines it is possible to cover them with.
+	 * If the number of lines is equal to the number of rows then leave the loop and
+	 * go to step 7
 	 *	<pre>
 	 *  	  b1  b2  b3
-	 *  	  |
-	 *  a1	--0---1---0--
-	 *  	  |
-	 *  a2	  0   5   3
-	 *  	  |
-	 *  a3	--6---0---4--
-	 *  	  |
+	 *  	  |   |
+	 *  a1	--6---0---0--
+	 *  	  |   |
+	 *  a2	  2   0   6
+	 *  	  |   |
+	 *  a3	  0   1   6
+	 *  	  |   |
 	 *  </pre> 
 	 * </li>
 	 *  
-	 *  	  b1  b2  b3
-	 *  a1	  0    1   (0)
-	 *  a2	 (0)   5    3
-	 *  a3	  6   (0)   4
+	 *	<pre>
+	  	b1  b2  b3
+	 *  a1	6   0   0
+	 *  a2	2   0   6
+	 *  a3	0   1   6
 	 *  
-	 *  Matching:
+	 *  </pre> 
+	 *  *  Matching:
 	 * <pre>
 	 *  	b1  b2  b3
 	 *  a1	 1   0  (0)
@@ -647,6 +589,215 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 *  </pre>
 	 *  
 	 */
+	public void testMax5() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 0, 0 },
+				{ 5, 0, 1 },
+				{ 0, 6, 1 }
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(DEBUG)printGraph(t.graph);
+			
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(2, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(11, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
+		}
+	}
+	
+	public void testValiente1() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 3, 5, 3 },
+				{ 4, 5, 4 },
+				{ 0, 0, 0 }
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(DEBUG)printGraph(t.graph);
+			
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(2, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(9, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
+		}
+	}
+	
+	public void testValiente2() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 2},
+				{ 0, 0}
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(DEBUG)printGraph(t.graph);
+			
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(1, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(2, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
+		}
+	}
+	
+	public void testValiente3() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 1},
+				{ 2, 1}
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(DEBUG)printGraph(t.graph);
+			
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(2, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(3, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
+		}
+	}
+	
+	public void testValiente4() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 1, 2},
+				{ 0, 0, 0},
+				{ 0, 0, 0}
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(DEBUG)printGraph(t.graph);
+			
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(1, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(2, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
+		}
+	}
+	
+	public void testValiente5() {
+		System.out.println("------------");
+		
+		int [][] weights = {
+				{ 1, 1, 2 },
+				{ 1, 1, 1 },
+				{ 0, 0, 0 }
+		};
+		
+		/*check if matrix squared*/		
+		if(isSquared(weights))
+		{
+			System.out.println("Input:");
+			printMatrix(weights);
+
+			TestSet t = createTestSet(weights);
+			if(DEBUG)printGraph(t.graph);
+			
+			List<IEdgeExt> edges  = new MaxWeightedBipartiteMatching(DEBUG).execute(t.graph, t.partA, t.partB);
+			assertEquals(2, edges.size());
+			
+			System.out.println("Output:");
+			int weight = 0;
+	    	for(IEdgeExt e : edges){
+	    		weight += e.getCounter();
+	    		System.out.println(e.getSource().getData() + "-" + e.getTarget().getData() + " " + e.getCounter());
+	    	}
+			
+			assertEquals(3, weight);
+			
+			System.out.println("\nOK, sum = " + weight);
+			System.out.println("------------");
+		}
+	}
+	//TODO: define test cases
+
 	
 	/*
 	 * 5) MAXIMUM
