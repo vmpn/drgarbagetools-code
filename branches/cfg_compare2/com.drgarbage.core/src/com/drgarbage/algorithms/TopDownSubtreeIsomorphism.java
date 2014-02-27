@@ -57,7 +57,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * @version $Revision$ 
  * $Id$
  */
-public class TopDownSubtreeIsomorthism {
+public class TopDownSubtreeIsomorphism {
 
 	/**
 	 * The data structure for building the bipartite node relation according 
@@ -223,7 +223,7 @@ public class TopDownSubtreeIsomorthism {
 	 * matching with p edges.
 	 * </pre>
 	 * 
-	 * According to the {@link TopDownSubtreeIsomorthism example}
+	 * According to the {@link TopDownSubtreeIsomorphism example}
 	 * the execution of the top-down traverse method solves following 
 	 * maximum cardinality bipartite matching problems.
 	 * 
@@ -416,7 +416,7 @@ public class TopDownSubtreeIsomorthism {
 	 * v_2:  w_2, !w9 !,  w15
 	 * v_1: !w_4 !
 	 * </pre>
-	 * @see  TopDownSubtreeIsomorthism
+	 * @see  TopDownSubtreeIsomorphism
 	 * 
 	 * @param root the root of the tree <code>T_1</code>
 	 * @param M the map of the matched nodes

@@ -27,7 +27,7 @@ import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 
 /**
- * Test class for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorthism}
+ * Test class for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism}
  * 
  * @author Sergej Alekseev
  * @version $Revision$
@@ -83,7 +83,7 @@ public class TopDownSubtreeIsomorthismTest extends TestCase {
 	 * The test set 1. <br>
 	 * The trees to compare <code>T1</code> and <code>T2</code>
 	 *  are defined as described in 
-	 * {@link com.drgarbage.algorithms.TopDownSubtreeIsomorthism TopDownSubtreeIsomorthism}.
+	 * {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism TopDownSubtreeIsomorthism}.
 	 * 
 	 * Expected map is 
 	 * <pre>
@@ -268,12 +268,12 @@ public class TopDownSubtreeIsomorthismTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorthism TopDownSubtreeIsomorthism}
+	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism TopDownSubtreeIsomorthism}
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
 	public final void testTopDownSubtreeIsomorthism1() throws ControlFlowGraphException {	
-		TopDownSubtreeIsomorthism tsi = new TopDownSubtreeIsomorthism();
+		TopDownSubtreeIsomorphism tsi = new TopDownSubtreeIsomorphism();
 		TestSet t = createTestSet1();
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
@@ -284,14 +284,14 @@ public class TopDownSubtreeIsomorthismTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorthism TopDownSubtreeIsomorthism}
+	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism TopDownSubtreeIsomorthism}
 	 * The same test set as for {@link #testTopDownSubtreeIsomorthism1()} 
 	 * but the input trees <code>T1</code> and <code>T2</code> are swapped.
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
 	public final void testTopDownSubtreeIsomorthism2() throws ControlFlowGraphException {		
-		TopDownSubtreeIsomorthism tsi = new TopDownSubtreeIsomorthism();
+		TopDownSubtreeIsomorphism tsi = new TopDownSubtreeIsomorphism();
 		TestSet t = createTestSet1();
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
@@ -300,12 +300,12 @@ public class TopDownSubtreeIsomorthismTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorthism TopDownSubtreeIsomorthism}
+	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism TopDownSubtreeIsomorthism}
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet3()
 	 */
 	public final void testTopDownSubtreeIsomorthism3() throws ControlFlowGraphException {		
-		TopDownSubtreeIsomorthism tsi = new TopDownSubtreeIsomorthism();
+		TopDownSubtreeIsomorphism tsi = new TopDownSubtreeIsomorphism();
 		TestSet t = createTestSet3();
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
@@ -316,12 +316,12 @@ public class TopDownSubtreeIsomorthismTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorthism TopDownSubtreeIsomorthism}
+	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism TopDownSubtreeIsomorthism}
 	 * The input is not a tree.
 	 * @see #createTestSet3()
 	 */
 	public final void testTopDownSubtreeIsomorthism4() {		
-		TopDownSubtreeIsomorthism tsi = new TopDownSubtreeIsomorthism();
+		TopDownSubtreeIsomorphism tsi = new TopDownSubtreeIsomorphism();
 		TestSet t = createTestSet4();
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);

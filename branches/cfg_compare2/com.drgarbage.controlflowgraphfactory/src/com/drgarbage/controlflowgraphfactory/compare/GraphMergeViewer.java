@@ -41,7 +41,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphism;
 import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
-import com.drgarbage.algorithms.TopDownSubtreeIsomorthism;
+import com.drgarbage.algorithms.TopDownSubtreeIsomorphism;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
@@ -335,7 +335,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
-		TopDownSubtreeIsomorthism  compare = new TopDownSubtreeIsomorthism();
+		TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
 		
 		/* start to compare graphs */
 		Map<INodeExt, INodeExt> map = null;
