@@ -387,20 +387,21 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 			INodeExt node = postorderNodeList.getNodeExt(i);
 			
 			/* calculate sizes */
-			sizes.put(node, 1); /* leaves have size of 1 */
+			int size = 1; /* leaves have size of 1 */
 			
 			/* if node is not a leaf */
 			for (int j = 0; j < node.getOutgoingEdgeList().size(); j++) {
 				INodeExt child = node.getOutgoingEdgeList().getEdgeExt(j).getTarget();
 				
-				sizes.put(node, sizes.get(node) + sizes.get(child));
+				size += sizes.get(child);
 			}
 			
+			sizes.put(node, size);
 			
 			PriorityTuple pt = new PriorityTuple();
 			
 			pt.node = node;
-			pt.size = sizes.get(node);
+			pt.size = size;
 			pt.equivalenceClass = nodeToClassMap.get(node);
 			
 			Q.add(pt);
