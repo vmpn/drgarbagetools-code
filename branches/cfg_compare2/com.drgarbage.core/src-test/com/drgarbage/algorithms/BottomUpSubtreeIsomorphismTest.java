@@ -265,7 +265,7 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism BottomUpSubtreeIsomorphism}
+	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
@@ -283,8 +283,8 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism BottomUpSubtreeIsomorphism}
-	 * The same test set as for {@link #testBottomUpSubtreeIsomorphism()} 
+	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
+	 * The same test set as for {@link #testBottomUpUnorderedSubtreeIsomorphism1()} 
 	 * but the input trees <code>T1</code> and <code>T2</code> are swapped.
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
@@ -292,22 +292,27 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	public final void testBottomUpUnorderedSubtreeIsomorphism2() throws ControlFlowGraphException {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet1();
+		
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
+		
 		Map<INodeExt, INodeExt> map = busi.bottomUpUnorderedSubreeIsomorphism(t.treeRight, t.treeLeft);
+		
 		assertNull(map);
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism BottomUpSubtreeIsomorphism}
+	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet3()
 	 */
 	public final void testBottomUpUnorderedSubtreeIsomorphism3() throws ControlFlowGraphException {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet3();
+		
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
+		
 		Map<INodeExt, INodeExt> map = busi.bottomUpUnorderedSubreeIsomorphism(t.treeLeft, t.treeRight);
 		printMap(map);
 
@@ -315,13 +320,14 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism BottomUpSubtreeIsomorphism}
+	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
 	 * The input is not a tree.
-	 * @see #createTestSet3()
+	 * @see #createTestSet4()
 	 */
 	public final void testBottomUpUnorderedSubtreeIsomorphism4() {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet4();
+		
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
 
