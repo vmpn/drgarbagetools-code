@@ -340,14 +340,14 @@ public class BottomUpMaxCommonSubtreeIsomorphismTest extends TestCase {
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet3()
 	 */
-	public final void testBottomUpUnorderedSubtreeIsomorphism3() throws ControlFlowGraphException {		
-		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
+	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism3() throws ControlFlowGraphException {		
+		BottomUpMaxCommonSubtreeIsomorphism bumcsi = new BottomUpMaxCommonSubtreeIsomorphism();
 		TestSet t = createTestSet3();
 		
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
 		
-		Map<INodeExt, INodeExt> map = busi.bottomUpUnorderedSubreeIsomorphism(t.treeLeft, t.treeRight);
+		Map<INodeExt, INodeExt> map = bumcsi.bottomUpUnorderedMaxCommonSubreeIsomorphism(t.treeLeft, t.treeRight);
 		printMap(map);
 
 		assertEquals(4, map.size());
@@ -358,21 +358,38 @@ public class BottomUpMaxCommonSubtreeIsomorphismTest extends TestCase {
 	 * The input is not a tree.
 	 * @see #createTestSet4()
 	 */
-	public final void testBottomUpUnorderedSubtreeIsomorphism4() {		
-		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
+	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism4() {		
+		BottomUpMaxCommonSubtreeIsomorphism bumcsi = new BottomUpMaxCommonSubtreeIsomorphism();
 		TestSet t = createTestSet4();
 		
 		printGraph(t.treeLeft);
 		printGraph(t.treeRight);
 
 		try {
-			busi.bottomUpUnorderedSubreeIsomorphism(t.treeLeft, t.treeRight);
+			bumcsi.bottomUpUnorderedMaxCommonSubreeIsomorphism(t.treeLeft, t.treeRight);
 		} catch (ControlFlowGraphException e) {
 			assertNotNull(e);
 			return;
 		}
 
 		fail("ControlFlowGraphException has not been throwen.");
+	}
+	
+	/**
+	 * Test method for {@link com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphism bottomUpUnorderedMaxCommonSubreeIsomorphism}
+	 * The same tree twice.
+	 * @throws ControlFlowGraphException 
+	 * @see #createTestSet1()
+	 */
+	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism5() throws ControlFlowGraphException {		
+		BottomUpMaxCommonSubtreeIsomorphism bumcsi = new BottomUpMaxCommonSubtreeIsomorphism();
+		TestSet t = createTestSet1();
+		
+		printGraph(t.treeLeft);
+		
+		Map<INodeExt, INodeExt> map = bumcsi.bottomUpUnorderedMaxCommonSubreeIsomorphism(t.treeLeft, t.treeLeft);
+		
+		assertEquals(t.treeLeft.getNodeList().size(), map.size());
 	}
 
 }
