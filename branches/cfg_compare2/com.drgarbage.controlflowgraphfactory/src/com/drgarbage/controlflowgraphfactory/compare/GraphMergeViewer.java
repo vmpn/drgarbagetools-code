@@ -16,7 +16,6 @@
 
 package com.drgarbage.controlflowgraphfactory.compare;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,36 +28,29 @@ import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
-import org.eclipse.compare.internal.ImageMergeViewer;
-import org.eclipse.compare.internal.Utilities;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.Graphics;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 
+import com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphism;
 import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
-import com.drgarbage.algorithms.CFGCompareBottomUp;
-import com.drgarbage.algorithms.CFGCompareTopDown;
-import com.drgarbage.algorithms.MaxMatchTreeDFS;
 import com.drgarbage.algorithms.TopDownSubtreeIsomorthism;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
-import com.drgarbage.controlflowgraph.intf.IEdgeExt;
-import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.controlflowgraph.intf.MarkEnum;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
-import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpAlgAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpMaxCommonAlgAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpSubtreeAlgAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.ResetCompareGraphsViewAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
@@ -67,7 +59,6 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownAlgAction;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
-import com.drgarbage.visualgraphic.model.Connection;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
@@ -148,7 +139,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	
 		/* graph compare algorithms actions */
 		toolBarManager.add(new TopDownAlgAction(this));
-		toolBarManager.add(new BottomUpAlgAction(this));
+		toolBarManager.add(new BottomUpSubtreeAlgAction(this));
+		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
 		
 		toolBarManager.add(new Separator());
 		toolBarManager.add(new ResetCompareGraphsViewAction(this));
@@ -363,7 +355,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	/**
 	 * Executes the bottom up subtree algorithm.
 	 */
-	public void doBottomUpAlg() {
+	public void doBottomUpSubtreeAlg() {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
@@ -373,6 +365,31 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		Map<INodeExt, INodeExt> map = null;
 		try {
 			map = compare.bottomUpUnorderedSubreeIsomorphism(cfgLeft, cfgRight);
+		} catch (ControlFlowGraphException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(e.getMessage());
+		}
+		
+		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		}
+	}
+	
+	/**
+	 * Executes the bottom up maximum common subtree algorithm.
+	 */
+	@SuppressWarnings("restriction")
+	public void doBottomUpMaxCommonAlg() {
+		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		
+		BottomUpMaxCommonSubtreeIsomorphism compare = new BottomUpMaxCommonSubtreeIsomorphism();
+		
+		/* start to compare graphs */
+		Map<INodeExt, INodeExt> map = null;
+		try {
+			map = compare.bottomUpUnorderedMaxCommonSubreeIsomorphism(cfgLeft, cfgRight);
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());

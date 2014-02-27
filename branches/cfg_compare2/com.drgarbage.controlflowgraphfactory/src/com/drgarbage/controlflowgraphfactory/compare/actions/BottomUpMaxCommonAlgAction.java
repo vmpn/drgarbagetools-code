@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008-2013, Dr. Garbage Community
+ * Copyright (c) 2008-2014, Dr. Garbage Community
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.drgarbage.controlflowgraphfactory.compare.actions;
 
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
@@ -21,25 +22,25 @@ import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
 
 /**
  * <p>
- * Implementation of the action to call Bottop-Up-Subtree algorithm.
+ * Implementation of the action to call Bottop-Up Max Common Subtree algorithm.
  * </p>
  * 
- * @author Sergej Alekseev
+ * @author Adam Kajrys
  * @version $Revision$
  * $Id$
  * 
  * @see BaseCompareAction
  */
-public class BottomUpAlgAction extends BaseCompareAction {
+public class BottomUpMaxCommonAlgAction extends BaseCompareAction {
 
 	/**
 	 * Creates an action.
 	 * @param cmv
 	 */
-	public BottomUpAlgAction(GraphMergeViewer cmv) {
+	public BottomUpMaxCommonAlgAction(GraphMergeViewer cmv) {
 		super(cmv);
 		setImageDescriptor(ControlFlowFactoryResource.graph_compare_bottom_up_16x16);
-		setToolTipText(ControlFlowFactoryMessages.GraphCompare_BottomUpAlgorithm_Text);
+		setToolTipText(ControlFlowFactoryMessages.GraphCompare_BottomUpMaxCommonAlgorithm_Text);
 	}
 
 	/* (non-Javadoc)
@@ -47,6 +48,6 @@ public class BottomUpAlgAction extends BaseCompareAction {
 	 */
 	@Override
 	public void run() {
-		viewer.doBottomUpAlg();
+		viewer.doBottomUpMaxCommonAlg();
 	}
 }
