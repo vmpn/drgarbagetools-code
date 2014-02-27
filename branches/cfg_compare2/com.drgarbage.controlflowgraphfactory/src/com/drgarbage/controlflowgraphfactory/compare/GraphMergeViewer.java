@@ -346,9 +346,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		for(Map.Entry<INodeExt, INodeExt> entry : map.entrySet()){
-			((VertexBase) entry.getKey().getData()).setColor(GREEN);
-			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		if (map != null) {
+			for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+				((VertexBase) entry.getKey().getData()).setColor(GREEN);
+				((VertexBase) entry.getValue().getData()).setColor(GREEN);
+			}
 		}
 	}
 
@@ -370,9 +372,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-			((VertexBase) entry.getKey().getData()).setColor(GREEN);
-			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		if (map != null) {
+			for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+				((VertexBase) entry.getKey().getData()).setColor(GREEN);
+				((VertexBase) entry.getValue().getData()).setColor(GREEN);
+			}
 		}
 	}
 	
@@ -395,9 +399,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-			((VertexBase) entry.getKey().getData()).setColor(GREEN);
-			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		if (map != null) {
+			for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+				((VertexBase) entry.getKey().getData()).setColor(GREEN);
+				((VertexBase) entry.getValue().getData()).setColor(GREEN);
+			}
 		}
 	}
 	
