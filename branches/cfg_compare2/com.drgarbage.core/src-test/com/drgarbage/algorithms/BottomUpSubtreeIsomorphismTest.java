@@ -19,6 +19,7 @@ package com.drgarbage.algorithms;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphismTest.TestSet;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -339,6 +340,23 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 		}
 
 		fail("ControlFlowGraphException has not been throwen.");
+	}
+	
+	/**
+	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
+	 * The same tree twice.
+	 * @throws ControlFlowGraphException 
+	 * @see #createTestSet1()
+	 */
+	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism5() throws ControlFlowGraphException {		
+		BottomUpMaxCommonSubtreeIsomorphism bumcsi = new BottomUpMaxCommonSubtreeIsomorphism();
+		TestSet t = createTestSet1();
+		
+		printGraph(t.treeLeft);
+		
+		Map<INodeExt, INodeExt> map = bumcsi.bottomUpUnorderedMaxCommonSubreeIsomorphism(t.treeLeft, t.treeLeft);
+		
+		assertEquals(t.treeLeft.getNodeList().size(), map.size());
 	}
 
 }
