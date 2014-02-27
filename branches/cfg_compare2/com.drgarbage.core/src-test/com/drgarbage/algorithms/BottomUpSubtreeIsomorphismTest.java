@@ -349,12 +349,12 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	 * @see #createTestSet1()
 	 */
 	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism5() throws ControlFlowGraphException {		
-		BottomUpMaxCommonSubtreeIsomorphism bumcsi = new BottomUpMaxCommonSubtreeIsomorphism();
+		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
 		TestSet t = createTestSet1();
 		
 		printGraph(t.treeLeft);
 		
-		Map<INodeExt, INodeExt> map = bumcsi.bottomUpUnorderedMaxCommonSubreeIsomorphism(t.treeLeft, t.treeLeft);
+		Map<INodeExt, INodeExt> map = busi.bottomUpUnorderedSubreeIsomorphism(t.treeLeft, t.treeLeft);
 		
 		assertEquals(t.treeLeft.getNodeList().size(), map.size());
 	}

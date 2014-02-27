@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
+import com.drgarbage.algorithms.BottomUpSubtreeIsomorphismTest.TestSet;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -334,5 +335,22 @@ public class TopDownSubtreeIsomorthismTest extends TestCase {
 		}
 
 		fail("ControlFlowGraphException has not been throwen.");
+	}
+	
+	/**
+	 * Test method for {@link com.drgarbage.algorithms.TopDownSubtreeIsomorphism TopDownSubtreeIsomorthism}
+	 * The same tree twice.
+	 * @throws ControlFlowGraphException 
+	 * @see #createTestSet1()
+	 */
+	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism5() throws ControlFlowGraphException {		
+		TopDownSubtreeIsomorphism tsi = new TopDownSubtreeIsomorphism();
+		TestSet t = createTestSet1();
+		
+		printGraph(t.treeLeft);
+		
+		Map<INodeExt, INodeExt> map = tsi.topDownUnorderedSubtreeIsomorphism(t.treeLeft, t.treeLeft);
+		
+		assertEquals(t.treeLeft.getNodeList().size(), map.size());
 	}
 }
