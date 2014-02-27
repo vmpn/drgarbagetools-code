@@ -363,11 +363,16 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 
 	/**
 	 * Prioritizes nodes in a Tree.
+	 * 
+	 * Uses a {@link java.util.PriorityQueue}
+	 * 
 	 * For the ordering see {@link BottomUpMaxCommonSubtreeIsomorphism.NodePriorityComparator}
 	 * 
-	 * @param graph
-	 * @param nodeToClassMap
-	 * @return
+	 * @param graph contains the nodes which are to prioritize
+	 * @param nodeToClassMap node equivalence classes, needed for prioritization
+	 * @return returns priority queue containing all nodes of the passed graph
+	 * 
+	 * @see java.util.PriorityQueue
 	 */
 	private PriorityQueue<PriorityTuple> prioritizeNodes(
 			IDirectedGraphExt graph,
@@ -376,25 +381,26 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 		PriorityQueue<PriorityTuple> Q = new PriorityQueue<PriorityTuple>(50, new NodePriorityComparator());
 		
 		INodeListExt postorderNodeList = TreeTraversal.doPostorderTreeListTraversal(graph);
-		Map<INodeExt, Integer> sizeMap = new HashMap<INodeExt, Integer>();
+		Map<INodeExt, Integer> sizes= new HashMap<INodeExt, Integer>();
 		
 		for (int i = 0; i < postorderNodeList.size(); i++) {
 			INodeExt node = postorderNodeList.getNodeExt(i);
 			
-			
-			sizeMap.put(node, 1);
+			/* calculate sizes */
+			sizes.put(node, 1); /* leaves have size of 1 */
 			
 			/* if node is not a leaf */
 			for (int j = 0; j < node.getOutgoingEdgeList().size(); j++) {
 				INodeExt child = node.getOutgoingEdgeList().getEdgeExt(j).getTarget();
 				
-				sizeMap.put(node, sizeMap.get(node) + sizeMap.get(child));
+				sizes.put(node, sizes.get(node) + sizes.get(child));
 			}
+			
 			
 			PriorityTuple pt = new PriorityTuple();
 			
 			pt.node = node;
-			pt.size = sizeMap.get(node);
+			pt.size = sizes.get(node);
 			pt.equivalenceClass = nodeToClassMap.get(node);
 			
 			Q.add(pt);
@@ -403,30 +409,38 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 		return Q;
 	}
 	
+	/**
+	 * Inserts equivalent nodes of T_1 and T_2 into the passed map M.
+	 * 
+	 * @param leftGraph the left tree
+	 * @param leftNodeToClassMap node equivalence classes of left tree
+	 * @param rightNodeToClassMap node equivalence classes of right tree
+	 * @param M map prefilled with the root nodes of the largest common subtree of T_1 and T_2
+	 */
 	private void mapIsomorphicNodes(IDirectedGraphExt leftGraph,
 			HashMap<INodeExt, Integer> leftNodeToClassMap,
 			HashMap<INodeExt, Integer> rightNodeToClassMap,
 			Map<INodeExt, INodeExt> M) {
 		
-		/* visit nodes in preorder and build list of the nodes of the subtree */
-		INodeExt leftSubtreeRoot = (INodeExt)M.keySet().toArray()[0];
+		/* build preordered list of the nodes of the left subtree */
+		INodeExt leftSubtreeRoot = (INodeExt)M.keySet().toArray()[0]; /* map contains only one set with subtree roots */
 		INodeListExt leftPreorderNodeList = TreeTraversal.doPreorderTreeListTraversal(leftGraph, leftSubtreeRoot);
 		
-		/* map maximum common subtree isomorphic nodes */
 		Set<INodeExt> isMapped = new HashSet<INodeExt>();
 		
-	
+		/* map maximum common subtree isomorphic nodes */
 		for (int i = 1; i < leftPreorderNodeList.size(); i++) {
-			INodeExt v = leftPreorderNodeList.getNodeExt(i);
+			INodeExt leftNode = leftPreorderNodeList.getNodeExt(i);
 			
-			INodeExt parent = v.getIncomingEdgeList().getEdgeExt(0).getSource();
+			INodeExt leftNodeParent = leftNode.getIncomingEdgeList().getEdgeExt(0).getSource();
 			
-			INodeExt w = M.get(parent);
-			for (int j = 0; j < w.getOutgoingEdgeList().size(); j++) {
-				INodeExt rightChild = w.getOutgoingEdgeList().getEdgeExt(j).getTarget();
+			INodeExt rightNode = M.get(leftNodeParent);
+			
+			for (int j = 0; j < rightNode.getOutgoingEdgeList().size(); j++) {
+				INodeExt rightChild = rightNode.getOutgoingEdgeList().getEdgeExt(j).getTarget();
 				
-				if (leftNodeToClassMap.get(v) == rightNodeToClassMap.get(rightChild) && !isMapped.contains(rightChild)) {
-					M.put(v, rightChild);
+				if (leftNodeToClassMap.get(leftNode) == rightNodeToClassMap.get(rightChild) && !isMapped.contains(rightChild)) {
+					M.put(leftNode, rightChild);
 					isMapped.add(rightChild);
 					break;
 				}
