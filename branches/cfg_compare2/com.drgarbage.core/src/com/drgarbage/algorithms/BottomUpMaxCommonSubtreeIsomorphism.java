@@ -57,7 +57,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * 
  * @author Adam Kajrys
  * 
- * @version $Revision:$
+ * @version $Revision$
  * $Id$
  */
 public class BottomUpMaxCommonSubtreeIsomorphism {
@@ -65,16 +65,11 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 	private int knownEquivalenceClasses = 1;
 	private HashMap<ArrayList<Integer>, Integer> childrenclassesToParentclassMap = new HashMap<ArrayList<Integer>, Integer>();
 	
-	private class Pair<A, B> {
-		public final A left;
-		public final B right;
-
-		public Pair(A left, B right) {
-			this.left = left;
-			this.right = right;
-		}
-	}
-	
+	/**
+	 * Structure needed for node prioritization.
+	 * 
+	 * For the ordering see {@link BottomUpMaxCommonSubtreeIsomorphism.NodePriorityComparator}
+	 */
 	protected class PriorityTuple {
 		protected INodeExt node;
 		protected int size;
@@ -93,23 +88,17 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 	 * up subtree isomorphism.
 	 * </pre>
 	 * 
-	 * Pair<INodeExt, Pair<Integer, Integer>>
-	 * 
-	 * The left item of the pair is a node and the right items is also a pair,
-	 * consisting of the size and the equivalence class of the node. This pair
-	 * is used for priorization.
-	 *
+	 * @see java.util.Comparator
 	 */
-	private class NodePriorityComparator implements Comparator<Pair<INodeExt, Pair<Integer, Integer>>> {
+	private class NodePriorityComparator implements Comparator<PriorityTuple> {
 
-		public int compare(Pair<INodeExt, Pair<Integer, Integer>> o1,
-				Pair<INodeExt, Pair<Integer, Integer>> o2) {
+		public int compare(PriorityTuple pt1, PriorityTuple pt2) {
 			
-			if (o1.right.left - o2.right.left == 0) {
-				return o2.right.right - o1.right.left;
+			if (pt2.size - pt1.size == 0) {
+				return pt1.equivalenceClass - pt2.equivalenceClass;
 			}
 
-			return o2.right.left - o1.right.left;
+			return pt2.size - pt1.size;
 		}
 	}
 	
@@ -326,6 +315,8 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 	 * in both queues belong to the same equivalence class.
 	 * </pre>
 	 * 
+	 * In Valientes example the returned map contains the nodes (v8, w12).
+	 * 
 	 * For the ordering see {@link BottomUpMaxCommonSubtreeIsomorphism.NodePriorityComparator}
 	 * 
 	 * @param leftGraph the graph <code>T_1</code>
@@ -334,13 +325,14 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 	 * @param rightNodeToClassMap node to class map of right tree
 	 * @return returns map containing the equivalent subtree root nodes of both trees
 	 */
-	private Map<INodeExt, INodeExt> findLargestCommonSubtreeRoot(IDirectedGraphExt leftGraph,
+	private Map<INodeExt, INodeExt> findLargestCommonSubtreeRoot(
+			IDirectedGraphExt leftGraph,
 			HashMap<INodeExt, Integer> leftNodeToClassMap,
 			IDirectedGraphExt rightGraph,
 			HashMap<INodeExt, Integer> rightNodeToClassMap) {
 		
-		PriorityQueue<Pair<INodeExt, Pair<Integer, Integer>>> leftQ;
-		PriorityQueue<Pair<INodeExt, Pair<Integer, Integer>>> rightQ;
+		PriorityQueue<PriorityTuple> leftQ;
+		PriorityQueue<PriorityTuple> rightQ;
 		
 		leftQ = prioritizeNodes(leftGraph, leftNodeToClassMap);
 		rightQ = prioritizeNodes(rightGraph, rightNodeToClassMap);
@@ -348,20 +340,20 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 		NodePriorityComparator priorityComparator = new NodePriorityComparator();
 		
 		while (!leftQ.isEmpty() && !rightQ.isEmpty()) {
-			Pair<INodeExt, Pair<Integer, Integer>> v = leftQ.peek();
-			Pair<INodeExt, Pair<Integer, Integer>> w = rightQ.peek();
+			PriorityTuple leftPT = leftQ.peek();
+			PriorityTuple rightPT = rightQ.peek();
 			
-			if (leftNodeToClassMap.get(v.left) == rightNodeToClassMap.get(w.left)) {
+			if (leftNodeToClassMap.get(leftPT.node) == rightNodeToClassMap.get(rightPT.node)) {
 				Map<INodeExt, INodeExt> M = new HashMap<INodeExt, INodeExt>();
-				M.put(v.left, w.left);
+				M.put(leftPT.node, rightPT.node);
 				
 				return M;
 			}
 			
-			/* if v has a lesser priority than w, remove v from Q1 */
-			if (priorityComparator.compare(v, w) < 0) {
+			/* if leftPT has a lesser priority than rightPT, remove leftPT from leftQ */
+			if (priorityComparator.compare(leftPT, rightPT) < 0) {
 				leftQ.poll();
-			} else { /* otherwise remove w from Q2 */
+			} else { /* otherwise remove rightPT from rightQ */
 				rightQ.poll();
 			}
 		}
@@ -369,17 +361,26 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 		return null;
 	}
 
-	private PriorityQueue<Pair<INodeExt, Pair<Integer, Integer>>> prioritizeNodes(
+	/**
+	 * Prioritizes nodes in a Tree.
+	 * For the ordering see {@link BottomUpMaxCommonSubtreeIsomorphism.NodePriorityComparator}
+	 * 
+	 * @param graph
+	 * @param nodeToClassMap
+	 * @return
+	 */
+	private PriorityQueue<PriorityTuple> prioritizeNodes(
 			IDirectedGraphExt graph,
 			HashMap<INodeExt, Integer> nodeToClassMap) {
 		
-		PriorityQueue<Pair<INodeExt, Pair<Integer, Integer>>> Q = new PriorityQueue<Pair<INodeExt, Pair<Integer, Integer>>>(100, new NodePriorityComparator());
+		PriorityQueue<PriorityTuple> Q = new PriorityQueue<PriorityTuple>(50, new NodePriorityComparator());
 		
 		INodeListExt postorderNodeList = TreeTraversal.doPostorderTreeListTraversal(graph);
 		Map<INodeExt, Integer> sizeMap = new HashMap<INodeExt, Integer>();
 		
 		for (int i = 0; i < postorderNodeList.size(); i++) {
 			INodeExt node = postorderNodeList.getNodeExt(i);
+			
 			
 			sizeMap.put(node, 1);
 			
@@ -390,9 +391,13 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 				sizeMap.put(node, sizeMap.get(node) + sizeMap.get(child));
 			}
 			
-			Pair<Integer, Integer> prio = new Pair<Integer, Integer>(sizeMap.get(node), nodeToClassMap.get(node));
+			PriorityTuple pt = new PriorityTuple();
 			
-			Q.add(new Pair<INodeExt, Pair<Integer, Integer>>(node, prio));
+			pt.node = node;
+			pt.size = sizeMap.get(node);
+			pt.equivalenceClass = nodeToClassMap.get(node);
+			
+			Q.add(pt);
 		}
 		
 		return Q;
