@@ -266,6 +266,130 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	}
 	
 	/**
+	 * The test set 5. <br>
+	 * Two equivalent trees.
+	 * 
+	 * @return the test set
+	 */
+	private TestSet createTestSet5(){
+		TestSet t = new TestSet();
+
+		/* create left tree */
+		INodeExt v1 = GraphExtentionFactory.createNodeExtention("w1");
+		t.treeLeft.getNodeList().add(v1);
+		INodeExt v2 = GraphExtentionFactory.createNodeExtention("w2");
+		t.treeLeft.getNodeList().add(v2);
+		INodeExt v3 = GraphExtentionFactory.createNodeExtention("w3");
+		t.treeLeft.getNodeList().add(v3);
+		INodeExt v4 = GraphExtentionFactory.createNodeExtention("w4");
+		t.treeLeft.getNodeList().add(v4);
+		INodeExt v5 = GraphExtentionFactory.createNodeExtention("w5");
+		t.treeLeft.getNodeList().add(v5);
+		INodeExt v6 = GraphExtentionFactory.createNodeExtention("w6");
+		t.treeLeft.getNodeList().add(v6);
+		INodeExt v7 = GraphExtentionFactory.createNodeExtention("w7");
+		t.treeLeft.getNodeList().add(v7);
+		INodeExt v8 = GraphExtentionFactory.createNodeExtention("w8");
+		t.treeLeft.getNodeList().add(v8);
+		INodeExt v9 = GraphExtentionFactory.createNodeExtention("w9");
+		t.treeLeft.getNodeList().add(v9);
+		INodeExt v10 = GraphExtentionFactory.createNodeExtention("w10");
+		t.treeLeft.getNodeList().add(v10);
+		INodeExt v11 = GraphExtentionFactory.createNodeExtention("w11");
+		t.treeLeft.getNodeList().add(v11);
+		INodeExt v12 = GraphExtentionFactory.createNodeExtention("w12");
+		t.treeLeft.getNodeList().add(v12);
+		INodeExt v13 = GraphExtentionFactory.createNodeExtention("w13");
+		t.treeLeft.getNodeList().add(v13);
+		INodeExt v14 = GraphExtentionFactory.createNodeExtention("w14");
+		t.treeLeft.getNodeList().add(v14);
+		INodeExt v15 = GraphExtentionFactory.createNodeExtention("w15");
+		t.treeLeft.getNodeList().add(v15);
+		INodeExt v16 = GraphExtentionFactory.createNodeExtention("w16");
+		t.treeLeft.getNodeList().add(v16);
+		INodeExt v17 = GraphExtentionFactory.createNodeExtention("w17");
+		t.treeLeft.getNodeList().add(v17);
+		INodeExt v18 = GraphExtentionFactory.createNodeExtention("w18");
+		t.treeLeft.getNodeList().add(v18);
+		
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v18, v4));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v18, v12));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v18, v17));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v4, v1));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v4, v3));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v12, v5));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v12, v11));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v17, v13));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v17, v14));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v17, v16));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v3, v2));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v11, v9));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v11, v10));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v16, v15));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v9, v8));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v8, v6));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v8, v7));
+
+		/* create right tree */
+		INodeExt w1 = GraphExtentionFactory.createNodeExtention("w1");
+		t.treeRight.getNodeList().add(w1);
+		INodeExt w2 = GraphExtentionFactory.createNodeExtention("w2");
+		t.treeRight.getNodeList().add(w2);
+		INodeExt w3 = GraphExtentionFactory.createNodeExtention("w3");
+		t.treeRight.getNodeList().add(w3);
+		INodeExt w4 = GraphExtentionFactory.createNodeExtention("w4");
+		t.treeRight.getNodeList().add(w4);
+		INodeExt w5 = GraphExtentionFactory.createNodeExtention("w5");
+		t.treeRight.getNodeList().add(w5);
+		INodeExt w6 = GraphExtentionFactory.createNodeExtention("w6");
+		t.treeRight.getNodeList().add(w6);
+		INodeExt w7 = GraphExtentionFactory.createNodeExtention("w7");
+		t.treeRight.getNodeList().add(w7);
+		INodeExt w8 = GraphExtentionFactory.createNodeExtention("w8");
+		t.treeRight.getNodeList().add(w8);
+		INodeExt w9 = GraphExtentionFactory.createNodeExtention("w9");
+		t.treeRight.getNodeList().add(w9);
+		INodeExt w10 = GraphExtentionFactory.createNodeExtention("w10");
+		t.treeRight.getNodeList().add(w10);
+		INodeExt w11 = GraphExtentionFactory.createNodeExtention("w11");
+		t.treeRight.getNodeList().add(w11);
+		INodeExt w12 = GraphExtentionFactory.createNodeExtention("w12");
+		t.treeRight.getNodeList().add(w12);
+		INodeExt w13 = GraphExtentionFactory.createNodeExtention("w13");
+		t.treeRight.getNodeList().add(w13);
+		INodeExt w14 = GraphExtentionFactory.createNodeExtention("w14");
+		t.treeRight.getNodeList().add(w14);
+		INodeExt w15 = GraphExtentionFactory.createNodeExtention("w15");
+		t.treeRight.getNodeList().add(w15);
+		INodeExt w16 = GraphExtentionFactory.createNodeExtention("w16");
+		t.treeRight.getNodeList().add(w16);
+		INodeExt w17 = GraphExtentionFactory.createNodeExtention("w17");
+		t.treeRight.getNodeList().add(w17);
+		INodeExt w18 = GraphExtentionFactory.createNodeExtention("w18");
+		t.treeRight.getNodeList().add(w18);
+		
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w18, w4));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w18, w12));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w18, w17));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w4, w1));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w4, w3));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w12, w5));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w12, w11));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w17, w13));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w17, w14));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w17, w16));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w3, w2));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w11, w9));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w11, w10));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w16, w15));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w9, w8));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w8, w6));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w8, w7));
+		
+		return t;
+	}
+	
+	/**
 	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
@@ -344,17 +468,15 @@ public class BottomUpSubtreeIsomorphismTest extends TestCase {
 	
 	/**
 	 * Test method for {@link com.drgarbage.algorithms.BottomUpSubtreeIsomorphism bottomUpUnorderedSubreeIsomorphism}
-	 * The same tree twice.
+	 * Two equivalent trees.
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
-	public final void testBottomUpUnorderedMaxCommonSubtreeIsomorphism5() throws ControlFlowGraphException {		
+	public final void testBottomUpUnorderedSubtreeIsomorphism5() throws ControlFlowGraphException {		
 		BottomUpSubtreeIsomorphism busi = new BottomUpSubtreeIsomorphism();
-		TestSet t = createTestSet1();
+		TestSet t = createTestSet5();
 		
-		printGraph(t.treeLeft);
-		
-		Map<INodeExt, INodeExt> map = busi.bottomUpUnorderedSubreeIsomorphism(t.treeLeft, t.treeLeft);
+		Map<INodeExt, INodeExt> map = busi.bottomUpUnorderedSubreeIsomorphism(t.treeLeft, t.treeRight);
 		
 		assertEquals(t.treeLeft.getNodeList().size(), map.size());
 	}
