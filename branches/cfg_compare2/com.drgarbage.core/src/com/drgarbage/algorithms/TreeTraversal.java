@@ -43,14 +43,34 @@ public class TreeTraversal {
 		
 		return nodeList;
 	}
+	
+	/**
+	 * Traverses a graph in pre-order with a given node as root and returns
+	 * a node list in that order.
+	 * 
+	 * @param graph the graph
+	 * @param root node where the pre-order traversal starts
+	 * @return node list in pre-order
+	 */
+	public static INodeListExt doPreorderTreeListTraversal(IDirectedGraphExt graph, INodeExt root) {
+
+		if (root == null) {
+			return null;
+		}
+		
+		INodeListExt nodeList = GraphExtentionFactory.createNodeListExtention();
+		
+		recPreorderSubtreeTraversal(graph, root, nodeList);
+		
+		return nodeList;
+	}
 
 	private static void recPreorderSubtreeTraversal(IDirectedGraphExt graph,
 			INodeExt node, INodeListExt nodeList) {
-		
 		nodeList.add(node);
 		
 		for(int i = 0; i < node.getOutgoingEdgeList().size(); i++) {
-			recPostorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), nodeList);
+			recPreorderSubtreeTraversal(graph, node.getOutgoingEdgeList().getEdgeExt(i).getTarget(), nodeList);
 		}
 	}
 
