@@ -38,17 +38,17 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * 
  * <pre>
  *   T_1                  T_2
- *          v6               _____ w18 _____________ 
- *         /  \             /       |               \
- *       v1   v5          w4       w12              w17
- *             |         /  \      /  \          /   |   \
- *            v4       w1    w3   w5  w11     w13   w14   w16
- *           /  \             |       /  \                |
- *          v2  v3           w2     w9   w10              w15
- *                                  |
- *                                  w8
- *                                 /  \
- *                               w6    w7
+ *         (v6)               ______ w18 _____________ 
+ *         /  \              /        |               \
+ *       (v1) (v5)          w4       w12            _ w17 _
+ *             |           /  \      /  \          /   |   \
+ *            (v4)       w1    w3   w5 (w11)     w13  w14  w16
+ *            /  \             |        /  \                |
+ *          (v2) (v3)          w2     (w9) (w10)           w15
+ *                                     |
+ *                                    (w8)
+ *                                    /  \
+ *                                  (w6) (w7)
  * </pre>
  * 
  * @author Adam Kajrys
@@ -208,10 +208,10 @@ public class BottomUpSubtreeIsomorphism {
 		
 		HashMap<INodeExt, Integer> nodeToClassMap = new HashMap<INodeExt, Integer>();
 		
-		INodeListExt nodeList = TreeTraversal.doPostorderTreeListTraversal(graph);
+		INodeListExt postorderNodeList = TreeTraversal.doPostorderTreeListTraversal(graph);
 		
-		for (int i = 0; i < nodeList.size(); i++) {
-			INodeExt node = nodeList.getNodeExt(i);
+		for (int i = 0; i < postorderNodeList.size(); i++) {
+			INodeExt node = postorderNodeList.getNodeExt(i);
 			
 			/* all leaves have the equivalence class of 1 */
 			if (node.getOutgoingEdgeList().size() == 0) {
