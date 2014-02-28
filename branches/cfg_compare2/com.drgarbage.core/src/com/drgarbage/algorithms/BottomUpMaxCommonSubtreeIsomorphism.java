@@ -156,12 +156,7 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 	public Map<INodeExt, INodeExt> bottomUpUnorderedMaxCommonSubtreeIsomorphism(
 			IDirectedGraphExt leftGraph, INodeExt leftRoot,
 			IDirectedGraphExt rightGraph, INodeExt rightRoot) {
-		
-		/* check tree size */
-		if(leftGraph.getNodeList().size() > rightGraph.getNodeList().size()){
-			return null;
-		}
-		
+				
 //		IEdgeListExt backEdgesCfgLeft = removeBackEdges(leftGraph);
 //		IEdgeListExt backEdgesCfgRight = removeBackEdges(rightGraph);
 //		

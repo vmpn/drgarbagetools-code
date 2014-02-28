@@ -455,7 +455,8 @@ public class BottomUpMaxCommonSubtreeIsomorphismTest extends TestCase {
 		
 		Map<INodeExt, INodeExt> map = bumcsi.bottomUpUnorderedMaxCommonSubreeIsomorphism(t.treeRight, t.treeLeft);
 		
-		assertNull(map);
+		printMap(map);
+		assertEquals(8, map.size());
 	}
 	
 	/**
