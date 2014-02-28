@@ -348,10 +348,25 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}
 		
 		if (map == null) {
-			Messages.info("No equivalent nodes found", 
-							"Either the left graph has more nodes than the right graph or " + 
-							"no subtree isomorphic nodes could be found.");
+			Messages.info("Map containing equivalent nodes was null", 
+							"The left graph might have more nodes than the right graph.\n" + 
+							"Try swapping the graphs.");
 			
+			return;
+		}
+		
+		if (map == null) {
+			Messages.info("Map containing equivalent nodes was null", 
+							"The left graph might have more nodes than the right graph.\n" + 
+							"Try swapping the graphs.");
+			
+			return;
+		}
+		
+		if (map.isEmpty()) {
+			Messages.info("No equivalent nodes found", 
+					"No equivalent nodes could be found.");
+	
 			return;
 		}
 		
@@ -380,10 +395,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}
 		
 		if (map == null) {
-			Messages.info("No equivalent nodes found", 
-							"Either the left graph has more nodes than the right graph or " + 
-							"no subtree isomorphic nodes could be found.");
+			Messages.info("Map containing equivalent nodes was null", 
+							"The left graph might have more nodes than the right graph.\n" + 
+							"Try swapping the graphs.");
 			
+			return;
+		}
+		
+		if (map.isEmpty()) {
+			Messages.info("No equivalent nodes found", 
+					"No equivalent nodes could be found.");
+	
 			return;
 		}
 		
