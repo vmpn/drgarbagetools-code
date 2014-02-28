@@ -33,6 +33,7 @@ import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
+import org.eclipse.jdt.core.dom.Message;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -346,11 +347,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		if (map != null) {
-			for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-				((VertexBase) entry.getKey().getData()).setColor(GREEN);
-				((VertexBase) entry.getValue().getData()).setColor(GREEN);
-			}
+		if (map == null) {
+			Messages.info("No equivalent nodes found", 
+							"Either the left graph has more nodes than the right graph or " + 
+							"no subtree isomorphic nodes could be found.");
+			
+			return;
+		}
+		
+		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
 		}
 	}
 
@@ -372,11 +379,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		if (map != null) {
-			for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-				((VertexBase) entry.getKey().getData()).setColor(GREEN);
-				((VertexBase) entry.getValue().getData()).setColor(GREEN);
-			}
+		if (map == null) {
+			Messages.info("No equivalent nodes found", 
+							"Either the left graph has more nodes than the right graph or " + 
+							"no subtree isomorphic nodes could be found.");
+			
+			return;
+		}
+		
+		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
 		}
 	}
 	
@@ -399,12 +412,19 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		if (map != null) {
-			for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-				((VertexBase) entry.getKey().getData()).setColor(GREEN);
-				((VertexBase) entry.getValue().getData()).setColor(GREEN);
-			}
+		if (map == null) {
+			Messages.info("No equivalent nodes found", 
+							"Either the left graph has more nodes than the right graph or " + 
+							"no subtree isomorphic nodes could be found.");
+			
+			return;
 		}
+		
+		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		}
+		
 	}
 	
 	/**
