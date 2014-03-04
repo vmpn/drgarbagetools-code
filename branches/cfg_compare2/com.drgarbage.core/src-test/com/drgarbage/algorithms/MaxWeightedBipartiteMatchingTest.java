@@ -88,7 +88,6 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 */
 	private boolean isSquared(int [][] weights){
 		boolean squared = true;
-			
 			for(int i = 0; i < weights.length; i++){
 				if(weights.length != weights[i].length){
 					squared = false;
@@ -414,65 +413,6 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 		}
 	}
 	
-	/* 
-	 * The Methods in this section are used for purely debugging purposes 
-	 */
-	
-	
-	/**
-	 * For debugging purposes only.
-	 * @param matrix the matrix
-	 */
-	private void printMatrix(int[][] matrix){
-		StringBuffer buf = new StringBuffer();
-		
-		buf.append("   ");
-		for(int i = 0; i < matrix.length; i++){
-			buf.append('a');
-			buf.append(i);
-			buf.append('\t');
-		}
-		buf.append('\n');
-		
-		for(int i = 0; i < matrix.length; i++){
-			buf.append('b');
-			buf.append(i);
-			buf.append(' ');
-			for(int j = 0; j < matrix.length; j++){
-				buf.append(matrix[i][j]);
-				buf.append('\t');
-			}
-			buf.append('\n');
-		}
-		
-		System.out.println(buf.toString());
-	}
-
-	/**
-	 * Prints the graph.
-	 * @param g the graph
-	 */
-	private void printGraph(IDirectedGraphExt g) {
-		if(!DEBUG){
-			return;
-		}
-		
-		System.out.println("Print Graph:");
-
-		System.out.println("Nodes:");
-		for (int i = 0; i < g.getNodeList().size(); i++) {
-			System.out.println("  " + g.getNodeList().getNodeExt(i).getData());
-		}
-
-		System.out.println("Edges:");
-		for (int i = 0; i < g.getEdgeList().size(); i++) {
-			IEdgeExt e = g.getEdgeList().getEdgeExt(i);
-			System.out.println("  " 
-					+ e.getSource().getData() 
-					+ " - "
-					+ e.getTarget().getData());
-		}
-	}
 	
 	/**
 	 *  testMax5
@@ -623,7 +563,9 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 			System.out.println("------------");
 		}
 	}
-	
+	/**
+	 * 
+	 */
 	public void testValiente1() {
 		System.out.println("------------");
 		
@@ -963,7 +905,66 @@ public class MaxWeightedBipartiteMatchingTest extends TestCase{
 	 *  OK
 	 *  
 	 */
+	/* 
+	 * The Methods in this section are used for purely debugging purposes 
+	 */
+	
+	
+	/**
+	 * For debugging purposes only.
+	 * @param matrix the matrix
+	 */
+	private void printMatrix(int[][] matrix){
+		StringBuffer buf = new StringBuffer();
+		
+		buf.append("   ");
+		for(int i = 0; i < matrix.length; i++){
+			buf.append('a');
+			buf.append(i);
+			buf.append('\t');
+		}
+		buf.append('\n');
+		
+		for(int i = 0; i < matrix.length; i++){
+			buf.append('b');
+			buf.append(i);
+			buf.append(' ');
+			for(int j = 0; j < matrix.length; j++){
+				buf.append(matrix[i][j]);
+				buf.append('\t');
+			}
+			buf.append('\n');
+		}
+		
+		System.out.println(buf.toString());
+	}
 
+	/**
+	 * Prints the graph.
+	 * @param g the graph
+	 */
+	private void printGraph(IDirectedGraphExt g) {
+		if(!DEBUG){
+			return;
+		}
+		
+		System.out.println("Print Graph:");
+
+		System.out.println("Nodes:");
+		for (int i = 0; i < g.getNodeList().size(); i++) {
+			System.out.println("  " + g.getNodeList().getNodeExt(i).getData());
+		}
+
+		System.out.println("Edges:");
+		for (int i = 0; i < g.getEdgeList().size(); i++) {
+			IEdgeExt e = g.getEdgeList().getEdgeExt(i);
+			System.out.println("  " 
+					+ e.getSource().getData() 
+					+ " - "
+					+ e.getTarget().getData());
+		}
+	}
+	
 
 
 	

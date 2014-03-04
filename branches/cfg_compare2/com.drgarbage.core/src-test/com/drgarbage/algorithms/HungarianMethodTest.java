@@ -35,7 +35,7 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  */
 public class HungarianMethodTest extends TestCase {
 	
-	protected boolean DEBUG = true;
+	protected boolean DEBUG = false;
 	
 	/**
 	 * Test set consists of a bipartite graph and two partitions.
@@ -82,7 +82,6 @@ public class HungarianMethodTest extends TestCase {
 			t.graph.getNodeList().add(a1);
 	        t.partA.add(a1);
 	        
-
 	        INodeExt b1 = GraphExtentionFactory.createNodeExtention("b" + i);
 	        t.graph.getNodeList().add(b1);
 	        t.partB.add(b1);
@@ -90,14 +89,11 @@ public class HungarianMethodTest extends TestCase {
 		
 		for(int i = 0; i < weights.length; i++){
 			for(int j = 0; j < weights.length; j++){
-				//if(weights[i][j] != 0)
-				{
 					INodeExt a = t.partA.get(i);
 					INodeExt b = t.partB.get(j);
 					IEdgeExt edge = GraphExtentionFactory.createEdgeExtention(a, b);
 					edge.setCounter(weights[i][j]);
 					t.graph.getEdgeList().add(edge);
-					}
 				}			
 		}
 
@@ -325,7 +321,6 @@ public class HungarianMethodTest extends TestCase {
 	}	
 	
 	/**
-	 * TODO: find a problem (expected: 5, was: 8), hint: the first 5 elements are correct min-edges
 	 * Input:
 	 *  <pre>
 	 *  	10 19 8  15 1
@@ -337,11 +332,11 @@ public class HungarianMethodTest extends TestCase {
 	 * 
 	 * Result:
 	 *  <pre>
-	 *  	(10) 19   8   15  1
-	 *  	10   18  (7)  17  1
-			13   16   9  (14) 1
-			12   19   8   18 (1)
-			14   (17) 10  19  1
+	 *     (10)  19   8   15   1
+	 *  	10   18  (7)  17   1
+			13   16   9  (14)  1
+			12   19   8   18  (1)
+			14  (17)  10  19   1
 	 *  </pre>
 	 * 
 	 * Sum 10 + 7 + 14 + 1 + 17 = 49
