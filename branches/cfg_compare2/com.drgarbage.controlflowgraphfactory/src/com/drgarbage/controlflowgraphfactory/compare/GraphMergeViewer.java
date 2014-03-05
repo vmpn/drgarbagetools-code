@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphism;
 import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
+import com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism;
 import com.drgarbage.algorithms.TopDownSubtreeIsomorphism;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
@@ -57,6 +58,7 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.SwapGraphsAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownAlgAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownMaxCommonAlgAction;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
@@ -140,6 +142,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	
 		/* graph compare algorithms actions */
 		toolBarManager.add(new TopDownAlgAction(this));
+		toolBarManager.add(new TopDownMaxCommonAlgAction(this));
 		toolBarManager.add(new BottomUpSubtreeAlgAction(this));
 		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
 		
@@ -342,6 +345,45 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		Map<INodeExt, INodeExt> map = null;
 		try {
 			map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+		} catch (ControlFlowGraphException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(e.getMessage());
+		}
+		
+		if (map == null) {
+			Messages.info("Map containing equivalent nodes was null", 
+							"The left graph might have more nodes than the right graph.\n" + 
+							"Try swapping the graphs.");
+			
+			return;
+		}
+		
+		if (map.isEmpty()) {
+			Messages.info("No equivalent nodes found", 
+					"No equivalent nodes could be found.");
+	
+			return;
+		}
+		
+		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		}
+	}
+	
+	/**
+	 * Executes the top down subtree algorithm.
+	 */
+	public void doTopDownMaxCommonAlg() {
+		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
+		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		
+		//TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
+		TopDownMaxCommonSubTreeIsomorphism compare = new TopDownMaxCommonSubTreeIsomorphism();
+		/* start to compare graphs */
+		Map<INodeExt, INodeExt> map = null;
+		try {
+			map = compare.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgLeft);
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
