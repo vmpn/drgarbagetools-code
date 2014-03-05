@@ -59,7 +59,7 @@ public class TopDownMaxCommonSubtreeIsomorphismTest extends TestCase {
 	void printMap(Map<INodeExt, INodeExt> map){
 		for(Entry<INodeExt, INodeExt> entry : map.entrySet()){
 			System.out.println(entry.getKey().getData()
-					+ " = "
+					+ " => "
 					+ entry.getValue().getData());
 		}
 	}

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.drgarbage.algorithms.TopDownSubtreeIsomorphism.MatrixEntry;
@@ -46,12 +47,12 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
 public class TopDownMaxCommonSubTreeIsomorphism {
 	
 	Map<INodeExt, List<IEdgeExt>> B = null;
-	private int counter = 0;
+	
 	protected class MatrixEntry{
 		protected INodeExt v;
 		protected INodeExt w;
 		protected int weight = 0;
-		protected int isomorph = -1;
+		protected int result = -1;
 
 	}
 	/**
@@ -110,29 +111,35 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			INodeExt rootRight) {
 
 		/* check tree size */
-		if(leftTree.getNodeList().size() > rightTree.getNodeList().size()){
+ 		if(leftTree.getNodeList().size() > rightTree.getNodeList().size()){
 			//return null;
 		}
 		
+ 		printGraph(leftTree);
+		printGraph(rightTree);
+ 		
 		/* clear tree graphs */
 		GraphUtils.clearGraph(leftTree);
 		GraphUtils.clearGraphColorMarks(leftTree);
 		GraphUtils.clearGraph(rightTree);
 		GraphUtils.clearGraphColorMarks(rightTree);
-
-		/* compute size and heights for all nodes of both trees */
-	//	compute_Size_Height(rootLeft);
-	//	compute_Size_Height(rootRight);
-		
-		/* DEBUG */
-	//	printtHeightSize(leftTree.getNodeList());
-	//	printtHeightSize(rightTree.getNodeList());
-		
 		
 		B = new HashMap<INodeExt, List<IEdgeExt>>();
 		Map<INodeExt, INodeExt> M  = new HashMap<INodeExt, INodeExt>();
 		traverseTopDown(rootLeft, rootRight);
 
+		//DEBUG
+		System.out.println("map B:");
+			for(Entry<INodeExt, List<IEdgeExt>> entry: B.entrySet()){
+				System.out.print(entry.getKey().getData() + ": ");
+				
+				for(IEdgeExt e: entry.getValue()){
+					System.out.print(" " + ((INodeExt)e.getTarget().getData()).getData());
+				}
+				System.out.println();
+			}	
+		System.out.println();
+		
 		/* reconstruct the subtree */
 		M.put(rootLeft, rootRight);
 		reconstruct(rootLeft, M);
@@ -146,6 +153,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 * @return
 	 */
 	private int traverseTopDown(INodeExt v, INodeExt w){
+		debug(v.getData().toString() + " <-> " + w.getData().toString());
 		/* 
 		 * p is number of children of v 
 		 * q is number of chilfren of w
@@ -155,6 +163,10 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 
 		/* v is a leaf*/
 		if(p == 0){
+			return 1;
+		}
+		
+		if(q == 0){
 			return 1;
 		}
 
@@ -170,14 +182,13 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 				MatrixEntry me = new MatrixEntry();
 				me.v = child1;
 				me.w = child2;
-				//me.weight = counter;
-
+				
 				matrix[i][j] = me;
-				me.isomorph = traverseTopDown(child1, child2);
+				me.result = traverseTopDown(child1, child2);
 			}
 		}
 
-		
+		int res = 1;
 		if(p != 0 && q != 0){
 			int size[] = {p, q};
 			
@@ -198,32 +209,25 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			MaxWeightedBipartiteMatching mwbm = new MaxWeightedBipartiteMatching();
 			List<IEdgeExt> MatchedEdges = mwbm.execute(graph, part1, part2);
 			
-			debug(" === Matching ");
 			for(IEdgeExt e: MatchedEdges){
-
-				debug(((INodeExt)e.getSource().getData()).getData()
-						+ "->" 
-						+ ((INodeExt)e.getTarget().getData()).getData());
-
-				
-				List<IEdgeExt> list = B.get(e.getSource().getData());
-				if(list == null){
-					list = new ArrayList<IEdgeExt>();
-					B.put((INodeExt) e.getSource().getData(), list);
-				}
-
-				for(IEdgeExt ee: MatchedEdges){
-					if(ee.getSource().getData().equals(e.getSource().getData())){
-						list.add(ee);
-					}
-				}
+				res += e.getCounter();
 			}
-			debug(" =======");
-		}
+			
+			matching(MatchedEdges);
+			
+			}
 
-		return 1;
+		return res;
 	}
 
+	/**
+	 * Creates weighted bipartite graph
+	 * @param matrix
+	 * @param size
+	 * @param part1
+	 * @param part2
+	 * @return
+	 */
 	private static IDirectedGraphExt createBibartitGraph(MatrixEntry[][] matrix,
 			int[] size, 
 			List<INodeExt> part1, 
@@ -233,12 +237,12 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		Set<INodeExt> set2 = new HashSet<INodeExt>();
 		
 		IDirectedGraphExt graph = GraphExtentionFactory.createDirectedGraphExtention();
-	
 		Map<INodeExt, INodeExt> newGraphnodeMap = new HashMap<INodeExt, INodeExt>();
+		
 		for(int i = 0; i < size[0]; i++){
 			for(int j = 0; j < size[1]; j++){
 				MatrixEntry me = matrix[i][j];
-				if(me.isomorph != 0){
+				if(me.result != 0){
 					INodeExt v = newGraphnodeMap.get(me.v);
 					if(v == null){
 						v = GraphExtentionFactory.createNodeExtention(me.v);
@@ -254,8 +258,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 					set2.add(w);
 	
 					IEdgeExt e = GraphExtentionFactory.createEdgeExtention(v, w);
-					//e.setCounter(newGraphnodeMap.get(w).getCounter());
-					//for (int k = 0; k < )
+					e.setCounter(me.result);
 					
 					/* for debugging purposes */
 					if(DEBUG){
@@ -298,7 +301,12 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		
 		return graph;
 	}
-		
+	
+	/**
+	 * reconstruct
+	 * @param root
+	 * @param M
+	 */
 	private void reconstruct(INodeExt root, Map<INodeExt, INodeExt> M){
 		IEdgeListExt outEdges = root.getOutgoingEdgeList();
 
@@ -345,6 +353,36 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 
 		}
 	}
+	
+	/**
+	 * puts into list B matched edges for further reconstruction
+	 * @param MatchedEdges
+	 */
+	protected  void matching(List<IEdgeExt> MatchedEdges){
+		
+		debug(" === Matching ");
+		for(IEdgeExt e: MatchedEdges){
+
+			debug(((INodeExt)e.getSource().getData()).getData()
+					+ "->" 
+					+ ((INodeExt)e.getTarget().getData()).getData());
+
+			
+			List<IEdgeExt> list = B.get(e.getSource().getData());
+			if(list == null){
+				list = new ArrayList<IEdgeExt>();
+				B.put((INodeExt) e.getSource().getData(), list);
+			}
+
+			for(IEdgeExt ee: MatchedEdges){
+				if(ee.getSource().getData().equals(e.getSource().getData())){
+					list.add(ee);
+				}
+			}
+		}
+		debug(" =======");
+
+	}
 		/* 
 		 * The Methods in this section are used for purely debugging purposes 
 		 */
@@ -353,7 +391,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		 * Debugging flag. Set <code>true</code> to enable printing the
 		 * debugging messages.
 		 */
-	protected static boolean DEBUG = false;
+	protected static boolean DEBUG = true;
 		
 		/**
 		 * Prints a message for debugging purposes.
@@ -386,7 +424,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		 * @see #DEBUG
 		 */
 		private static void printMatrix(MatrixEntry[][] matrix, int[] size){	
-			//if(!DEBUG) return;
+			if(!DEBUG) return;
 			
 			System.out.println("---- Matrix---");
 			for(int i = 0; i < size[0]; i++){
@@ -394,8 +432,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 					MatrixEntry me = matrix[i][j];
 					System.out.print("(" + me.v.getData().toString() 
 							+ " " + me.w.getData().toString() 
-							+ " " + me.isomorph
-							+ " =>" + me.weight
+							+ " " + me.result
 							+ ") ");
 				}
 				System.out.println();
