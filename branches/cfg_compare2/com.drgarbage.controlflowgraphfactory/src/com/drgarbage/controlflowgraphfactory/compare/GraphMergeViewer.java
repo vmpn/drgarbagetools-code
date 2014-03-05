@@ -383,7 +383,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		/* start to compare graphs */
 		Map<INodeExt, INodeExt> map = null;
 		try {
-			map = compare.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgLeft);
+			map = compare.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());

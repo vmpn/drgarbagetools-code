@@ -115,8 +115,8 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			//return null;
 		}
 		
- 		printGraph(leftTree);
-		printGraph(rightTree);
+ 		//printGraph(leftTree);
+		//printGraph(rightTree);
  		
 		/* clear tree graphs */
 		GraphUtils.clearGraph(leftTree);
@@ -443,22 +443,22 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		private static void printGraph(IDirectedGraphExt g) {
 			if(!DEBUG) return;
 			
-			System.out.println("Print Graph:");
-
-			System.out.println("Nodes:");
-			for (int i = 0; i < g.getNodeList().size(); i++) {
-				System.out.println("  " + ((INodeExt)g.getNodeList()
-						.getNodeExt(i).getData()).getData().toString());
-			}
-
-			System.out.println("Edges:");
-			for (int i = 0; i < g.getEdgeList().size(); i++) {
-				IEdgeExt e = g.getEdgeList().getEdgeExt(i);
-				System.out.println("  " 
-						+ ((INodeExt)e.getSource().getData()).getData() 
-						+ " -> "
-						+ ((INodeExt)e.getTarget().getData()).getData());
-			}
+//			System.out.println("Print Graph:");
+//
+//			System.out.println("Nodes:");
+//			for (int i = 0; i < g.getNodeList().size(); i++) {
+//				System.out.println("  " + ((INodeExt)g.getNodeList()
+//						.getNodeExt(i).getData()).getData().toString());
+//			}
+//
+//			System.out.println("Edges:");
+//			for (int i = 0; i < g.getEdgeList().size(); i++) {
+//				IEdgeExt e = g.getEdgeList().getEdgeExt(i);
+//				System.out.println("  " 
+//						+ ((INodeExt)e.getSource().getData()).getData() 
+//						+ " -> "
+//						+ ((INodeExt)e.getTarget().getData()).getData());
+//			}
 		}
 
 
