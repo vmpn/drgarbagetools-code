@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -143,7 +145,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		/* reconstruct the subtree */
 		M.put(rootLeft, rootRight);
 		reconstruct(rootLeft, M);
-		
+
 		return M;
 	}
 	/**
@@ -156,7 +158,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		debug(v.getData().toString() + " <-> " + w.getData().toString());
 		/* 
 		 * p is number of children of v 
-		 * q is number of chilfren of w
+		 * q is number of children of w
 		 */
 		int p  = v.getOutgoingEdgeList().size();
 		int q = w.getOutgoingEdgeList().size();
@@ -302,56 +304,85 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		return graph;
 	}
 	
+	
 	/**
-	 * reconstruct
-	 * @param root
-	 * @param M
+	 * This method reconstructs the top-down unordered subtree isomorphism mapping
+	 * <code>V_1 X V_2 subset M</code> included the solution 
+	 * <code>V_1 X V_2 subset B</code> to all maximum cardinality bipartite
+	 * matchings problems.
+	 * <br>
+	 * The root of <code>T_1</code> is mapped to the root of <code>T_2</code>
+	 * in the previous step. Each nonroot node <code>v in V_1</code> is
+	 * mapped to the unique node <code>v in V_2</code> with <code>(v, w) in B</code>
+	 * and <code>(parent(v), parent(w)) in B</code>.
+	 * <br>
+	 * According the example above:
+	 * <pre>
+	 * TODO: new description
+	 * v_7: !w_18!
+	 * v_6: !w_17!
+	 * v_5: !w_12!
+	 * v_4:  w_1, !w5 !,  w13
+	 * v_3:  w_3, !w11!, w16
+	 * v_2:  w_2, !w9 !,  w15
+	 * v_1: !w_4 !
+	 * </pre>
+	 * @see  TopDownSubtreeIsomorphism
+	 * 
+	 * @param root the root of the tree <code>T_1</code>
+	 * @param M the map of the matched nodes
 	 */
 	private void reconstruct(INodeExt root, Map<INodeExt, INodeExt> M){
-		IEdgeListExt outEdges = root.getOutgoingEdgeList();
-
-		for(int i = 0; i < outEdges.size(); i++){
-			INodeExt  node = outEdges.getEdgeExt(i).getTarget();
-
-			/* for all matchings */
-			debug("    -> Matches for " + node.getData());
-
-			List<IEdgeExt> edges = B.get(node);
-			if(edges == null){
-				debug("ERROR: not matches for " + node.getData());
-				return;
-			}
-			
-			for(IEdgeExt e: edges){
-				INodeExt nodeV = (INodeExt)e.getSource().getData();
-				INodeExt nodeW = (INodeExt)e.getTarget().getData();
-				debug("       +-> match " 
-						+ nodeV.getData().toString() 
-						+ "->" 
-						+ nodeW.getData().toString());
-
-				INodeExt parentV = nodeV.getIncomingEdgeList().getEdgeExt(0).getSource();
-				INodeExt parentW = nodeW.getIncomingEdgeList().getEdgeExt(0).getSource();
-
-				debug("         +-> Parent of :" + nodeV.getData() + " is " + parentV.getData());
-				debug("         +-> Parent of :" + nodeW.getData() + " is " + parentW.getData());
-
-				INodeExt vW = M.get(parentV);
-				if(vW != null){
-
-
-					if(vW.equals(parentW)){
-						debug("!!! FOUND " + nodeV.getData() +  " " + nodeW.getData());
-						M.put(nodeV, nodeW);
+		
+		Queue<INodeExt> queue = new LinkedList<INodeExt>();
+		queue.add(root);
+		
+		/*start bfs from rootLeft*/
+		while(!queue.isEmpty()){
+			INodeExt node = queue.poll();
+			IEdgeListExt outgoingEdges = node.getOutgoingEdgeList();
+			for(int i = 0; i < outgoingEdges.size(); i++){
+				IEdgeExt edge = outgoingEdges.getEdgeExt(i);
+				if(edge.isVisited()){
+					continue;
+				}
+				/*get each node in TreeLeft */
+				INodeExt targetNode = edge.getTarget();
+				if(!targetNode.isVisited()){
+					queue.add(targetNode);
+					List<IEdgeExt> edges = B.get(targetNode);
+					if(edges != null){
+						for(IEdgeExt e: edges){
+							/*start reconstruct*/
+							INodeExt nodeV = (INodeExt)e.getSource().getData();
+							INodeExt nodeW = (INodeExt)e.getTarget().getData();
+							debug("       +-> match " 
+									+ nodeV.getData().toString() 
+									+ "->" 
+									+ nodeW.getData().toString());
+	
+							INodeExt parentV = nodeV.getIncomingEdgeList().getEdgeExt(0).getSource();
+							INodeExt parentW = nodeW.getIncomingEdgeList().getEdgeExt(0).getSource();
+	
+							debug("         +-> Parent of :" + nodeV.getData() + " is " + parentV.getData());
+							debug("         +-> Parent of :" + nodeW.getData() + " is " + parentW.getData());
+	
+							INodeExt vW = M.get(parentV);
+							if(vW != null){
+								if(vW.equals(parentW)){
+									debug("!!! FOUND " + nodeV.getData() +  " " + nodeW.getData());
+									M.put(nodeV, nodeW);
+								}
+							}
+							else{
+								debug("ERROR ..." + nodeV.getData() +  " " + nodeW.getData());
+							}
+						}
 					}
 				}
-				else{
-					debug("ERROR ..." + nodeV.getData() +  " " + nodeW.getData());
-				}
 			}
-			reconstruct(node, M); /* call recursive */
-
 		}
+		
 	}
 	
 	/**
@@ -391,7 +422,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		 * Debugging flag. Set <code>true</code> to enable printing the
 		 * debugging messages.
 		 */
-	protected static boolean DEBUG = true;
+	protected static boolean DEBUG = false;
 		
 		/**
 		 * Prints a message for debugging purposes.
