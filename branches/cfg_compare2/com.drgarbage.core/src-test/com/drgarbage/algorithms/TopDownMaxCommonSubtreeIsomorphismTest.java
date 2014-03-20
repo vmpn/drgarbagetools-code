@@ -194,12 +194,8 @@ public class TopDownMaxCommonSubtreeIsomorphismTest extends TestCase {
 		
 		TopDownMaxCommonSubTreeIsomorphism tdmcsi = new TopDownMaxCommonSubTreeIsomorphism();
 		TestSet t = createTestSet1();
-		//printGraph(t.treeLeft);
-		//printGraph(t.treeRight);
 		Map<INodeExt, INodeExt> map = tdmcsi.topDownMaxCommonUnorderedSubtreeIsomorphism(t.treeLeft, t.treeRight);
 		printMap(map);
-
-		//assertEquals(7, map.size());
 	}
 
 }

@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2008-2013, Dr. Garbage Community
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.drgarbage.algorithms;
 
 import java.util.ArrayList;
@@ -26,7 +42,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * on the algorithm published by Gabriel Valiente in his book "Algorithms on Trees and Graphs". 
  * The following example from this book is used as a reference:
  * <pre>
- *   T_1                  T_2
+ *   T_1                            T_2
   *       ____v12___                   _____ w18 ____________ 
  *       /          \                /        |               \
  *      v6          v11            w4        w12              w17
@@ -53,10 +69,9 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	protected class MatrixEntry{
 		protected INodeExt v;
 		protected INodeExt w;
-		protected int weight = 0;
 		protected int result = -1;
-
 	}
+	
 	/**
 	 * Executes the Top Down Max Common Subtree isomorphism algorithm.
 	 * 
@@ -112,21 +127,15 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			IDirectedGraphExt rightTree,
 			INodeExt rootRight) {
 
-		/* check tree size */
- 		if(leftTree.getNodeList().size() > rightTree.getNodeList().size()){
-			//return null;
-		}
-		
- 		//printGraph(leftTree);
-		//printGraph(rightTree);
- 		
 		/* clear tree graphs */
 		GraphUtils.clearGraph(leftTree);
 		GraphUtils.clearGraphColorMarks(leftTree);
 		GraphUtils.clearGraph(rightTree);
 		GraphUtils.clearGraphColorMarks(rightTree);
 		
+		/*partial injection*/
 		B = new HashMap<INodeExt, List<IEdgeExt>>();
+		
 		Map<INodeExt, INodeExt> M  = new HashMap<INodeExt, INodeExt>();
 		traverseTopDown(rootLeft, rootRight);
 
@@ -148,16 +157,40 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 
 		return M;
 	}
+	
 	/**
-	 * traverse
-	 * @param v
-	 * @param w
-	 * @return
+	 * traverseTopDown
+	 * 
+	 * This method goes recursively simultaneously through T1 and T2 till leafs of them are founded.
+	 * The example is based on:
+	 * {@link com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism TopDownMaxCommonSubTreeIsomorphism}.
+	 * </br>
+	 * Reach recursively the leaves of T1 or T2 and construct the follow matrix:
+	 * <pre>
+	 *    ---- Matrix---
+	 *		(v3 w8 1) 
+	 *		(v2 w8 1) 
+	 *
+	 * <pre>
+	 *  The weight of v2 and v3 is equal 1(v2 and w8 respectively one too)
+	 *  Build a weighed bipartite graph and get the max weighed matching: v2->w8 
+	 *  
+	 *  Since the possible matching is found go one level upper (the nodes which located on the same level)
+	 *  Build the following matrix <b>taking into account previous matched nodes(in this case children of v4)</b> 
+	 *	
+	 *		  ---- Matrix---
+	 *		(v1 w9 1) (v1 w10 1) 
+	 *	  	(v4 w9 2) (v4 w10 1) 	
+	 *  The weight of v4 and w9 has a weight 2 because the child of 
+	 * @param v node of the T_1
+	 * @param w node of the T_2
+	 * @return 0 or 1
 	 */
 	private int traverseTopDown(INodeExt v, INodeExt w){
+		
 		debug(v.getData().toString() + " <-> " + w.getData().toString());
-		/* 
-		 * p is number of children of v 
+		 
+		/* p is number of children of v 
 		 * q is number of children of w
 		 */
 		int p  = v.getOutgoingEdgeList().size();
@@ -168,6 +201,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			return 1;
 		}
 		
+		/* w is a leaf*/
 		if(q == 0){
 			return 1;
 		}
@@ -189,7 +223,8 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 				me.result = traverseTopDown(child1, child2);
 			}
 		}
-
+		
+		/*once leaves are reached  start increase edges-weight of maximum matched nodes*/
 		int res = 1;
 		if(p != 0 && q != 0){
 			int size[] = {p, q};
@@ -207,17 +242,18 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 				return 1;
 			}
 
-			/* find max bipartite matching */
+			/* find max bipartite matching in weighted bipartite graph */
 			MaxWeightedBipartiteMatching mwbm = new MaxWeightedBipartiteMatching();
 			List<IEdgeExt> MatchedEdges = mwbm.execute(graph, part1, part2);
 			
+			/*increase edges weight of matched nodes in bipartite graph*/
 			for(IEdgeExt e: MatchedEdges){
 				res += e.getCounter();
 			}
 			
 			matching(MatchedEdges);
 			
-			}
+		}
 
 		return res;
 	}
@@ -287,7 +323,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		}
 		
 		/* print the graph if */
-		if(DEBUG){
+		if(!DEBUG){
 			printGraph(graph);
 			debug("PART1:");
 			for(INodeExt n: part1){
@@ -343,9 +379,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			IEdgeListExt outgoingEdges = node.getOutgoingEdgeList();
 			for(int i = 0; i < outgoingEdges.size(); i++){
 				IEdgeExt edge = outgoingEdges.getEdgeExt(i);
-				if(edge.isVisited()){
-					continue;
-				}
+				
 				/*get each node in TreeLeft */
 				INodeExt targetNode = edge.getTarget();
 				if(!targetNode.isVisited()){
@@ -422,7 +456,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		 * Debugging flag. Set <code>true</code> to enable printing the
 		 * debugging messages.
 		 */
-	protected static boolean DEBUG = false;
+		protected static boolean DEBUG = true;
 		
 		/**
 		 * Prints a message for debugging purposes.
@@ -474,22 +508,6 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		private static void printGraph(IDirectedGraphExt g) {
 			if(!DEBUG) return;
 			
-//			System.out.println("Print Graph:");
-//
-//			System.out.println("Nodes:");
-//			for (int i = 0; i < g.getNodeList().size(); i++) {
-//				System.out.println("  " + ((INodeExt)g.getNodeList()
-//						.getNodeExt(i).getData()).getData().toString());
-//			}
-//
-//			System.out.println("Edges:");
-//			for (int i = 0; i < g.getEdgeList().size(); i++) {
-//				IEdgeExt e = g.getEdgeList().getEdgeExt(i);
-//				System.out.println("  " 
-//						+ ((INodeExt)e.getSource().getData()).getData() 
-//						+ " -> "
-//						+ ((INodeExt)e.getTarget().getData()).getData());
-//			}
 		}
 
 
