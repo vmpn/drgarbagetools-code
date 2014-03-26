@@ -21,7 +21,7 @@ import com.drgarbage.controlflowgraphfactory.img.ControlFlowFactoryResource;
 
 /**
  * <p>
- * Implementation of the action to call Top-Down-Subtree algorithm.
+ * Implementation of the action to call Top-Down-Max-Commom-Subtree algorithm.
  * </p>
  * 
  * @author Artem Garishin
@@ -38,8 +38,8 @@ public class TopDownMaxCommonAlgAction  extends BaseCompareAction {
 	 */
 	public TopDownMaxCommonAlgAction(GraphMergeViewer cmv) {
 		super(cmv);
-		setImageDescriptor(ControlFlowFactoryResource.graph_compare_top_down_16x16);
-		setToolTipText(ControlFlowFactoryMessages.GraphCompare_TopDownAlgorithm_Text);
+		setImageDescriptor(ControlFlowFactoryResource.graph_compare_top_down_max_common_subtree_16x16);
+		setToolTipText(ControlFlowFactoryMessages.GraphCompare_TopDownMaxCommonAlgorithm_Text);
 	}
 
 	/* (non-Javadoc)

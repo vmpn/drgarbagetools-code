@@ -29,6 +29,9 @@ public class ControlFlowFactoryResource {
 	/* compare algorithm icons */
 	public static final ImageDescriptor graph_compare_top_down_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "top-down-subtree-16x16.png");
 	public static final ImageDescriptor graph_compare_bottom_up_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "bottom-up-subtree-16x16.png");
+	public static final ImageDescriptor graph_compare_top_down_max_common_subtree_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "top-down-max-common-subtree-16x16.png");
+	public static final ImageDescriptor graph_compare_bottom_up_max_common_subtree_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "bottom-up-max-common-subtree-16x16.png");
+	
 	public static final ImageDescriptor graph_compare_ResetGraphsView_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "clear-subtree-16x16.png");
 	
 	/* placing algorithm icons */
