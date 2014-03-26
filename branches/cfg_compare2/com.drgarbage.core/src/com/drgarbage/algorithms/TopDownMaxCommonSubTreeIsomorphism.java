@@ -157,8 +157,8 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 * Reach recursively the leaves of T1 or T2 and construct the follow matrix:
 	 * <pre>
 	 *    ---- Matrix---
-	 *		(v3 w8 1) 
-	 *		(v2 w8 1) 
+	 *	 (v3 w8 1) 
+	 *	 (v2 w8 1) 
 	 * </pre>
 	 *  The weight of v2 and v3 is equal 1(v2 and w8 respectively one too)
 	 *  Build a weighed bipartite graph and get the max weighed matching: v2->w8 
@@ -188,7 +188,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 *  (v6 w12 5) (v6 w4 3) (v6 w17 3) 
 	 *  (v11 w12 5) (v11 w4 4) (v11 w17 4)
      * </pre>
-	 *  (v6 w12 5) is build from previous solution. Similarly all other cells in the final matrix are built:
+	 *  (v6 w12 <b>5</b>) is build from previous solution. Similarly all other cells in the final matrix are built:
 	 *  recursively considering all branches and finding possible maximum matching
 	 *   
 	 * @param v node of the T_1
@@ -365,13 +365,18 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 * <br>
 	 * According the example above:
 	 * <pre>
-	 * v_7: !w_18!
-	 * v_6: !w_17!
-	 * v_5: !w_12!
-	 * v_4:  w_1, !w5 !,  w13
-	 * v_3:  w_3, !w11!, w16
-	 * v_2:  w_2, !w9 !,  w15
-	 * v_1: !w_4 !
+	 * v_1: !w10!, w2, w15
+	 * v_2: !w8!
+	 * v_3: 
+	 * v_4: !w9!
+	 * v_5:  w_3, !w11!, w16
+	 * v_6: !w12!
+	 * v_7:  w2, w9 , !w15!
+	 * v_8:  w10
+	 * v_9:  w3, !w16!, w11
+	 * v_10: w1, !w14!, w5
+	 * v_11: !w17!
+	 * v_12: !w18!
 	 * </pre>
 	 * @see  TopDownMaxCommonSubTreeIsomorphism
 	 * 
