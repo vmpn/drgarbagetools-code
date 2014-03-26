@@ -16,7 +16,7 @@ import com.drgarbage.controlflowgraph.intf.INodeExt;
  * 
  * @author Artem Garishin
  * @version $Revision$
- * $Id:$
+ * $Id$
  */
 
 public class TopDownMaxCommonSubtreeIsomorphismTest extends TestCase {
@@ -56,7 +56,8 @@ public class TopDownMaxCommonSubtreeIsomorphismTest extends TestCase {
 	 * Prints the map of matched tree nodes.
 	 * @param map the map
 	 */
-	void printMap(Map<INodeExt, INodeExt> map){
+	void printMap(Map<INodeExt, INodeExt> map, String test){
+		System.out.println("\n"+test);
 		for(Entry<INodeExt, INodeExt> entry : map.entrySet()){
 			System.out.println(entry.getKey().getData()
 					+ " => "
@@ -70,16 +71,18 @@ public class TopDownMaxCommonSubtreeIsomorphismTest extends TestCase {
 	 *  are defined as described in 
 	 * {@link com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism}.
 	 * 
-	 * Expected map is 
+	 * Expected map is:
 	 * <pre>
-	 * TODO:
-	 *  v1 = w12
-	 *  v7 = w18
-	 *  v2 = w2
-	 *  v5 = w4
-	 *  v6 = w12
-	 *  v4 = w1
-	 *  v3 = w3
+	 * v12 => w18
+     * v9 => w16
+	 * v10 => w14
+	 * v6 => w12
+	 * v5 => w11
+	 * v2 => w8
+	 * v7 => w15
+	 * v4 => w9
+	 * v11 => w17
+	 * v1 => w10
 	 * </pre>
 	 * 
 	 * @return the test set
@@ -186,16 +189,148 @@ public class TopDownMaxCommonSubtreeIsomorphismTest extends TestCase {
 	}
 	
 	/**
+	 * The test set 2. <br>
+	 * The trees to compare <code>T1</code> and <code>T2</code>
+	 * 
+	 * Expected map is: 
+	 * <pre>
+	 * v4 => w2
+	 * v5 => w3
+	 * v1 => w4
+	 * v6 => w5
+	 * </pre>
+	 * 
+	 * @return the test set
+	 */
+	private TestSet createTestSet2(){
+		TestSet t = new TestSet();
+		
+		/* create left tree */		
+		INodeExt v1 = GraphExtentionFactory.createNodeExtention("v1");
+		t.treeLeft.getNodeList().add(v1);
+		INodeExt v2 = GraphExtentionFactory.createNodeExtention("v2");
+		t.treeLeft.getNodeList().add(v2);
+		INodeExt v3 = GraphExtentionFactory.createNodeExtention("v3");
+		t.treeLeft.getNodeList().add(v3);
+		INodeExt v4 = GraphExtentionFactory.createNodeExtention("v4");
+		t.treeLeft.getNodeList().add(v4);
+		INodeExt v5 = GraphExtentionFactory.createNodeExtention("v5");
+		t.treeLeft.getNodeList().add(v5);
+		INodeExt v6 = GraphExtentionFactory.createNodeExtention("v6");
+		t.treeLeft.getNodeList().add(v6);
+		
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v6, v1));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v6, v5));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v5, v2));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v5, v4));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v4, v3));
+		
+		/* create right tree */
+		
+		INodeExt w1 = GraphExtentionFactory.createNodeExtention("w1");
+		t.treeRight.getNodeList().add(w1);
+		INodeExt w2 = GraphExtentionFactory.createNodeExtention("w2");
+		t.treeRight.getNodeList().add(w2);
+		INodeExt w3 = GraphExtentionFactory.createNodeExtention("w3");
+		t.treeRight.getNodeList().add(w3);
+		INodeExt w4 = GraphExtentionFactory.createNodeExtention("w4");
+		t.treeRight.getNodeList().add(w4);
+		INodeExt w5 = GraphExtentionFactory.createNodeExtention("w5");
+		t.treeRight.getNodeList().add(w5);
+		
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w5, w1));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w5, w3));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w5, w4));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w3, w2));
+		
+		return t;
+	}
+	
+	
+	/**
+	 * The test set 3. <br>
+	 * The right graph is not e tree.
+	 * Expected is a ControlFlowGraphException.
+	 * 
+	 * @return the test set
+	 */
+	private TestSet createTestSet3(){
+		TestSet t = new TestSet();
+
+		/* create left tree */		
+		INodeExt v1 = GraphExtentionFactory.createNodeExtention("v1");
+		t.treeLeft.getNodeList().add(v1);
+		INodeExt v2 = GraphExtentionFactory.createNodeExtention("v2");
+		t.treeLeft.getNodeList().add(v2);
+		INodeExt v3 = GraphExtentionFactory.createNodeExtention("v3");
+		t.treeLeft.getNodeList().add(v3);
+
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v1, v2));
+		t.treeLeft.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(v1, v3));
+
+		/* create right tree */
+		INodeExt w1 = GraphExtentionFactory.createNodeExtention("w1");
+		t.treeRight.getNodeList().add(w1);
+		INodeExt w2 = GraphExtentionFactory.createNodeExtention("w2");
+		t.treeRight.getNodeList().add(w2);
+		INodeExt w3 = GraphExtentionFactory.createNodeExtention("w3");
+		t.treeRight.getNodeList().add(w3);
+		INodeExt w4 = GraphExtentionFactory.createNodeExtention("w4");
+		t.treeRight.getNodeList().add(w4);
+
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w1, w2));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w1, w3));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w3, w4));
+		t.treeRight.getEdgeList().add(GraphExtentionFactory.createEdgeExtention(w4, w1));
+
+		return t;
+	}
+	
+	/**
 	 * Test method for {@link com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism}
 	 * @throws ControlFlowGraphException 
 	 * @see #createTestSet1()
 	 */
-	public final void testTopDownSubtreeIsomorthism1() throws ControlFlowGraphException {	
+	public final void testTopDownMaxCommonSubtreeIsomorthism1() throws ControlFlowGraphException {	
 		
 		TopDownMaxCommonSubTreeIsomorphism tdmcsi = new TopDownMaxCommonSubTreeIsomorphism();
 		TestSet t = createTestSet1();
 		Map<INodeExt, INodeExt> map = tdmcsi.topDownMaxCommonUnorderedSubtreeIsomorphism(t.treeLeft, t.treeRight);
-		printMap(map);
+		assertEquals(10, map.size());
+		printMap(map, "test1");
+	}
+	
+	/**
+	 * testTopDownMaxCommonSubtreeIsomorthism2
+	 * @throws ControlFlowGraphException 
+	 * @see #createTestSet1()
+	 */
+	public final void testTopDownMaxCommonSubtreeIsomorthism2() throws ControlFlowGraphException {	
+		
+		TopDownMaxCommonSubTreeIsomorphism tdmcsi = new TopDownMaxCommonSubTreeIsomorphism();
+		TestSet t = createTestSet2();
+		Map<INodeExt, INodeExt> map = tdmcsi.topDownMaxCommonUnorderedSubtreeIsomorphism(t.treeLeft, t.treeRight);
+		assertEquals(4, map.size());
+		printMap(map, "test2");
+	}
+	
+	/**
+	 * testTopDownSubtreeIsomorthism3
+	 * The input is not a tree.
+	 * @see #createTestSet3()
+	 */
+	public final void testTopDownSubtreeIsomorthism3() {		
+		TopDownMaxCommonSubTreeIsomorphism tdmcsi = new TopDownMaxCommonSubTreeIsomorphism();
+		TestSet t = createTestSet3();
+
+		try {
+			tdmcsi.topDownMaxCommonUnorderedSubtreeIsomorphism(t.treeLeft, t.treeRight);
+		} catch (ControlFlowGraphException e) {
+			assertNotNull(e);
+			return;
+		}
+
+		fail("ControlFlowGraphException has not been throwen.");
 	}
 
 }

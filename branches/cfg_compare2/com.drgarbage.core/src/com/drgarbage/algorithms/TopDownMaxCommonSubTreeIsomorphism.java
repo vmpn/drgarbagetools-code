@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import com.drgarbage.algorithms.TopDownSubtreeIsomorphism.MatrixEntry;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.controlflowgraph.intf.GraphExtentionFactory;
 import com.drgarbage.controlflowgraph.intf.GraphUtils;
@@ -35,7 +33,7 @@ import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeExt;
 import com.drgarbage.controlflowgraph.intf.IEdgeListExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
-import com.drgarbage.controlflowgraph.intf.INodeListExt;
+
 
 /**
  * The Top-Down-MAX Common Subtree Isomorphism algorithm. The implementation is based 
@@ -43,7 +41,7 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * The following example from this book is used as a reference:
  * <pre>
  *   T_1                            T_2
-  *       ____v12___                   _____ w18 ____________ 
+ *        ____v12___                   _____ w18 ____________ 
  *       /          \                /        |               \
  *      v6          v11            w4        w12              w17
  *     /            /  \           /  \      /  \          /   |  \
@@ -367,7 +365,6 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 * <br>
 	 * According the example above:
 	 * <pre>
-	 * TODO: new description
 	 * v_7: !w_18!
 	 * v_6: !w_17!
 	 * v_5: !w_12!
@@ -376,7 +373,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 * v_2:  w_2, !w9 !,  w15
 	 * v_1: !w_4 !
 	 * </pre>
-	 * @see  TopDownSubtreeIsomorphism
+	 * @see  TopDownMaxCommonSubTreeIsomorphism
 	 * 
 	 * @param root the root of the tree <code>T_1</code>
 	 * @param M the map of the matched nodes
@@ -394,10 +391,10 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 				IEdgeExt edge = outgoingEdges.getEdgeExt(i);
 				
 				/*get each node in TreeLeft */
-				INodeExt targetNode = edge.getTarget();
-				if(!targetNode.isVisited()){
-					queue.add(targetNode);
-					List<IEdgeExt> edges = B.get(targetNode);
+				INodeExt targetNodeLeft = edge.getTarget();
+				if(!targetNodeLeft.isVisited()){
+					queue.add(targetNodeLeft);
+					List<IEdgeExt> edges = B.get(targetNodeLeft);
 					if(edges != null){
 						for(IEdgeExt e: edges){
 							/*start reconstruct*/
@@ -415,6 +412,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 							debug("         +-> Parent of :" + nodeW.getData() + " is " + parentW.getData());
 	
 							INodeExt vW = M.get(parentV);
+						
 							if(vW != null){
 								if(vW.equals(parentW)){
 									debug("!!! FOUND " + nodeV.getData() +  " " + nodeW.getData());
