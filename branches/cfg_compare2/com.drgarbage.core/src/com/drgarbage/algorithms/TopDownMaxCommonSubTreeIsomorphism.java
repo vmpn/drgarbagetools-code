@@ -58,8 +58,8 @@ import com.drgarbage.controlflowgraph.intf.INodeListExt;
  * 
  * @author Artem Garishin
  * 
- * @version $Revision:$ 
- * $Id:$
+ * @version $Revision$ 
+ * $Id$
  */
 
 public class TopDownMaxCommonSubTreeIsomorphism {
@@ -138,18 +138,9 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		
 		Map<INodeExt, INodeExt> M  = new HashMap<INodeExt, INodeExt>();
 		traverseTopDown(rootLeft, rootRight);
-
-		//DEBUG
-		System.out.println("map B:");
-			for(Entry<INodeExt, List<IEdgeExt>> entry: B.entrySet()){
-				System.out.print(entry.getKey().getData() + ": ");
-				
-				for(IEdgeExt e: entry.getValue()){
-					System.out.print(" " + ((INodeExt)e.getTarget().getData()).getData());
-				}
-				System.out.println();
-			}	
-		System.out.println();
+		
+		/*debug*/
+		printMap(B);
 		
 		/* reconstruct the subtree */
 		M.put(rootLeft, rootRight);
@@ -170,18 +161,38 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	 *    ---- Matrix---
 	 *		(v3 w8 1) 
 	 *		(v2 w8 1) 
-	 *
-	 * <pre>
+	 * </pre>
 	 *  The weight of v2 and v3 is equal 1(v2 and w8 respectively one too)
 	 *  Build a weighed bipartite graph and get the max weighed matching: v2->w8 
-	 *  
+	 *  </br>
 	 *  Since the possible matching is found go one level upper (the nodes which located on the same level)
-	 *  Build the following matrix <b>taking into account previous matched nodes(in this case children of v4)</b> 
-	 *	
-	 *		  ---- Matrix---
-	 *		(v1 w9 1) (v1 w10 1) 
-	 *	  	(v4 w9 2) (v4 w10 1) 	
-	 *  The weight of v4 and w9 has a weight 2 because the child of 
+	 *  Build the following matrix <b>taking into account previous matched nodes(in this case children of v4 and w9)</b> 
+	 *	<pre>
+	 *	  ---- Matrix---
+	 *	 (v1 w9 1) (v1 w10 1) 
+	 *	 (v4 w9 2) (v4 w10 1)
+	 *	</pre> 	
+	 *  The weight of v4 and w9 has a weight 2, because the matched child v2 is parent of v4 
+	 *  (respectively, the matched child w8 is parent of w9)
+	 *  Build a weighed bipartite graph and get the max weighed matching: v4->w9 and v1->w10
+	 *  </br>
+	 *  Going one level of trees further, the following nodes can be considered: v5 and (w5, w11).
+	 *  Again taking into consideration previous solution the following matrix can be build:
+	 *	<pre>	
+	 *    ---- Matrix---
+	 *	(v5 w5 1) (v5 w11 4)
+	 *	</pre>
+	 * 	The weight (v5 - w11) is 4 because 2 max weighed matches has been found, and 2 weight from previous
+	 *  solution. Build a weighed bipartite graph and get the max weighed matching: v5->w11 </br>
+	 *  Thereby the root has been approached, and final matrix can be build: 
+	 * <pre>
+	 *	   ---- Matrix---
+	 *  (v6 w12 5) (v6 w4 3) (v6 w17 3) 
+	 *  (v11 w12 5) (v11 w4 4) (v11 w17 4)
+     * </pre>
+	 *  (v6 w12 5) is build from previous solution. Similarly all other cells in the final matrix are built:
+	 *  recursively considering all branches and finding possible maximum matching
+	 *   
 	 * @param v node of the T_1
 	 * @param w node of the T_2
 	 * @return 0 or 1
@@ -225,6 +236,8 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		}
 		
 		/*once leaves are reached  start increase edges-weight of maximum matched nodes*/
+		
+		/*matched leaves get a weight equals one*/
 		int res = 1;
 		if(p != 0 && q != 0){
 			int size[] = {p, q};
@@ -259,7 +272,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	}
 
 	/**
-	 * Creates weighted bipartite graph
+	 * Creates weighted bipartite graph from weight-matrix
 	 * @param matrix
 	 * @param size
 	 * @param part1
@@ -299,7 +312,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 					e.setCounter(me.result);
 					
 					/* for debugging purposes */
-					if(DEBUG){
+					if(!DEBUG){
 						String str = me.v.getData().toString() + "->" + me.w.getData().toString(); 
 						e.setData(str);
 					}
@@ -323,7 +336,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		}
 		
 		/* print the graph if */
-		if(!DEBUG){
+		if(DEBUG){
 			printGraph(graph);
 			debug("PART1:");
 			for(INodeExt n: part1){
@@ -342,7 +355,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 	
 	
 	/**
-	 * This method reconstructs the top-down unordered subtree isomorphism mapping
+	 * This method reconstructs the top-down max common unordered subtree isomorphism mapping
 	 * <code>V_1 X V_2 subset M</code> included the solution 
 	 * <code>V_1 X V_2 subset B</code> to all maximum cardinality bipartite
 	 * matchings problems.
@@ -456,7 +469,7 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 		 * Debugging flag. Set <code>true</code> to enable printing the
 		 * debugging messages.
 		 */
-		protected static boolean DEBUG = true;
+		protected static boolean DEBUG = false;
 		
 		/**
 		 * Prints a message for debugging purposes.
@@ -505,9 +518,28 @@ public class TopDownMaxCommonSubTreeIsomorphism {
 			System.out.println("--------------");
 		}
 		
-		private static void printGraph(IDirectedGraphExt g) {
+		/**
+		 * printMap
+		 * @param  Map<INodeExt, List<IEdgeExt>> 
+		 * 
+		 */
+		private void printMap(Map<INodeExt, List<IEdgeExt>> map){
 			if(!DEBUG) return;
 			
+			System.out.println("map B:");
+			for(Entry<INodeExt, List<IEdgeExt>> entry: map.entrySet()){
+				System.out.print(entry.getKey().getData() + ": ");
+				
+				for(IEdgeExt e: entry.getValue()){
+					System.out.print(" " + ((INodeExt)e.getTarget().getData()).getData());
+				}
+				System.out.println();
+			}	
+			System.out.println();
+		}
+		
+		private static void printGraph(IDirectedGraphExt g) {
+			if(!DEBUG) return;	
 		}
 
 
