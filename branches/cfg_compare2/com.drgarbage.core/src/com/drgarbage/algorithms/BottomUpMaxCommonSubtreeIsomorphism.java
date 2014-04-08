@@ -157,12 +157,6 @@ public class BottomUpMaxCommonSubtreeIsomorphism {
 			IDirectedGraphExt leftGraph, INodeExt leftRoot,
 			IDirectedGraphExt rightGraph, INodeExt rightRoot) {
 				
-//		IEdgeListExt backEdgesCfgLeft = removeBackEdges(leftGraph);
-//		IEdgeListExt backEdgesCfgRight = removeBackEdges(rightGraph);
-//		
-//		IDirectedGraphExt leftSpanningTree = Algorithms.doSpanningTreeAlgorithm(leftGraph, false);
-//		IDirectedGraphExt rightSpanningTree = Algorithms.doSpanningTreeAlgorithm(rightGraph, false);
-		
 		/* clear tree graphs */
 		GraphUtils.clearGraph(leftGraph);
 		GraphUtils.clearGraphColorMarks(leftGraph);
