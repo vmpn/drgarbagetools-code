@@ -45,8 +45,10 @@ import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
 import com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism;
 import com.drgarbage.algorithms.TopDownSubtreeIsomorphism;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
+import com.drgarbage.controlflowgraph.intf.GraphUtils;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.INodeListExt;
 import com.drgarbage.controlflowgraph.intf.MarkEnum;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryMessages;
 import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
@@ -141,9 +143,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		toolBarManager.removeAll();
 	
 		/* graph compare algorithms actions */
-		toolBarManager.add(new TopDownAlgAction(this));
+		//toolBarManager.add(new TopDownAlgAction(this));
 		toolBarManager.add(new TopDownMaxCommonAlgAction(this));
-		toolBarManager.add(new BottomUpSubtreeAlgAction(this));
+		//toolBarManager.add(new BottomUpSubtreeAlgAction(this));
 		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
 		
 		toolBarManager.add(new Separator());
@@ -336,6 +338,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * Executes the top down subtree algorithm.
 	 */
 	public void doTopDownAlg() {
+	
+		doResetViewer();
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
@@ -375,8 +379,14 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * Executes the top down subtree algorithm.
 	 */
 	public void doTopDownMaxCommonAlg() {
+		
+		doResetViewer();
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
+		
+		
+		GraphUtils.clearGraphColorMarks(cfgLeft);
+		GraphUtils.clearGraphColorMarks(cfgRight);
 		
 		//TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
 		TopDownMaxCommonSubTreeIsomorphism compare = new TopDownMaxCommonSubTreeIsomorphism();
@@ -414,6 +424,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * Executes the bottom up subtree algorithm.
 	 */
 	public void doBottomUpSubtreeAlg() {
+		
+		doResetViewer();
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
@@ -454,6 +466,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	@SuppressWarnings("restriction")
 	public void doBottomUpMaxCommonAlg() {
+		
+		doResetViewer();
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		

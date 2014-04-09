@@ -38,7 +38,7 @@ public class SwapGraphsAction extends BaseCompareAction {
 	 */
 	public SwapGraphsAction(GraphMergeViewer cmv) {
 		super(cmv);
-		setImageDescriptor(ControlFlowFactoryResource.icon_overview_16x16); //TODO: define icon
+		setImageDescriptor(ControlFlowFactoryResource.icon_swap_graphs_16x16);
 		setToolTipText(ControlFlowFactoryMessages.GraphCompare_SwapGraphs_Text);
 	}
 

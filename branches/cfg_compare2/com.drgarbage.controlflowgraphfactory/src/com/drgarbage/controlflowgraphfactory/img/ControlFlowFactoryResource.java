@@ -64,6 +64,7 @@ public class ControlFlowFactoryResource {
 	
 	/* Resources for the outline view */
 	public static final ImageDescriptor icon_overview_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "overview.gif");
+	public static final ImageDescriptor icon_swap_graphs_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "swap-graphs.png");
 	public static final ImageDescriptor icon_outline_16x16 = ImageDescriptor.createFromFile(ControlFlowFactoryResource.class, "outline.gif");
 	
 	/* 16x16 pictograms of models. */
