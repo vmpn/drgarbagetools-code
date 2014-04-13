@@ -143,7 +143,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		toolBarManager.removeAll();
 	
 		/* graph compare algorithms actions */
-		//toolBarManager.add(new TopDownAlgAction(this));
+		toolBarManager.add(new TopDownAlgAction(this));
 		toolBarManager.add(new TopDownMaxCommonAlgAction(this));
 		//toolBarManager.add(new BottomUpSubtreeAlgAction(this));
 		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
@@ -364,7 +364,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		if (map.isEmpty()) {
 			Messages.info("No equivalent nodes found", 
-					"No equivalent nodes could be found.");
+					"No matched subtree found.");
 	
 			return;
 		}
@@ -388,7 +388,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		GraphUtils.clearGraphColorMarks(cfgLeft);
 		GraphUtils.clearGraphColorMarks(cfgRight);
 		
-		//TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
 		TopDownMaxCommonSubTreeIsomorphism compare = new TopDownMaxCommonSubTreeIsomorphism();
 		/* start to compare graphs */
 		Map<INodeExt, INodeExt> map = null;

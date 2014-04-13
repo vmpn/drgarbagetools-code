@@ -82,6 +82,7 @@ public class TopDownSubtreeIsomorphism {
 	}
 	
 	Map<INodeExt, List<IEdgeExt>> B = null;
+	boolean isSubtree = true;
 
 	/**
 	 * Executes the Top Down Subtree isomorphism algorithm.
@@ -161,10 +162,16 @@ public class TopDownSubtreeIsomorphism {
 		B = new HashMap<INodeExt, List<IEdgeExt>>();
 		Map<INodeExt, INodeExt> M  = new HashMap<INodeExt, INodeExt>();
 		traverseTopDown(rootLeft, rootRight);
-
+		
+		
 		/* reconstruct the subtree */
 		M.put(rootLeft, rootRight);
 		reconstruct(rootLeft, M);
+		
+		/*if no entirely subtree found, clear map to avoid tree-highlighting*/
+		if(!isSubtree){
+			M.clear();
+		}
 		
 		return M;
 	}
@@ -316,7 +323,7 @@ public class TopDownSubtreeIsomorphism {
 
 		/* 
 		 * p is number of children of v 
-		 * q is number of chilfren of w
+		 * q is number of children of w
 		 */
 		int p  = v.getOutgoingEdgeList().size();
 		int q = w.getOutgoingEdgeList().size();
@@ -433,6 +440,7 @@ public class TopDownSubtreeIsomorphism {
 			List<IEdgeExt> edges = B.get(node);
 			if(edges == null){
 				debug("ERROR: not matches for " + node.getData());
+				isSubtree = false;
 				return;
 			}
 			
@@ -461,6 +469,7 @@ public class TopDownSubtreeIsomorphism {
 				}
 				else{
 					debug("ERROR ..." + nodeV.getData() +  " " + nodeW.getData());
+					isSubtree = false;
 				}
 			}
 			reconstruct(node, M); /* call recursive */
