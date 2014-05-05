@@ -29,7 +29,7 @@ Features
 
 * Multiple algorithms for automatic layout (serial, hierarchical)
 * Export in GraphXML, DOT format or as an image (JPEG, BMP, ICO, PNG)
-* Possibility to compare trees and investigate the subtree similiarity (See more: [graph comparison][cfgc-compare])
+* Possibility to compare trees and investigate the subtree similarity (See more: [graph comparison][cfgc-compare])
 * Printing support
 
 
