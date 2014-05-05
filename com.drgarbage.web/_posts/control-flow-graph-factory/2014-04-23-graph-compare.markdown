@@ -11,13 +11,13 @@ or digraphs.
 The maximum common subtree isomorphism task consist in finding of largest common subtree between two trees.
 The trees can be derived either using Dr. Garbage graphical interface of graph development or extracted from byte/source code.
 
-Control Flow Graph Factory Comparison offers 2 options to investigate difference between two trees graphically:
+Control Flow Graph Factory Comparison offers 2 options to investigate similiarity between two trees graphically:
 
 * [Top-Down MaxCommon subtree algorithm](#tda)
 * [Bottom-Up MaxCommon subtree algorithm](#bua)
 
 
-Top-Down MaxCommon subtree algorithm  <a name="tda"></a>
+Top-Down MaxCommon Subtree Comparision  <a name="tda"></a>
 --------------
 The algorithm is based to find a maximum common subtree between two different trees T1 and T2 starting from root. 
 
@@ -28,82 +28,15 @@ The algorithm is based to find a maximum common subtree between two different tr
 
 <div class="clear"></div>
 
-[Back to top](#top)
 
-
-
-
-Bottom-Up MaxCommon subtree algorithm  <a name="bua"></a>
+Bottom-Up MaxCommon Subtree Comparision  <a name="bua"></a>
 ----------------
 
-The algorthm is constructed by such way, that the maximum common subtree is being searched starting from the leaves.
+The algorthm is constructed by such way, that the maximum common subtree is being searched starting from the leaves. The maximum similar subtree from the bottom is green highlighted.
 
+![sd]({{ site.imgurl }}{{ page.url }}bottom-up-maxcommon-compare.png)
 <div class="clear"></div>
 
-[Back to top](#top)
-
-
-
-
-Basic Block Graph  <a name="bbg"></a>
------------------
-
-Vertices in Basic Block Graphs are basic blocks.
-
-Basic block is a sequence of instructions where (i) the instruction on each
-position always executes before all instructions on later positions and (ii) no
-other instruction executes between two instructions in the sequence.
-
-Basic blocks are usually the units to which compiler optimizations are applied.
-
-Control Flow Graph Factory generates Basic Block Graphs through transformation
-from Bytecode Graphs using DFS algorithm.
-
-<div style="width: 25em; float: left">
-{% highlight java %}
-public static void test3(int i) {
-	B1 {
-		0 iload_0;     /* i */
-		1 ifne 9;
-	}
-
-	B4 {
-		4 iinc 0 1;   /* i++ */
-		7 goto 6;
-	}
-
-	B2 {  
-		10 iinc 0 -1; /* i-- */
-	}
-
-	B3 {
-		13 return;
-	}
-}
-{% endhighlight %}
-</div>
-
-![example basic block graph]({{ site.imgurl }}{{ page.url }}basic-block-graph.png)
-
-<div class="clear"></div>
-
-[Back to top](#top)
-
-
-
-
-Virtual Elements  <a name="ve"></a>
-----------------
-
-Control Flow Graph Factory can be set up to generate the following virtual
-elements:
-
-* **Start Node** - the node through which control flow enters the graph
-* **Exit Node** - the node through which control flow leaves the graph
-* **Back Edge** - an directed edge from exit node to the start node.
-* **Comments** - the Line Number Table can be generated as a comment element.
-
-![example virtual elements]({{ site.imgurl }}{{ page.url }}virtual-elements.png)
 
 [Back to top](#top)
 
