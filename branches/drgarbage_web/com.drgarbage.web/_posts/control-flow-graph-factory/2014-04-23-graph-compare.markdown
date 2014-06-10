@@ -19,6 +19,7 @@ Control Flow Graph Factory Comparison offers 2 options to investigate similarity
 
 * [Top-Down MaxCommon subtree algorithm](#tda)
 * [Bottom-Up MaxCommon subtree algorithm](#bua)
+* [How to compare graphs](#how)
 
 
 Top-Down MaxCommon Subtree Comparision  <a name="tda"></a>
@@ -38,6 +39,10 @@ The algorithm is constructed by such way, that the maximum common subtree is bei
 ![sd]({{ site.imgurl }}{{ page.url }}bottom-up-maxcommon-compare.png)
 <div class="clear"></div>
 
+How to compare graphs <a name="how"></a>
+--------------
+
+Two control-flow graphs files can be compared by selected two of them and clicking "Compare with: Each other"
 
 [Back to top](#top)
 
