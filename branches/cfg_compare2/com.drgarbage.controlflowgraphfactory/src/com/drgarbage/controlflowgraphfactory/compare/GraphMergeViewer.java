@@ -43,6 +43,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
+import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.gef.DragTracker;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
@@ -91,7 +92,6 @@ import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
-import com.drgarbage.visualgraphic.model.MouseMotionEvents;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
 import org.eclipse.gef.tools.SelectionTool;
@@ -178,36 +178,42 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * manages listeners to diagrams
 	 */
 	private void manageListeners(){
+	
+	/*add Mouse Motion Listener*/
+	try{		
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		RootEditPart rootEditPart = fLeft.getRootEditPart();
 		
-		try{	
-			ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
-			RootEditPart rootEditPart = fLeft.getRootEditPart();
-			
-			final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
-			myFigure.addMouseListener(new MouseListener(){
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		myFigure.addMouseMotionListener(new MouseMotionListener(){
 
-				public void mouseDoubleClicked(MouseEvent arg0) {
-					
-				    Point p = arg0.getLocation();
+			public void mouseDragged(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			public void mouseHover(MouseEvent arg0) {
+				Point p = arg0.getLocation();
 					IFigure f1 = myFigure.findFigureAt(p);
 					//TODO: we get here a label but not an object, how to catch object?
 					if(f1 instanceof Label){
 						//VertexBase vb1 = (VertexBase) f1;
 						Label l = (Label) f1;
-						Messages.info(l.getText());
+						System.out.println(l.getText());
 					}
-					
-				}
+			}
 
-				public void mousePressed(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				public void mouseReleased(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+			public void mouseMoved(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 				
 			});
 				
@@ -215,6 +221,45 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		catch(Exception e){
 			System.out.println(e.getMessage());
 		}
+	
+	/*add Mouse Listener*/
+	try{	
+		
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		RootEditPart rootEditPart = fLeft.getRootEditPart();
+		
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		myFigure.addMouseListener(new MouseListener(){
+
+			public void mouseDoubleClicked(MouseEvent arg0) {
+				
+			    Point p = arg0.getLocation();
+				IFigure f1 = myFigure.findFigureAt(p);
+				//TODO: we get here a label but not an object, how to catch object?
+				if(f1 instanceof Label){
+					//VertexBase vb1 = (VertexBase) f1;
+					Label l = (Label) f1;
+					Messages.info(l.getText());
+				}
+				
+			}
+
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+			
+	}
+	catch(Exception e){
+		System.out.println(e.getMessage());
+	}
 	}
 	/**
 	 * Method to synchronize scrolling of two graph-compare view presentations.
