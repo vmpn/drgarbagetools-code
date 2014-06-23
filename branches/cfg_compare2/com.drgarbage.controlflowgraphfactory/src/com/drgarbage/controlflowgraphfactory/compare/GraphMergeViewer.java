@@ -16,7 +16,9 @@
 
 package com.drgarbage.controlflowgraphfactory.compare;
 
+import java.awt.Canvas;
 import java.awt.Scrollbar;
+import java.beans.PropertyChangeListener;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import org.eclipse.draw2d.geometry.Point;
 
 import javax.swing.JScrollPane;
 
@@ -33,9 +37,21 @@ import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.Label;
+import org.eclipse.draw2d.MouseEvent;
+import org.eclipse.draw2d.MouseListener;
+import org.eclipse.gef.DragTracker;
+import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.LayerConstants;
+import org.eclipse.gef.RootEditPart;
+import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
+import org.eclipse.gef.editparts.LayerManager;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
+import org.eclipse.gef.editparts.SimpleRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jdt.core.dom.Message;
 import org.eclipse.jface.action.Separator;
@@ -45,9 +61,9 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+//import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Scrollable;
 
 import com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphism;
 import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
@@ -75,9 +91,13 @@ import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
+import com.drgarbage.visualgraphic.model.MouseMotionEvents;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
-
+import org.eclipse.gef.tools.SelectionTool;
+//import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.draw2d.ActionListener;
+import org.eclipse.draw2d.MouseListener;
 /**
  * The graph merge viewer.
  * 
@@ -103,6 +123,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	/* Color constants */
 	final static Color RED      		= new Color(null, 224, 0, 0);
 	final static Color GREEN      		= new Color(null, 0, 224, 0);
+	final static Color BLUE      		= new Color(null, 50, 0, 232);
 	
 	/**
 	 * Creates a graph merge viewer.
@@ -142,13 +163,59 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 		ScalableFreeformRootEditPart root2 = new ScalableFreeformRootEditPart();
 		fRight.setRootEditPart(root2);
-		
+	
+		SelectionTool select = new SelectionTool();
+		 
 		/*synchronize sub-windows*/
 		FigureCanvas scrolledCanvasLeft = (FigureCanvas)fLeft.getControl();
 		FigureCanvas scrolledCanvasRight = (FigureCanvas)fRight.getControl();
 		synchronizeScrollBars(scrolledCanvasLeft, scrolledCanvasRight);
-	}
 	
+		/*adjust mouse events*/
+		manageListeners();
+	}
+	/**
+	 * manages listeners to diagrams
+	 */
+	private void manageListeners(){
+		
+		try{	
+			ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+			RootEditPart rootEditPart = fLeft.getRootEditPart();
+			
+			final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+			myFigure.addMouseListener(new MouseListener(){
+
+				public void mouseDoubleClicked(MouseEvent arg0) {
+					
+				    Point p = arg0.getLocation();
+					IFigure f1 = myFigure.findFigureAt(p);
+					//TODO: we get here a label but not an object, how to catch object?
+					if(f1 instanceof Label){
+						//VertexBase vb1 = (VertexBase) f1;
+						Label l = (Label) f1;
+						Messages.info(l.getText());
+					}
+					
+				}
+
+				public void mousePressed(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				public void mouseReleased(MouseEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			});
+				
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+	}
 	/**
 	 * Method to synchronize scrolling of two graph-compare view presentations.
 	 * @param scrolledCanvasLeft 
@@ -177,6 +244,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 		horizontalScrollBarRight.addSelectionListener(horizontalListener);
 		verticalScrollBarRight.addSelectionListener(verticalListener);
+		
 	}
 	
 	/* (non-Javadoc)
@@ -188,7 +256,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		toolBarManager.removeAll();
 	
 		/* graph compare algorithms actions */
-		//toolBarManager.add(new TopDownAlgAction(this));
+		toolBarManager.add(new TopDownAlgAction(this));
 		toolBarManager.add(new TopDownMaxCommonAlgAction(this));
 		//toolBarManager.add(new BottomUpSubtreeAlgAction(this));
 		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
@@ -388,12 +456,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
+		
+		
+		
 		TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
 		
 		/* start to compare graphs */
 		Map<INodeExt, INodeExt> map = null;
 		try {
 			map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+			map = null;
+			
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
