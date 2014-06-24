@@ -72,6 +72,7 @@ import com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism;
 import com.drgarbage.algorithms.TopDownSubtreeIsomorphism;
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
+import com.drgarbage.controlflowgraph.figures.RectangleFigure;
 import com.drgarbage.controlflowgraph.intf.GraphUtils;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
@@ -92,6 +93,7 @@ import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
+import com.drgarbage.visualgraphic.model.RectangularVertex;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
 import org.eclipse.gef.tools.SelectionTool;
@@ -222,44 +224,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			System.out.println(e.getMessage());
 		}
 	
-	/*add Mouse Listener*/
-	try{	
-		
-		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
-		RootEditPart rootEditPart = fLeft.getRootEditPart();
-		
-		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
-		myFigure.addMouseListener(new MouseListener(){
-
-			public void mouseDoubleClicked(MouseEvent arg0) {
-				
-			    Point p = arg0.getLocation();
-				IFigure f1 = myFigure.findFigureAt(p);
-				//TODO: we get here a label but not an object, how to catch object?
-				if(f1 instanceof Label){
-					//VertexBase vb1 = (VertexBase) f1;
-					Label l = (Label) f1;
-					Messages.info(l.getText());
-				}
-				
-			}
-
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-			
-	}
-	catch(Exception e){
-		System.out.println(e.getMessage());
-	}
+	
 	}
 	/**
 	 * Method to synchronize scrolling of two graph-compare view presentations.
@@ -501,7 +466,46 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
+		/*add Mouse Listener*/
+		try{	
 		
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		
+		myFigure.addMouseListener(new MouseListener(){
+
+			public void mouseDoubleClicked(MouseEvent arg0) {
+				
+			    Point p = arg0.getLocation();
+			    IFigure foundFigure = myFigure.findFigureAt(p);
+			    try{
+			    	if(foundFigure.getParent() instanceof RectangleFigure){
+			    		foundFigure.getParent().setBackgroundColor(RED);
+			    	}
+			    	
+			    }
+			    catch(Exception e){
+			    	System.out.println(e.getMessage());
+			    }
+				
+			}
+
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+				
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+		}
 		
 		
 		TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
@@ -518,17 +522,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		}
 		
 		if (map == null) {
-			Messages.info("Map containing equivalent nodes was null", 
-							"The left graph might have more nodes than the right graph.\n" + 
-							"Try swapping the graphs.");
-			
+//			Messages.info("Map containing equivalent nodes was null", 
+//							"The left graph might have more nodes than the right graph.\n" + 
+//							"Try swapping the graphs.");
+//			
 			return;
 		}
 		
 		if (map.isEmpty()) {
-			Messages.info("No equivalent nodes found", 
-					"No equivalent nodes could be found.");
-	
+//			Messages.info("No equivalent nodes found", 
+//					"No equivalent nodes could be found.");
+//	
 			return;
 		}
 		
