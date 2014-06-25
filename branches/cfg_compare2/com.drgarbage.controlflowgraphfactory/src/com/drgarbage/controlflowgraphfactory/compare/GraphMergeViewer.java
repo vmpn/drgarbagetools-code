@@ -166,8 +166,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		ScalableFreeformRootEditPart root2 = new ScalableFreeformRootEditPart();
 		fRight.setRootEditPart(root2);
 	
-		SelectionTool select = new SelectionTool();
-		 
 		/*synchronize sub-windows*/
 		FigureCanvas scrolledCanvasLeft = (FigureCanvas)fLeft.getControl();
 		FigureCanvas scrolledCanvasRight = (FigureCanvas)fRight.getControl();
@@ -466,6 +464,20 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
+
+		GraphUtils.clearGraphColorMarks(cfgLeft);
+		GraphUtils.clearGraphColorMarks(cfgRight);
+				
+		/* start to compare graphs */
+		TopDownMaxCommonSubTreeIsomorphism compareTD = new TopDownMaxCommonSubTreeIsomorphism();
+		Map<INodeExt, INodeExt> mapped = null;
+		try {
+			mapped = compareTD.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+		} catch (ControlFlowGraphException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(e.getMessage());
+		}
+		
 		/*add Mouse Listener*/
 		try{	
 		
@@ -475,9 +487,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		myFigure.addMouseListener(new MouseListener(){
 
 			public void mouseDoubleClicked(MouseEvent arg0) {
-				
+		
+			//	((VertexBase) entry.getKey().getData()).setColor(GREEN);
 			    Point p = arg0.getLocation();
 			    IFigure foundFigure = myFigure.findFigureAt(p);
+			    
 			    try{
 			    	if(foundFigure.getParent() instanceof RectangleFigure){
 			    		foundFigure.getParent().setBackgroundColor(RED);
