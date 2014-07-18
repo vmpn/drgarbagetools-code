@@ -16,7 +16,7 @@
 
 package com.drgarbage.controlflowgraphfactory.compare;
 
-import java.awt.Scrollbar;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,17 +25,27 @@ import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javax.swing.JScrollPane;
-
+import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.draw2d.IFigure;
+import org.eclipse.draw2d.Label;
+import org.eclipse.draw2d.MouseEvent;
+import org.eclipse.draw2d.MouseListener;
+import org.eclipse.draw2d.MouseMotionListener;
+import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
+import org.eclipse.gef.LayerConstants;
+import org.eclipse.gef.RootEditPart;
+import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
+import org.eclipse.gef.editparts.SimpleRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
 import org.eclipse.jdt.core.dom.Message;
 import org.eclipse.jface.action.Separator;
@@ -47,7 +57,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Scrollable;
 
 import com.drgarbage.algorithms.BottomUpMaxCommonSubtreeIsomorphism;
 import com.drgarbage.algorithms.BottomUpSubtreeIsomorphism;
@@ -55,6 +64,7 @@ import com.drgarbage.algorithms.TopDownMaxCommonSubTreeIsomorphism;
 import com.drgarbage.algorithms.TopDownSubtreeIsomorphism;
 import com.drgarbage.algorithms.Algorithms;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
+import com.drgarbage.controlflowgraph.figures.RectangleFigure;
 import com.drgarbage.controlflowgraph.intf.GraphUtils;
 import com.drgarbage.controlflowgraph.intf.IDirectedGraphExt;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
@@ -74,9 +84,12 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownMaxCommonAlg
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
+import com.drgarbage.visualgraphic.editparts.VertexBaseEditPart;
+import com.drgarbage.visualgraphic.editparts.VertexBaseFigureFactory;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
+import com.drgarbage.visualgraphic.model.IDirectEditLabelModel;
+import com.drgarbage.visualgraphic.model.RectangularVertex;
 import com.drgarbage.visualgraphic.model.VertexBase;
-
 
 /**
  * The graph merge viewer.
@@ -103,6 +116,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	/* Color constants */
 	final static Color RED      		= new Color(null, 224, 0, 0);
 	final static Color GREEN      		= new Color(null, 0, 224, 0);
+	final static Color BLUE      		= new Color(null, 50, 0, 232);
 	
 	/**
 	 * Creates a graph merge viewer.
@@ -142,13 +156,65 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 		ScalableFreeformRootEditPart root2 = new ScalableFreeformRootEditPart();
 		fRight.setRootEditPart(root2);
-		
+	
 		/*synchronize sub-windows*/
 		FigureCanvas scrolledCanvasLeft = (FigureCanvas)fLeft.getControl();
 		FigureCanvas scrolledCanvasRight = (FigureCanvas)fRight.getControl();
 		synchronizeScrollBars(scrolledCanvasLeft, scrolledCanvasRight);
-	}
 	
+		/*adjust mouse events*/
+		manageListeners();
+	}
+	/**
+	 * manages listeners to diagrams
+	 */
+	private void manageListeners(){
+	
+	/*add Mouse Motion Listener*/
+	try{		
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		RootEditPart rootEditPart = fLeft.getRootEditPart();
+		
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		myFigure.addMouseMotionListener(new MouseMotionListener(){
+
+			public void mouseDragged(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+			}
+
+			public void mouseHover(MouseEvent arg0) {
+				Point p = arg0.getLocation();
+					IFigure f1 = myFigure.findFigureAt(p);
+					//TODO: we get here a label but not an object, how to catch object?
+					if(f1 instanceof Label){
+						//VertexBase vb1 = (VertexBase) f1;
+						Label l = (Label) f1;
+						System.out.println(l.getText());
+					}
+			}
+
+			public void mouseMoved(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+				
+			});
+				
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+	
+	
+	}
 	/**
 	 * Method to synchronize scrolling of two graph-compare view presentations.
 	 * @param scrolledCanvasLeft 
@@ -177,6 +243,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 		horizontalScrollBarRight.addSelectionListener(horizontalListener);
 		verticalScrollBarRight.addSelectionListener(verticalListener);
+		
 	}
 	
 	/* (non-Javadoc)
@@ -188,7 +255,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		toolBarManager.removeAll();
 	
 		/* graph compare algorithms actions */
-		//toolBarManager.add(new TopDownAlgAction(this));
+		toolBarManager.add(new TopDownAlgAction(this));
 		toolBarManager.add(new TopDownMaxCommonAlgAction(this));
 		//toolBarManager.add(new BottomUpSubtreeAlgAction(this));
 		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
@@ -388,29 +455,97 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt cfgLeft = LayoutAlgorithmsUtils.generateGraph(diagramLeft);		
 		IDirectedGraphExt cfgRight = LayoutAlgorithmsUtils.generateGraph(diagramRight);
 		
+		GraphUtils.clearGraphColorMarks(cfgLeft);
+		GraphUtils.clearGraphColorMarks(cfgRight);
+				
+		/* start to compare graphs */
+		TopDownMaxCommonSubTreeIsomorphism compareTD = new TopDownMaxCommonSubTreeIsomorphism();
+		Map<INodeExt, INodeExt> mapped = null;
+		try {
+			mapped = compareTD.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+		} catch (ControlFlowGraphException e) {
+			ControlFlowFactoryPlugin.log(e);
+			Messages.error(e.getMessage());
+		}
+		final Map.Entry<INodeExt, INodeExt> FirstEntry = mapped.entrySet().iterator().next();
+		/*add Mouse Listener*/
+		try{	
+		
+		//VertexBase vb1 = ((VertexBase) FirstEntry.getKey().getData());
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		
+		myFigure.addMouseListener(new MouseListener(){
+
+			public void mouseDoubleClicked(MouseEvent arg0) {
+		
+			//	((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			    Point p = arg0.getLocation();
+			    IFigure foundFigure = myFigure.findFigureAt(p);
+			   
+			    try{
+			    	if(foundFigure.getParent() instanceof RectangleFigure){
+			    		RectangleFigure rf = (RectangleFigure) foundFigure.getParent();
+			    		rf.setBackgroundColor(RED);
+			    		VertexBase vb = ((VertexBase) FirstEntry.getKey().getData());
+			    		vb.setColor(BLUE);
+			    		
+			    		//INodeExt n = (INodeExt) rf;
+			    		IFigure firstFigure =  (IFigure)FirstEntry.getKey().getFigure();
+			    		
+			    		int i=0;
+			    	}
+			    	
+			    }
+			    catch(Exception e){
+			    	System.out.println(e.getMessage());
+			    }
+				
+			}
+
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
+				
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		
+		
 		TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
 		
 		/* start to compare graphs */
 		Map<INodeExt, INodeExt> map = null;
 		try {
 			map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+			map = null;
+			
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
 		}
 		
 		if (map == null) {
-			Messages.info("Map containing equivalent nodes was null", 
-							"The left graph might have more nodes than the right graph.\n" + 
-							"Try swapping the graphs.");
-			
+//			Messages.info("Map containing equivalent nodes was null", 
+//							"The left graph might have more nodes than the right graph.\n" + 
+//							"Try swapping the graphs.");
+//			
 			return;
 		}
 		
 		if (map.isEmpty()) {
-			Messages.info("No equivalent nodes found", 
-					"No equivalent nodes could be found.");
-	
+//			Messages.info("No equivalent nodes found", 
+//					"No equivalent nodes could be found.");
+//	
 			return;
 		}
 		
