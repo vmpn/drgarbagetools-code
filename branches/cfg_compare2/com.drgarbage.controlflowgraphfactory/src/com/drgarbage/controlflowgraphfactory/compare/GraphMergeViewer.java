@@ -197,7 +197,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 						//VertexBase vb1 = (VertexBase) f1;
 						//take a parent of label
 						Label l = (Label) f1;
-						System.out.println(l.getText());
+					//	System.out.println(l.getText());
 					}
 			}
 
@@ -452,7 +452,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	public void mouseHighLightListeners(final Map<INodeExt, INodeExt> MapEntry ){
 		
-		try{
 		/*get editable panel*/	
 		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
 		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
@@ -467,60 +466,57 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		    Point p = arg0.getLocation();
 		    IFigure foundFigure = myFigure.findFigureAt(p);
-		    try{
+		    
 		    	if(foundFigure.getParent() instanceof RectangleFigure){
 
 	    		//clicked figure is graphic object of Figure
 	    		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-	    		
 	    		rectangleFigure.setBackgroundColor(RED);
+	    		
+	    		/*get figure locations */
 	    		int figurex = rectangleFigure.getBounds().x;
 	    		int figurey = rectangleFigure.getBounds().y;
 	    		int figureHeight = rectangleFigure.getBounds().height; 
 	    		int figureWidth = rectangleFigure.getBounds().width;
 	    		
-	    		//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
-	    		
+	    		System.out.println("----");
+	    		int i = 0;
 	    		/*iterate for location of each node in mapped nodes*/
-	    		outerloop:
+	    		
 	    		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
+	    			
+	    			i++;
+	    			System.out.print(i+" ");
+	    			
+	    			//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
 	    			VertexBase vb = ((VertexBase) entry.getKey().getData());
 		    		int vbx = vb.getLocation().x;
 		    		int vby = vb.getLocation().y;
 		    		int vbSizeHeight = vb.getSize().height;
 		    		int vbSizeWidth = vb.getSize().width;
 		    		
+		    		/*DEBUG for all*/
+		    		System.out.println(
+	    					entry.getKey().getData().toString()+"->"+
+	    					entry.getValue().getData().toString()+ " ("+
+	    					"vx:" + vbx + ", " +
+	    					"vy:" + vby +
+	    					")"
+	    					);
+		    
 		    		/*compare with found vertex base to highlight mapped node in diagramRight*/
 		    		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
-		    			
-		    			/*DEBUG OUTPUT example: v13->w1 (fx:407, fy:152, vx:407, vy:152)*/
-		    			System.out.println(
-		    					entry.getKey().getData().toString()+"->"+
-		    					entry.getValue().getData().toString()+ " ("+
-		    					"fx:" + figurex + ", " +
-		    					"fy:" + figurey + ", " +
-		    					"vx:" + vbx + ", " +
-		    					"vy:" + vby +
-		    					")"
-		    					);
-		    			
 		    			((VertexBase) entry.getValue().getData()).setColor(BLUE);
-		    			break outerloop;
 		    		}
 		    					    		
 	    		} 		
+	    		System.out.println("----");
 	    		//bring these two types to one, in order to compare these objects
 	    		//Idea?: identify figure by location and bounds
 		    	}
-		    	
-		    }
-		    catch(Exception e){
-		    	
-		    	ControlFlowFactoryPlugin.log(e);
-				Messages.error(e.getMessage());
-		    }
-			
 			}
+		   
+			
 
 			public void mousePressed(MouseEvent arg0) {
 			}
@@ -530,10 +526,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			
 		});
 				
-		}
-		catch(Exception e){
-			System.out.println(e.getMessage());
-		}
+//		}
+//		catch(Exception e){
+//			System.out.println(e.getMessage());
+//		}
 		
 	}
 	
@@ -579,7 +575,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		
 		/*add mouse listeners to highlight mapped nodes*/
-		final Map<INodeExt, INodeExt> MapEntry = mapped;
+		Map<INodeExt, INodeExt> MapEntry = mapped;
 		mouseHighLightListeners(MapEntry);
 		
 	}
