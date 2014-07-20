@@ -447,8 +447,111 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	}
 	
 	/**
+	 * add mouse listeners to highlight mapped nodes according to input parameter MapEntry
+	 * @param MapEntry: mapped nodes
+	 */
+	public void mouseHighLightListeners(final Map<INodeExt, INodeExt> MapEntry ){
+		
+		try{
+		/*get editable panel*/	
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		
+		/*add to the panel with figures(nodes) a listener*/
+		myFigure.addMouseListener(new MouseListener(){
+
+			/**
+			 * when double click on the left graph element performed
+			 */
+			public void mouseDoubleClicked(MouseEvent arg0) {
+		
+		    Point p = arg0.getLocation();
+		    IFigure foundFigure = myFigure.findFigureAt(p);
+		    try{
+		    	if(foundFigure.getParent() instanceof RectangleFigure){
+
+	    		//clicked figure is graphic object of Figure
+	    		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
+	    		
+	    		rectangleFigure.setBackgroundColor(RED);
+	    		int figurex = rectangleFigure.getBounds().x;
+	    		int figurey = rectangleFigure.getBounds().y;
+	    		int figureHeight = rectangleFigure.getBounds().height; 
+	    		int figureWidth = rectangleFigure.getBounds().width;
+	    		
+	    		//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
+	    		
+	    		/*iterate for location of each node in mapped nodes*/
+	    		outerloop:
+	    		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
+	    			VertexBase vb = ((VertexBase) entry.getKey().getData());
+		    		int vbx = vb.getLocation().x;
+		    		int vby = vb.getLocation().y;
+		    		int vbSizeHeight = vb.getSize().height;
+		    		int vbSizeWidth = vb.getSize().width;
+		    		
+		    		/*compare with found vertex base to highlight mapped node in diagramRight*/
+		    		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
+		    			
+		    			/*DEBUG OUTPUT example: v13->w1 (fx:407, fy:152, vx:407, vy:152)*/
+		    			System.out.println(
+		    					entry.getKey().getData().toString()+"->"+
+		    					entry.getValue().getData().toString()+ " ("+
+		    					"fx:" + figurex + ", " +
+		    					"fy:" + figurey + ", " +
+		    					"vx:" + vbx + ", " +
+		    					"vy:" + vby +
+		    					")"
+		    					);
+		    			
+		    			((VertexBase) entry.getValue().getData()).setColor(BLUE);
+		    			break outerloop;
+		    		}
+		    					    		
+	    		} 		
+	    		//bring these two types to one, in order to compare these objects
+	    		//Idea?: identify figure by location and bounds
+		    	}
+		    	
+		    }
+		    catch(Exception e){
+		    	
+		    	ControlFlowFactoryPlugin.log(e);
+				Messages.error(e.getMessage());
+		    }
+			
+			}
+
+			public void mousePressed(MouseEvent arg0) {
+			}
+
+			public void mouseReleased(MouseEvent arg0) {	
+			}
+			
+		});
+				
+		}
+		catch(Exception e){
+			System.out.println(e.getMessage());
+		}
+		
+	}
+	
+	/**
+	 * gets a found figure from left viewer, 
+	 * returns a corresponding mapped node to be later highlighted 
+	 * 
+	 * @param rectangleFigure
+	 * @param MapEntry
+	 */
+	public void identifyFigure(RectangleFigure rectangleFigure, final Map<INodeExt, INodeExt> MapEntry){
+		
+	}
+	
+	/**
 	 * Executes the top down subtree algorithm.
 	 */
+	
 	public void doTopDownAlg() {
 	
 		doResetViewer();
@@ -468,115 +571,17 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			Messages.error(e.getMessage());
 		}
 		
-		
+		/*highlight green mapped nodes according to the algorithms*/
 		for (Map.Entry<INodeExt, INodeExt> entry : mapped.entrySet()) {
 			((VertexBase) entry.getKey().getData()).setColor(GREEN);
 			((VertexBase) entry.getValue().getData()).setColor(GREEN);
 		}
 		
+		
+		/*add mouse listeners to highlight mapped nodes*/
 		final Map<INodeExt, INodeExt> MapEntry = mapped;
+		mouseHighLightListeners(MapEntry);
 		
-		/*add Mouse Listener*/
-		try{	
-		
-		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
-		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
-		
-		myFigure.addMouseListener(new MouseListener(){
-
-			public void mouseDoubleClicked(MouseEvent arg0) {
-		
-		    Point p = arg0.getLocation();
-		    IFigure foundFigure = myFigure.findFigureAt(p);
-		    try{
-		    	if(foundFigure.getParent() instanceof RectangleFigure){
-
-	    		//clicked figure is graphic object of Figure
-	    		RectangleFigure rf = (RectangleFigure) foundFigure.getParent();
-	    		rf.setBackgroundColor(RED);
-	    		int figurex = rf.getBounds().x;
-	    		int figurey = rf.getBounds().y;
-	    		int figureHeight = rf.getBounds().height; 
-	    		int figureWidth = rf.getBounds().width;
-	    		
-	    		//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
-	    		
-	    		/*get full bounds of object*/
-	    		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
-	    			VertexBase vb = ((VertexBase) entry.getKey().getData());
-		    		int vbx = vb.getLocation().x;
-		    		int vby = vb.getLocation().y;
-		    		int vbSizeHeight = vb.getSize().height;
-		    		int vbSizeWidth = vb.getSize().width;
-		    		
-		    		/*compare with found vertex base to highlight mapped node in diagramRight*/
-		    		if(figurex == vbx && figurey ==vby && figureHeight == vbSizeHeight && figureWidth <= vbSizeWidth){
-		    			((VertexBase) entry.getValue().getData()).setColor(BLUE);
-		    		}
-		    					    		
-	    		}
-	    			    		
-	    		//TODO: bring these two types to one, in order to compare these objects
-	    		//Idea: identify figure by location and bounds
-		    	}
-		    	
-		    }
-		    catch(Exception e){
-		    	System.out.println(e.getMessage());
-		    }
-			
-			}
-
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-		});
-				
-		}
-		catch(Exception e){
-			System.out.println(e.getMessage());
-		}
-		
-		
-		TopDownSubtreeIsomorphism  compare = new TopDownSubtreeIsomorphism();
-		
-		/* start to compare graphs */
-		Map<INodeExt, INodeExt> map = null;
-		try {
-			map = compare.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
-			map = null;
-			
-		} catch (ControlFlowGraphException e) {
-			ControlFlowFactoryPlugin.log(e);
-			Messages.error(e.getMessage());
-		}
-		
-		if (map == null) {
-//			Messages.info("Map containing equivalent nodes was null", 
-//							"The left graph might have more nodes than the right graph.\n" + 
-//							"Try swapping the graphs.");
-//			
-			return;
-		}
-		
-		if (map.isEmpty()) {
-//			Messages.info("No equivalent nodes found", 
-//					"No equivalent nodes could be found.");
-//	
-			return;
-		}
-		
-		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
-			((VertexBase) entry.getKey().getData()).setColor(GREEN);
-			((VertexBase) entry.getValue().getData()).setColor(GREEN);
-		}
 	}
 	
 	/**
