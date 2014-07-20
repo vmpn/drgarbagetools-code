@@ -193,9 +193,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			public void mouseHover(MouseEvent arg0) {
 				Point p = arg0.getLocation();
 					IFigure f1 = myFigure.findFigureAt(p);
-					//TODO: we get here a label but not an object, how to catch object?
 					if(f1 instanceof Label){
 						//VertexBase vb1 = (VertexBase) f1;
+						//take a parent of label
 						Label l = (Label) f1;
 						System.out.println(l.getText());
 					}
@@ -467,11 +467,18 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
 		}
-		final Map.Entry<INodeExt, INodeExt> FirstEntry = mapped.entrySet().iterator().next();
+		
+		
+		for (Map.Entry<INodeExt, INodeExt> entry : mapped.entrySet()) {
+			((VertexBase) entry.getKey().getData()).setColor(GREEN);
+			((VertexBase) entry.getValue().getData()).setColor(GREEN);
+		}
+		
+		final Map<INodeExt, INodeExt> MapEntry = mapped;
+		
 		/*add Mouse Listener*/
 		try{	
 		
-		//VertexBase vb1 = ((VertexBase) FirstEntry.getKey().getData());
 		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
 		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
 		
@@ -479,28 +486,45 @@ public class GraphMergeViewer extends ContentMergeViewer {
 
 			public void mouseDoubleClicked(MouseEvent arg0) {
 		
-			//	((VertexBase) entry.getKey().getData()).setColor(GREEN);
-			    Point p = arg0.getLocation();
-			    IFigure foundFigure = myFigure.findFigureAt(p);
-			   
-			    try{
-			    	if(foundFigure.getParent() instanceof RectangleFigure){
-			    		RectangleFigure rf = (RectangleFigure) foundFigure.getParent();
-			    		rf.setBackgroundColor(RED);
-			    		VertexBase vb = ((VertexBase) FirstEntry.getKey().getData());
-			    		vb.setColor(BLUE);
-			    		
-			    		//INodeExt n = (INodeExt) rf;
-			    		IFigure firstFigure =  (IFigure)FirstEntry.getKey().getFigure();
-			    		
-			    		int i=0;
-			    	}
-			    	
-			    }
-			    catch(Exception e){
-			    	System.out.println(e.getMessage());
-			    }
-				
+		    Point p = arg0.getLocation();
+		    IFigure foundFigure = myFigure.findFigureAt(p);
+		    try{
+		    	if(foundFigure.getParent() instanceof RectangleFigure){
+
+	    		//clicked figure is graphic object of Figure
+	    		RectangleFigure rf = (RectangleFigure) foundFigure.getParent();
+	    		rf.setBackgroundColor(RED);
+	    		int figurex = rf.getBounds().x;
+	    		int figurey = rf.getBounds().y;
+	    		int figureHeight = rf.getBounds().height; 
+	    		int figureWidth = rf.getBounds().width;
+	    		
+	    		//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
+	    		
+	    		/*get full bounds of object*/
+	    		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
+	    			VertexBase vb = ((VertexBase) entry.getKey().getData());
+		    		int vbx = vb.getLocation().x;
+		    		int vby = vb.getLocation().y;
+		    		int vbSizeHeight = vb.getSize().height;
+		    		int vbSizeWidth = vb.getSize().width;
+		    		
+		    		/*compare with found vertex base to highlight mapped node in diagramRight*/
+		    		if(figurex == vbx && figurey ==vby && figureHeight == vbSizeHeight && figureWidth <= vbSizeWidth){
+		    			((VertexBase) entry.getValue().getData()).setColor(BLUE);
+		    		}
+		    					    		
+	    		}
+	    			    		
+	    		//TODO: bring these two types to one, in order to compare these objects
+	    		//Idea: identify figure by location and bounds
+		    	}
+		    	
+		    }
+		    catch(Exception e){
+		    	System.out.println(e.getMessage());
+		    }
+			
 			}
 
 			public void mousePressed(MouseEvent arg0) {
