@@ -17,14 +17,13 @@
 package com.drgarbage.controlflowgraphfactory.compare;
 
 
-import java.awt.List;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -35,14 +34,11 @@ import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
-import org.eclipse.draw2d.CoordinateListener;
-import org.eclipse.draw2d.EventListenerList;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MouseEvent;
-import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.gef.EditPartViewer;
 import org.eclipse.gef.GraphicalViewer;
@@ -52,7 +48,7 @@ import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.editparts.SimpleRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
-import org.eclipse.jdt.core.dom.Message;
+
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -80,6 +76,7 @@ import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.controlflowgraphfactory.actions.LayoutAlgorithmsUtils;
 import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpMaxCommonAlgAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.BottomUpSubtreeAlgAction;
+import com.drgarbage.controlflowgraphfactory.compare.actions.CompareMouseActions;
 import com.drgarbage.controlflowgraphfactory.compare.actions.ResetCompareGraphsViewAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomInAction;
 import com.drgarbage.controlflowgraphfactory.compare.actions.CompareZoomOutAction;
@@ -89,11 +86,8 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownMaxCommonAlg
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
-import com.drgarbage.visualgraphic.editparts.VertexBaseEditPart;
-import com.drgarbage.visualgraphic.editparts.VertexBaseFigureFactory;
+
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
-import com.drgarbage.visualgraphic.model.IDirectEditLabelModel;
-import com.drgarbage.visualgraphic.model.RectangularVertex;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
 /**
@@ -124,7 +118,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	final static Color BLUE      		= new Color(null, 50, 0, 232);
 	final static Color YELLOW      		= new Color(null, 255, 255, 0);
 	
-	private ArrayList<myMouseEvents> list = new ArrayList<myMouseEvents>();
+	private ArrayList<CompareMouseActions> mouseEventsList = new ArrayList<CompareMouseActions>();
 	/**
 	 * Creates a graph merge viewer.
 	 * 
@@ -449,57 +443,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		String lTmp = mp.getLeftLabel(getInput());
 		mp.setLeftLabel(mp.getRightLabel(getInput()));
 		mp.setRightLabel(lTmp);
-		
 		updateHeader();
-	}
-	
-	/**
-	 * 
-	 * @author alles_wird_gut
-	 *
-	 */
-	class myMouseEvents extends Figure implements  MouseListener{
-
-		public Map<INodeExt, INodeExt> MapEntry;
-		public IFigure myFigure;
-		
-		public myMouseEvents(Map<INodeExt, INodeExt> MapEntry, IFigure myFigure){
-			this.MapEntry = MapEntry;
-			this.myFigure = myFigure;
-		}
-		
-		public void addMouseListener(){
-			myFigure.addMouseListener(this);
-		}
-		public void removeListener(){
-			myFigure.removeMouseListener(this);
-		}
-		
-		public void mouseDoubleClicked(MouseEvent arg0) {
-			  
-				Point p = arg0.getLocation();
-				IFigure foundFigure = myFigure.findFigureAt(p);
-		    	if(foundFigure.getParent() instanceof RectangleFigure){
-	    		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-	    		VertexBase foundVertexBase = identifyFigure(rectangleFigure, MapEntry);
-	    		
-	    		if(rectangleFigure != null && foundVertexBase != null){
-		    		rectangleFigure.setBackgroundColor(RED);
-		    		foundVertexBase.setColor(BLUE);
-	    		}
-	    		}
-		}
-
-		public void mousePressed(MouseEvent arg0) {
-		
-			
-		}
-
-		public void mouseReleased(MouseEvent arg0) {
-			
-			
-		}
-		
 	}
 	
 	
@@ -509,95 +453,22 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	public void mouseHighLightListeners(final Map<INodeExt, INodeExt> MapEntry ){
 		
-		/*get editable panel*/	
+		/*get editable panel part*/	
 		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
 		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
 		
-		for (myMouseEvents myEvent : list){
-			myEvent.removeListener();
+		/*remove previous mouse listeners because every time nodes mapped differently */
+		for (CompareMouseActions addedEvents : mouseEventsList){
+			addedEvents.removeListener();
 		}
 
-		myMouseEvents me = new myMouseEvents(MapEntry, myFigure);
-		me.addMouseListener();
-		list.add(me);
-		//me.removeListener();
-		
-		/*integrated ML*/
-		MouseListener mouseListener = new MouseListener(){
-			
-			public void mouseDoubleClicked(MouseEvent arg0) {
-		
-		    Point p = arg0.getLocation();
-		    IFigure foundFigure = myFigure.findFigureAt(p);
-		    	if(foundFigure.getParent() instanceof RectangleFigure){
-	    		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-	    		VertexBase foundVertexBase = identifyFigure(rectangleFigure, MapEntry);
-	    		
-	    		if(rectangleFigure != null && foundVertexBase != null){
-		    		rectangleFigure.setBackgroundColor(RED);
-		    		foundVertexBase.setColor(BLUE);
-	    		}
-		     }
-			}
-
-			public void mousePressed(MouseEvent arg0) {
-			}
-			public void mouseReleased(MouseEvent arg0) {	
-			}
-
-		};
-		
-		/*add to the panel with figures(nodes) a listener*/
-//		try{
-//		myFigure.addMouseListener(mouseListener);
-//		}
-//		catch(Exception e){
-//			System.out.println(e.getMessage());
-//		}
+		/*add mouse listen actions to the panel and mark them with respect of mapped nodes*/
+		CompareMouseActions mouseActions = new CompareMouseActions(MapEntry, myFigure);
+		mouseActions.addMouseListener();
+		mouseEventsList.add(mouseActions);
 		
 	}
-	
-	
-	/**
-	 * gets a found figure from left viewer, 
-	 * returns a corresponding mapped node to be later highlighted 
-	 * 
-	 * @param rectangleFigure
-	 * @param MapEntry
-	 */
-	public VertexBase identifyFigure(RectangleFigure rectangleFigure, Map<INodeExt, INodeExt> MapEntry){
-		
-		/*get figure locations */
-		int figurex = rectangleFigure.getBounds().x;
-		int figurey = rectangleFigure.getBounds().y;
-		int figureHeight = rectangleFigure.getBounds().height; 
-		int figureWidth = rectangleFigure.getBounds().width;
-		
-		/*find corresponding vertexBase node according figure location*/
-		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
-			
-			//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
-			VertexBase vb = ((VertexBase) entry.getKey().getData());
-    		int vbx = vb.getLocation().x;
-    		int vby = vb.getLocation().y;
-    		int vbSizeHeight = vb.getSize().height;
-    		int vbSizeWidth = vb.getSize().width;
-    		
-    		/*DEBUG for all*/
-    		System.out.println(
-					entry.getKey().getData().toString()+"->"+
-					entry.getValue().getData().toString()+ " ("+
-					"vx:" + vbx + ", " +
-					"vy:" + vby +
-					")"
-					);
-    		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
-    			return (VertexBase) entry.getValue().getData();
-    		}
-		}
-		return null;
-	}
-	
+
 	/**
 	 * Executes the top down subtree algorithm.
 	 */
@@ -629,8 +500,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		
 		/*add mouse listeners to highlight mapped nodes*/
-		Map<INodeExt, INodeExt> MapEntry = mapped;
-		mouseHighLightListeners(MapEntry);
+		mouseHighLightListeners(mapped);
 		
 	}
 	
