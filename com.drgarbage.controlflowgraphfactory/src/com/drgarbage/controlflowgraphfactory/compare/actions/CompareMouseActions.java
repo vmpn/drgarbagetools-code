@@ -22,11 +22,13 @@ import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
+import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.swt.graphics.Color;
 
 import com.drgarbage.controlflowgraph.figures.RectangleFigure;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraph.intf.MarkEnum;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
 /**
@@ -34,10 +36,10 @@ import com.drgarbage.visualgraphic.model.VertexBase;
  * according isomorphism algorithms
  * 
  * @author Artem Garishin
- * @version $Revision:$
- * $Id:$
+ * @version $Revision$
+ * $Id$
  */
-public class CompareMouseActions extends Figure implements  MouseListener{
+public class CompareMouseActions extends Figure implements  MouseListener, MouseMotionListener{
 
 	/* Color constants */
 	final static Color RED      		= new Color(null, 224, 0, 0);
@@ -61,35 +63,81 @@ public class CompareMouseActions extends Figure implements  MouseListener{
 		myFigure.removeMouseListener(this);
 	}
 	
+	public void addMotionMouseListener(){
+		myFigure.addMouseMotionListener(this);
+	}
+	public void removeMotionListener(){
+		myFigure.removeMouseMotionListener(this);
+	}
+	
+	/**
+	 * Mouse Listeners methods 
+	 */
 	public void mouseDoubleClicked(MouseEvent arg0) {
 	  
 		Point p = arg0.getLocation();
 		IFigure foundFigure = myFigure.findFigureAt(p);
-    	if(foundFigure.getParent() instanceof RectangleFigure){
+    	
+		/*check if found figure is node*/
+		if(foundFigure.getParent() instanceof RectangleFigure){
+    	
 		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
 		VertexBase foundVertexBase = identifyFigure(rectangleFigure, MapEntry);
 		
 		if(rectangleFigure != null && foundVertexBase != null){
     		rectangleFigure.setBackgroundColor(RED);
     		foundVertexBase.setColor(BLUE);
-		}
+			}
 		}
 	}
 
 	public void mousePressed(MouseEvent arg0) {
+	}
+
+	public void mouseReleased(MouseEvent arg0) {	
+	}
 	
+	/**
+	 * Mouse Motion Listeners methods 
+	 */
+	public void mouseDragged(MouseEvent arg0) {
 		
 	}
 
-	public void mouseReleased(MouseEvent arg0) {
+	public void mouseEntered(MouseEvent arg0) {
 		
+	}
+
+	public void mouseExited(MouseEvent arg0) {
 		
+	}
+
+	public void mouseHover(MouseEvent arg0) {
+		Point p = arg0.getLocation();
+		IFigure foundFigure = myFigure.findFigureAt(p);
+    	
+		/*check if found figure is node*/
+		if(foundFigure.getParent() instanceof RectangleFigure){
+    	
+		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
+		VertexBase foundVertexBase = identifyFigure(rectangleFigure, MapEntry);
+		
+		if(rectangleFigure != null && foundVertexBase != null){
+    		rectangleFigure.setBackgroundColor(RED);
+    		//foundVertexBase.setColor(MarkEnum.DEFAULT);
+			}
+		}
+	}
+
+	public void mouseMoved(MouseEvent arg0) {
+			
 	}
 	
 	/**
 	 * gets a found figure from left viewer, 
 	 * returns a corresponding mapped node to be later highlighted 
 	 * 
+	 * return null if vertexBase is not found
 	 * @param rectangleFigure
 	 * @param MapEntry
 	 */
@@ -110,19 +158,13 @@ public class CompareMouseActions extends Figure implements  MouseListener{
     		int vby = vb.getLocation().y;
     		int vbSizeHeight = vb.getSize().height;
     		int vbSizeWidth = vb.getSize().width;
-    		
-    		/*DEBUG for all*/
-    		System.out.println(
-					entry.getKey().getData().toString()+"->"+
-					entry.getValue().getData().toString()+ " ("+
-					"vx:" + vbx + ", " +
-					"vy:" + vby +
-					")"
-					);
+
+    		/*identify vertexBase by location of figure*/
     		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
     			return (VertexBase) entry.getValue().getData();
     		}
 		}
 		return null;
 	}
+
 }
