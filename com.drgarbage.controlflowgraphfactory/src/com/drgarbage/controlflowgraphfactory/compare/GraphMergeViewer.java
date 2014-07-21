@@ -17,11 +17,14 @@
 package com.drgarbage.controlflowgraphfactory.compare;
 
 
+import java.awt.List;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -32,6 +35,8 @@ import org.eclipse.compare.IStreamContentAccessor;
 import org.eclipse.compare.contentmergeviewer.ContentMergeViewer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
+import org.eclipse.draw2d.CoordinateListener;
+import org.eclipse.draw2d.EventListenerList;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
 import org.eclipse.draw2d.IFigure;
@@ -117,7 +122,9 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	final static Color RED      		= new Color(null, 224, 0, 0);
 	final static Color GREEN      		= new Color(null, 0, 224, 0);
 	final static Color BLUE      		= new Color(null, 50, 0, 232);
+	final static Color YELLOW      		= new Color(null, 255, 255, 0);
 	
+	private ArrayList<myMouseEvents> list = new ArrayList<myMouseEvents>();
 	/**
 	 * Creates a graph merge viewer.
 	 * 
@@ -447,6 +454,56 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	}
 	
 	/**
+	 * 
+	 * @author alles_wird_gut
+	 *
+	 */
+	class myMouseEvents extends Figure implements  MouseListener{
+
+		public Map<INodeExt, INodeExt> MapEntry;
+		public IFigure myFigure;
+		
+		public myMouseEvents(Map<INodeExt, INodeExt> MapEntry, IFigure myFigure){
+			this.MapEntry = MapEntry;
+			this.myFigure = myFigure;
+		}
+		
+		public void addMouseListener(){
+			myFigure.addMouseListener(this);
+		}
+		public void removeListener(){
+			myFigure.removeMouseListener(this);
+		}
+		
+		public void mouseDoubleClicked(MouseEvent arg0) {
+			  
+				Point p = arg0.getLocation();
+				IFigure foundFigure = myFigure.findFigureAt(p);
+		    	if(foundFigure.getParent() instanceof RectangleFigure){
+	    		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
+	    		VertexBase foundVertexBase = identifyFigure(rectangleFigure, MapEntry);
+	    		
+	    		if(rectangleFigure != null && foundVertexBase != null){
+		    		rectangleFigure.setBackgroundColor(RED);
+		    		foundVertexBase.setColor(BLUE);
+	    		}
+	    		}
+		}
+
+		public void mousePressed(MouseEvent arg0) {
+		
+			
+		}
+
+		public void mouseReleased(MouseEvent arg0) {
+			
+			
+		}
+		
+	}
+	
+	
+	/**
 	 * add mouse listeners to highlight mapped nodes according to input parameter MapEntry
 	 * @param MapEntry: mapped nodes
 	 */
@@ -456,82 +513,50 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
 		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
 		
-		/*add to the panel with figures(nodes) a listener*/
-		myFigure.addMouseListener(new MouseListener(){
+		for (myMouseEvents myEvent : list){
+			myEvent.removeListener();
+		}
 
-			/**
-			 * when double click on the left graph element performed
-			 */
+		myMouseEvents me = new myMouseEvents(MapEntry, myFigure);
+		me.addMouseListener();
+		list.add(me);
+		//me.removeListener();
+		
+		/*integrated ML*/
+		MouseListener mouseListener = new MouseListener(){
+			
 			public void mouseDoubleClicked(MouseEvent arg0) {
 		
 		    Point p = arg0.getLocation();
 		    IFigure foundFigure = myFigure.findFigureAt(p);
-		    
 		    	if(foundFigure.getParent() instanceof RectangleFigure){
-
-	    		//clicked figure is graphic object of Figure
 	    		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-	    		rectangleFigure.setBackgroundColor(RED);
+	    		VertexBase foundVertexBase = identifyFigure(rectangleFigure, MapEntry);
 	    		
-	    		/*get figure locations */
-	    		int figurex = rectangleFigure.getBounds().x;
-	    		int figurey = rectangleFigure.getBounds().y;
-	    		int figureHeight = rectangleFigure.getBounds().height; 
-	    		int figureWidth = rectangleFigure.getBounds().width;
-	    		
-	    		System.out.println("----");
-	    		int i = 0;
-	    		/*iterate for location of each node in mapped nodes*/
-	    		
-	    		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
-	    			
-	    			i++;
-	    			System.out.print(i+" ");
-	    			
-	    			//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
-	    			VertexBase vb = ((VertexBase) entry.getKey().getData());
-		    		int vbx = vb.getLocation().x;
-		    		int vby = vb.getLocation().y;
-		    		int vbSizeHeight = vb.getSize().height;
-		    		int vbSizeWidth = vb.getSize().width;
-		    		
-		    		/*DEBUG for all*/
-		    		System.out.println(
-	    					entry.getKey().getData().toString()+"->"+
-	    					entry.getValue().getData().toString()+ " ("+
-	    					"vx:" + vbx + ", " +
-	    					"vy:" + vby +
-	    					")"
-	    					);
-		    
-		    		/*compare with found vertex base to highlight mapped node in diagramRight*/
-		    		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
-		    			((VertexBase) entry.getValue().getData()).setColor(BLUE);
-		    		}
-		    					    		
-	    		} 		
-	    		System.out.println("----");
-	    		//bring these two types to one, in order to compare these objects
-	    		//Idea?: identify figure by location and bounds
-		    	}
+	    		if(rectangleFigure != null && foundVertexBase != null){
+		    		rectangleFigure.setBackgroundColor(RED);
+		    		foundVertexBase.setColor(BLUE);
+	    		}
+		     }
 			}
-		   
-			
 
 			public void mousePressed(MouseEvent arg0) {
 			}
-
 			public void mouseReleased(MouseEvent arg0) {	
 			}
-			
-		});
-				
+
+		};
+		
+		/*add to the panel with figures(nodes) a listener*/
+//		try{
+//		myFigure.addMouseListener(mouseListener);
 //		}
 //		catch(Exception e){
 //			System.out.println(e.getMessage());
 //		}
 		
 	}
+	
 	
 	/**
 	 * gets a found figure from left viewer, 
@@ -540,8 +565,37 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 * @param rectangleFigure
 	 * @param MapEntry
 	 */
-	public void identifyFigure(RectangleFigure rectangleFigure, final Map<INodeExt, INodeExt> MapEntry){
+	public VertexBase identifyFigure(RectangleFigure rectangleFigure, Map<INodeExt, INodeExt> MapEntry){
 		
+		/*get figure locations */
+		int figurex = rectangleFigure.getBounds().x;
+		int figurey = rectangleFigure.getBounds().y;
+		int figureHeight = rectangleFigure.getBounds().height; 
+		int figureWidth = rectangleFigure.getBounds().width;
+		
+		/*find corresponding vertexBase node according figure location*/
+		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
+			
+			//mapped nodes are VertexBase derived from diagramLeft type from ModelElement
+			VertexBase vb = ((VertexBase) entry.getKey().getData());
+    		int vbx = vb.getLocation().x;
+    		int vby = vb.getLocation().y;
+    		int vbSizeHeight = vb.getSize().height;
+    		int vbSizeWidth = vb.getSize().width;
+    		
+    		/*DEBUG for all*/
+    		System.out.println(
+					entry.getKey().getData().toString()+"->"+
+					entry.getValue().getData().toString()+ " ("+
+					"vx:" + vbx + ", " +
+					"vy:" + vby +
+					")"
+					);
+    		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
+    			return (VertexBase) entry.getValue().getData();
+    		}
+		}
+		return null;
 	}
 	
 	/**
