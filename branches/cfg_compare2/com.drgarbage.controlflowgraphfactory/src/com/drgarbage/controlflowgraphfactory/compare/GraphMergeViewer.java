@@ -163,59 +163,8 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		FigureCanvas scrolledCanvasRight = (FigureCanvas)fRight.getControl();
 		synchronizeScrollBars(scrolledCanvasLeft, scrolledCanvasRight);
 	
-		/*adjust mouse events*/
-		manageListeners();
 	}
-	/**
-	 * manages listeners to diagrams
-	 */
-	private void manageListeners(){
 	
-	/*add Mouse Motion Listener*/
-	try{		
-		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
-		RootEditPart rootEditPart = fLeft.getRootEditPart();
-		
-		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
-		myFigure.addMouseMotionListener(new MouseMotionListener(){
-
-			public void mouseDragged(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-			}
-
-			public void mouseHover(MouseEvent arg0) {
-				Point p = arg0.getLocation();
-					IFigure f1 = myFigure.findFigureAt(p);
-					if(f1 instanceof Label){
-						//VertexBase vb1 = (VertexBase) f1;
-						//take a parent of label
-						Label l = (Label) f1;
-					//	System.out.println(l.getText());
-					}
-			}
-
-			public void mouseMoved(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-				
-			});
-				
-		}
-		catch(Exception e){
-			System.out.println(e.getMessage());
-		}
-	
-	
-	}
 	/**
 	 * Method to synchronize scrolling of two graph-compare view presentations.
 	 * @param scrolledCanvasLeft 
@@ -646,27 +595,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		if(swaped){
 			swapHeader();
 			swaped = false;
-		}
-	}
-	
-	/**
-	 * Sets the nodes color in the diagram according the coloring marks.
-	 */
-	public static void colorNodesByMarks(IDirectedGraphExt graph) {
-		for (int i = 0; i < graph.getNodeList().size(); i++) {
-			if (graph.getNodeList().getNodeExt(i).getMark() != null){
-				INodeExt node = graph.getNodeList().getNodeExt(i);
-				VertexBase vb = (VertexBase) node.getData();
-				
-				if(node.getMark() == MarkEnum.GREEN ) {
-					vb.setColor(GREEN);
-				}
-				else{
-					if(node.getMark() == MarkEnum.RED ) {
-						vb.setColor(RED);
-					}
-				}
-			}
 		}
 	}
 
