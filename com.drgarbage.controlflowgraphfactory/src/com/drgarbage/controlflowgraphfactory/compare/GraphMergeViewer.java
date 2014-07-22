@@ -406,14 +406,13 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
 		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
 		
-		/*remove previous mouse listeners because every time nodes mapped differently */
-		for (CompareMouseActions addedEvents : mouseEventsList){
-			addedEvents.removeListener();
-		}
+		/*remove previous listeners, because nodes get mapped differently eachtime*/
+		removeListeners();
 
 		/*add mouse listen actions to the panel and mark them with respect of mapped nodes*/
 		CompareMouseActions mouseActions = new CompareMouseActions(MapEntry, myFigure);
 		mouseActions.addMouseListener();
+		mouseActions.addMotionMouseListener();
 		mouseEventsList.add(mouseActions);
 		
 	}
@@ -592,9 +591,22 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		setInput(fRight, diagramRight);
 		setInput(fLeft, diagramLeft);
 		
+		removeListeners();
+		
 		if(swaped){
 			swapHeader();
 			swaped = false;
+		}
+	}
+	
+	/**
+	 * removes included listeners of Figure rootEditPart
+	 */
+	public void removeListeners(){
+		/*remove previous mouse listeners because every time nodes mapped differently */
+		for (CompareMouseActions addedEvents : mouseEventsList){
+			addedEvents.removeListener();
+			addedEvents.removeMotionListener();
 		}
 	}
 
