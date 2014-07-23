@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.FigureCanvas;
+import org.eclipse.draw2d.FreeformViewport;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.Label;
 import org.eclipse.draw2d.MouseEvent;
@@ -48,7 +49,6 @@ import org.eclipse.gef.editparts.AbstractGraphicalEditPart;
 import org.eclipse.gef.editparts.ScalableFreeformRootEditPart;
 import org.eclipse.gef.editparts.SimpleRootEditPart;
 import org.eclipse.gef.ui.parts.ScrollingGraphicalViewer;
-
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
@@ -86,7 +86,6 @@ import com.drgarbage.controlflowgraphfactory.compare.actions.TopDownMaxCommonAlg
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.utils.Messages;
 import com.drgarbage.visualgraphic.editparts.DiagramEditPartFactory;
-
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
@@ -406,9 +405,10 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
 		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
 		
-		/*remove previous listeners, because nodes get mapped differently eachtime*/
+		/*remove previous listeners, because nodes get mapped differently each time*/
 		removeListeners();
-
+		handleToopTips(myFigure, true);
+		
 		/*add mouse listen actions to the panel and mark them with respect of mapped nodes*/
 		CompareMouseActions mouseActions = new CompareMouseActions(MapEntry, myFigure);
 		mouseActions.addMouseListener();
@@ -607,6 +607,22 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		for (CompareMouseActions addedEvents : mouseEventsList){
 			addedEvents.removeListener();
 			addedEvents.removeMotionListener();
+		}
+
+		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		
+		handleToopTips(myFigure, false);
+	}
+	
+	public void handleToopTips(IFigure figure, boolean add){
+		if(add){
+			if(figure instanceof FreeformViewport){
+				figure.setToolTip(new Label("double click to remove highlight"));
+			}
+		}
+		else{
+			figure.setToolTip(null);
 		}
 	}
 

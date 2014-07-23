@@ -20,6 +20,8 @@ import java.awt.event.MouseAdapter;
 import java.util.Map;
 
 
+
+import org.eclipse.draw2d.FreeformViewport;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
@@ -94,6 +96,15 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
     		foundVertexBase.setColor(DEFAULT);
 			}
 		}
+		
+		/*clear marking double clicking on panel*/
+		if(foundFigure instanceof FreeformViewport){
+			for (Map.Entry<INodeExt, INodeExt> entry : this.MapEntry.entrySet()){
+				((VertexBase) entry.getKey().getData()).setColor(DEFAULT);
+				((VertexBase) entry.getValue().getData()).setColor(DEFAULT);
+			}
+		}
+			
 	}
 
 	public void mousePressed(MouseEvent arg0) {
