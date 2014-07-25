@@ -431,10 +431,11 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		GraphUtils.clearGraphColorMarks(cfgRight);
 				
 		/* start to compare graphs */
-		TopDownMaxCommonSubTreeIsomorphism compareTD = new TopDownMaxCommonSubTreeIsomorphism();
+		TopDownSubtreeIsomorphism compareTD = new TopDownSubtreeIsomorphism();
+		//TopDownMaxCommonSubTreeIsomorphism compareTD = new TopDownMaxCommonSubTreeIsomorphism();
 		Map<INodeExt, INodeExt> mapped = null;
 		try {
-			mapped = compareTD.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+			mapped = compareTD.topDownUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
