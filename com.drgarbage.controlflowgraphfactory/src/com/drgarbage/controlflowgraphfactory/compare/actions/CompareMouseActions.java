@@ -16,18 +16,26 @@
 
 package com.drgarbage.controlflowgraphfactory.compare.actions;
 
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.util.Map;
 
 
 
+
+
+
+
+import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FreeformViewport;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
 import org.eclipse.draw2d.geometry.Point;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 
 import com.drgarbage.controlflowgraph.figures.RectangleFigure;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
@@ -112,6 +120,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 		if(foundFigure.getParent() instanceof RectangleFigure){
     	
 		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
+		foundFigure.setForegroundColor(ColorConstants.white);
 		VertexBase foundVertexBase = identifyMappedVertexBase(rectangleFigure, MapEntry);
 		
 		if(rectangleFigure != null && foundVertexBase != null){
@@ -147,7 +156,8 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
     	
 		/*check if found figure is node*/
 		if(foundFigure.getParent() instanceof RectangleFigure){
-    	
+			
+		foundFigure.setForegroundColor(ColorConstants.black);
 		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
 		VertexBase foundVertexBase = identifyMappedVertexBase(rectangleFigure, MapEntry);
 		
