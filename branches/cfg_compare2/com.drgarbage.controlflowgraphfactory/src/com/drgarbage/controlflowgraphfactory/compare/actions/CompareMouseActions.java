@@ -35,7 +35,7 @@ import com.drgarbage.visualgraphic.model.VertexBase;
 
 /**
  * Describes mouse events, to highlight mapped nodes
- * according isomorphism algorithms
+ * according to isomorphism algorithms
  * 
  * @author Artem Garishin
  * @version $Revision$
@@ -54,6 +54,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	public Map<INodeExt, INodeExt> MapEntry;
 	public IFigure myFigure;
 	
+	/*constructor*/
 	public CompareMouseActions(Map<INodeExt, INodeExt> MapEntry, IFigure myFigure){
 		this.MapEntry = MapEntry;
 		this.myFigure = myFigure;
@@ -76,10 +77,6 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	/**
 	 * Mouse Listeners methods 
 	 */
-	public void mouseClicked(MouseEvent arg0){
-		System.out.println(arg0.getLocation());
-	}
-	
 	public void mouseDoubleClicked(MouseEvent arg0) {
 	  
 		Point p = arg0.getLocation();

@@ -204,7 +204,7 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		toolBarManager.removeAll();
 	
 		/* graph compare algorithms actions */
-		toolBarManager.add(new TopDownAlgAction(this));
+		//toolBarManager.add(new TopDownAlgAction(this));
 		toolBarManager.add(new TopDownMaxCommonAlgAction(this));
 		//toolBarManager.add(new BottomUpSubtreeAlgAction(this));
 		toolBarManager.add(new BottomUpMaxCommonAlgAction(this));
@@ -446,7 +446,6 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			((VertexBase) entry.getValue().getData()).setColor(GREEN);
 		}
 		
-		
 		/*add mouse listeners to highlight mapped nodes*/
 		mouseHighLightListeners(mapped);
 		
@@ -466,15 +465,15 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		
 		TopDownMaxCommonSubTreeIsomorphism compare = new TopDownMaxCommonSubTreeIsomorphism();
 		/* start to compare graphs */
-		Map<INodeExt, INodeExt> map = null;
+		Map<INodeExt, INodeExt> mapped = null;
 		try {
-			map = compare.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
+			mapped = compare.topDownMaxCommonUnorderedSubtreeIsomorphism(cfgLeft, cfgRight);
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
 		}
 		
-		if (map == null) {
+		if (mapped == null) {
 			Messages.info("Map containing equivalent nodes was null", 
 							"The left graph might have more nodes than the right graph.\n" + 
 							"Try swapping the graphs.");
@@ -482,17 +481,21 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			return;
 		}
 		
-		if (map.isEmpty()) {
+		if (mapped.isEmpty()) {
 			Messages.info("No equivalent nodes found", 
 					"No equivalent nodes could be found.");
 	
 			return;
 		}
 		
-		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+		for (Map.Entry<INodeExt, INodeExt> entry : mapped.entrySet()) {
 			((VertexBase) entry.getKey().getData()).setColor(GREEN);
 			((VertexBase) entry.getValue().getData()).setColor(GREEN);
 		}
+		
+		/*add mouse listeners to highlight mapped nodes*/
+		mouseHighLightListeners(mapped);
+		
 	}
 
 	/**
@@ -554,15 +557,15 @@ public class GraphMergeViewer extends ContentMergeViewer {
 		IDirectedGraphExt rightTree = Algorithms.ConvertInputGraphsToTree(cfgRight);
 		
 		/* start to compare graphs */
-		Map<INodeExt, INodeExt> map = null;
+		Map<INodeExt, INodeExt> mapped = null;
 		try {
-			map = compare.bottomUpUnorderedMaxCommonSubreeIsomorphism(leftTree, rightTree);
+			mapped = compare.bottomUpUnorderedMaxCommonSubreeIsomorphism(leftTree, rightTree);
 		} catch (ControlFlowGraphException e) {
 			ControlFlowFactoryPlugin.log(e);
 			Messages.error(e.getMessage());
 		}
 		
-		if (map == null) {
+		if (mapped == null) {
 			Messages.info("Map containing equivalent nodes was null", 
 							"The left graph might have more nodes than the right graph.\n" + 
 							"Try swapping the graphs.");
@@ -570,18 +573,20 @@ public class GraphMergeViewer extends ContentMergeViewer {
 			return;
 		}
 		
-		if (map.isEmpty()) {
+		if (mapped.isEmpty()) {
 			Messages.info("No equivalent nodes found", 
 					"No equivalent nodes could be found.");
 	
 			return;
 		}
 		
-		for (Map.Entry<INodeExt, INodeExt> entry : map.entrySet()) {
+		for (Map.Entry<INodeExt, INodeExt> entry : mapped.entrySet()) {
 			((VertexBase) entry.getKey().getData()).setColor(GREEN);
 			((VertexBase) entry.getValue().getData()).setColor(GREEN);
 		}
 		
+		/*add mouse listeners to highlight mapped nodes*/
+		mouseHighLightListeners(mapped);
 	}
 	
 	/**
