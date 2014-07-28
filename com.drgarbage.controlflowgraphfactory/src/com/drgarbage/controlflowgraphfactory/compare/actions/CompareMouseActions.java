@@ -26,17 +26,21 @@ import java.util.Map;
 
 
 
+
+
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FreeformViewport;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.MouseEvent;
 import org.eclipse.draw2d.MouseListener;
 import org.eclipse.draw2d.MouseMotionListener;
+import org.eclipse.draw2d.Shape;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 
+import com.drgarbage.controlflowgraph.figures.DecisionVertexFigure;
 import com.drgarbage.controlflowgraph.figures.RectangleFigure;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
 import com.drgarbage.visualgraphic.model.VertexBase;
@@ -54,7 +58,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	/* Color constants */
 	final static Color RED      		= new Color(null, 224, 0, 0);
 	final static Color GREEN      		= new Color(null, 0, 224, 0);
-	final static Color BLUE      		= new Color(null, 50, 0, 232);
+	final static Color BLUE      		= new Color(null, 118, 178, 255);
 	final static Color YELLOW      		= new Color(null, 255, 255, 0);
 	final static Color DEFAULT      	= new Color(null, 0, 224, 0);
 	
@@ -91,17 +95,21 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	  
 		Point p = arg0.getLocation();
 		IFigure foundFigure = freeFormViewport.findFigureAt(p);
-    	
-		/*check if found figure is node*/
-		if(foundFigure.getParent() instanceof RectangleFigure){
-    	
-		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-		VertexBase foundVertexBase = identifyMappedVertexBase(rectangleFigure, MapEntry);
-		
-		if(rectangleFigure != null && foundVertexBase != null){
-    		rectangleFigure.setBackgroundColor(DEFAULT);
-    		foundVertexBase.setColor(DEFAULT);
+		IFigure figure = foundFigure.getParent();
+		/*check if found figure belongs to shape */
+		if(figure instanceof Shape){
+	    
+			try{
+				VertexBase foundVertexBase = identifyMappedVertexBase((Shape)figure, MapEntry);
+				if(foundVertexBase != null){
+					foundVertexBase.setColor(DEFAULT);
+					figure.setBackgroundColor(DEFAULT);
+				}
 			}
+			catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+			
 		}
 		
 		/*clear marking double clicking on panel*/
@@ -117,19 +125,22 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	public void mousePressed(MouseEvent arg0) {
 		Point p = arg0.getLocation();
 		IFigure foundFigure = freeFormViewport.findFigureAt(p);
-    	
-		/*check if found figure is node*/
-		if(foundFigure.getParent() instanceof RectangleFigure){
-    	
-		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-		VertexBase foundVertexBase = identifyMappedVertexBase(rectangleFigure, MapEntry);
 		
-		if(rectangleFigure != null && foundVertexBase != null){
-    		rectangleFigure.setBackgroundColor(BLUE);
-    		//foundFigure.setForegroundColor(ColorConstants.white);
-    		foundVertexBase.setColor(BLUE);
-    		
+		IFigure figure = foundFigure.getParent();
+		/*check if found figure belongs to shape */
+		if(figure instanceof Shape){
+	    
+			try{
+				VertexBase foundVertexBase = identifyMappedVertexBase((Shape)figure, MapEntry);
+				if(foundVertexBase != null){
+					foundVertexBase.setColor(BLUE);
+					figure.setBackgroundColor(BLUE);
+				}
 			}
+			catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+			
 		}
 	}
 
@@ -156,19 +167,23 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	public void mouseHover(MouseEvent arg0) {
 		Point p = arg0.getLocation();
 		IFigure foundFigure = freeFormViewport.findFigureAt(p);
-    	
-		/*check if found figure is node*/
-		if(foundFigure.getParent() instanceof RectangleFigure){
-			
-		foundFigure.setForegroundColor(ColorConstants.black);
-		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-		VertexBase foundVertexBase = identifyMappedVertexBase(rectangleFigure, MapEntry);
+		IFigure figure = foundFigure.getParent();
 		
-		if(rectangleFigure != null && foundVertexBase != null){
-    		rectangleFigure.setBackgroundColor(YELLOW);
-    		foundVertexBase.setColor(YELLOW);
+		/*check if found figure is node*/
+		if(figure instanceof Shape){
+			
+			try{
+				VertexBase foundVertexBase = identifyMappedVertexBase((Shape)figure, MapEntry);
+				if(foundVertexBase != null){
+					foundVertexBase.setColor(YELLOW);
+					figure.setBackgroundColor(YELLOW);
+				}
+			}
+			catch(Exception e){
+				System.out.println(e.getMessage());
 			}
 		}
+		
 	}
 
 	public void mouseMoved(MouseEvent arg0) {
@@ -180,10 +195,10 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	 * returns a corresponding mapped node to be later highlighted 
 	 * 
 	 * return null if vertexBase is not found
-	 * @param rectangleFigure
+	 * @param Shape
 	 * @param MapEntry
 	 */
-	public VertexBase identifyMappedVertexBase(RectangleFigure rectangleFigure, Map<INodeExt, INodeExt> MapEntry){
+	public VertexBase identifyMappedVertexBase(Shape rectangleFigure, Map<INodeExt, INodeExt> MapEntry){
 		
 		/*get figure locations */
 		int figurex = rectangleFigure.getBounds().x;
