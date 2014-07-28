@@ -60,26 +60,28 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	
 	/*define mapped nodes and figure which needs to attach mouse events*/
 	public Map<INodeExt, INodeExt> MapEntry;
-	public IFigure myFigure;
+	public IFigure freeFormViewport;
+	public boolean panel;
 	
 	/*constructor*/
-	public CompareMouseActions(Map<INodeExt, INodeExt> MapEntry, IFigure myFigure){
+	public CompareMouseActions(Map<INodeExt, INodeExt> MapEntry, IFigure myFigure, boolean panel){
 		this.MapEntry = MapEntry;
-		this.myFigure = myFigure;
+		this.freeFormViewport = myFigure;
+		this.panel = panel;
 	}
 	
 	public void addMouseListener(){
-		myFigure.addMouseListener(this);
+		freeFormViewport.addMouseListener(this);
 	}
 	public void removeListener(){
-		myFigure.removeMouseListener(this);
+		freeFormViewport.removeMouseListener(this);
 	}
 	
 	public void addMotionMouseListener(){
-		myFigure.addMouseMotionListener(this);
+		freeFormViewport.addMouseMotionListener(this);
 	}
 	public void removeMotionListener(){
-		myFigure.removeMouseMotionListener(this);
+		freeFormViewport.removeMouseMotionListener(this);
 	}
 	
 	/**
@@ -88,7 +90,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	public void mouseDoubleClicked(MouseEvent arg0) {
 	  
 		Point p = arg0.getLocation();
-		IFigure foundFigure = myFigure.findFigureAt(p);
+		IFigure foundFigure = freeFormViewport.findFigureAt(p);
     	
 		/*check if found figure is node*/
 		if(foundFigure.getParent() instanceof RectangleFigure){
@@ -114,18 +116,19 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 
 	public void mousePressed(MouseEvent arg0) {
 		Point p = arg0.getLocation();
-		IFigure foundFigure = myFigure.findFigureAt(p);
+		IFigure foundFigure = freeFormViewport.findFigureAt(p);
     	
 		/*check if found figure is node*/
 		if(foundFigure.getParent() instanceof RectangleFigure){
     	
 		RectangleFigure rectangleFigure = (RectangleFigure) foundFigure.getParent();
-		foundFigure.setForegroundColor(ColorConstants.white);
 		VertexBase foundVertexBase = identifyMappedVertexBase(rectangleFigure, MapEntry);
 		
 		if(rectangleFigure != null && foundVertexBase != null){
     		rectangleFigure.setBackgroundColor(BLUE);
+    		//foundFigure.setForegroundColor(ColorConstants.white);
     		foundVertexBase.setColor(BLUE);
+    		
 			}
 		}
 	}
@@ -152,7 +155,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 
 	public void mouseHover(MouseEvent arg0) {
 		Point p = arg0.getLocation();
-		IFigure foundFigure = myFigure.findFigureAt(p);
+		IFigure foundFigure = freeFormViewport.findFigureAt(p);
     	
 		/*check if found figure is node*/
 		if(foundFigure.getParent() instanceof RectangleFigure){
@@ -187,23 +190,52 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 		int figurey = rectangleFigure.getBounds().y;
 		int figureHeight = rectangleFigure.getBounds().height; 
 		int figureWidth = rectangleFigure.getBounds().width;
-		
+		if(this.panel){
 		/*find corresponding vertexBase node according figure location*/
-		for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
-			
-			/*get each location of mapped vertexBase*/
-			VertexBase vb = ((VertexBase) entry.getKey().getData());
-    		int vbx = vb.getLocation().x;
-    		int vby = vb.getLocation().y;
-    		int vbSizeHeight = vb.getSize().height;
-    		int vbSizeWidth = vb.getSize().width;
-
-    		/*identify vertexBase by location of figure*/
-    		if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
-    			return (VertexBase) entry.getValue().getData();
-    		}
+			for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
+				
+				/*get each location of mapped vertexBase*/
+				VertexBase vb = ((VertexBase) entry.getKey().getData());
+				int vbx = vb.getLocation().x;
+				int vby = vb.getLocation().y;
+				int vbSizeHeight = vb.getSize().height;
+				int vbSizeWidth = vb.getSize().width;
+		
+				/*identify vertexBase by location of figure*/
+				if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
+					return (VertexBase) entry.getValue().getData();
+				}
+			}
+		}else
+		{
+			/*find corresponding vertexBase node according figure location*/
+			for (Map.Entry<INodeExt, INodeExt> entry : MapEntry.entrySet()) {
+				
+				/*get each location of mapped vertexBase*/
+				VertexBase vb = ((VertexBase) entry.getValue().getData());
+				int vbx = vb.getLocation().x;
+				int vby = vb.getLocation().y;
+				int vbSizeHeight = vb.getSize().height;
+				int vbSizeWidth = vb.getSize().width;
+		
+				/*identify vertexBase by location of figure*/
+				if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
+					return (VertexBase) entry.getKey().getData();
+				}
+			}
 		}
 		return null;
+	}
+	
+	/**
+	 * find object IFigure
+	 * @param vertex
+	 * @return
+	 */
+	public IFigure idenifyFigure(VertexBase vertex){
+		IFigure figure = null;
+		figure = freeFormViewport.findFigureAt(vertex.getLocation().x, vertex.getLocation().y);
+		return  figure;
 	}
 
 }

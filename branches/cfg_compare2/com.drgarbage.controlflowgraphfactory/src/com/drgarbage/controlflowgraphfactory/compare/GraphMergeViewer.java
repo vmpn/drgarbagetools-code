@@ -401,19 +401,31 @@ public class GraphMergeViewer extends ContentMergeViewer {
 	 */
 	public void mouseHighLightListeners(final Map<INodeExt, INodeExt> MapEntry ){
 		
-		/*get editable panel part*/	
-		ScalableFreeformRootEditPart ScalableRootEditPart = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
-		final IFigure myFigure = (IFigure) ScalableRootEditPart.getFigure();
+		/*get editable panel left part*/	
+		ScalableFreeformRootEditPart scalableRootEditPartLeft = (ScalableFreeformRootEditPart) fLeft.getRootEditPart();
+		final IFigure freeFormViewportLeft = (IFigure) scalableRootEditPartLeft.getFigure();
+
+		/*get editable panel left part*/	
+		ScalableFreeformRootEditPart scalableRootEditPartRight = (ScalableFreeformRootEditPart) fRight.getRootEditPart();
+		final IFigure freeFormViewportRight = (IFigure) scalableRootEditPartRight.getFigure();
 		
 		/*remove previous listeners, because nodes get mapped differently each time*/
 		removeListeners();
-		handleToopTips(myFigure, true);
+		handleToopTips(freeFormViewportLeft, true);
+		handleToopTips(freeFormViewportRight, true);
 		
 		/*add mouse listen actions to the panel and mark them with respect of mapped nodes*/
-		CompareMouseActions mouseActions = new CompareMouseActions(MapEntry, myFigure);
-		mouseActions.addMouseListener();
-		mouseActions.addMotionMouseListener();
-		mouseEventsList.add(mouseActions);
+		
+		CompareMouseActions mouseActionsLeft = new CompareMouseActions(MapEntry, freeFormViewportLeft, true);
+		mouseActionsLeft.addMouseListener();
+		mouseActionsLeft.addMotionMouseListener();
+		mouseEventsList.add(mouseActionsLeft);
+		
+		/*add mouse listen actions to the panel and mark them with respect of mapped nodes*/
+		CompareMouseActions mouseActionsRight = new CompareMouseActions(MapEntry, freeFormViewportRight, false);
+		mouseActionsRight.addMouseListener();
+		mouseActionsRight.addMotionMouseListener();
+		mouseEventsList.add(mouseActionsRight);
 		
 	}
 
