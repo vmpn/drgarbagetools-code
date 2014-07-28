@@ -28,6 +28,10 @@ import java.util.Map;
 
 
 
+
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.draw2d.ColorConstants;
 import org.eclipse.draw2d.FreeformViewport;
 import org.eclipse.draw2d.IFigure;
@@ -43,6 +47,7 @@ import org.eclipse.swt.widgets.Display;
 import com.drgarbage.controlflowgraph.figures.DecisionVertexFigure;
 import com.drgarbage.controlflowgraph.figures.RectangleFigure;
 import com.drgarbage.controlflowgraph.intf.INodeExt;
+import com.drgarbage.controlflowgraphfactory.ControlFlowFactoryPlugin;
 import com.drgarbage.visualgraphic.model.VertexBase;
 
 /**
@@ -107,7 +112,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 				}
 			}
 			catch(Exception e){
-				System.out.println(e.getMessage());
+				ControlFlowFactoryPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, ControlFlowFactoryPlugin.PLUGIN_ID, CoreException.class.getName(), e));
 			}
 			
 		}
@@ -138,7 +143,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 				}
 			}
 			catch(Exception e){
-				System.out.println(e.getMessage());
+				ControlFlowFactoryPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, ControlFlowFactoryPlugin.PLUGIN_ID, CoreException.class.getName(), e));
 			}
 			
 		}
@@ -169,7 +174,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 		IFigure foundFigure = freeFormViewport.findFigureAt(p);
 		IFigure figure = foundFigure.getParent();
 		
-		/*check if found figure is node*/
+		/*check if found figure is shape*/
 		if(figure instanceof Shape){
 			
 			try{
@@ -180,7 +185,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 				}
 			}
 			catch(Exception e){
-				System.out.println(e.getMessage());
+				ControlFlowFactoryPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, ControlFlowFactoryPlugin.PLUGIN_ID, CoreException.class.getName(), e));
 			}
 		}
 		
@@ -191,7 +196,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 	}
 	
 	/**
-	 * gets a found figure from left viewer, 
+	 * gets a found figure from left or right viewer, 
 	 * returns a corresponding mapped node to be later highlighted 
 	 * 
 	 * return null if vertexBase is not found
@@ -220,6 +225,7 @@ public class CompareMouseActions extends MouseAdapter implements  MouseListener,
 				if(figurex == vbx && figurey == vby && figureHeight == vbSizeHeight && figureWidth == vbSizeWidth){
 					return (VertexBase) entry.getValue().getData();
 				}
+				
 			}
 		}else
 		{
