@@ -38,7 +38,7 @@ public class TopDownMaxCommonAlgAction  extends BaseCompareAction {
 	 */
 	public TopDownMaxCommonAlgAction(GraphMergeViewer cmv) {
 		super(cmv);
-		setImageDescriptor(ControlFlowFactoryResource.graph_compare_top_down_max_common_subtree_16x16);
+		setImageDescriptor(ControlFlowFactoryResource.graph_compare_top_down_16x16);
 		setToolTipText(ControlFlowFactoryMessages.GraphCompare_TopDownMaxCommonAlgorithm_Text);
 	}
 
