@@ -17,6 +17,7 @@
 package com.drgarbage.ant;
 
 public interface AntConstants {
+	//dies ist mein Kommentar ali
 	
 	char LIST_SEPARATOR = ',';
 	String LIST_SEPARATOR_STRING = String.valueOf(LIST_SEPARATOR);
