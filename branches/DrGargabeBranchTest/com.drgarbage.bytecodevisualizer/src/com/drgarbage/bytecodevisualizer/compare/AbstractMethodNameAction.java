@@ -52,8 +52,8 @@ public abstract class AbstractMethodNameAction implements IObjectActionDelegate 
 	 * @throws Exception
 	 */
 	protected void run(IJavaElement element1, IJavaElement element2) throws Exception {
-		MessageDialog.openInformation(shell, "Methodname",String.valueOf(element1)+String.valueOf(element2));
-		System.out.println(element1.getPath());
+		MessageDialog.openInformation(shell, "Methodname",String.valueOf(element1.getElementName())+"\n"+ String.valueOf(element2.getElementName()));
+
 	}
 
 	/**
