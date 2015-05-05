@@ -21,7 +21,7 @@ import org.eclipse.ui.IWorkbenchPart;
 /**
  * The abstract action to implement action for comparing class files.
  * 
- * @author Sergej Alekseev
+ * @author Sergej Alekseev edit by Lars Lewald
  * @version $Revision: 203 $
  * $Id: AbstractCompareClassFileAction.java 203 2013-06-07 09:27:41Z salekseev $
  */
@@ -53,6 +53,7 @@ public abstract class AbstractMethodNameAction implements IObjectActionDelegate 
 	 */
 	protected void run(IJavaElement element1, IJavaElement element2) throws Exception {
 		MessageDialog.openInformation(shell, "Methodname",String.valueOf(element1)+String.valueOf(element2));
+		System.out.println(element1.getPath());
 	}
 
 	/**
