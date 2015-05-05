@@ -213,6 +213,45 @@
                id="com.drgarbage.compare.CompareClassFileAction">
          </action>
        </objectContribution>
+      <objectContribution
+            id="com.drgarbage.compare.CompareBytecodeActionContribution2"
+            objectClass="org.eclipse.jdt.core.IMethod">
+         <visibility>
+            <not>
+               <or>
+                  <objectClass
+                        name="org.eclipse.jdt.core.IClassFile">
+                  </objectClass>
+                  <objectClass
+                        name="org.eclipse.jdt.core.ICompilationUnit">
+                  </objectClass>
+               </or>
+            </not>
+         </visibility>
+         <menu
+               id="compareWithMenu"
+               label="Compare With ..."
+               path="additions">
+            <separator
+                  name="compareWithGroup">
+            </separator>
+         </menu>
+         <action
+               class="com.drgarbage.bytecodevisualizer.compare.OpenClassFileAction"
+               enablesFor="1"
+               id="com.drgarbage.compare.OpenClassFileAction"
+               label="%act_Compare_with_Other_Class_File"
+               menubarPath="compareWithMenu/compareWithGroup">
+         </action>
+         <action
+               class="com.drgarbage.bytecodevisualizer.compare.CompareMethodAction"
+               enablesFor="2"
+               icon="img/enabled16/compare-action-16x16.png"
+               id="com.drgarbage.compare.CompareMethodAction"
+               label="compare with other method"
+               menubarPath="compareWithMenu/compareWithGroup">
+         </action>
+      </objectContribution>
    </extension>
    
    
