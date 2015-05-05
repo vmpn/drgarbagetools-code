@@ -16,7 +16,11 @@
 
 package com.drgarbage.asm.render.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.draw2d.AbstractLocator;
@@ -3014,29 +3019,46 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 		sb.append(JavaLexicalConstants.GT);
 	}
 	protected void appendHeaderComment(String classLoadedFrom, String debugTargetName) {
-		
-		Bundle bundle = BytecodeVisualizerPlugin.getDefault().getBundle();
-		
-		bundle = Platform.getBundle(CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID);
-		if (bundle == null) {
-			/* this should not happen */
-			throw new RuntimeException(""+ CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID +" not installed.");
-		}
+		String providerWww, provider, pluginName;
+		/* check if this method is called in BCV or commandlinetool */
+		if (BytecodeVisualizerPlugin.getDefault() != null) {
+			Bundle bundle = BytecodeVisualizerPlugin.getDefault().getBundle();
+			bundle = Platform.getBundle(CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID);
+			if (bundle == null) {
+				/* this should not happen */
+				throw new RuntimeException("" + CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID + " not installed.");
+			}
 
-		String providerWww = Platform.getResourceString(bundle, "%"+ CoreConstants.providerWww);
-		String provider = Platform.getResourceString(bundle, "%"+ CoreConstants.providerNameLabel);
-		String pluginName = Platform.getResourceString(bundle, "%"+ CoreConstants.pluginName);
-		
-		String msg = MessageFormat.format(ByteCodeConstants.Generated_by_x, new Object[] {provider + " "+ pluginName});
-		
+			providerWww = Platform.getResourceString(bundle, "%" + CoreConstants.providerWww);
+			provider = Platform.getResourceString(bundle, "%" + CoreConstants.providerNameLabel);
+			pluginName = Platform.getResourceString(bundle, "%" + CoreConstants.pluginName);
+		} else {
+			Properties property = new Properties();
+			String propertiesFilePath = "../com.drgarbage.bytecodevisualizer/plugin.properties";
+			File f = new File(propertiesFilePath);
+			try {
+				FileInputStream fis;
+				fis = new FileInputStream(f);
+				InputStream inputStream = null;
+				inputStream = new FileInputStream(f);
+				property.load(inputStream);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			providerWww = property.getProperty("providerWww");
+			provider = property.getProperty("providerName");
+			pluginName = property.getProperty("pluginName");
+		}
+		String msg = MessageFormat.format(ByteCodeConstants.Generated_by_x, new Object[] { provider + " " + pluginName });
 		appendHeaderLine(msg);
 		appendHeaderLine(providerWww);
 		
 		if (BytecodeVisualizerPlugin.getDefault() != null) {
 			/* jUnit tests work only if we test for null here */
-			
 			appendHeaderLine(ByteCodeConstants.Version, BytecodeVisualizerPlugin.PLUGIN_VERSION);
-			
 		}
 		if (classLoadedFrom != null) {
 			appendHeaderLine(ByteCodeConstants.Class_retrieved_from, classLoadedFrom);
