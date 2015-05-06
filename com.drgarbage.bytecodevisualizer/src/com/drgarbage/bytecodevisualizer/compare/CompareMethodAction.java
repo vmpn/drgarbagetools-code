@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008-2013, Dr. Garbage Community
+ * Copyright (c) 2008-2015, Dr. Garbage Community
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import org.eclipse.ui.IObjectActionDelegate;
 /**
  * The action to open the compare dialog for selected classes.
  * 
- * @author Sergej Alekseev
- * @version $Revision: 203 $
- * $Id: CompareClassFilesAction.java 203 2013-06-07 09:27:41Z salekseev $
+ * @author Lars Lewald
+ * @version $Revision$
+ * $Id$
  */
 public class CompareMethodAction extends AbstractMethodNameAction implements IObjectActionDelegate {
 
