@@ -37,7 +37,7 @@
                actionID="RulerDoubleClick"
                class="com.drgarbage.bytecodevisualizer.actions.RulerToggleBytecodeActionDelegate"
                id="com.drgarbage.bytecodevisualizer.editors.ManageBreakpointRulerAction"
-               label="?"
+               label="%action.label"
                style="push">
          </action>
       </editorContribution>    
@@ -71,7 +71,7 @@
             
    </extension>   
    <extension
-         id="com.drgarbage.bytecodevisualizer.plugin.popupMenus"
+         id="%extension.id"
          point="org.eclipse.ui.popupMenus">
       <objectContribution
             adaptable="false"
@@ -148,7 +148,7 @@
             </or>
          </visibility>
          <menu
-               label="Compare With ..."
+               label="%menu.label"
                path="additions"
                id="compareWithMenu">
             <separator
@@ -188,7 +188,7 @@
             </not>
          </visibility>
          <menu
-               label="Compare With ..."
+               label="%menu.label.0"
                path="additions"
                id="compareWithMenu">
             <separator
@@ -214,7 +214,7 @@
          </action>
        </objectContribution>
       <objectContribution
-            id="com.drgarbage.compare.CompareBytecodeActionContribution2"
+            id="com.drgarbage.compare.CompareBytecodeActionContribution3"
             objectClass="org.eclipse.jdt.core.IMethod">
          <visibility>
             <not>
@@ -230,7 +230,7 @@
          </visibility>
          <menu
                id="compareWithMenu"
-               label="Compare With ..."
+               label="%menu.label.1"
                path="additions">
             <separator
                   name="compareWithGroup">
@@ -248,7 +248,7 @@
                enablesFor="2"
                icon="img/enabled16/compare-action-16x16.png"
                id="com.drgarbage.compare.CompareMethodAction"
-               label="compare with other method"
+               label="%action.label.0"
                menubarPath="compareWithMenu/compareWithGroup">
          </action>
       </objectContribution>
