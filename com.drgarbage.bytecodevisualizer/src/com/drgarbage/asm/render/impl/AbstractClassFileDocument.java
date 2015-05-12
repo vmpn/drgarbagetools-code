@@ -168,7 +168,6 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 			public void appendEnd() {
 		
 				endLine = AbstractClassFileDocument.this.lineCount;
-		
 				if (renderTryCatchFinallyBlocks) {
 					decrementIndent();
 					appendRightBrace();
@@ -2705,7 +2704,6 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 	
 	public AbstractClassFileDocument() {
     	super(com.drgarbage.asm.Opcodes.ASM4);
-		
 		/* initialize preferences */
 		if (BytecodeVisualizerPlugin.getDefault() != null) {
 			/* jUnit tests work only if we test for null here */
@@ -3020,7 +3018,7 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 	}
 	protected void appendHeaderComment(String classLoadedFrom, String debugTargetName) {
 		String providerWww, provider, pluginName;
-		/* check if this method is called in BCV or commandlinetool */
+		/* check if this method is called by BCV or by commandlinetool */
 		if (BytecodeVisualizerPlugin.getDefault() != null) {
 			Bundle bundle = BytecodeVisualizerPlugin.getDefault().getBundle();
 			bundle = Platform.getBundle(CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID);
@@ -3037,8 +3035,6 @@ public abstract class AbstractClassFileDocument extends ClassVisitor
 			String propertiesFilePath = "../com.drgarbage.bytecodevisualizer/plugin.properties";
 			File f = new File(propertiesFilePath);
 			try {
-				FileInputStream fis;
-				fis = new FileInputStream(f);
 				InputStream inputStream = null;
 				inputStream = new FileInputStream(f);
 				property.load(inputStream);
