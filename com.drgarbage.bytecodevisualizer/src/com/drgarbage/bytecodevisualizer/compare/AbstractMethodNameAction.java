@@ -22,9 +22,13 @@ import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -33,6 +37,12 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.jdt.core.IType;
+
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.core.CoreMessages;
+import com.drgarbage.core.ActionUtils;
+import com.drgarbage.utils.Messages;
 
 /**
  * The abstract action to implement action for comparing class files.
@@ -68,11 +78,107 @@ public abstract class AbstractMethodNameAction implements IObjectActionDelegate 
 	 * @throws Exception
 	 */
 	protected void run(IJavaElement element1, IJavaElement element2) throws Exception {
-		MessageDialog.openInformation(shell, "Methodname",String.valueOf(element1.getElementName())+" "+String.valueOf(element1.getPath())+"\n"+ String.valueOf(element2.getElementName())+" "+String.valueOf(element2.getPath()));
-
-		System.out.println(element1.getPrimaryElement());
+		String mMethodName1=null;
+		String mMethodName2=null;
+		String mMethodSignature1=null;
+		String mMethodSignature2=null;
+		String mClassName1=null;
+		String mClassName2=null;
+		String mPackage1=null;
+		String mPackage2=null;
+		/* java model elements */
 		
-	}
+		IMethod IMethod1 = (IMethod)element1;
+		IMethod  IMethod2= (IMethod)element2;
+		IType type1 = IMethod1.getDeclaringType();
+		IType type2 = IMethod1.getDeclaringType();
+		
+		/* Methodname */
+		if(IMethod1.isConstructor()){
+			mMethodName1 = "<init>";
+		}
+		else{				
+			mMethodName1 = IMethod1.getElementName();
+		}
+		
+		if(IMethod2.isConstructor()){
+			mMethodName2 = "<init>";
+		}
+		else{				
+			mMethodName2 = IMethod2.getElementName();
+		}
+		
+		/* Package and Classname */
+		mClassName1 = type1.getFullyQualifiedName();
+		mPackage1 = type1.getPackageFragment().getElementName();
+		mClassName1 = mClassName1.replace(mPackage1 + ".", "");
+	
+		
+		mClassName2 = type2.getFullyQualifiedName();
+		mPackage2 = type2.getPackageFragment().getElementName();
+		mClassName2 = mClassName1.replace(mPackage1 + ".", "");
+		
+		/* Method Signature */
+		if(IMethod1.isBinary()){
+			mMethodSignature1 = IMethod1.getSignature();
+		}	
+		else{
+			try{
+				/* resolve parameter signature */
+				StringBuffer buf = new StringBuffer("(");
+				String[] parameterTypes = IMethod1.getParameterTypes();
+				String res = null;
+				for(int i = 0; i < parameterTypes.length; i++){
+					res = ActionUtils.getResolvedTypeName(parameterTypes[i], IMethod1.getDeclaringType());
+					buf.append(res);
+				}						
+				buf.append(")");
+				
+				res = ActionUtils.getResolvedTypeName(IMethod1.getReturnType(), IMethod1.getDeclaringType());
+				buf.append(res);
+				
+				mMethodSignature1=buf.toString();
+				
+			}catch(IllegalArgumentException e){
+				BytecodeVisualizerPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,BytecodeVisualizerPlugin.PLUGIN_ID, e.getMessage() , e));
+				Messages.error(e.getMessage() + CoreMessages.ExceptionAdditionalMessage);
+				return;
+			}
+		}
+		
+		
+		
+		if(IMethod2.isBinary()){
+			mMethodSignature2 = IMethod2.getSignature();
+		}	
+		else{
+			try{
+				/* resolve parameter signature */
+				StringBuffer buf = new StringBuffer("(");
+				String[] parameterTypes = IMethod2.getParameterTypes();
+				String res = null;
+				for(int i = 0; i < parameterTypes.length; i++){
+					res = ActionUtils.getResolvedTypeName(parameterTypes[i], IMethod2.getDeclaringType());
+					buf.append(res);
+				}						
+				buf.append(")");
+				
+				res = ActionUtils.getResolvedTypeName(IMethod2.getReturnType(), IMethod2.getDeclaringType());
+				buf.append(res);
+				
+				mMethodSignature2=buf.toString();
+				
+			}catch(IllegalArgumentException e){
+				BytecodeVisualizerPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,BytecodeVisualizerPlugin.PLUGIN_ID, e.getMessage() , e));
+				Messages.error(e.getMessage() + CoreMessages.ExceptionAdditionalMessage);
+				return;
+			}
+		}
+		
+		MessageDialog.openInformation(shell, "Methodname",mPackage1+"."+mClassName1+"."+mMethodName1+"."+mMethodSignature1+"\n"+mPackage2+"."+mClassName2+"."+mMethodName2+"."+mMethodSignature2);
+		}
+		
+	
 
 	/**
 	 * Returns an array of selected resources.
