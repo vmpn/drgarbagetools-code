@@ -36,10 +36,12 @@ import com.drgarbage.asm.util.TraceClassVisitor;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.ExceptionTableEntry;
+import com.drgarbage.commandlinetool.PartsOfClassFiles;
 import com.drgarbage.javasrc.JavaKeywords;
 
 public class ClassFileDocument extends AbstractClassFileDocument {
-
+	
+	
 	/**
 	 * Renderer Class for Exception Table Objects.
 	 */	
@@ -202,6 +204,15 @@ public class ClassFileDocument extends AbstractClassFileDocument {
 	public ClassFileDocument(ClassVisitor classVisitor) {
 	    //this.pw = pw;
 		this.classVisitor = classVisitor;
+	}
+	public ClassFileDocument(ClassVisitor classVisitor, PartsOfClassFiles ots){
+		this.showConstantPool = ots.isShowConstantPool();
+		this.showLineNumberTable = ots.isShowLineNumberTable();
+		this.showLocalVariableTable = ots.isShowLocalVariableTable();
+		this.showExceptionTable = ots.isShowExceptionTable();
+		this.showRelativeBranchTargetOffsets = ots.isShowRelativeBranchTargetOffsets();
+		this.showSourceLineNumbers = ots.isShowSourceLineNumbers();
+		this.showMaxs = ots.isShowMaxs();
 		
 	}
 
