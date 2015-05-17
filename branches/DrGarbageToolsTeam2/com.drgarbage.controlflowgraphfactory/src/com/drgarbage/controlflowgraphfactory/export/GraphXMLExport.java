@@ -85,15 +85,14 @@ public class GraphXMLExport extends AbstractExport {
 		buf.append("<?xml version=\"1.0\"?>\n<!DOCTYPE GraphXML SYSTEM \"GraphXML.dtd\">\n");
 		appendHeaderComment(buf);
 		buf.append("<GraphXML>\n");
-		buf.append(" <graph version=\"1.0\" vendor=\"www.drgarbage.com\" id=\"");
+		buf.append(" <graph version=\"1.0\" vendor=\"www.drgarbage.com\"");
 		String name = "null";
 		Object o = diagram.getPropertyValue(ByteCodeConstants.NAME);
 		if(o != null){
-			name = o.toString();	
+			name = " id=\"" + o.toString();
+			appendLabel(name, buf);
 		}
-		
-		appendLabel(name, buf);
-		buf.append("\">\n");
+		buf.append(">\n");
 
 	}
 
