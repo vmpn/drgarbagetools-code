@@ -1,0 +1,32 @@
+/* ****************************************************** */
+/* Dr. Garbage Community CommandLineTool                  */
+/* http://www.drgarbage.com                               */
+/* ****************************************************** */
+Usage: <options> <jar-file> <package> <method>
+	-? -help                      Print this usage message
+	-XML:<GraphOutputProperties>
+	-ML:<GraphOutputProperties>
+	-DOT:<GraphOutputProperties>
+	-NODES:<GraphOutputProperties>
+	-BC:<ByteCodeOutputProperties>
+	-package:<package name>
+	-method:<method name>
+	-signature:<method signature>
+Examples:
+  -BC:c /tmp/myJavaApp.jar -package:my.package.app -class:app
+  -XML:d /tmp/myJavaApp.jar -package:my.package.app -method:main
+
+GraphOutputProperties:
+	c	show ExportComments
+	d	show ExportDecorations
+	g	show ExportGeometry
+	m	show SupressMessages
+
+ByteCodeOutputProperties:
+	c	Show constant pool
+	e	Show exception table
+	l	show line number table
+	v	show local variable table
+	m	show maxs
+	r	show relative branch target offsets
+	s	show source line numbers
