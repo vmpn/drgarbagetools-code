@@ -42,9 +42,15 @@ public class FilteringCodeVisitor extends AbstractCodeVisitor {
 		this.name = name;
 		this.descriptor = descriptor;
 	}
-	public boolean accept(String name, String desc, AbstractConstantPoolEntry[] constantPool) {
+	/*check if argument 'desc' is null to search for methods without method signature*/
+	public boolean accept(String name, String desc,
+			AbstractConstantPoolEntry[] constantPool) {
 		this.constantPool = constantPool;
-		return this.name.equals(name) && this.descriptor.equals(desc);
+		if (desc == null || this.descriptor == null) {
+			return this.name.equals(name);	
+		} else {
+			return this.name.equals(name) && this.descriptor.equals(desc);	
+		}
 	}
 	/* (non-Javadoc)
 	 * @see com.drgarbage.asm_ext.ICodeVisitor#visitCode(byte[], int, int)
