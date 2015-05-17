@@ -36,7 +36,7 @@ import com.drgarbage.asm.util.TraceClassVisitor;
 import com.drgarbage.bytecode.ByteCodeConstants;
 import com.drgarbage.bytecode.BytecodeUtils;
 import com.drgarbage.bytecode.ExceptionTableEntry;
-import com.drgarbage.commandlinetool.PartsOfClassFiles;
+import com.drgarbage.commandlinetool.ByteCodeConfiguration;
 import com.drgarbage.javasrc.JavaKeywords;
 
 public class ClassFileDocument extends AbstractClassFileDocument {
@@ -205,7 +205,7 @@ public class ClassFileDocument extends AbstractClassFileDocument {
 	    //this.pw = pw;
 		this.classVisitor = classVisitor;
 	}
-	public ClassFileDocument(ClassVisitor classVisitor, PartsOfClassFiles ots){
+	public ClassFileDocument(ClassVisitor classVisitor, ByteCodeConfiguration ots){
 		this.showConstantPool = ots.isShowConstantPool();
 		this.showLineNumberTable = ots.isShowLineNumberTable();
 		this.showLocalVariableTable = ots.isShowLocalVariableTable();
