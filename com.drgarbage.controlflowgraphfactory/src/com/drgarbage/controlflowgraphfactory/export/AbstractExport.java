@@ -16,7 +16,11 @@
 
 package com.drgarbage.controlflowgraphfactory.export;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -24,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.Platform;
@@ -199,22 +204,46 @@ public abstract class AbstractExport extends AbstractExport2 {
 	protected ArrayList<String> createHeaderCommentLines() {
 		ArrayList<String> headerLines = new ArrayList<String>(8);
 		
-		Bundle bundle = ControlFlowFactoryPlugin.getDefault().getBundle();
-		if (bundle == null) {
-			/* this should not happen */
-			throw new RuntimeException(""+ CoreConstants.CONTROL_FLOW_GRAPH_FACTORY +" not installed.");
-		}
+		String providerWww, provider, pluginName, id = null;
+		/* check if this method is called by CFG or by commandlinetool */
+		if (ControlFlowFactoryPlugin.getDefault() != null) {
+			Bundle bundle = ControlFlowFactoryPlugin.getDefault().getBundle();
+			bundle = Platform.getBundle(CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID);
+			if (bundle == null) {
+				/* this should not happen */
+				throw new RuntimeException("" + CoreConstants.BYTECODE_VISUALIZER_PLUGIN_ID + " not installed.");
+			}
 
-		String providerWww = Platform.getResourceString(bundle, "%"+ CoreConstants.providerWww);
-		String provider = Platform.getResourceString(bundle, "%"+ CoreConstants.providerNameLabel);
-		String pluginName = Platform.getResourceString(bundle, "%"+ CoreConstants.pluginName);
+			providerWww = Platform.getResourceString(bundle, "%" + CoreConstants.providerWww);
+			provider = Platform.getResourceString(bundle, "%" + CoreConstants.providerNameLabel);
+			pluginName = Platform.getResourceString(bundle, "%" + CoreConstants.pluginName);
+			id = ControlFlowFactoryPlugin.PLUGIN_VERSION;
+		} else {
+			Properties property = new Properties();
+			String propertiesFilePath = "../com.drgarbage.bytecodevisualizer/plugin.properties";
+			File f = new File(propertiesFilePath);
+			try {
+				InputStream inputStream = null;
+				inputStream = new FileInputStream(f);
+				property.load(inputStream);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			providerWww = property.getProperty("providerWww");
+			provider = property.getProperty("providerName");
+			pluginName = property.getProperty("pluginName");
+			id = "CommandLineTool";
+		}
 		
 		String msg = MessageFormat.format(ByteCodeConstants.Generated_by_x, new Object[] {provider + " "+ pluginName});
 		
 		headerLines.add(msg);
 		headerLines.add(providerWww);
 		
-		headerLines.add(ByteCodeConstants.Version + ": " + ControlFlowFactoryPlugin.PLUGIN_VERSION);
+		headerLines.add(ByteCodeConstants.Version + ": " + id);
 		
 		SimpleDateFormat sdf = new SimpleDateFormat(CoreConstants.ISO_DATE_TIME_FORMAT_FULL);
 		headerLines.add(ByteCodeConstants.Retrieved_on + ": " + sdf.format(new Date()));
