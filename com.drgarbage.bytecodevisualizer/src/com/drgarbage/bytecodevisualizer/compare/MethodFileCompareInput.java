@@ -44,8 +44,8 @@ import com.drgarbage.core.img.CoreImg;
  * A compare operation input which can present its results in a compare editor.
  * 
  * @author Lars Lewald
- * @version $Revision: 203 $
- * $Id: ClassFileCompareInput.java 203 2013-06-07 09:27:41Z salekseev $
+ * @version $Revision$
+ * $Id$
  */
 public class MethodFileCompareInput extends CompareEditorInput {
 
