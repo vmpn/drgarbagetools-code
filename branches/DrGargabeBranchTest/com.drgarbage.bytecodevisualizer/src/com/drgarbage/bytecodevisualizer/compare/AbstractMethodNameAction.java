@@ -78,105 +78,11 @@ public abstract class AbstractMethodNameAction implements IObjectActionDelegate 
 	 * @throws Exception
 	 */
 	protected void run(IJavaElement element1, IJavaElement element2) throws Exception {
-		String mMethodName1=null;
-		String mMethodName2=null;
-		String mMethodSignature1=null;
-		String mMethodSignature2=null;
-		String mClassName1=null;
-		String mClassName2=null;
-		String mPackage1=null;
-		String mPackage2=null;
-		/* java model elements */
-		
-		IMethod IMethod1 = (IMethod)element1;
-		IMethod  IMethod2= (IMethod)element2;
-		IType type1 = IMethod1.getDeclaringType();
-		IType type2 = IMethod1.getDeclaringType();
-		
-		/* Methodname */
-		if(IMethod1.isConstructor()){
-			mMethodName1 = "<init>";
-		}
-		else{				
-			mMethodName1 = IMethod1.getElementName();
-		}
-		
-		if(IMethod2.isConstructor()){
-			mMethodName2 = "<init>";
-		}
-		else{				
-			mMethodName2 = IMethod2.getElementName();
-		}
-		
-		/* Package and Classname */
-		mClassName1 = type1.getFullyQualifiedName();
-		mPackage1 = type1.getPackageFragment().getElementName();
-		mClassName1 = mClassName1.replace(mPackage1 + ".", "");
-	
-		
-		mClassName2 = type2.getFullyQualifiedName();
-		mPackage2 = type2.getPackageFragment().getElementName();
-		mClassName2 = mClassName1.replace(mPackage1 + ".", "");
-		
-		/* Method Signature */
-		if(IMethod1.isBinary()){
-			mMethodSignature1 = IMethod1.getSignature();
-		}	
-		else{
-			try{
-				/* resolve parameter signature */
-				StringBuffer buf = new StringBuffer("(");
-				String[] parameterTypes = IMethod1.getParameterTypes();
-				String res = null;
-				for(int i = 0; i < parameterTypes.length; i++){
-					res = ActionUtils.getResolvedTypeName(parameterTypes[i], IMethod1.getDeclaringType());
-					buf.append(res);
-				}						
-				buf.append(")");
-				
-				res = ActionUtils.getResolvedTypeName(IMethod1.getReturnType(), IMethod1.getDeclaringType());
-				buf.append(res);
-				
-				mMethodSignature1=buf.toString();
-				
-			}catch(IllegalArgumentException e){
-				BytecodeVisualizerPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,BytecodeVisualizerPlugin.PLUGIN_ID, e.getMessage() , e));
-				Messages.error(e.getMessage() + CoreMessages.ExceptionAdditionalMessage);
-				return;
-			}
-		}
-		
-		
-		
-		if(IMethod2.isBinary()){
-			mMethodSignature2 = IMethod2.getSignature();
-		}	
-		else{
-			try{
-				/* resolve parameter signature */
-				StringBuffer buf = new StringBuffer("(");
-				String[] parameterTypes = IMethod2.getParameterTypes();
-				String res = null;
-				for(int i = 0; i < parameterTypes.length; i++){
-					res = ActionUtils.getResolvedTypeName(parameterTypes[i], IMethod2.getDeclaringType());
-					buf.append(res);
-				}						
-				buf.append(")");
-				
-				res = ActionUtils.getResolvedTypeName(IMethod2.getReturnType(), IMethod2.getDeclaringType());
-				buf.append(res);
-				
-				mMethodSignature2=buf.toString();
-				
-			}catch(IllegalArgumentException e){
-				BytecodeVisualizerPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,BytecodeVisualizerPlugin.PLUGIN_ID, e.getMessage() , e));
-				Messages.error(e.getMessage() + CoreMessages.ExceptionAdditionalMessage);
-				return;
-			}
-		}
-		
-		MessageDialog.openInformation(shell, "Methodname",mPackage1+"."+mClassName1+"."+mMethodName1+"."+mMethodSignature1+"\n"+mPackage2+"."+mClassName2+"."+mMethodName2+"."+mMethodSignature2);
-		}
+		CompareUI.openCompareEditor(new ClassFileCompareInput(
+				new CompareElement(element1),
+				new CompareElement(element2), 
+				new CompareConfiguration())
+		);}
 		
 	
 
