@@ -706,7 +706,12 @@ public class ControlFlowGraphDiagramFactory {
 		createConnections(graph.getEdgeList());
 
 		/* create additions */
-		createAdditions(graph, diagram);
+		if(null != ControlFlowFactoryPlugin.getDefault()) {
+			createAdditions(graph, diagram);
+		} else {
+			/*note: no difference found between false and true*/
+			createAdditions(graph, diagram, false);
+		}
 
 		/* layout graph */
 		IDirectedGraphExt graph2 = LayoutAlgorithmsUtils.generateGraph(diagram);
@@ -749,9 +754,17 @@ public class ControlFlowGraphDiagramFactory {
 			}
 		}
 	}
-
 	private static void createAdditions(IDirectedGraphExt graph,
 			ControlFlowGraphDiagram diagram) {
+		boolean copyLineNumberTable = ControlFlowFactoryPlugin
+				.getDefault()
+				.getPreferenceStore()
+				.getBoolean(
+						ControlFlowFactoryPreferenceConstants.COPY_LINE_NUMBER_TABLE); 
+		createAdditions(graph, diagram, copyLineNumberTable);
+	}
+	private static void createAdditions(IDirectedGraphExt graph,
+			ControlFlowGraphDiagram diagram, boolean copyLineNumberTable) {
 
 		Map<String, Object> attr = graph.getUserObject();
 		Object name = attr.get(ByteCodeConstants.NAME);
@@ -759,13 +772,7 @@ public class ControlFlowGraphDiagramFactory {
 			diagram.setPropertyValue(ByteCodeConstants.NAME, (String) name);
 		}
 
-		/* create additions */
-		boolean copyLineNumberTable = ControlFlowFactoryPlugin
-				.getDefault()
-				.getPreferenceStore()
-				.getBoolean(
-						ControlFlowFactoryPreferenceConstants.COPY_LINE_NUMBER_TABLE);
-
+		/*create additions*/
 		if (copyLineNumberTable) {
 			Object o = attr.get(ByteCodeConstants.LINE_NUMBER_TABLE);
 			if (o != null && o instanceof String) {
