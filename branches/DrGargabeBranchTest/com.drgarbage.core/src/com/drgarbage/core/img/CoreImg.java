@@ -60,6 +60,7 @@ public class CoreImg {
 	
 	/* compare icons */
 	public static final ImageDescriptor classfile_compare_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "classfile-compare-16x16.png");
+	public static final ImageDescriptor bytecode_method_compare_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "bytecode-compare-method-16x16.png");
 	
 	/* ast-view */
 	public static final ImageDescriptor astview_new_16x16 = ImageDescriptor.createFromFile(CoreImg.class, "astview-new-16x16.png");
