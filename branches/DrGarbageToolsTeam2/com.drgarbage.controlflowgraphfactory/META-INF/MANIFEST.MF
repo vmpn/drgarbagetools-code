@@ -25,3 +25,6 @@ Bundle-Activator: com.drgarbage.controlflowgraphfactory.ControlFlowFac
  toryPlugin
 Bundle-ManifestVersion: 2
 Bundle-SymbolicName: com.drgarbage.controlflowgraphfactory.plugin;singleton:=true
+Export-Package: com.drgarbage.controlflowgraphfactory.export,
+ com.drgarbage.graph,
+ com.drgarbage.visualgraphic.model
