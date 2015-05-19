@@ -188,7 +188,7 @@
             </not>
          </visibility>
          <menu
-               label="%menu.label.0"
+               label="%menu.label"
                path="additions"
                id="compareWithMenu">
             <separator
@@ -230,17 +230,17 @@
          </visibility>
          <menu
                id="compareWithMenu"
-               label="%menu.label.1"
+               label="%menu.label"
                path="additions">
             <separator
                   name="compareWithGroup">
             </separator>
          </menu>
          <action
-               class="com.drgarbage.bytecodevisualizer.compare.OpenClassFileAction"
+               class="com.drgarbage.bytecodevisualizer.compare.OpenMethodFileAction"
                enablesFor="1"
                id="com.drgarbage.compare.OpenClassFileAction"
-               label="%act_Compare_with_Other_Class_File"
+               label="%action.Compare_with_Other_Method_File"
                menubarPath="compareWithMenu/compareWithGroup">
          </action>
          <action
@@ -248,7 +248,7 @@
                enablesFor="2"
                icon="img/enabled16/compare-action-16x16.png"
                id="com.drgarbage.compare.CompareMethodAction"
-               label="%action.label.0"
+               label="%action.Compare_with_Each_Other_Method_File"
                menubarPath="compareWithMenu/compareWithGroup">
          </action>
       </objectContribution>
