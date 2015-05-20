@@ -131,7 +131,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
             try {
                 sub.beginTask("Class File comparing...", 100); //$NON-NLS-1$
 
-                return differencer.findDifferences(true, sub, null, null, left, left);
+                return differencer.findDifferences(true, sub, null, null, left, right);
             } finally {
                 sub.done();
             }
