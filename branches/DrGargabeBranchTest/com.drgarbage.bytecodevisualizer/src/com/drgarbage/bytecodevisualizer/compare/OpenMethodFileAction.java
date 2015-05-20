@@ -40,7 +40,7 @@ import com.drgarbage.utils.Messages;
  * The action to select the class to compare from the project via
  * a class selection dialog.
  * 
- * @author Sergej Alekseev
+ * @author Kraft Alexander 
  * @version $Revision$
  * $Id$
  */
