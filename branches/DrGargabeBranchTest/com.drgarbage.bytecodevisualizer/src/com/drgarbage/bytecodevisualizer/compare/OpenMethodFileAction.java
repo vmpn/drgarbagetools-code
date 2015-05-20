@@ -41,8 +41,8 @@ import com.drgarbage.utils.Messages;
  * a class selection dialog.
  * 
  * @author Sergej Alekseev
- * @version $Revision: 441 $
- * $Id: OpenClassFileAction.java 441 2013-12-03 16:04:14Z salekseev $
+ * @version $Revision$
+ * $Id$
  */
 @SuppressWarnings("restriction")
 public class OpenMethodFileAction extends AbstractCompareClassFileAction implements IObjectActionDelegate {
