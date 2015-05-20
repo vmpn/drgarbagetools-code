@@ -78,7 +78,7 @@ public abstract class AbstractMethodNameAction implements IObjectActionDelegate 
 	 * @throws Exception
 	 */
 	protected void run(IJavaElement element1, IJavaElement element2) throws Exception {
-		CompareUI.openCompareEditor(new ClassFileCompareInput(
+		CompareUI.openCompareEditor(new MethodFileCompareInput(
 				new CompareElement(element1),
 				new CompareElement(element2), 
 				new CompareConfiguration())
