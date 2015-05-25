@@ -25,4 +25,5 @@ public interface BytecodeVisualizerConstants {
 	public static final String IMG16E_TOGGLE_BREAKPOINT = IMG16E + "toggle-breakpoint-16x16.png";
 	public static final String IMG16E_TOGGLE_BREAKPOINT_RESTRICTED = IMG16E + "toggle-breakpoint-restricted-16x16.png";
 	public static final String IMG16E_COMPARE_ACTION = IMG16E + "compare-action-16x16.png";
+	public static final String IMG16E_COMPARE_METHOD_ACTION = IMG16E + "bytecode-compare-method-16x16.png";
 }
