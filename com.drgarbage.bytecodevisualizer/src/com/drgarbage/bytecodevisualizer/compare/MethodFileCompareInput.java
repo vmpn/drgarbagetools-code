@@ -85,7 +85,10 @@ public class MethodFileCompareInput extends CompareEditorInput {
     		return super.getTitleImage();
     	}
 
-    	ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_COMPARE_ACTION);
+    	//ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_COMPARE_ACTION);
+    	//descr hat die entsprechende Grafik gespreichert und sie wird später auch angezeigt
+    	ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_BYTECODE_COMPARE_METHOD);
+    	//descr hat "null" als wert, "IMG16E_BYTECODE_COMPARE_METHOD" ist als Konstante in BytecodeVisualizerConstants.java eingetragen
     	if(descr == null){
     		return super.getTitleImage();
     	}
@@ -276,6 +279,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		final SelectionListener selListClassFile = createSelectionListener();
 		itemClassFileCompare.addSelectionListener(selListClassFile);
 		itemClassFileCompare.setText(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE);
+		//itemClassFileCompare.setImage(CoreImg.classfile_compare_16x16.createImage());
 		itemClassFileCompare.setImage(CoreImg.classfile_compare_16x16.createImage());
 		
 		if(left.getType().equals(CompareElement.TYPE_BYTECODE)){
