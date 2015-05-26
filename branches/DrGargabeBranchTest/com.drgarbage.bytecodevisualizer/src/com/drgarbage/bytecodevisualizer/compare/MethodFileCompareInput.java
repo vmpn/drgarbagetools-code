@@ -123,8 +123,8 @@ public class MethodFileCompareInput extends CompareEditorInput {
 
         try {
             CompareConfiguration cc = getCompareConfiguration();
-            cc.setLeftLabel(left.getClass()+"."+left.getElementName());
-            cc.setRightLabel(right.getClass()+"."+right.getElementName());
+            cc.setLeftLabel(left.getName()+"."+left.getElementName());
+            cc.setRightLabel(right.getName()+"."+right.getElementName());
 
             setTitle(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE
                 +" "+left.getElementName()+ " - " + right.getElementName()); //$NON-NLS-1$
