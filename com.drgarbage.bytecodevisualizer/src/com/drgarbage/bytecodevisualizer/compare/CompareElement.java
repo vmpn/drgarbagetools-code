@@ -30,6 +30,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 
@@ -78,6 +80,7 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
         this.className = getClassName(javaElement);
     }
     
+    
     /**
      * Returns the class name for the given java element.
      * @param javaElement
@@ -97,7 +100,6 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
 				name = javaElement.getElementName();
 			}
 		}
-		
 		return name;
     }
     
@@ -123,6 +125,8 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     public String getElementName() {
     	return javaElement.getElementName();
     }
+    
+
 
     /* (non-Javadoc)
      * @see org.eclipse.compare.ITypedElement#getType()
@@ -143,7 +147,7 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
      * @see org.eclipse.compare.ITypedElement#getImage()
      */
     public Image getImage() {
-        return CompareUI.getImage("class");
+        return CompareUI.getImage(javaElement);
     }
 
     /* (non-Javadoc)
@@ -156,7 +160,7 @@ public class CompareElement extends BufferedContent implements ITypedElement, IS
     /* (non-Javadoc)
      * @see org.eclipse.compare.BufferedContent#createStream()
      */
-    protected InputStream createStream() throws CoreException {    	
+    protected InputStream createStream() throws CoreException { 
     	InputStream	stream = ClassFileMergeViewer.createStream(javaElement);
 		if(stream == null){
 			return null;
