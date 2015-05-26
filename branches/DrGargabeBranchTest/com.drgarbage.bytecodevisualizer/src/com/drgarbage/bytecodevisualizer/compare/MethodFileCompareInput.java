@@ -123,16 +123,16 @@ public class MethodFileCompareInput extends CompareEditorInput {
 
         try {
             CompareConfiguration cc = getCompareConfiguration();
-            cc.setLeftLabel(left.getElementName());
-            cc.setRightLabel(right.getElementName());
+            cc.setLeftLabel(left.getClass()+"."+left.getElementName());
+            cc.setRightLabel(right.getClass()+"."+right.getElementName());
 
             setTitle(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE
-                + left.getElementName()+ " - " + right.getElementName()); //$NON-NLS-1$
+                +" "+left.getElementName()+ " - " + right.getElementName()); //$NON-NLS-1$
             Differencer differencer = new Differencer();
-            monitor.beginTask("Class file comparing...", 30); //$NON-NLS-1$
+            monitor.beginTask("Comparing method...", 30); //$NON-NLS-1$
             IProgressMonitor sub = new SubProgressMonitor(monitor, 10);
             try {
-                sub.beginTask("Class File comparing...", 100); //$NON-NLS-1$
+                sub.beginTask("Comparing method...", 100); //$NON-NLS-1$
 
                 return differencer.findDifferences(true, sub, null, null, left, right);
             } finally {
@@ -279,8 +279,8 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		final SelectionListener selListClassFile = createSelectionListener();
 		itemClassFileCompare.addSelectionListener(selListClassFile);
 		itemClassFileCompare.setText(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE);
-		//itemClassFileCompare.setImage(CoreImg.classfile_compare_16x16.createImage());
-		itemClassFileCompare.setImage(CoreImg.classfile_compare_16x16.createImage());
+		//itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
+		itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		
 		if(left.getType().equals(CompareElement.TYPE_BYTECODE)){
 			itemClassFileCompare.setEnabled(false);
