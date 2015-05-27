@@ -85,9 +85,9 @@ public class MethodFileCompareInput extends CompareEditorInput {
     		return super.getTitleImage();
     	}
 
-    	//ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_COMPARE_ACTION);
+    	ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_COMPARE_ACTION);
     	//descr hat die entsprechende Grafik gespreichert und sie wird später auch angezeigt
-    	ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_BYTECODE_COMPARE_METHOD);
+    	//ImageDescriptor descr = reg.getDescriptor(BytecodeVisualizerConstants.IMG16E_BYTECODE_COMPARE_METHOD);
     	//descr hat "null" als wert, "IMG16E_BYTECODE_COMPARE_METHOD" ist als Konstante in BytecodeVisualizerConstants.java eingetragen
     	if(descr == null){
     		return super.getTitleImage();
