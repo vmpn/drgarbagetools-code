@@ -237,14 +237,6 @@
             </separator>
          </menu>
          <action
-               class="com.drgarbage.bytecodevisualizer.compare.OpenMethodFileAction"
-               enablesFor="1"
-               icon="img/enabled16/bytecode-compare-method-16x16.png"
-               id="com.drgarbage.compare.OpenClassFileAction"
-               label="%action.Compare_with_Other_Method_File"
-               menubarPath="compareWithMenu/compareWithGroup">
-         </action>
-         <action
                class="com.drgarbage.bytecodevisualizer.compare.CompareMethodAction"
                enablesFor="2"
                icon="img/enabled16/bytecode-compare-method-16x16.png"
