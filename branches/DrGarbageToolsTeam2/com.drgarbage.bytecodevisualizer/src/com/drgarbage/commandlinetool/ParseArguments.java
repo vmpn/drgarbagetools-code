@@ -193,7 +193,7 @@ public class ParseArguments {
 		this.byteCodeConfiguration = byteCodeConfiguration;
 	}
 	
-	private static void showHelpAndExit() throws IOException {
+	private void showHelpAndExit() throws IOException {
 	    BufferedReader br = new BufferedReader(new FileReader("arguments.txt"));
 	    try {
 	        StringBuilder sb = new StringBuilder();
@@ -210,6 +210,7 @@ public class ParseArguments {
 	        br.close();
 	    }
 	    
+
 		System.exit(0);
 	}
 	public GraphOutputTypes getGraphOutputType() {
