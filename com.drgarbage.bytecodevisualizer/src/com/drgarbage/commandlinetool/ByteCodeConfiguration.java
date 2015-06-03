@@ -20,7 +20,7 @@ package com.drgarbage.commandlinetool;
  * 
  * @author Cihan Aydin
  * @version $Revision: 723 $
- * $Id: PartsOfClassFile.java 723 2015-05-12 08:40:35Z cihanaydin $
+ * $Id: ByteCodeConfiguration.java 723 2015-05-12 08:40:35Z cihanaydin $
  */
 public class ByteCodeConfiguration {
 	private boolean showConstantPool = false;
