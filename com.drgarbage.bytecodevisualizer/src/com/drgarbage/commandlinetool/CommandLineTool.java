@@ -17,6 +17,16 @@ package com.drgarbage.commandlinetool;
 
 import java.io.IOException;
 
+import org.eclipse.jdt.core.IClassFile;
+
+import com.drgarbage.commandlinetool.impl.ByteCodeConfiguration;
+import com.drgarbage.commandlinetool.impl.CommandLineToolCore;
+import com.drgarbage.commandlinetool.impl.GraphConfiguration;
+import com.drgarbage.commandlinetool.impl.ParseArguments;
+import com.drgarbage.commandlinetool.intf.CommandLineToolFactory;
+import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
+import com.drgarbage.commandlinetool.intf.ICommandLineTool;
+import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 
 /**
@@ -28,22 +38,33 @@ import com.drgarbage.controlflowgraph.ControlFlowGraphException;
  */
 public class CommandLineTool {
 	
-	public static void main(String[] args) throws IOException, ControlFlowGraphException{	
+	/**
+	 * @param args
+	 * @throws IOException
+	 * @throws ControlFlowGraphException
+	 */
+	public static void main(String[] args) throws IOException, ControlFlowGraphException{
+
+		String _classPath = "/Users/cihanaydin/Desktop/jxl.jar";
+		String _packageName = "jxl.biff";
+		String _className = "AutoFilter";
+		String _methodName = "write";
+		String _methodSignature = "(Ljxl/write/biff/File;)V";
 		
-		ParseArguments parser = new ParseArguments(args);
+		ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
+						
+		IByteCodeConfiguration byteCodeConfiguration = new ByteCodeConfiguration("");
+		IGraphConfiguration graphConfiguration = new GraphConfiguration("");
 		
-		switch (parser.getGraphOutputType()) {
-		case ExportFormat_DOT_Graph_Language:
-		case ExportFormat_GraphXML_XML_Based:
-		case ExportFormat_GraphML_XML_Based:
-		case ExportFormat_PrintNodes:
-			CommandLineToolCore.startExportGraph(parser.getInputStream(), parser.getExportGraphConfiguration());
-			break;
-		case ExportFormat_ByteCode:
-			CommandLineToolCore.startBCV(parser.getInputStream(), parser.getByteCodeConfiguration());
-			break;
-		default:
-			break;
-		}
+		String byteCodeVisualized = cc.visualizeClassFile(cc.getInputStream(_classPath, _packageName, _className), byteCodeConfiguration);
+		System.out.println(byteCodeVisualized);
+		
+		String graphVisualized = cc.visualizeGraph(cc.getInputStream(_classPath, _packageName, _className),
+				_methodName, _methodSignature, graphConfiguration);
+		System.out.println(graphVisualized);
+		
+//		IGraphConfiguration iegc = CommandLineToolFactory.createParser(args);
+		
+		
 	}
 }
