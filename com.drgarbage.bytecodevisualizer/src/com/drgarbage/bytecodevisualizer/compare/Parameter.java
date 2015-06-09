@@ -11,6 +11,15 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import com.drgarbage.javalang.JavaLangUtils;
 
+
+/**
+ * 
+ * 
+ * 
+ * @author Lars Lewald 
+ * @version $Revision$
+ * $Id$
+ */
 public class Parameter {
 	
 	
