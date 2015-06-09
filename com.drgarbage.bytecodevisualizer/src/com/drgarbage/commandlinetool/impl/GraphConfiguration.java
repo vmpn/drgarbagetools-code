@@ -24,7 +24,6 @@ import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
  * @version $Revision: 723 $
  * $Id: ExportGraphConfiguration.java 723 2015-05-12 08:40:35Z cihanaydin $
  */
-
 public class GraphConfiguration implements IGraphConfiguration {
 	private boolean exportComments = false;
 	private boolean exportDecorations = false;
@@ -55,16 +54,16 @@ public class GraphConfiguration implements IGraphConfiguration {
 						this.setExportGeometry(true);
 						break;
 					case 'm':
-						this.setSupressMessages(true);
+						this.setSuppressMessages(true);
 						break;
 					case 's':
-						this.setStartvertex(true);
+						this.setStartVertex(true);
 						break;
 					case 'e':
-						this.setEndvertex(true);
+						this.setEndVertex(true);
 						break;
 					case 'b':
-						this.setBackedge(true);
+						this.setBackEdge(true);
 						break;
 					case 'D':
 						this.setOutputType(GraphOutputTypes.ExportFormat_DOT_Graph_Language);
@@ -106,7 +105,7 @@ public class GraphConfiguration implements IGraphConfiguration {
 	public boolean isSuppressMessages() {
 		return supressMessages;
 	}
-	public void setSupressMessages(boolean supressMessages) {
+	public void setSuppressMessages(boolean supressMessages) {
 		this.supressMessages = supressMessages;
 	}
 	public GraphOutputTypes getOutputType() {
@@ -118,19 +117,19 @@ public class GraphConfiguration implements IGraphConfiguration {
 	public boolean isStartVertex() {
 		return startvertex;
 	}
-	public void setStartvertex(boolean startvertex) {
+	public void setStartVertex(boolean startvertex) {
 		this.startvertex = startvertex;
 	}
 	public boolean isExitVertex() {
 		return endvertex;
 	}
-	public void setEndvertex(boolean endvertex) {
+	public void setEndVertex(boolean endvertex) {
 		this.endvertex = endvertex;
 	}
 	public boolean isBackEdge() {
 		return backedge;
 	}
-	public void setBackedge(boolean backedge) {
+	public void setBackEdge(boolean backedge) {
 		this.backedge = backedge;
 	}
 }

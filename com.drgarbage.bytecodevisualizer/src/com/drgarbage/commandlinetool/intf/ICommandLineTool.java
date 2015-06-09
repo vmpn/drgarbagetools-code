@@ -19,12 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import org.eclipse.jdt.core.IClassFile;
-
-import com.drgarbage.commandlinetool.impl.ByteCodeConfiguration;
-import com.drgarbage.commandlinetool.impl.GraphConfiguration;
 import com.drgarbage.commandlinetool.impl.MethodPair;
-import com.drgarbage.commandlinetool.impl.ParseArguments;
 
 /**
  * This Interface represents the connection to the Command Line Tool - API.
@@ -34,44 +29,43 @@ public interface ICommandLineTool {
 	
 	/**
 	 * method to receive the input stream with given parameters
-	 * @param classPath
-	 * @param packageName
-	 * @param className
-	 * @param methodName
-	 * @param methodSig
+	 * @param classPath Example: <code>/tmp/class/container.jar</code> or <code>/tmp/class/</code>
+	 * @param packageName Example: <code>com.drgarbage.commandlinetool</code>
+	 * @param className Example: <code>ICommandLineTool</code>
+	 * @param methodName Example: <code>SomeClass</code>
+	 * @param methodSig Example: <code>()V</code>
 	 * @return InputStream
 	 * @throws IOException
 	 */
 	public InputStream getInputStream(String classPath, String packageName, String className) throws IOException;
 	
-	//TODO null configuration --> default übergeben
 	/**
-	 * Prints the class with the specified parameters in @link{@link IByteCodeConfiguration}
+	 * Prints the class with the specified parameters in {@link IByteCodeConfiguration}
 	 * @param configuration IByteCodeConfiguration configuration file
 	 */
 	public String visualizeClassFile(InputStream inputStream, IByteCodeConfiguration configuration);
 	
 	/**
-	 * erweitern
-	 * Prints the class with the specified parameters in @link{@link IExportGraphConfiguration}
-	 * @param configuration IExportGraphConfiguration configuration file
-	 * @see {IExportGraphConfiguration}
+	 * Prints the class with the specified parameters in {@link IGraphConfiguration}
+	 * @param inputStream Object from {@link getInputStream()}
+	 * @param methodName Example: <code>SomeClass</code>
+	 * @param methodSig Example: <code>()V</code>
+	 * @param configuration Object from {@link IGraphConfiguration}
+	 * @return string with visualized graph 
 	 */
+	public String visualizeGraph(InputStream inputStream, String methodName, String methodSignatur, IGraphConfiguration configuration);	
+	
 	/**
-	 * @param inputStream
-	 * @param methodName
-	 * @param methodSignatur
-	 * @param configuration
-	 * @return
+	 * Returns all methods in class as string with the specified parameteres in {@link IGraphConfiguration}
+	 * @param classPath Example: <code>/tmp/class/container.jar</code> or <code>/tmp/class/</code>
+	 * @param packageName Example: <code>com.drgarbage.commandlinetool</code>
+	 * @param className Example: <code>ICommandLineTool</code>
+	 * @param configuration Object from {@link IGraphConfiguration}
+	 * @return 
 	 */
-	public String visualizeGraph(InputStream inputStream, String methodName, String methodSignatur, IGraphConfiguration configuration);
-	
-	
-	//Object: IMethod hilfsmethode mit zwei oder drei Strings --> klassenname, methodenname, methodensignatur --> nur getter
-	public Map<MethodPair, String> visualizeGraphs(InputStream inputStream, IGraphConfiguration configuration);
+	public Map<MethodPair, String> visualizeGraphs(String classPath, String packageName, String className, IGraphConfiguration configuration);
 
 	
-	//TODO unix diff
 	/**
 	 * Compares two graphs and prints the difference
 	 * @param graph

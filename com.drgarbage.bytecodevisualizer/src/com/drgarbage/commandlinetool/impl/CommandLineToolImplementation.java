@@ -17,10 +17,12 @@ package com.drgarbage.commandlinetool.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jdt.core.IClassFile;
-
+import com.drgarbage.asm.render.impl.ClassFileDocument;
+import com.drgarbage.asm.render.intf.IClassFileDocument;
+import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
 import com.drgarbage.commandlinetool.intf.ICommandLineTool;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
@@ -35,19 +37,6 @@ import com.drgarbage.javalang.JavaLangUtils;
  * $Id: CommandLineToolFactory.java 739 2015-06-02 21:22:23Z cihanaydin $
  */
 public class CommandLineToolImplementation implements ICommandLineTool {
-	
-	/**
-	 * Constructor to create an object and set the main values for class path, package name, class name, method name and signature
-	 * 
-	 * @param _classPath
-	 * @param _packageName
-	 * @param _className
-	 * @param _methodName
-	 * @param _methodSignature
-	 */
-	public CommandLineToolImplementation() {
-
-	}
 	
 	public InputStream getInputStream(String classPath, String packageName, 
 			String className) throws IOException{
@@ -78,27 +67,36 @@ public class CommandLineToolImplementation implements ICommandLineTool {
 		
 	}
 	
-	public Map<MethodPair, String> visualizeGraphs(InputStream inputStream, IGraphConfiguration configuration){
+	public Map<MethodPair, String> visualizeGraphs(String _classPath, String _packageName, String _className, IGraphConfiguration configuration){
+		Map<MethodPair, String> map = new HashMap<MethodPair, String>();
 		
-		return null;
+		try {
+			InputStream in = null;
+			in = this.getInputStream(_classPath, _packageName, _className);
+			
+			IClassFileDocument classFileDoc = ClassFileDocument.readClass(in);
+			java.util.List<IMethodSection> methodSelectionList = classFileDoc.getMethodSections();
+
+			for (IMethodSection methodSelection : methodSelectionList) {
+				in = this.getInputStream(_classPath, _packageName, _className);
+				MethodPair methodPair = new MethodPair(methodSelection.getName(), methodSelection.getDescriptor());
+				map.put(methodPair, CommandLineToolCore.startGraphExporter(in, methodSelection.getName(), methodSelection.getDescriptor(), configuration));
+			}
+			return map;
+			
+			
+		} catch (ControlFlowGraphException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return map;
 	}
 	
 	/*not yet implemented*/
 	public String compareClassFiles(InputStream is1, InputStream is2) {
 		return null;
-	}
-
-	public ByteCodeConfiguration parseArgumentsForByteCodeConfiguration(String arguments) {
-		return new ByteCodeConfiguration(arguments);
-	}
-
-	public GraphConfiguration parseArgumentsForExportGraphConfiguration(String arguments) {
-		return new GraphConfiguration(arguments);
-	}
-	
-	public static ByteCodeConfiguration createParser(String[] args) {
-		
-		return new ByteCodeConfiguration(null);
 	}
 
 }

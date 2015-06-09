@@ -20,6 +20,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Map;
 
 import com.drgarbage.asm.ClassReader;
 import com.drgarbage.asm.render.impl.ClassFileDocument;
@@ -40,7 +41,6 @@ import com.drgarbage.controlflowgraphfactory.export.GraphXMLExport;
 import com.drgarbage.graph.DefaultGraphSpecification;
 import com.drgarbage.graph.GraphConstants;
 import com.drgarbage.graph.IGraphSpecification;
-import com.drgarbage.javalang.JavaLangUtils;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagram;
 import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagramFactory;
 
@@ -51,13 +51,8 @@ import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagramFactory;
  * @version $Revision: 723 $
  * $Id: CommandLineToolCore.java 723 2015-05-12 08:40:35Z cihanaydin $
  */
-
 public class CommandLineToolCore {
 	
-	public static String startGraphExporter(InputStream inputStream, IGraphConfiguration config) throws ControlFlowGraphException, IOException{
-	
-		return null;
-	}
 	/**
 	 * Starts the graph exporter and prints the graph
 	 * @param config config file for graph preferences
@@ -119,6 +114,9 @@ public class CommandLineToolCore {
 	 */
 	public static String startByteCodeVisualizer(InputStream contentStream, IByteCodeConfiguration configuration) {
 		
+		if (configuration == null) {
+			configuration = new ByteCodeConfiguration();
+		}
 		DataInputStream in = null;
 		String byteCodeVisualizedString = null;
 		try {
@@ -232,9 +230,7 @@ public class CommandLineToolCore {
 			throw new ControlFlowGraphException(
 					"ControlFlowGraphGenerator: can't get method info of the "
 							+ methodName + methodSig);
-
 		}
-		
 		return codeVisitor;
 	}
 

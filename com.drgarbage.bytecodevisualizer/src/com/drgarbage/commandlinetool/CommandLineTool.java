@@ -16,13 +16,11 @@
 package com.drgarbage.commandlinetool;
 
 import java.io.IOException;
-
-import org.eclipse.jdt.core.IClassFile;
+import java.util.Map;
 
 import com.drgarbage.commandlinetool.impl.ByteCodeConfiguration;
-import com.drgarbage.commandlinetool.impl.CommandLineToolCore;
 import com.drgarbage.commandlinetool.impl.GraphConfiguration;
-import com.drgarbage.commandlinetool.impl.ParseArguments;
+import com.drgarbage.commandlinetool.impl.MethodPair;
 import com.drgarbage.commandlinetool.intf.CommandLineToolFactory;
 import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
 import com.drgarbage.commandlinetool.intf.ICommandLineTool;
@@ -48,23 +46,22 @@ public class CommandLineTool {
 		String _classPath = "/Users/cihanaydin/Desktop/jxl.jar";
 		String _packageName = "jxl.biff";
 		String _className = "AutoFilter";
-		String _methodName = "write";
-		String _methodSignature = "(Ljxl/write/biff/File;)V";
+//		String _methodName = "write";
+//		String _methodSignature = "(Ljxl/write/biff/File;)V";
 		
 		ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
 						
-		IByteCodeConfiguration byteCodeConfiguration = new ByteCodeConfiguration("");
-		IGraphConfiguration graphConfiguration = new GraphConfiguration("");
+		IByteCodeConfiguration byteCodeConfiguration = new ByteCodeConfiguration();
+		IGraphConfiguration graphConfiguration = new GraphConfiguration("X");
+		byteCodeConfiguration.setShowConstantPool(false);
+		graphConfiguration.setBackEdge(true);
 		
-		String byteCodeVisualized = cc.visualizeClassFile(cc.getInputStream(_classPath, _packageName, _className), byteCodeConfiguration);
-		System.out.println(byteCodeVisualized);
+		Map<MethodPair, String> map = cc.visualizeGraphs(_classPath, _packageName, _className, graphConfiguration);
 		
-		String graphVisualized = cc.visualizeGraph(cc.getInputStream(_classPath, _packageName, _className),
-				_methodName, _methodSignature, graphConfiguration);
-		System.out.println(graphVisualized);
-		
-//		IGraphConfiguration iegc = CommandLineToolFactory.createParser(args);
-		
+		for (MethodPair m : map.keySet()) {
+			System.out.println(map.get(m));
+		}
+				
 		
 	}
 }
