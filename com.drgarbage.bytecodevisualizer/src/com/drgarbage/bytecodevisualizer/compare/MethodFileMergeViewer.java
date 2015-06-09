@@ -17,11 +17,8 @@
 package com.drgarbage.bytecodevisualizer.compare;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectOutputStream;
 import java.text.ParseException;
 
 import org.eclipse.compare.CompareConfiguration;
@@ -72,7 +69,7 @@ import com.drgarbage.utils.Messages;
  * @see IMergeViewerContentProvider
  * @see TextMergeViewer
  * 
- * @author Lars Lewald
+ * @author Sergej Alekseev
  * @version $Revision$
  * $Id$
  */
@@ -494,16 +491,20 @@ public class MethodFileMergeViewer extends TextMergeViewer{
 		BytecodeVisualizerPlugin.log(status);
 	}
 	
-	
-	public static InputStream createStream(IJavaElement javaElement) throws CoreException, IOException{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    ObjectOutputStream oos = new ObjectOutputStream(baos);
-	    oos.writeUnshared(javaElement);
-	    oos.flush();
-	    oos.close();
-	
-	    InputStream stream = new ByteArrayInputStream(baos.toByteArray());	
-    	   	
+	public static InputStream createStream(IJavaElement javaElement) throws CoreException{
+		InputStream	stream = null;   			
+    			try {
+    				stream = JavaLangUtils.findResource(Parameter.ClassPath(javaElement), Parameter.getpackageName(javaElement), Parameter.getclassName(javaElement));
+    			} catch (IOException e) {
+    				throw new CoreException(new Status(IStatus.ERROR, 
+        					BytecodeVisualizerPlugin.PLUGIN_ID, 
+        					e.getMessage(), 
+        					e));
+    			}
+    		
+    	
+    	
+    	
     	return stream;
 	}
 	
