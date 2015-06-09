@@ -34,35 +34,41 @@ public class ByteCodeConfiguration implements IByteCodeConfiguration{
 	private boolean showMaxs = false;
 	
 	public ByteCodeConfiguration(String arg){
-		for (Character c : arg.toCharArray()) {
-			switch(c) {
-			case 'c':
-				this.setShowConstantPool(true);
-				break;
-			case 'e':
-				this.setShowExceptionTable(true);
-				break;
-			case 'l':
-				this.setShowLineNumberTable(true);
-				break;
-			case 'v':
-				this.setShowLocalVariableTable(true);
-				break;
-			case 'm':
-				this.setShowMaxs(true);
-				break;
-			case 'r':
-				this.setShowRelativeBranchTargetOffsets(true);
-				break;
-			case 's':
-				this.setShowSourceLineNumbers(true);
-				break;
-			default:
-				break;
+		if (arg != null) {
+			for (Character c : arg.toCharArray()) {
+				switch(c) {
+				case 'c':
+					this.setShowConstantPool(true);
+					break;
+				case 'e':
+					this.setShowExceptionTable(true);
+					break;
+				case 'l':
+					this.setShowLineNumberTable(true);
+					break;
+				case 'v':
+					this.setShowLocalVariableTable(true);
+					break;
+				case 'm':
+					this.setShowMaxs(true);
+					break;
+				case 'r':
+					this.setShowRelativeBranchTargetOffsets(true);
+					break;
+				case 's':
+					this.setShowSourceLineNumbers(true);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
 	
+	public ByteCodeConfiguration() {
+		this(null);
+	}
+
 	public boolean isShowConstantPool() {
 		return showConstantPool;
 	}

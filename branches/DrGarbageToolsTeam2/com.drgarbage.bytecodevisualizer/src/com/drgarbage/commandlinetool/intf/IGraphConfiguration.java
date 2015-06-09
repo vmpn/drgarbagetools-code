@@ -54,41 +54,73 @@ public interface IGraphConfiguration {
 	
 	/**
 	 * Getter for show start vertex.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isStartVertex();
 	
 	/**
 	 * Getter for show end vertex.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isExitVertex();
 	
 	/**
-	 * Getter for show back edge
-	 * @return boolean
+	 * Getter for show back edge.
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isBackEdge();
 	
 	/**
-	 * Getter graph output type
-	 * @return GraphOutputTypes
+	 * Getter graph output type.
+	 * @return {@link GraphOutputTypes}
 	 */
 	public GraphOutputTypes getOutputType();
 	
+	/**
+	 * Setter for option show export comments.
+	 * @return <code> true </code> or <code>false</code>
+	 */
 	public void setExportComments(boolean exportComments);
 	
+	/**
+	 * Setter for option show export decorations.
+	 * @return <code> true </code> or <code>false</code>
+	 */
 	public void setExportDecorations(boolean exportDecorations);
 	
+	/**
+	 * Setter for option show export geometry.
+	 * @return <code> true </code> or <code>false</code>
+	 */
 	public void setExportGeometry(boolean exportGeometry);
 	
-	public void setSupressMessages(boolean supressMessages);
+	/**
+	 * Setter for option show suppress messages.
+	 * @return <code> true </code> or <code>false</code>
+	 */
+	public void setSuppressMessages(boolean supressMessages);
 	
+	/**
+	 * Setter for graph output Type
+	 * @param {@link GraphOutputTypes}
+	 */
 	public void setOutputType(GraphOutputTypes outputType);
 	
-	public void setStartvertex(boolean startvertex);
+	/**
+	 * Setter for option show start vertex.
+	 * @return <code> true </code> or <code>false</code>
+	 */
+	public void setStartVertex(boolean startvertex);
 	
-	public void setEndvertex(boolean endvertex);
+	/**
+	 * Setter for option show end vertex.
+	 * @return <code> true </code> or <code>false</code>
+	 */
+	public void setEndVertex(boolean endvertex);
 	
-	public void setBackedge(boolean backedge);
+	/**
+	 * Setter for option show back edge.
+	 * @return <code> true </code> or <code>false</code>
+	 */
+	public void setBackEdge(boolean backedge);
 }

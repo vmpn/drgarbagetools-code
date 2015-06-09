@@ -23,8 +23,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
-import com.drgarbage.commandlinetool.intf.ICommandLineTool;
 import com.drgarbage.javalang.JavaLangUtils;
 /**
  * This class represents an argument parser for CommandLineTool
