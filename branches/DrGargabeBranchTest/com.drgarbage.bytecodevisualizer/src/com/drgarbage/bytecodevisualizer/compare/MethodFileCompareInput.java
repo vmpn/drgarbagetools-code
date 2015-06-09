@@ -52,12 +52,12 @@ public class MethodFileCompareInput extends CompareEditorInput {
     /** 
      * The element displayed on the left side of the viewer. 
      */
-    protected CompareElement left;
+    protected CompareElementMethod left;
     
     /** 
      * The element displayed on the right side of the viewer. 
     */
-    protected CompareElement right;
+    protected CompareElementMethod right;
 
     /**
      * Reference to the editor instance. 
@@ -70,7 +70,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
      * @param right the element displayed on the right side of the viewer.
      * @param cc compare configuration
      */
-    public MethodFileCompareInput(final CompareElement left, final CompareElement right, CompareConfiguration cc) {
+    public MethodFileCompareInput(final CompareElementMethod left, final CompareElementMethod right, CompareConfiguration cc) {
     	super(cc);
         this.left = left;
         this.right = right;
@@ -282,7 +282,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		//itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		
-		if(left.getType().equals(CompareElement.TYPE_BYTECODE)){
+		if(left.getType().equals(CompareElementMethod.TYPE_BYTECODE)){
 			itemClassFileCompare.setEnabled(false);
 			itemClassFileCompare.setSelection(true);
 		}
@@ -322,17 +322,17 @@ public class MethodFileCompareInput extends CompareEditorInput {
 				if (mi.getSelection()) {
 					
 					if(mi.getText().equals(CompareMessages.CompareContentViewerSwitchingPane_defaultViewer)){
-						if(left.getType().equals(CompareElement.TYPE_BYTECODE)){
-							switchViewer(CompareElement.TYPE_JAVA);	
+						if(left.getType().equals(CompareElementMethod.TYPE_BYTECODE)){
+							switchViewer(CompareElementMethod.TYPE_JAVA);	
 						}
 						return;
 					}
 
 					if(mi.getText().equals(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE)){
-						switchViewer(CompareElement.TYPE_BYTECODE);
+						switchViewer(CompareElementMethod.TYPE_BYTECODE);
 					}
 					else{
-						switchViewer(CompareElement.TYPE_JAVA);
+						switchViewer(CompareElementMethod.TYPE_JAVA);
 					}
 				}
 			}
