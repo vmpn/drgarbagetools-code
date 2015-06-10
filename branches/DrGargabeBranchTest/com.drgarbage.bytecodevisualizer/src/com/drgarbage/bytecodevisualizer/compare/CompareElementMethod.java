@@ -118,7 +118,31 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     public IJavaElement getJavaElement() {
 		return javaElement;
 	}
+    
+    public String getSig() {
+    	IMethod m = (IMethod) javaElement;
+    	try {
+			return m.getSignature();
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return null;
+    }
 
+    //getReturnType
+    public String getRT(){
+    	IMethod m = (IMethod) javaElement;
+    	try {
+			return m.getReturnType();
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return null;
+    }
+    
+    
     /* (non-Javadoc)
      * @see org.eclipse.compare.ITypedElement#getName()
      */
@@ -189,9 +213,10 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			}
 
     			InputStream in= new ByteArrayInputStream(bytes);
+    			DataInputStream din = new DataInputStream(new BufferedInputStream(in));
     			FilteringCodeVisitor codeVisitor = new FilteringCodeVisitor(Parameter.getmethodName(javaElement), Parameter.getmethodSig(javaElement));
     			classV = new MethodFilteringVisitor(codeVisitor);
-    			ClassReader cr = new ClassReader(in, classV);
+    			ClassReader cr = new ClassReader(din, classV);
     			cr.accept(classV, 0);
 
     		} catch (Exception e) {
