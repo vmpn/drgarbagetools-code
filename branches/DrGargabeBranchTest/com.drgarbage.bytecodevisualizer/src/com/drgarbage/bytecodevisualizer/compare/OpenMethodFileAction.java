@@ -85,7 +85,7 @@ public class OpenMethodFileAction extends AbstractCompareClassFileAction impleme
         				new ProgressMonitorDialog(shell), 
         				SearchEngine.createWorkspaceScope(), 
         				IJavaSearchConstants.TYPE);
-        dialog.setTitle(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE);
+        dialog.setTitle(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);
         dialog.setMessage(BytecodeVisualizerMessages.Message_file_to_compare); 
 
         int resultCode = dialog.open();

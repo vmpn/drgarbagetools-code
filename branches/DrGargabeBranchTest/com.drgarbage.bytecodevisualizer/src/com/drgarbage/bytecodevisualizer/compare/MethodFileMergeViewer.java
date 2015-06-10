@@ -79,14 +79,14 @@ public class MethodFileMergeViewer extends TextMergeViewer{
 	protected SourceViewer sourceViewerLeft = null;
 	protected SourceViewer sourceViewerRight = null;
 	
-	public static String CLASS_FILE_MERGEVIEWER_TITLE = "Class File Compare";//$NON-NLS-1$
+	public static String METHOD_FILE_MERGEVIEWER_TITLE = "Method File Compare";//$NON-NLS-1$
 	
 	public MethodFileMergeViewer(Composite parent,
 			CompareConfiguration configuration) {
 		super(parent, configuration);
 		
 		/* set display string */
-		getControl().setData(CompareUI.COMPARE_VIEWER_TITLE, CLASS_FILE_MERGEVIEWER_TITLE);
+		getControl().setData(CompareUI.COMPARE_VIEWER_TITLE, METHOD_FILE_MERGEVIEWER_TITLE);
 		
 	}
 	
