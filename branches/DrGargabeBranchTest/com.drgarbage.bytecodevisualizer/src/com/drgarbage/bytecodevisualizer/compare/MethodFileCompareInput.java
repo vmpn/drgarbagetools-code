@@ -7,6 +7,7 @@ import org.eclipse.compare.CompareViewerPane;
 import org.eclipse.compare.Splitter;
 import org.eclipse.compare.internal.CompareContentViewerSwitchingPane;
 import org.eclipse.compare.internal.CompareMessages;
+import org.eclipse.compare.internal.ComparePreferencePage;
 import org.eclipse.compare.internal.CompareUIPlugin;
 import org.eclipse.compare.internal.ViewerDescriptor;
 import org.eclipse.compare.structuremergeviewer.Differencer;
@@ -109,7 +110,6 @@ public class MethodFileCompareInput extends CompareEditorInput {
 
         CompareConfiguration cc = new CompareConfiguration();
         CompareUI.reuseCompareEditor(new MethodFileCompareInput(left, right, cc), compareEditor);
-
     }
     
     /* (non-Javadoc)
@@ -125,7 +125,8 @@ public class MethodFileCompareInput extends CompareEditorInput {
             CompareConfiguration cc = getCompareConfiguration();
             cc.setLeftLabel(left.getName()+"."+left.getElementName()+" "+left.getSig());
             cc.setRightLabel(right.getName()+"."+right.getElementName()+" "+right.getSig());
-
+            cc.setProperty(cc.USE_OUTLINE_VIEW, Boolean.TRUE);
+            
             setTitle(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE
                 +" "+left.getElementName()+ " - " + right.getElementName()); //$NON-NLS-1$
             Differencer differencer = new Differencer();
@@ -158,7 +159,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
 
 			ViewerDescriptor[] descriptors = 
     				CompareUIPlugin.getDefault().findContentViewerDescriptor(newViewer, input, getCompareConfiguration());
-
+				
     		for(ViewerDescriptor vd: descriptors){
     			String s = vd.getExtension();
     			if(s.equals("class, class_drgarbage")){ //$NON-NLS-1$
