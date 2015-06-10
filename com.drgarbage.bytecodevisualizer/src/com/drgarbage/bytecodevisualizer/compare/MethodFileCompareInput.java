@@ -123,10 +123,10 @@ public class MethodFileCompareInput extends CompareEditorInput {
 
         try {
             CompareConfiguration cc = getCompareConfiguration();
-            cc.setLeftLabel(left.getName()+"."+left.getElementName());
-            cc.setRightLabel(right.getName()+"."+right.getElementName());
+            cc.setLeftLabel(left.getName()+"."+left.getElementName()+" "+left.getSig());
+            cc.setRightLabel(right.getName()+"."+right.getElementName()+" "+right.getSig());
 
-            setTitle(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE
+            setTitle(ClassFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE
                 +" "+left.getElementName()+ " - " + right.getElementName()); //$NON-NLS-1$
             Differencer differencer = new Differencer();
             monitor.beginTask("Comparing method...", 30); //$NON-NLS-1$
@@ -278,7 +278,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		itemClassFileCompare = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListClassFile = createSelectionListener();
 		itemClassFileCompare.addSelectionListener(selListClassFile);
-		itemClassFileCompare.setText(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE);
+		itemClassFileCompare.setText(ClassFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);
 		//itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		
@@ -328,7 +328,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
 						return;
 					}
 
-					if(mi.getText().equals(ClassFileMergeViewer.CLASS_FILE_MERGEVIEWER_TITLE)){
+					if(mi.getText().equals(ClassFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE)){
 						switchViewer(CompareElementMethod.TYPE_BYTECODE);
 					}
 					else{
