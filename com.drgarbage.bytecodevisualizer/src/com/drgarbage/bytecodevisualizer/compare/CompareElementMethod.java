@@ -231,9 +231,12 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
 
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
-    					s.append(currentInstruction.getOpcodeMnemonic());
-    					//test.add(s);
-    					s.append("\n");
+    				
+    				s.append(currentInstruction.getOffset());
+    				s.append(" ");
+    				s.append(currentInstruction.getOpcodeMnemonic());
+    				s.append(";");
+    				s.append("\n");
     				
     				
     			}
@@ -248,8 +251,8 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
 
     		if(classV != null){
 
-    			//char[] content = classV.toString().toCharArray();
-    			char[] content = s.toString().toCharArray(); //mit StringBuffer umsetzen
+    			
+    			char[] content = s.toString().toCharArray();
     			final byte[] content2 = new byte[content.length];
     			for(int i = 0; i < content.length; i++){
     				content2[i] = (byte) content[i];
