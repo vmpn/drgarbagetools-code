@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.eclipse.compare.BufferedContent;
 import org.eclipse.compare.CompareUI;
@@ -36,12 +37,14 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.List;
 
 import com.drgarbage.asm.ClassReader;
 import com.drgarbage.asm.render.impl.ClassFileDocument;
 import com.drgarbage.asm.render.impl.ClassFileOutlineElement;
 import com.drgarbage.asm.visitor.FilteringCodeVisitor;
 import com.drgarbage.asm.visitor.MethodFilteringVisitor;
+import com.drgarbage.bytecode.instructions.AbstractInstruction;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.javalang.JavaLangUtils;
@@ -194,9 +197,12 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
      */
     protected InputStream createStream() throws CoreException { 
     	InputStream	stream = ClassFileMergeViewer.createStream(javaElement);
-		if(stream == null){
+    	
+    	AbstractInstruction currentInstruction = null;
+    	if(stream == null){
 			return null;
 		}
+		
 
     	if(!type.equals(TYPE_JAVA)){
     		return stream;
@@ -204,6 +210,8 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     	else{
     		
     		MethodFilteringVisitor classV = null;
+    		StringBuffer s = new StringBuffer();
+    		s.append("{\n");
     		byte[] bytes = null;
     		try {
     			int	max = stream.available();
@@ -215,10 +223,22 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			InputStream in= new ByteArrayInputStream(bytes);
     			DataInputStream din = new DataInputStream(new BufferedInputStream(in));
     			FilteringCodeVisitor codeVisitor = new FilteringCodeVisitor(Parameter.getmethodName(javaElement), Parameter.getmethodSig(javaElement));
+    			//String s = null;
+
     			classV = new MethodFilteringVisitor(codeVisitor);
     			ClassReader cr = new ClassReader(din, classV);
     			cr.accept(classV, 0);
 
+    			for(int i=0;i<codeVisitor.getInstructions().size();i++){
+    				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
+    					s.append(currentInstruction.getOpcodeMnemonic());
+    					//test.add(s);
+    					s.append("\n");
+    				
+    				
+    			}
+    			s.append("}\n");
+    			
     		} catch (Exception e) {
     			throw new CoreException(new Status(IStatus.ERROR, 
     					BytecodeVisualizerPlugin.PLUGIN_ID, 
@@ -228,12 +248,14 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
 
     		if(classV != null){
 
-    			char[] content = classV.toString().toCharArray();
+    			//char[] content = classV.toString().toCharArray();
+    			char[] content = s.toString().toCharArray(); //mit StringBuffer umsetzen
     			final byte[] content2 = new byte[content.length];
     			for(int i = 0; i < content.length; i++){
     				content2[i] = (byte) content[i];
     			}
 
+    			
     			Display.getDefault().syncExec(new Runnable(){
     				public void run() {
     					setContent(content2);
