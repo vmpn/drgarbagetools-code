@@ -73,7 +73,7 @@ import com.drgarbage.utils.Messages;
  * @version $Revision: 792 $
  * $Id: MethodFileMergeViewer.java 792 2015-06-10 10:53:46Z stalkraf $
  */
-@Deprecated
+
 public class MethodFileMergeViewer extends TextMergeViewer{
 
 	protected SourceViewer ansestorSourceViewer = null;
