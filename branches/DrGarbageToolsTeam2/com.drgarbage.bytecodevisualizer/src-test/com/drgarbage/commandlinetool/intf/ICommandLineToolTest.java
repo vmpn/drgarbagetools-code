@@ -5,9 +5,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.junit.Test;
-
 import com.drgarbage.commandlinetool.impl.ByteCodeConfiguration;
 import com.drgarbage.commandlinetool.impl.GraphConfiguration;
 import com.drgarbage.commandlinetool.intf.CommandLineToolFactory;
@@ -20,13 +18,12 @@ import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
  * 
  * @author Baris Atas
  */
-
 public class ICommandLineToolTest {
 	
 	String _classPath = "C:/Users/Barico/Desktop/IT-Project/Test.jar";
 	String _packageName = "testjar";
 	String _className = "main";
-    ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
+    ICommandLineTool cc = CommandLineToolFactory.createCommandLineTool();
     IByteCodeConfiguration byteCodeConf = new ByteCodeConfiguration();
     IGraphConfiguration graphConf = new GraphConfiguration();
 	

@@ -1,24 +1,20 @@
 package com.drgarbage.commandlinetool.intf;
 
-
 import static org.junit.Assert.*;
-
 import org.junit.Test;
-
 import com.drgarbage.commandlinetool.impl.GraphConfiguration;
 import com.drgarbage.commandlinetool.impl.GraphOutputTypes;
-import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
+
 /**
  * Testing class for IGraphConfiguration
  * 
  * @author Baris Atas
-
  */
-
 public class IGraphConfigurationTest {
 	
 	GraphOutputTypes outputtype;
+	IGraphConfiguration graphconfiguration= CommandLineToolFactory.createGraphConfiguration();
 
 	 /**
 	  * Test the IsExportComments method in {@link GraphConfiguration}
@@ -26,13 +22,14 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testIsExportComments() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("c");
+		 
+		graphconfiguration.setExportComments(true);
 		assertTrue(graphconfiguration.isExportComments());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());	
+		assertFalse(graphconfiguration.isEndVertex());	
 	}
 
 	 /**
@@ -41,13 +38,14 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testIsExportDecorations() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("d");
+		
+		graphconfiguration.setExportDecorations(true);
 		assertFalse(graphconfiguration.isExportComments());
 		assertTrue(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 	}
 
 	 /**
@@ -56,13 +54,14 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testIsExportGeometry() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("g");
+		
+        graphconfiguration.setExportGeometry(true);
 		assertFalse(graphconfiguration.isExportComments());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertTrue(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 	}
 
 	 /**
@@ -71,13 +70,14 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testIsSuppressMessages() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("m");
+		
+		graphconfiguration.setSuppressMessages(true);
 		assertFalse(graphconfiguration.isExportComments());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertTrue(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 	}
 
 	 /**
@@ -86,13 +86,14 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testIsStartVertex() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("s");
+		
+		graphconfiguration.setStartVertex(true);
 		assertFalse(graphconfiguration.isExportComments());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertTrue(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 	}
 
 	 /**
@@ -100,14 +101,15 @@ public class IGraphConfigurationTest {
 	  * @param "d" 
 	  */
 	@Test
-	public final void testIsExitVertex() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("e");
+	public final void testIsEndVertex() {
+       
+		graphconfiguration.setEndVertex(true);
 		assertFalse(graphconfiguration.isExportComments());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertTrue(graphconfiguration.isExitVertex());
+		assertTrue(graphconfiguration.isEndVertex());
 	}
 
 	 /**
@@ -116,14 +118,15 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testIsBackEdge() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("b");
+		
+		graphconfiguration.setBackEdge(true);
 		assertFalse(graphconfiguration.isExportComments());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 		assertTrue(graphconfiguration.isBackEdge());
 	}
 	
@@ -133,14 +136,13 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testEmptyArgs() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("");
-		assertFalse(graphconfiguration.isExportComments());
+		
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isExportDecorations());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 		assertFalse(graphconfiguration.isBackEdge());
 	}
 	
@@ -150,13 +152,16 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testMultipleArgs() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("cdg");
+		
+		graphconfiguration.setExportDecorations(true);
+		graphconfiguration.setExportComments(true);
+		graphconfiguration.setExportGeometry(true);
 		assertTrue(graphconfiguration.isExportComments());
 		assertTrue(graphconfiguration.isExportDecorations());
 		assertTrue(graphconfiguration.isExportGeometry());
 		assertFalse(graphconfiguration.isSuppressMessages());
 		assertFalse(graphconfiguration.isStartVertex());
-		assertFalse(graphconfiguration.isExitVertex());
+		assertFalse(graphconfiguration.isEndVertex());
 		assertFalse(graphconfiguration.isBackEdge());
 	}
 
@@ -166,7 +171,8 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testGetOutputType_test1() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("D");
+		
+		graphconfiguration.setOutputType(outputtype.ExportFormat_DOT_Graph_Language);
         assertEquals(outputtype.ExportFormat_DOT_Graph_Language,graphconfiguration.getOutputType());    
 	}
 	
@@ -176,7 +182,8 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testGetOutputType_test2() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("X");
+		
+		graphconfiguration.setOutputType(outputtype.ExportFormat_GraphXML_XML_Based);
         assertEquals(outputtype.ExportFormat_GraphXML_XML_Based,graphconfiguration.getOutputType());	    
 	}
 	
@@ -186,7 +193,8 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testGetOutputType_test3() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("M");
+		
+		graphconfiguration.setOutputType(outputtype.ExportFormat_GraphML_XML_Based);
         assertEquals(outputtype.ExportFormat_GraphML_XML_Based,graphconfiguration.getOutputType());    
 	}
 	
@@ -196,7 +204,8 @@ public class IGraphConfigurationTest {
 	  */
 	@Test
 	public final void testGetOutputType_test4() {
-		IGraphConfiguration graphconfiguration = new GraphConfiguration("N");
+		
+		graphconfiguration.setOutputType(outputtype.ExportFormat_PrintNodes);
         assertEquals(outputtype.ExportFormat_PrintNodes,graphconfiguration.getOutputType());    
 	}
 	
