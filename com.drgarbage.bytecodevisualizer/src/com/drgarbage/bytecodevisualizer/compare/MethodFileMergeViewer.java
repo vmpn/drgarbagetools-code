@@ -501,17 +501,17 @@ public class MethodFileMergeViewer extends TextMergeViewer{
     		stream = new ByteArrayInputStream(classFile.getBytes());	
     	}
     	else{
-    		if (javaElement.getParent().getElementType() 
-    				== IJavaElement.COMPILATION_UNIT){
-    			IType t = (IType) javaElement;
-    			IJavaProject javaProject = t.getJavaProject();
-    			String fullyQualifiedName = t.getFullyQualifiedName();
-    			String className = JavaSourceUtils.getSimpleName(fullyQualifiedName);
-    			String packageName = JavaSourceUtils.getPackage(fullyQualifiedName);
+    		//if (javaElement.getParent().getElementType() 
+    		//		== IJavaElement.COMPILATION_UNIT){
+    			//IType t = (IType) javaElement;
+    			//IJavaProject javaProject = t.getJavaProject();
+    			//String fullyQualifiedName = t.getFullyQualifiedName();
+    			//String className = JavaSourceUtils.getSimpleName(fullyQualifiedName);
+    			//String packageName = JavaSourceUtils.getPackage(fullyQualifiedName);
 
-    			String classPath[] = JavaLangUtils.computeRuntimeClassPath(javaProject);    			
+    			//String classPath[] = JavaLangUtils.computeRuntimeClassPath(javaProject);    			
     			try {
-    				stream = JavaLangUtils.findResource(classPath, packageName, className);
+    				stream = JavaLangUtils.findResource(Parameter.ClassPath(javaElement), Parameter.getpackageName(javaElement), Parameter.getclassName(javaElement));
     			} catch (IOException e) {
     				throw new CoreException(new Status(IStatus.ERROR, 
         					BytecodeVisualizerPlugin.PLUGIN_ID, 
@@ -519,10 +519,10 @@ public class MethodFileMergeViewer extends TextMergeViewer{
         					e));
     			}
     		}
-    		else{
-    			return null;
-    		}
-    	}
+    		//else{
+    		//	return null;
+    		//}
+    	//}
     	
     	return stream;
 	}
