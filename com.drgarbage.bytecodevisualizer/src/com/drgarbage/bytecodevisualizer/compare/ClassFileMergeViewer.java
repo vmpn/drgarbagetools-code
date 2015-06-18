@@ -364,7 +364,7 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	 * @param element
 	 * @return string
 	 */
-	private String generateClassFileInput (IJavaElement javaElement){
+	public static  String generateClassFileInput (IJavaElement javaElement){
 		byte[] bytes = null;
 		try {
 			InputStream	stream = createStream(javaElement);
@@ -486,7 +486,7 @@ public class ClassFileMergeViewer extends TextMergeViewer{
 	 * @param message
 	 * @param t exception object
 	 */
-	private void handleException(String message, Throwable t){
+	private static void handleException(String message, Throwable t){
 		IStatus status = BytecodeVisualizerPlugin.createErrorStatus(message, t);
 		BytecodeVisualizerPlugin.log(status);
 	}
