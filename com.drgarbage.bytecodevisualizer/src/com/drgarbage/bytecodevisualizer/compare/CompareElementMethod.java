@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008-2013, Dr. Garbage Community
+ * Copyright (c) 2008-2015, Dr. Garbage Community
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,7 @@ package com.drgarbage.bytecodevisualizer.compare;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-
 import org.eclipse.compare.BufferedContent;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
@@ -32,29 +29,22 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.List;
-
 import com.drgarbage.asm.ClassReader;
-import com.drgarbage.asm.render.impl.ClassFileDocument;
-import com.drgarbage.asm.render.impl.ClassFileOutlineElement;
 import com.drgarbage.asm.visitor.FilteringCodeVisitor;
 import com.drgarbage.asm.visitor.MethodFilteringVisitor;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
-import com.drgarbage.controlflowgraph.ControlFlowGraphException;
-import com.drgarbage.javalang.JavaLangUtils;
 
 
 /**
  * A <code>CompareElement</code> is used as input for the differencing engine 
  * (interfaces <code>IStructureComparator</code> and <code>ITypedElement</code>).
  * 
- * @author Sergej Alekseev
+ * @author Lars Lewald
  * @version $Revision: 764 $
  * $Id: CompareElement.java 764 2015-05-26 15:28:50Z llewa $
  */
@@ -228,6 +218,7 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			classV = new MethodFilteringVisitor(codeVisitor);
     			ClassReader cr = new ClassReader(din, classV);
     			cr.accept(classV, 0);
+    			
 
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
