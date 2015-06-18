@@ -70,8 +70,8 @@ import com.drgarbage.utils.Messages;
  * @see TextMergeViewer
  * 
  * @author Alex Kraft
- * @version $Revision: 792 $
- * $Id: MethodFileMergeViewer.java 792 2015-06-10 10:53:46Z stalkraf $
+ * @version $Revision$
+ * $Id$
  */
 
 public class MethodFileMergeViewer extends TextMergeViewer{
