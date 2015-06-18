@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2008-2013, Dr. Garbage Community
+ * Copyright (c) 2008-2015, Dr. Garbage Community
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ import com.drgarbage.utils.Messages;
  * @see IMergeViewerContentProvider
  * @see TextMergeViewer
  * 
- * @author Sergej Alekseev
+ * @author Alex Kraft
  * @version $Revision: 792 $
  * $Id: MethodFileMergeViewer.java 792 2015-06-10 10:53:46Z stalkraf $
  */
@@ -493,18 +493,36 @@ public class MethodFileMergeViewer extends TextMergeViewer{
 	}
 	
 	public static InputStream createStream(IJavaElement javaElement) throws CoreException{
-		InputStream	stream = null;   			
+		IClassFile classFile = (IClassFile) javaElement
+				.getAncestor(IJavaElement.CLASS_FILE);
+		
+		InputStream	stream = null;
+    	if (classFile != null) {
+    		stream = new ByteArrayInputStream(classFile.getBytes());	
+    	}
+    	else{
+    		if (javaElement.getParent().getElementType() 
+    				== IJavaElement.COMPILATION_UNIT){
+    			IType t = (IType) javaElement;
+    			IJavaProject javaProject = t.getJavaProject();
+    			String fullyQualifiedName = t.getFullyQualifiedName();
+    			String className = JavaSourceUtils.getSimpleName(fullyQualifiedName);
+    			String packageName = JavaSourceUtils.getPackage(fullyQualifiedName);
+
+    			String classPath[] = JavaLangUtils.computeRuntimeClassPath(javaProject);    			
     			try {
-    				stream = JavaLangUtils.findResource(Parameter.ClassPath(javaElement), Parameter.getpackageName(javaElement), Parameter.getclassName(javaElement));
+    				stream = JavaLangUtils.findResource(classPath, packageName, className);
     			} catch (IOException e) {
     				throw new CoreException(new Status(IStatus.ERROR, 
         					BytecodeVisualizerPlugin.PLUGIN_ID, 
         					e.getMessage(), 
         					e));
     			}
-    		
-    	
-    	
+    		}
+    		else{
+    			return null;
+    		}
+    	}
     	
     	return stream;
 	}
