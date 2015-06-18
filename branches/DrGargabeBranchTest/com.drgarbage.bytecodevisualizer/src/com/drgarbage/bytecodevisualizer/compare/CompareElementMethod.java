@@ -186,7 +186,7 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
      * @see org.eclipse.compare.BufferedContent#createStream()
      */
     protected InputStream createStream() throws CoreException { 
-    	InputStream	stream = ClassFileMergeViewer.createStream(javaElement);
+    	InputStream	stream = MethodFileMergeViewer.createStream(javaElement);
     	
     	AbstractInstruction currentInstruction = null;
     	if(stream == null){
