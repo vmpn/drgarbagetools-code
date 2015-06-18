@@ -38,8 +38,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.DocumentEvent;
@@ -57,7 +55,6 @@ import com.drgarbage.classfile.editors.ClassFileParser;
 import com.drgarbage.classfile.editors.ColorManager;
 import com.drgarbage.core.CoreMessages;
 import com.drgarbage.javalang.JavaLangUtils;
-import com.drgarbage.javasrc.JavaSourceUtils;
 import com.drgarbage.utils.Messages;
 
 /**
