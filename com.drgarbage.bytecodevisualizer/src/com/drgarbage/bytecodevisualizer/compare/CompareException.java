@@ -21,8 +21,8 @@ package com.drgarbage.bytecodevisualizer.compare;
  *  Control Flow Graph Exceptions.
  *
  * @author Lars Lewald
- * @version $Revision: 187 $
- *  $Id: ControlFlowGraphException.java 187 2013-06-03 05:47:37Z salekseev $
+ * @version $Revision$
+ *  $Id$
  */
 
 public class CompareException extends Exception {
