@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
+
 import org.eclipse.compare.BufferedContent;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
@@ -33,11 +34,13 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+
 import com.drgarbage.asm.ClassReader;
 import com.drgarbage.asm.visitor.FilteringCodeVisitor;
 import com.drgarbage.asm.visitor.MethodFilteringVisitor;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 
 
 /**
@@ -45,8 +48,8 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
  * (interfaces <code>IStructureComparator</code> and <code>ITypedElement</code>).
  * 
  * @author Lars Lewald
- * @version $Revision: 764 $
- * $Id: CompareElement.java 764 2015-05-26 15:28:50Z llewa $
+ * @version $Revision$
+ * $Id$
  */
 public class CompareElementMethod extends BufferedContent implements ITypedElement, IStructureComparator {
 
@@ -213,12 +216,21 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			InputStream in= new ByteArrayInputStream(bytes);
     			DataInputStream din = new DataInputStream(new BufferedInputStream(in));
     			FilteringCodeVisitor codeVisitor = new FilteringCodeVisitor(Parameter.getmethodName(javaElement), Parameter.getmethodSig(javaElement));
-    			//String s = null;
+    			
 
     			classV = new MethodFilteringVisitor(codeVisitor);
     			ClassReader cr = new ClassReader(din, classV);
     			cr.accept(classV, 0);
+
     			
+    			if (codeVisitor.getInstructions().size() == 0) {
+    				System.out.println("Failed");
+    				throw new CompareException(
+    						"Bytecodevisualizer: can't get method info of the "
+    								+ Parameter.getmethodName(javaElement) + Parameter.getmethodSig(javaElement));
+
+    			}
+    			else{
 
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
@@ -232,7 +244,7 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     				
     			}
     			s.append("}\n");
-    			
+    			}	
     		} catch (Exception e) {
     			throw new CoreException(new Status(IStatus.ERROR, 
     					BytecodeVisualizerPlugin.PLUGIN_ID, 
