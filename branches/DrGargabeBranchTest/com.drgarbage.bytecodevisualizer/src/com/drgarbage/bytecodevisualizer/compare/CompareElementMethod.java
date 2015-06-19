@@ -221,14 +221,11 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			classV = new MethodFilteringVisitor(codeVisitor);
     			ClassReader cr = new ClassReader(din, classV);
     			cr.accept(classV, 0);
-
+    	
     			
-    			if (codeVisitor.getInstructions().size() == 0) {
-    				System.out.println("Failed");
+    			if (codeVisitor.getInstructions() == null) {	
     				throw new CompareException(
-    						"Bytecodevisualizer: can't get method info of the "
-    								+ Parameter.getmethodName(javaElement) + Parameter.getmethodSig(javaElement));
-
+    						"Unable to compare the abstract method \""+ Parameter.getmethodName(javaElement)+"\"");
     			}
     			else{
 
