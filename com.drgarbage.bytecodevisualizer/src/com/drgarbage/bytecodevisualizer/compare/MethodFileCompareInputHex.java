@@ -60,8 +60,8 @@ import com.drgarbage.core.img.CoreImg;
  * A compare operation input which can present its results in a compare editor.
  * 
  * @author Alexander Kraft
- * @version $Revision$
- * $Id$
+ * @version $Revision: 809 $
+ * $Id: MethodFileCompareInput.java 809 2015-06-18 13:13:31Z llewa $
  */
 public class MethodFileCompareInputHex extends CompareEditorInput {
 
@@ -69,11 +69,13 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
      * The element displayed on the left side of the viewer. 
      */
     protected CompareElementMethodHex left;
+    protected CompareElementMethod left1;
     
     /** 
      * The element displayed on the right side of the viewer. 
     */
     protected CompareElementMethodHex right;
+    protected CompareElementMethod right1;
 
     /**
      * Reference to the editor instance. 
@@ -116,15 +118,12 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
      * @param contentType
      */
     protected void switchViewer(String contentType) {
-
-        left.discardBuffer();
-        left.setType(contentType);
-
-        right.discardBuffer();
-        right.setType(contentType);
-
-        CompareConfiguration cc = new CompareConfiguration();
-        CompareUI.reuseCompareEditor(new MethodFileCompareInputHex(left, right, cc), compareEditor);
+    	left.discardBuffer();
+    	right.discardBuffer();
+    	left1=MethodFileCompareInput.test1;
+    	right1=MethodFileCompareInput.test2;
+    	CompareConfiguration cc = new CompareConfiguration();
+        CompareUI.reuseCompareEditor(new MethodFileCompareInput(left1, right1, cc), compareEditor);
     }
     
     /* (non-Javadoc)
@@ -142,7 +141,7 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
             cc.setRightLabel(right.getName()+"."+right.getElementName()+" "+right.getSig());
             cc.setProperty(cc.USE_OUTLINE_VIEW, Boolean.TRUE);
             
-            setTitle(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE
+            setTitle(MethodFileMergeViewer.HEX_COMPARE_TITLE
                 +" "+left.getElementName()+ " - " + right.getElementName()); //$NON-NLS-1$
             Differencer differencer = new Differencer();
             monitor.beginTask("Comparing method...", 30); //$NON-NLS-1$
@@ -336,19 +335,11 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 			public void widgetSelected(SelectionEvent e) {
 				MenuItem mi = (MenuItem) e.widget;
 				if (mi.getSelection()) {
-					
-					if(mi.getText().equals(CompareMessages.CompareContentViewerSwitchingPane_defaultViewer)){
-						if(left.getType().equals(CompareElementMethodHex.TYPE_BYTECODE)){
-							switchViewer(CompareElementMethodHex.TYPE_JAVA);	
-						}
-						return;
-					}
-
-					if(mi.getText().equals(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE)){
-						switchViewer(CompareElementMethodHex.TYPE_BYTECODE);
+					if(mi.getText().equals(MethodFileMergeViewer.HEX_COMPARE_TITLE)){
+						switchViewer(CompareElementMethod.TYPE_BYTECODE);
 					}
 					else{
-						switchViewer(CompareElementMethodHex.TYPE_JAVA);
+						switchViewer(CompareElementMethod.TYPE_BYTECODE);
 					}
 				}
 			}
@@ -363,3 +354,4 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 	}
  
 }
+
