@@ -293,13 +293,6 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		// 1. create
 		final Menu menu = new Menu(shell, SWT.POP_UP);
 
-		// add default
-		String label = CompareMessages.CompareContentViewerSwitchingPane_defaultViewer;
-		MenuItem defaultItem = new MenuItem(menu, SWT.RADIO);
-		defaultItem.setText(label);
-		defaultItem.addSelectionListener(createSelectionListener());
-
-		new MenuItem(menu, SWT.SEPARATOR);
 		
 		// add others
 		itemMethodCompareHexView = new MenuItem(menu, SWT.RADIO);
@@ -349,14 +342,6 @@ public class MethodFileCompareInput extends CompareEditorInput {
 			public void widgetSelected(SelectionEvent e) {
 				MenuItem mi = (MenuItem) e.widget;
 				if (mi.getSelection()) {
-					
-					if(mi.getText().equals(CompareMessages.CompareContentViewerSwitchingPane_defaultViewer)){
-						if(left.getType().equals(CompareElementMethod.TYPE_BYTECODE)){
-							switchViewerhex(CompareElementMethod.TYPE_JAVA);	
-						}
-						return;
-					}
-
 					if(mi.getText().equals(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE)){
 						switchViewerhex(CompareElementMethod.TYPE_BYTECODE);
 					}
