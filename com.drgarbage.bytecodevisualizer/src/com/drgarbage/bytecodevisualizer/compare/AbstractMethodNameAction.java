@@ -22,27 +22,17 @@ import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.jdt.core.IType;
 
-import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
-import com.drgarbage.core.CoreMessages;
-import com.drgarbage.core.ActionUtils;
-import com.drgarbage.utils.Messages;
 
 /**
  * The abstract action to implement action for comparing class files.
@@ -52,6 +42,7 @@ import com.drgarbage.utils.Messages;
  * $Id$
  */
 public abstract class AbstractMethodNameAction implements IObjectActionDelegate {
+	@SuppressWarnings("unused")
 	private Shell shell;
 	protected IStructuredSelection selection;
 
@@ -80,7 +71,9 @@ public abstract class AbstractMethodNameAction implements IObjectActionDelegate 
 	protected void run(IJavaElement element1, IJavaElement element2) throws Exception {
 		CompareUI.openCompareEditor(new MethodFileCompareInput(
 				new CompareElementMethod(element1),
-				new CompareElementMethod(element2), 
+				new CompareElementMethodHex(element1),
+				new CompareElementMethod(element2),
+				new CompareElementMethodHex(element2),
 				new CompareConfiguration())
 		);
 	}
