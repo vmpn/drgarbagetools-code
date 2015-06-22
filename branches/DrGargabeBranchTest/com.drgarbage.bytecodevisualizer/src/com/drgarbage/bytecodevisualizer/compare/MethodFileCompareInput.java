@@ -302,22 +302,22 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		new MenuItem(menu, SWT.SEPARATOR);
 		
 		// add others
-		itemJavaSourceCompare = new MenuItem(menu, SWT.RADIO);
+		itemMethodCompareHexView = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListJavaSource = createSelectionListener();
-		itemJavaSourceCompare.addSelectionListener(selListJavaSource);
-		itemJavaSourceCompare.setText("Compare method HexView");
-		Image img = JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_CUNIT);
-		itemJavaSourceCompare.setImage(img);
+		itemMethodCompareHexView.addSelectionListener(selListJavaSource);
+		itemMethodCompareHexView.setText("Compare method HexView");
+		itemMethodCompareHexView.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		
 		
-		itemClassFileCompare = new MenuItem(menu, SWT.RADIO);
+		itemMethodCompare = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListClassFile = createSelectionListener();
-		itemClassFileCompare.addSelectionListener(selListClassFile);
-		itemClassFileCompare.setText(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);
-		//itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
-		itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
-		itemJavaSourceCompare.setEnabled(true);
-		itemJavaSourceCompare.setSelection(false);
+		itemMethodCompare.addSelectionListener(selListClassFile);
+		itemMethodCompare.setText(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);;
+		itemMethodCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
+		itemMethodCompareHexView.setEnabled(true);
+		itemMethodCompareHexView.setSelection(false);
+		itemMethodCompare.setEnabled(false);
+		
 		
 		
 		// 2. show
@@ -329,8 +329,8 @@ public class MethodFileCompareInput extends CompareEditorInput {
 				menuShowing= false;
 				e.display.asyncExec(new Runnable() {
 					public void run() {
-						itemJavaSourceCompare.removeSelectionListener(selListJavaSource);
-						itemClassFileCompare.removeSelectionListener(selListClassFile);
+						itemMethodCompareHexView.removeSelectionListener(selListJavaSource);
+						itemMethodCompare.removeSelectionListener(selListClassFile);
 						menu.dispose();
 					}
 				});
@@ -338,8 +338,8 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		});
 	}
     
-	MenuItem itemJavaSourceCompare;
-	MenuItem itemClassFileCompare;
+	MenuItem itemMethodCompareHexView;
+	MenuItem itemMethodCompare;
 	
 	private SelectionListener createSelectionListener() {
 		return new SelectionListener() {
