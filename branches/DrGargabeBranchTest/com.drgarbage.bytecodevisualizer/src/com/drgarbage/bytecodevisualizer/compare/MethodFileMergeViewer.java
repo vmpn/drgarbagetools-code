@@ -78,6 +78,7 @@ public class MethodFileMergeViewer extends TextMergeViewer{
 	protected SourceViewer sourceViewerRight = null;
 	
 	public static String METHOD_FILE_MERGEVIEWER_TITLE = "Method File Compare";//$NON-NLS-1$
+	public static String HEX_COMPARE_TITLE = "Method File Compare(HexView)";//$NON-NLS-1$
 	
 	public MethodFileMergeViewer(Composite parent,
 			CompareConfiguration configuration) {
