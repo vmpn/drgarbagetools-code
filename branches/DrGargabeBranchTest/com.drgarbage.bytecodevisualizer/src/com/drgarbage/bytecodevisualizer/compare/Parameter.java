@@ -19,6 +19,8 @@
 package com.drgarbage.bytecodevisualizer.compare;
 
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -27,8 +29,26 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 
 
+
+
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import com.drgarbage.bytecode.instructions.AbstractInstruction;
+import com.drgarbage.bytecode.instructions.BranchInstruction;
+import com.drgarbage.bytecode.instructions.ImmediateByteInstruction;
+import com.drgarbage.bytecode.instructions.ImmediateIntInstruction;
+import com.drgarbage.bytecode.instructions.ImmediateShortInstruction;
+import com.drgarbage.bytecode.instructions.IncrementInstruction;
+import com.drgarbage.bytecode.instructions.InvokeInterfaceInstruction;
+import com.drgarbage.bytecode.instructions.LookupSwitchInstruction;
+import com.drgarbage.bytecode.instructions.MultianewarrayInstruction;
+import com.drgarbage.bytecode.instructions.TableSwitchInstruction;
+import com.drgarbage.bytecode.instructions.LookupSwitchInstruction.MatchOffsetEntry;
+import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
+import com.drgarbage.bytecodevisualizer.preferences.BytecodeVisualizerPreferenceConstats;
 import com.drgarbage.core.ActionUtils;
 import com.drgarbage.javalang.JavaLangUtils;
+import com.drgarbage.javasrc.JavaLexicalConstants;
 
 
 /**
@@ -40,7 +60,10 @@ import com.drgarbage.javalang.JavaLangUtils;
  * $Id$
  */
 public class Parameter {
+
+	protected static boolean showRelativeBranchTargetOffsets = true;
 	
+
 	
 	
 public static String getpackageName(IJavaElement javaElement){
@@ -107,43 +130,6 @@ public static String getmethodSig(IJavaElement javaElement) throws JavaModelExce
 		}
 	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 
@@ -152,4 +138,105 @@ public static String[] ClassPath(IJavaElement javaElement) throws CoreException{
 	return  JavaLangUtils.computeRuntimeClassPath(javaProject);
 	
 }
-}
+
+
+
+
+public static String appendOperands(AbstractInstruction instruction) {
+	IPreferenceStore store = BytecodeVisualizerPlugin.getDefault().getPreferenceStore(); 
+	if (BytecodeVisualizerPreferenceConstats.BRANCH_TARGET_ADDRESS_ABSOLUTE.equals(
+			store.getString(BytecodeVisualizerPreferenceConstats.BRANCH_TARGET_ADDRESS_RENDERING)
+			)) {
+		showRelativeBranchTargetOffsets = false;
+	}
+	
+	StringBuffer s = new StringBuffer();
+
+	if (instruction instanceof MultianewarrayInstruction) {
+		s.append(((MultianewarrayInstruction) instruction).getImmediateShort());
+		s.append(((MultianewarrayInstruction) instruction).getDimensions());
+	}
+	else if (instruction instanceof IncrementInstruction) {
+		s.append(((IncrementInstruction) instruction).getImmediateByte());
+		s.append(((IncrementInstruction) instruction).getIncrementConst());
+	}
+	else if (instruction instanceof InvokeInterfaceInstruction) {
+		s.append(((InvokeInterfaceInstruction) instruction).getImmediateShort());
+		s.append(((InvokeInterfaceInstruction) instruction).getCount());
+	}
+	else if (instruction instanceof ImmediateByteInstruction) {
+		s.append(((ImmediateByteInstruction) instruction).getImmediateByte());
+	}
+	else if (instruction instanceof ImmediateShortInstruction) {
+		s.append(((ImmediateShortInstruction) instruction).getImmediateShort());
+	}
+	else if (instruction instanceof ImmediateIntInstruction) {
+		s.append(((ImmediateIntInstruction) instruction).getImmediateInt());
+	}
+	else if (instruction instanceof BranchInstruction) {                         
+		BranchInstruction bi = (BranchInstruction) instruction;
+		int val = bi.getBranchOffset();
+		if (!showRelativeBranchTargetOffsets) {
+			/* compute absolute offset */
+			val += bi.getOffset();
+		}
+		s.append(val);                       
+	}
+	else if (instruction instanceof TableSwitchInstruction) {
+		TableSwitchInstruction tsi = (TableSwitchInstruction) instruction;
+		s.append(tsi.getDefaultOffset());
+		s.append(tsi.getLow());
+		s.append(tsi.getHigh());
+
+		s.append(" ");
+		s.append(JavaLexicalConstants.LEFT_SQUARE_BRACKET);
+		int[] offs = tsi.getJumpOffsets();
+		for (int i = 0; i < offs.length; i++) {
+			if (i != 0) {
+				s.append(",");
+				s.append(" ");
+			}
+			int val = offs[i];
+			if (!showRelativeBranchTargetOffsets) {
+				/* compute absolute offset */
+				val += tsi.getOffset();
+			}
+			s.append(String.valueOf(val));
+		}
+		s.append(JavaLexicalConstants.RIGHT_SQUARE_BRACKET);
+	}
+	else if (instruction instanceof LookupSwitchInstruction) {
+		LookupSwitchInstruction lsi = (LookupSwitchInstruction) instruction;
+		s.append(lsi.getDefaultOffset());
+
+		List<MatchOffsetEntry> ens = lsi.getMatchOffsetPairs();
+		s.append(ens.size());
+
+		s.append(" ");
+		s.append(JavaLexicalConstants.LEFT_SQUARE_BRACKET);
+		for (int i = 0; i < ens.size(); i++) {
+			if (i != 0) {
+				s.append(",");
+				s.append(" ");
+			}
+			MatchOffsetEntry en = ens.get(i);
+			s.append(en.getMatch());
+			s.append(" => ");
+			
+			int val = en.getOffset();
+			if (!showRelativeBranchTargetOffsets) {
+				/* compute absolute offset */
+				val += lsi.getOffset();
+			}
+			s.append(String.valueOf(val));
+		}
+		s.append(JavaLexicalConstants.RIGHT_SQUARE_BRACKET);
+	}
+	
+	
+	
+	return s.toString();
+
+
+
+}}
