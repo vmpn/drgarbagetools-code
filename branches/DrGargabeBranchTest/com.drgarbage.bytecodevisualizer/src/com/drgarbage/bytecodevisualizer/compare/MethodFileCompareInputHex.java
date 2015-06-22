@@ -273,37 +273,29 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 		// 1. create
 		final Menu menu = new Menu(shell, SWT.POP_UP);
 
-		// add default
-		String label = CompareMessages.CompareContentViewerSwitchingPane_defaultViewer;
-		MenuItem defaultItem = new MenuItem(menu, SWT.RADIO);
-		defaultItem.setText(label);
-		defaultItem.addSelectionListener(createSelectionListener());
-
-		new MenuItem(menu, SWT.SEPARATOR);
 		
 		// add others
-		itemJavaSourceCompare = new MenuItem(menu, SWT.RADIO);
+		itemMethodCompareHexView = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListJavaSource = createSelectionListener();
-		itemJavaSourceCompare.addSelectionListener(selListJavaSource);
-		itemJavaSourceCompare.setText("Java Source Compare");
-		Image img = JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_CUNIT);
-		itemJavaSourceCompare.setImage(img);
+		itemMethodCompareHexView.addSelectionListener(selListJavaSource);
+		itemMethodCompareHexView.setText("Java Source Compare");
+		itemMethodCompareHexView.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		
 		
-		itemClassFileCompare = new MenuItem(menu, SWT.RADIO);
+		itemMethodCompare = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListClassFile = createSelectionListener();
-		itemClassFileCompare.addSelectionListener(selListClassFile);
-		itemClassFileCompare.setText(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);
+		itemMethodCompare.addSelectionListener(selListClassFile);
+		itemMethodCompare.setText(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);
 		//itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
-		itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
+		itemMethodCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		
 		if(left.getType().equals(CompareElementMethodHex.TYPE_BYTECODE)){
-			itemClassFileCompare.setEnabled(false);
-			itemClassFileCompare.setSelection(true);
+			itemMethodCompare.setEnabled(false);
+			itemMethodCompare.setSelection(true);
 		}
 		else{
-			itemJavaSourceCompare.setEnabled(false);
-			itemJavaSourceCompare.setSelection(true);
+			itemMethodCompareHexView.setEnabled(false);
+			itemMethodCompareHexView.setSelection(true);
 		}
 		
 		// 2. show
@@ -315,8 +307,8 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 				menuShowing= false;
 				e.display.asyncExec(new Runnable() {
 					public void run() {
-						itemJavaSourceCompare.removeSelectionListener(selListJavaSource);
-						itemClassFileCompare.removeSelectionListener(selListClassFile);
+						itemMethodCompareHexView.removeSelectionListener(selListJavaSource);
+						itemMethodCompare.removeSelectionListener(selListClassFile);
 						menu.dispose();
 					}
 				});
@@ -324,8 +316,8 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 		});
 	}
     
-	MenuItem itemJavaSourceCompare;
-	MenuItem itemClassFileCompare;
+	MenuItem itemMethodCompareHexView;
+	MenuItem itemMethodCompare;
 	
 	private SelectionListener createSelectionListener() {
 		return new SelectionListener() {
