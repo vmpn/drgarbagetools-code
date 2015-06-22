@@ -60,8 +60,8 @@ import com.drgarbage.core.img.CoreImg;
  * A compare operation input which can present its results in a compare editor.
  * 
  * @author Alexander Kraft
- * @version $Revision: 809 $
- * $Id: MethodFileCompareInput.java 809 2015-06-18 13:13:31Z llewa $
+ * @version $Revision$
+ * $Id$
  */
 public class MethodFileCompareInputHex extends CompareEditorInput {
 
