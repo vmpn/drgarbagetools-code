@@ -43,6 +43,7 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 
 
+
 /**
  * A <code>CompareElement</code> is used as input for the differencing engine 
  * (interfaces <code>IStructureComparator</code> and <code>ITypedElement</code>).
@@ -230,11 +231,14 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			else{
 
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
+    				String b= "";
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
-    				
     				s.append(currentInstruction.getOffset());
     				s.append(" ");
     				s.append(currentInstruction.getOpcodeMnemonic());
+    				if(!Parameter.appendOperands(currentInstruction).isEmpty()){
+    				s.append(" ");}
+    				s.append(Parameter.appendOperands(currentInstruction));
     				s.append(";");
     				s.append("\n");
     				
