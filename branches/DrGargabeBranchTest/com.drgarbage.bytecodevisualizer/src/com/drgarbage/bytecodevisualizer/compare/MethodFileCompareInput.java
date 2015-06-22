@@ -69,12 +69,16 @@ public class MethodFileCompareInput extends CompareEditorInput {
      * The element displayed on the left side of the viewer. 
      */
     protected CompareElementMethod left;
+    protected CompareElementMethodHex left1;
+    public static CompareElementMethod test1;
+    
     
     /** 
      * The element displayed on the right side of the viewer. 
     */
     protected CompareElementMethod right;
-
+    protected CompareElementMethodHex right1;
+    public static CompareElementMethod test2;
     /**
      * Reference to the editor instance. 
      */
@@ -86,13 +90,29 @@ public class MethodFileCompareInput extends CompareEditorInput {
      * @param right the element displayed on the right side of the viewer.
      * @param cc compare configuration
      */
-    public MethodFileCompareInput(final CompareElementMethod left, final CompareElementMethod right, CompareConfiguration cc) {
+    public MethodFileCompareInput(final CompareElementMethod left,CompareElementMethodHex left1,CompareElementMethod right, final CompareElementMethodHex right1, CompareConfiguration cc) {
     	super(cc);
         this.left = left;
+        this.left1 = left1;
         this.right = right;
+        this.right1 = right1;
+        
     }
     
-    /* (non-Javadoc)
+
+    
+    public MethodFileCompareInput(final CompareElementMethod left,CompareElementMethod right, CompareConfiguration cc) {
+    	super(cc);
+        this.left = left;  
+        this.right = right;	
+	}
+
+
+
+
+
+
+	/* (non-Javadoc)
      * @see org.eclipse.compare.CompareEditorInput#getTitleImage()
      */
     public Image getTitleImage() {
@@ -115,17 +135,16 @@ public class MethodFileCompareInput extends CompareEditorInput {
      * Switch viewer of the editor.
      * @param contentType
      */
-    protected void switchViewer(String contentType) {
-
-        left.discardBuffer();
-        left.setType(contentType);
-
-        right.discardBuffer();
-        right.setType(contentType);
-
+    protected void switchViewerhex(String contentType) {
+    	left.discardBuffer();
+    	right.discardBuffer();
+        test1=left;
+    	test2=right;
         CompareConfiguration cc = new CompareConfiguration();
-        CompareUI.reuseCompareEditor(new MethodFileCompareInput(left, right, cc), compareEditor);
+        CompareUI.reuseCompareEditor(new MethodFileCompareInputHex(left1, right1, cc), compareEditor);
+
     }
+    
     
     /* (non-Javadoc)
      * @see org.eclipse.compare.CompareEditorInput#prepareInput(org.eclipse.core.runtime.IProgressMonitor)
@@ -286,7 +305,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		itemJavaSourceCompare = new MenuItem(menu, SWT.RADIO);
 		final SelectionListener selListJavaSource = createSelectionListener();
 		itemJavaSourceCompare.addSelectionListener(selListJavaSource);
-		itemJavaSourceCompare.setText("Java Source Compare");
+		itemJavaSourceCompare.setText("Compare method HexView");
 		Image img = JavaUI.getSharedImages().getImage(org.eclipse.jdt.ui.ISharedImages.IMG_OBJS_CUNIT);
 		itemJavaSourceCompare.setImage(img);
 		
@@ -297,15 +316,9 @@ public class MethodFileCompareInput extends CompareEditorInput {
 		itemClassFileCompare.setText(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE);
 		//itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
 		itemClassFileCompare.setImage(CoreImg.bytecode_method_compare_16x16.createImage());
+		itemJavaSourceCompare.setEnabled(true);
+		itemJavaSourceCompare.setSelection(false);
 		
-		if(left.getType().equals(CompareElementMethod.TYPE_BYTECODE)){
-			itemClassFileCompare.setEnabled(false);
-			itemClassFileCompare.setSelection(true);
-		}
-		else{
-			itemJavaSourceCompare.setEnabled(false);
-			itemJavaSourceCompare.setSelection(true);
-		}
 		
 		// 2. show
 		menu.setVisible(true);
@@ -339,16 +352,16 @@ public class MethodFileCompareInput extends CompareEditorInput {
 					
 					if(mi.getText().equals(CompareMessages.CompareContentViewerSwitchingPane_defaultViewer)){
 						if(left.getType().equals(CompareElementMethod.TYPE_BYTECODE)){
-							switchViewer(CompareElementMethod.TYPE_JAVA);	
+							switchViewerhex(CompareElementMethod.TYPE_JAVA);	
 						}
 						return;
 					}
 
 					if(mi.getText().equals(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE)){
-						switchViewer(CompareElementMethod.TYPE_BYTECODE);
+						switchViewerhex(CompareElementMethod.TYPE_BYTECODE);
 					}
 					else{
-						switchViewer(CompareElementMethod.TYPE_JAVA);
+						switchViewerhex(CompareElementMethod.TYPE_JAVA);
 					}
 				}
 			}
