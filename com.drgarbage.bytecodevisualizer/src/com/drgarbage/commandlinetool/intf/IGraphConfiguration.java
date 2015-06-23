@@ -15,7 +15,6 @@
  */
 package com.drgarbage.commandlinetool.intf;
 
-import com.drgarbage.commandlinetool.impl.GraphOutputTypes;
 
 /**
  * The interface for ExportGraphConfiguration class alles false
@@ -25,8 +24,7 @@ import com.drgarbage.commandlinetool.impl.GraphOutputTypes;
  * $Id: IGraphConfiguration.java 739 2015-05-17 21:22:23Z cihanaydin $
  */
 public interface IGraphConfiguration {
-	//TODO setter methoden
-	//TODO return true or false
+	
 	/**
 	 * Returns true if export comments option is set, otherwise false.
 	 * Getter for option show export comments.
@@ -62,7 +60,7 @@ public interface IGraphConfiguration {
 	 * Getter for show end vertex.
 	 * @return <code> true </code> or <code>false</code>
 	 */
-	public boolean isExitVertex();
+	public boolean isEndVertex();
 	
 	/**
 	 * Getter for show back edge.

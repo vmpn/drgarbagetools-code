@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.drgarbage.commandlinetool.impl;
+package com.drgarbage.commandlinetool.intf;
 
 /**
  * An enum class to set the GraphOutputType while parsing the arguments.
@@ -22,14 +22,12 @@ package com.drgarbage.commandlinetool.impl;
  * @version $Revision: 723 $
  * $Id: GraphOutputTypes.java 723 2015-05-12 08:40:35Z cihanaydin $
  */
-//TODO verschieben interfaces
+
 public enum GraphOutputTypes {
-	ExportFormat_Dr_Garbage_Graph,
 	ExportFormat_DOT_Graph_Language,
 	ExportFormat_GraphXML_XML_Based,
 	ExportFormat_GraphML_XML_Based,
 	ExportFormat_PrintNodes,
-	ExportFormat_ByteCode, 
-	ExportFormat_SourceCodeGraph,
-	ExportFormat_ByteCodeGraph
+	ExportFormat_ByteCodeGraph,
+	ExportFormat_SourceCodeGraph
 }

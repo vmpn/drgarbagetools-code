@@ -15,31 +15,32 @@
  */
 package com.drgarbage.commandlinetool.impl;
 
+import com.drgarbage.commandlinetool.intf.IMethodPair;
+
 /**
- * A simple helper class
+ * A helper class to combine method name and method signature in a single object.
  * @author cihanaydin
  * @version $Revision: 777 $
  * $Id: MethodPair.java 723 2015-05-12 08:40:35Z cihanaydin $
  */
-public class MethodPair {
+public class MethodPair implements IMethodPair{
 	private String methodName;
 	private String methodSignature;
 	public MethodPair(String name, String descriptor) {
 		this.methodName = name;
 		this.methodSignature = descriptor;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IMethodPair#getMethodName()
+	 */
 	public String getMethodName() {
 		return methodName;
 	}
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
-	}
+
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IMethodPair#getMethodSignature()
+	 */
 	public String getMethodSignature() {
 		return methodSignature;
 	}
-	public void setMethodSignature(String methodSignature) {
-		this.methodSignature = methodSignature;
-	}
-	
-	
 }

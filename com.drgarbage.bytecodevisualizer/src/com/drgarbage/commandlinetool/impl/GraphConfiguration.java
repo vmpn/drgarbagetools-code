@@ -15,6 +15,7 @@
  */
 package com.drgarbage.commandlinetool.impl;
 
+import com.drgarbage.commandlinetool.intf.GraphOutputTypes;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
 
 /**
@@ -36,99 +37,101 @@ public class GraphConfiguration implements IGraphConfiguration {
 	private GraphOutputTypes outputType;
 	
 	public GraphConfiguration() {
-		this(null);
-	}
-	public GraphConfiguration(String arg) {
-		if (arg == null || arg.equals("")) {
-			this.setOutputType(GraphOutputTypes.ExportFormat_PrintNodes);
-		} else {
-			for (Character c : arg.toCharArray()) {
-				switch(c) {
-					case 'c':
-						this.setExportComments(true);
-						break;
-					case 'd':
-						this.setExportDecorations(true);
-						break;
-					case 'g':
-						this.setExportGeometry(true);
-						break;
-					case 'm':
-						this.setSuppressMessages(true);
-						break;
-					case 's':
-						this.setStartVertex(true);
-						break;
-					case 'e':
-						this.setEndVertex(true);
-						break;
-					case 'b':
-						this.setBackEdge(true);
-						break;
-					case 'D':
-						this.setOutputType(GraphOutputTypes.ExportFormat_DOT_Graph_Language);
-						break;
-					case 'X':
-						this.setOutputType(GraphOutputTypes.ExportFormat_GraphXML_XML_Based);
-						break;
-					case 'M':
-						this.setOutputType(GraphOutputTypes.ExportFormat_GraphML_XML_Based);
-						break;
-					case 'N':
-						this.setOutputType(GraphOutputTypes.ExportFormat_PrintNodes);
-						break;
-					default:
-						break;
-				}
-			}
-		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isExportComments()
+	 */
 	public boolean isExportComments() {
 		return exportComments;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setExportComments(boolean)
+	 */
 	public void setExportComments(boolean exportComments) {
 		this.exportComments = exportComments;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isExportDecorations()
+	 */
 	public boolean isExportDecorations() {
 		return exportDecorations;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setExportDecorations(boolean)
+	 */
 	public void setExportDecorations(boolean exportDecorations) {
 		this.exportDecorations = exportDecorations;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isExportGeometry()
+	 */
 	public boolean isExportGeometry() {
 		return exportGeometry;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setExportGeometry(boolean)
+	 */
 	public void setExportGeometry(boolean exportGeometry) {
 		this.exportGeometry = exportGeometry;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isSuppressMessages()
+	 */
 	public boolean isSuppressMessages() {
 		return supressMessages;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setSuppressMessages(boolean)
+	 */
 	public void setSuppressMessages(boolean supressMessages) {
 		this.supressMessages = supressMessages;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#getOutputType()
+	 */
 	public GraphOutputTypes getOutputType() {
 		return outputType;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setOutputType(com.drgarbage.commandlinetool.impl.GraphOutputTypes)
+	 */
 	public void setOutputType(GraphOutputTypes outputType) {
 		this.outputType = outputType;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isStartVertex()
+	 */
 	public boolean isStartVertex() {
 		return startvertex;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setStartVertex(boolean)
+	 */
 	public void setStartVertex(boolean startvertex) {
 		this.startvertex = startvertex;
 	}
-	public boolean isExitVertex() {
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isEndVertex()
+	 */
+	public boolean isEndVertex() {
 		return endvertex;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setEndVertex(boolean)
+	 */
 	public void setEndVertex(boolean endvertex) {
 		this.endvertex = endvertex;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#isBackEdge()
+	 */
 	public boolean isBackEdge() {
 		return backedge;
 	}
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.IGraphConfiguration#setBackEdge(boolean)
+	 */
 	public void setBackEdge(boolean backedge) {
 		this.backedge = backedge;
 	}
