@@ -50,6 +50,10 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
  * @version $Revision$
  * $Id$
  */
+/**
+ * @author Lars
+ *
+ */
 public class CompareElementMethodHex extends BufferedContent implements ITypedElement, IStructureComparator {
 
     private final IJavaElement javaElement;
@@ -81,11 +85,19 @@ public class CompareElementMethodHex extends BufferedContent implements ITypedEl
         this.className = getClassName(javaElement);
     }
     
+    /**
+     * @param dec
+     * @return String value of opcode in hex
+     */
     public static String decToHex(int dec) {
         // equivalent to IntegralToString.intToHexString(dec, false, 0);
         return Integer.toHexString(dec);
     }
     
+    /**
+     * @param s
+     * @return String value of operands in hex
+     */
     public static String stringtohex(String s) {
     	StringBuffer as = new StringBuffer();
     	//s = s.replace("[","");
