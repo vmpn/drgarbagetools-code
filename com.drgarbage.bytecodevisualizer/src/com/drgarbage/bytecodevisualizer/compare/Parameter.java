@@ -154,14 +154,17 @@ public static String appendOperands(AbstractInstruction instruction) {
 
 	if (instruction instanceof MultianewarrayInstruction) {
 		s.append(((MultianewarrayInstruction) instruction).getImmediateShort());
+		s.append(" ");
 		s.append(((MultianewarrayInstruction) instruction).getDimensions());
 	}
 	else if (instruction instanceof IncrementInstruction) {
 		s.append(((IncrementInstruction) instruction).getImmediateByte());
+		s.append(" ");
 		s.append(((IncrementInstruction) instruction).getIncrementConst());
 	}
 	else if (instruction instanceof InvokeInterfaceInstruction) {
 		s.append(((InvokeInterfaceInstruction) instruction).getImmediateShort());
+		s.append(" ");
 		s.append(((InvokeInterfaceInstruction) instruction).getCount());
 	}
 	else if (instruction instanceof ImmediateByteInstruction) {
@@ -239,4 +242,8 @@ public static String appendOperands(AbstractInstruction instruction) {
 
 
 
-}}
+}
+
+
+
+}
