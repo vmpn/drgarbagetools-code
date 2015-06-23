@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
+
 import org.eclipse.compare.BufferedContent;
 import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.ITypedElement;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
+
 import com.drgarbage.asm.ClassReader;
 import com.drgarbage.asm.visitor.FilteringCodeVisitor;
 import com.drgarbage.asm.visitor.MethodFilteringVisitor;
@@ -82,6 +84,24 @@ public class CompareElementMethodHex extends BufferedContent implements ITypedEl
     public static String decToHex(int dec) {
         // equivalent to IntegralToString.intToHexString(dec, false, 0);
         return Integer.toHexString(dec);
+    }
+    
+    public static String stringtohex(String s) {
+    	StringBuffer as = new StringBuffer();
+    	if(s.isEmpty()){
+    		return "";
+    	}
+    	String[] ss = s.split(" ");
+    	int[] a = new int[ss.length];
+        for(int i = 0; i<a.length; i++)
+        {
+            a[i] = Integer.parseInt(ss[i]);
+            as.append(Integer.toHexString(a[i]));
+            as.append(" ");
+            
+        }
+        return as.toString();
+    	
     }
     
     
@@ -223,6 +243,8 @@ public class CompareElementMethodHex extends BufferedContent implements ITypedEl
     			cr.accept(classV, 0);
     			
 
+    			
+
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
     				
@@ -230,6 +252,9 @@ public class CompareElementMethodHex extends BufferedContent implements ITypedEl
     				s.append(" ");
     				s.append("0x");
     				s.append(decToHex(currentInstruction.getOpcode()));
+    				if(!Parameter.appendOperands(currentInstruction).isEmpty()){
+        				s.append(" ");}
+    			    s.append(stringtohex(Parameter.appendOperands(currentInstruction)));
     				s.append(";");
     				s.append("\n");			
     			}
