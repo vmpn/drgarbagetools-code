@@ -262,7 +262,7 @@ public class CompareElementMethodHex extends BufferedContent implements ITypedEl
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
     				
-    				s.append(currentInstruction.getOffset());
+    				s.append(String.format("%4d", (currentInstruction.getOffset())));
     				s.append(" ");
     				s.append("0x");
     				s.append(decToHex(currentInstruction.getOpcode()));
