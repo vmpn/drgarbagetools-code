@@ -88,6 +88,8 @@ public class CompareElementMethodHex extends BufferedContent implements ITypedEl
     
     public static String stringtohex(String s) {
     	StringBuffer as = new StringBuffer();
+    	//s = s.replace("[","");
+    	//s = s.replace("]","");
     	if(s.isEmpty()){
     		return "";
     	}
