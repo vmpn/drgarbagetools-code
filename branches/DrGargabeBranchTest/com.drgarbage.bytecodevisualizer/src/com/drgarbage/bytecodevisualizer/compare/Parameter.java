@@ -66,6 +66,10 @@ public class Parameter {
 
 	
 	
+/**
+ * @param javaElement
+ * @return String Packagename(mPackage)
+ */
 public static String getpackageName(IJavaElement javaElement){
 	String mPackage=null;
 	IMethod m=(IMethod)javaElement;
@@ -75,6 +79,10 @@ public static String getpackageName(IJavaElement javaElement){
 		
 	}
 
+/**
+ * @param javaElement
+ * @return String Classname(mClassName)
+ */
 public static String getclassName(IJavaElement javaElement){
 	String mClassName=null;
 	String mPackage=null;
@@ -87,6 +95,10 @@ public static String getclassName(IJavaElement javaElement){
 	
 }
 
+/**
+ * @param javaElement
+ * @return String methodname or <init> when method is Constructor
+ */
 public static String getmethodName(IJavaElement javaElement){
 	IMethod m=(IMethod)javaElement;
 	try {
@@ -103,6 +115,11 @@ public static String getmethodName(IJavaElement javaElement){
 	return null;
 	}
 
+/**
+ * @param javaElement
+ * @return method Signature
+ * @throws JavaModelException
+ */
 public static String getmethodSig(IJavaElement javaElement) throws JavaModelException{
 	IMethod m=(IMethod)javaElement;
 	if(m.isBinary()){
@@ -133,6 +150,11 @@ public static String getmethodSig(IJavaElement javaElement) throws JavaModelExce
 }
 
 
+/**
+ * @param javaElement
+ * @return String[] ClassPath
+ * @throws CoreException
+ */
 public static String[] ClassPath(IJavaElement javaElement) throws CoreException{
 	IJavaProject javaProject = javaElement.getJavaProject();
 	return  JavaLangUtils.computeRuntimeClassPath(javaProject);
@@ -142,6 +164,10 @@ public static String[] ClassPath(IJavaElement javaElement) throws CoreException{
 
 
 
+/**
+ * @param instruction
+ * @return operands of the method
+ */
 public static String appendOperands(AbstractInstruction instruction) {
 	IPreferenceStore store = BytecodeVisualizerPlugin.getDefault().getPreferenceStore(); 
 	if (BytecodeVisualizerPreferenceConstats.BRANCH_TARGET_ADDRESS_ABSOLUTE.equals(
