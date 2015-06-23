@@ -40,7 +40,7 @@ import com.drgarbage.asm.visitor.FilteringCodeVisitor;
 import com.drgarbage.asm.visitor.MethodFilteringVisitor;
 import com.drgarbage.bytecode.instructions.AbstractInstruction;
 import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
-import com.drgarbage.controlflowgraph.ControlFlowGraphException;
+
 
 
 
@@ -231,7 +231,6 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
     			else{
 
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
-    				String b= "";
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
     				s.append(currentInstruction.getOffset());
     				s.append(" ");
