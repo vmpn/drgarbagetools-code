@@ -490,6 +490,11 @@ public class MethodFileMergeViewer extends TextMergeViewer{
 		BytecodeVisualizerPlugin.log(status);
 	}
 	
+	/**
+	 * @param javaElement
+	 * @return InputStream of the javaElement
+	 * @throws CoreException
+	 */
 	public static InputStream createStream(IJavaElement javaElement) throws CoreException{
 		IClassFile classFile = (IClassFile) javaElement
 				.getAncestor(IJavaElement.CLASS_FILE);
