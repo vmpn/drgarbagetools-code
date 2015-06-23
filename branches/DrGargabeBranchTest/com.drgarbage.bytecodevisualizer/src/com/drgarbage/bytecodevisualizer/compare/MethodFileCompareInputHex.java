@@ -21,8 +21,6 @@ import org.eclipse.compare.CompareUI;
 import org.eclipse.compare.CompareViewerPane;
 import org.eclipse.compare.Splitter;
 import org.eclipse.compare.internal.CompareContentViewerSwitchingPane;
-import org.eclipse.compare.internal.CompareMessages;
-import org.eclipse.compare.internal.ComparePreferencePage;
 import org.eclipse.compare.internal.CompareUIPlugin;
 import org.eclipse.compare.internal.ViewerDescriptor;
 import org.eclipse.compare.structuremergeviewer.Differencer;
@@ -30,7 +28,6 @@ import org.eclipse.compare.structuremergeviewer.ICompareInput;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
@@ -63,6 +60,7 @@ import com.drgarbage.core.img.CoreImg;
  * @version $Revision$
  * $Id$
  */
+@SuppressWarnings("restriction")
 public class MethodFileCompareInputHex extends CompareEditorInput {
 
     /** 
@@ -115,9 +113,9 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 
     /**
      * Switch viewer of the editor.
-     * @param contentType
+     * @param 
      */
-    protected void switchViewer(String contentType) {
+    protected void switchViewermethod() {
     	left.discardBuffer();
     	right.discardBuffer();
     	left1=MethodFileCompareInput.test1;
@@ -129,7 +127,8 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
     /* (non-Javadoc)
      * @see org.eclipse.compare.CompareEditorInput#prepareInput(org.eclipse.core.runtime.IProgressMonitor)
      */
-    protected Object prepareInput(final IProgressMonitor monitor)
+    @SuppressWarnings("static-access")
+	protected Object prepareInput(final IProgressMonitor monitor)
         throws InterruptedException {
         if (right == null || left == null) {
             return null;
@@ -328,10 +327,10 @@ public class MethodFileCompareInputHex extends CompareEditorInput {
 				MenuItem mi = (MenuItem) e.widget;
 				if (mi.getSelection()) {
 					if(mi.getText().equals(MethodFileMergeViewer.HEX_COMPARE_TITLE)){
-						switchViewer(CompareElementMethod.TYPE_BYTECODE);
+						switchViewermethod();
 					}
 					else{
-						switchViewer(CompareElementMethod.TYPE_BYTECODE);
+						switchViewermethod();
 					}
 				}
 			}
