@@ -133,9 +133,9 @@ public class MethodFileCompareInput extends CompareEditorInput {
 
     /**
      * Switch viewer of the editor.
-     * @param contentType
+     * @param 
      */
-    protected void switchViewerhex(String contentType) {
+    protected void switchViewerhex() {
     	left.discardBuffer();
     	right.discardBuffer();
         test1=left;
@@ -343,10 +343,10 @@ public class MethodFileCompareInput extends CompareEditorInput {
 				MenuItem mi = (MenuItem) e.widget;
 				if (mi.getSelection()) {
 					if(mi.getText().equals(MethodFileMergeViewer.METHOD_FILE_MERGEVIEWER_TITLE)){
-						switchViewerhex(CompareElementMethod.TYPE_BYTECODE);
+						switchViewerhex();
 					}
 					else{
-						switchViewerhex(CompareElementMethod.TYPE_JAVA);
+						switchViewerhex();
 					}
 				}
 			}
