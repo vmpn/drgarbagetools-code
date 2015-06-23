@@ -56,21 +56,13 @@ public interface ICommandLineTool {
 	public String visualizeGraph(InputStream inputStream, String methodName, String methodSignatur, IGraphConfiguration configuration);	
 	
 	/**
-	 * Returns all methods in class as string with the specified parameteres in {@link IGraphConfiguration}
+	 * Returns all methods in class as string with the specified parameters in {@link IGraphConfiguration}
 	 * @param classPath Example: <code>/tmp/class/container.jar</code> or <code>/tmp/class/</code>
 	 * @param packageName Example: <code>com.drgarbage.commandlinetool</code>
 	 * @param className Example: <code>ICommandLineTool</code>
 	 * @param configuration Object from {@link IGraphConfiguration}
 	 * @return 
 	 */
-	public Map<MethodPair, String> visualizeGraphs(String classPath, String packageName, String className, IGraphConfiguration configuration);
-
-	
-	/**
-	 * Compares two graphs and prints the difference
-	 * @param graph
-	 * @return
-	 */
-	public String compareClassFiles(InputStream is1, InputStream is2);
+	public Map<IMethodPair, String> visualizeGraphs(String classPath, String packageName, String className, IGraphConfiguration configuration);
 
 }

@@ -26,58 +26,85 @@ public interface IByteCodeConfiguration {
 	//TODO siehe IExport
 	/**
 	 * Getter for option show constant pool.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowConstantPool();
 	
 	/**
 	 * Getter for option show line number table.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowLineNumberTable();
 	
 	/**
 	 * Getter for option show local variable table.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowLocalVariableTable();
 	
 	/**
 	 * Getter for option show exception table.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowExceptionTable();
 	
 	/**
 	 * Getter for option show relative branch target offsets.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowRelativeBranchTargetOffsets();
 	
 	/**
 	 * Getter for option show source line numbers.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowSourceLineNumbers();
 	
 	/**
 	 * Getter for option show maxs.
-	 * @return boolean
+	 * @return <code> true </code> or <code>false</code>
 	 */
 	public boolean isShowMaxs();
 	
-	
+	/**
+	 * Setter for option show constant pool.
+	 * @param showConstantPool <code> true </code> or <code>false</code>
+	 */
 	public void setShowConstantPool(boolean showConstantPool);
 	
+	/**
+	 * Setter for option show line number table.
+	 * @param showLineNumberTable <code> true </code> or <code>false</code>
+	 */
 	public void setShowLineNumberTable(boolean showLineNumberTable);
 	
+	/**
+	 * Setter for option show local variable table.
+	 * @param showLocalVariableTable <code> true </code> or <code>false</code>
+	 */
 	public void setShowLocalVariableTable(boolean showLocalVariableTable);
 	
+	/**
+	 * Setter for option show exception table.
+	 * @param showExceptionTable <code> true </code> or <code>false</code>
+	 */
 	public void setShowExceptionTable(boolean showExceptionTable);
 	
+	/**
+	 * Setter for option show relative branch target offsets.
+	 * @param showRelativeBranchTargetOffsets <code> true </code> or <code>false</code>
+	 */
 	public void setShowRelativeBranchTargetOffsets(boolean showRelativeBranchTargetOffsets);
 	
+	/**
+	 * Setter for option show source line numbers.
+	 * @param showSourceLineNumbers <code> true </code> or <code>false</code>
+	 */
 	public void setShowSourceLineNumbers(boolean showSourceLineNumbers);
 	
+	/**
+	 * Setter for option show maxs.
+	 * @param showMaxs <code> true </code> or <code>false</code>
+	 */
 	public void setShowMaxs(boolean showMaxs);
 }

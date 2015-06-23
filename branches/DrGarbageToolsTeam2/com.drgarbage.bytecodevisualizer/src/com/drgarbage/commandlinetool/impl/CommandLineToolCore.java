@@ -20,7 +20,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Map;
 
 import com.drgarbage.asm.ClassReader;
 import com.drgarbage.asm.render.impl.ClassFileDocument;
@@ -54,10 +53,11 @@ import com.drgarbage.visualgraphic.model.ControlFlowGraphDiagramFactory;
 public class CommandLineToolCore {
 	
 	/**
-	 * Starts the graph exporter and prints the graph
+	 * Starts the graph exporter and prints the graph.
 	 * @param config config file for graph preferences
 	 * @throws ControlFlowGraphException
 	 * @throws IOException
+	 * @return String object with the Graph of the ByteCode in the specified format
 	 */
 	public static String startGraphExporter(InputStream inputStream, String methodName,
 			String methodSignatur, IGraphConfiguration config) throws ControlFlowGraphException, IOException{
@@ -70,7 +70,7 @@ public class CommandLineToolCore {
 		case ExportFormat_PrintNodes:
 		case ExportFormat_SourceCodeGraph:	
 			FilteringCodeVisitor codeVisitor = getInstructionList(inputStream, methodName, methodSignatur);
-			graph = ControlFlowGraphGenerator.generateControlFlowGraph(codeVisitor.getInstructions(), codeVisitor.getLineNumberTable(), config.isStartVertex(), config.isExitVertex(), config.isBackEdge());			
+			graph = ControlFlowGraphGenerator.generateControlFlowGraph(codeVisitor.getInstructions(), codeVisitor.getLineNumberTable(), config.isStartVertex(), config.isEndVertex(), config.isBackEdge());			
 			return printGraph(graph);
 			
 		case ExportFormat_GraphML_XML_Based:
@@ -81,13 +81,13 @@ public class CommandLineToolCore {
 			break;
 		case ExportFormat_GraphXML_XML_Based:
 			exporter = new GraphXMLExport();
-			break;
+			break;			
 		default:
 			break;
 		}
 		FilteringCodeVisitor codeVisitor = getInstructionList(inputStream, methodName, methodSignatur);
 
-		graph = ControlFlowGraphGenerator.generateControlFlowGraph(codeVisitor.getInstructions(), codeVisitor.getLineNumberTable(), config.isStartVertex(), config.isExitVertex(), config.isBackEdge());		diagram = ControlFlowGraphDiagramFactory.createControlFlowGraphDiagram(graph);
+		graph = ControlFlowGraphGenerator.generateControlFlowGraph(codeVisitor.getInstructions(), codeVisitor.getLineNumberTable(), config.isStartVertex(), config.isEndVertex(), config.isBackEdge());		diagram = ControlFlowGraphDiagramFactory.createControlFlowGraphDiagram(graph);
 		diagram = ControlFlowGraphDiagramFactory.createControlFlowGraphDiagram(graph);
 
 		IGraphSpecification graphSpecification = setConfiguredGraphSpecifications(config);
@@ -108,9 +108,10 @@ public class CommandLineToolCore {
 	}
 	
 	/**
-	 * starts the byte code visualizer
-	 * @param contentStream
+	 * Starts the byte code visualizer.
+	 * @param contentStream as InputStream
 	 * @param ByteCodeConfiguration
+	 * @return String object with the visualized ByteCode
 	 */
 	public static String startByteCodeVisualizer(InputStream contentStream, IByteCodeConfiguration configuration) {
 		

@@ -26,6 +26,7 @@ import com.drgarbage.asm.render.intf.IMethodSection;
 import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
 import com.drgarbage.commandlinetool.intf.ICommandLineTool;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
+import com.drgarbage.commandlinetool.intf.IMethodPair;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 import com.drgarbage.javalang.JavaLangUtils;
 
@@ -38,6 +39,9 @@ import com.drgarbage.javalang.JavaLangUtils;
  */
 public class CommandLineToolImplementation implements ICommandLineTool {
 	
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.ICommandLineTool#getInputStream(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public InputStream getInputStream(String classPath, String packageName, 
 			String className) throws IOException{
 		
@@ -45,30 +49,35 @@ public class CommandLineToolImplementation implements ICommandLineTool {
 	}
 
 
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.ICommandLineTool#visualizeClassFile(java.io.InputStream, com.drgarbage.commandlinetool.intf.IByteCodeConfiguration)
+	 */
 	public String visualizeClassFile(InputStream inputStream,
 			IByteCodeConfiguration configuration) {
 	
 		return CommandLineToolCore.startByteCodeVisualizer(inputStream, configuration);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.ICommandLineTool#visualizeGraph(java.io.InputStream, java.lang.String, java.lang.String, com.drgarbage.commandlinetool.intf.IGraphConfiguration)
+	 */
 	public String visualizeGraph(InputStream inputStream, String methodName, String methodSignatur, IGraphConfiguration configuration) {
 		
 		try {
 			return CommandLineToolCore.startGraphExporter(inputStream, methodName, methodSignatur, configuration);
 		} catch (ControlFlowGraphException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 		return null;
 		
 	}
 	
-	public Map<MethodPair, String> visualizeGraphs(String _classPath, String _packageName, String _className, IGraphConfiguration configuration){
-		Map<MethodPair, String> map = new HashMap<MethodPair, String>();
+	/* (non-Javadoc)
+	 * @see com.drgarbage.commandlinetool.intf.ICommandLineTool#visualizeGraphs(java.lang.String, java.lang.String, java.lang.String, com.drgarbage.commandlinetool.intf.IGraphConfiguration)
+	 */
+	public Map<IMethodPair, String> visualizeGraphs(String _classPath, String _packageName, String _className, IGraphConfiguration configuration){
+		Map<IMethodPair, String> map = new HashMap<IMethodPair, String>();
 		
 		try {
 			InputStream in = null;
@@ -82,7 +91,7 @@ public class CommandLineToolImplementation implements ICommandLineTool {
 				MethodPair methodPair = new MethodPair(methodSelection.getName(), methodSelection.getDescriptor());
 				map.put(methodPair, CommandLineToolCore.startGraphExporter(in, methodSelection.getName(), methodSelection.getDescriptor(), configuration));
 			}
-			return map;
+		return map;
 			
 			
 		} catch (ControlFlowGraphException e) {
@@ -91,12 +100,10 @@ public class CommandLineToolImplementation implements ICommandLineTool {
 			e.printStackTrace();
 		}
 		
+		/*this should be dead code.*/
 		return map;
 	}
+
 	
-	/*not yet implemented*/
-	public String compareClassFiles(InputStream is1, InputStream is2) {
-		return null;
-	}
 
 }
