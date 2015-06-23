@@ -232,7 +232,7 @@ public class CompareElementMethod extends BufferedContent implements ITypedEleme
 
     			for(int i=0;i<codeVisitor.getInstructions().size();i++){
     				currentInstruction = (AbstractInstruction)codeVisitor.getInstructions().get(i);
-    				s.append(currentInstruction.getOffset());
+    				s.append(String.format("%4d", (currentInstruction.getOffset())));
     				s.append(" ");
     				s.append(currentInstruction.getOpcodeMnemonic());
     				if(!Parameter.appendOperands(currentInstruction).isEmpty()){
