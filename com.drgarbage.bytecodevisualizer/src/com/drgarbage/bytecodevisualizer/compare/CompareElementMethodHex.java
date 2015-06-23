@@ -47,8 +47,8 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
  * (interfaces <code>IStructureComparator</code> and <code>ITypedElement</code>).
  * 
  * @author Alexander Kraft
- * @version $Revision: 764 $
- * $Id: CompareElement.java 764 2015-05-26 15:28:50Z llewa $
+ * @version $Revision$
+ * $Id$
  */
 public class CompareElementMethodHex extends BufferedContent implements ITypedElement, IStructureComparator {
 
