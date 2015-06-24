@@ -18,13 +18,11 @@ package com.drgarbage.commandlinetool;
 import java.io.IOException;
 import java.util.Map;
 
-import com.drgarbage.commandlinetool.impl.ByteCodeConfiguration;
-import com.drgarbage.commandlinetool.impl.GraphConfiguration;
-import com.drgarbage.commandlinetool.impl.MethodPair;
 import com.drgarbage.commandlinetool.intf.CommandLineToolFactory;
-import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
+import com.drgarbage.commandlinetool.intf.GraphOutputTypes;
 import com.drgarbage.commandlinetool.intf.ICommandLineTool;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
+import com.drgarbage.commandlinetool.intf.IMethodPair;
 import com.drgarbage.controlflowgraph.ControlFlowGraphException;
 
 /**
@@ -46,20 +44,18 @@ public class CommandLineTool {
 		String _classPath = "/Users/cihanaydin/Desktop/jxl.jar";
 		String _packageName = "jxl.biff";
 		String _className = "AutoFilter";
-//		String _methodName = "write";
-//		String _methodSignature = "(Ljxl/write/biff/File;)V";
-		
+
 		ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
-						
-		IByteCodeConfiguration byteCodeConfiguration = new ByteCodeConfiguration();
-		IGraphConfiguration graphConfiguration = new GraphConfiguration("X");
-		byteCodeConfiguration.setShowConstantPool(false);
+		
+		IGraphConfiguration graphConfiguration = CommandLineToolFactory.createGraphConfigurationInterface();
 		graphConfiguration.setBackEdge(true);
+		graphConfiguration.setOutputType(GraphOutputTypes.ExportFormat_GraphXML_XML_Based);
+
 		
-		Map<MethodPair, String> map = cc.visualizeGraphs(_classPath, _packageName, _className, graphConfiguration);
-		
-		for (MethodPair m : map.keySet()) {
+		Map<IMethodPair, String> map = cc.visualizeGraphs(_classPath, _packageName, _className, graphConfiguration);
+		for (IMethodPair m : map.keySet()) {
 			System.out.println(map.get(m));
+			
 		}
 				
 		
