@@ -3,7 +3,6 @@ package com.drgarbage.commandlinetool.intf;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import com.drgarbage.commandlinetool.impl.GraphConfiguration;
-import com.drgarbage.commandlinetool.impl.GraphOutputTypes;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
 
 /**
@@ -14,7 +13,7 @@ import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
 public class IGraphConfigurationTest {
 	
 	GraphOutputTypes outputtype;
-	IGraphConfiguration graphconfiguration= CommandLineToolFactory.createGraphConfiguration();
+	IGraphConfiguration graphconfiguration= CommandLineToolFactory.createGraphConfigurationInterface();
 
 	 /**
 	  * Test the IsExportComments method in {@link GraphConfiguration}
