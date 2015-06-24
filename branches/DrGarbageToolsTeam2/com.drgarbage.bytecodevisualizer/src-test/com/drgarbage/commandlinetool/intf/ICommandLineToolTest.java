@@ -23,7 +23,7 @@ public class ICommandLineToolTest {
 	String _classPath = "C:/Users/Barico/Desktop/IT-Project/Test.jar";
 	String _packageName = "testjar";
 	String _className = "main";
-    ICommandLineTool cc = CommandLineToolFactory.createCommandLineTool();
+    ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
     IByteCodeConfiguration byteCodeConf = new ByteCodeConfiguration();
     IGraphConfiguration graphConf = new GraphConfiguration();
 	

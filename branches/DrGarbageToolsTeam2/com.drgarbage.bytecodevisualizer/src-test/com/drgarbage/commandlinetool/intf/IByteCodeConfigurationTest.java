@@ -12,7 +12,7 @@ import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
  */
 public class IByteCodeConfigurationTest {
 	
-	IByteCodeConfiguration bytecodeconfiguration= CommandLineToolFactory.createByteCodeConfiguration();
+	IByteCodeConfiguration bytecodeconfiguration= CommandLineToolFactory.createByteCodeConfigurationInterface();
 
 	
 	 /**
