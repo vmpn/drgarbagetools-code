@@ -14,7 +14,6 @@ public class IByteCodeConfigurationTest {
 	
 	IByteCodeConfiguration bytecodeconfiguration= CommandLineToolFactory.createByteCodeConfigurationInterface();
 
-	
 	 /**
 	  * Test the IsShowConstantPool method in {@link IByteCodeConfiguration}
 	  * @param "c" 
@@ -171,7 +170,4 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
 	
 	}
-	
-
-
 }

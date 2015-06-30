@@ -2,12 +2,14 @@ package com.drgarbage.commandlinetool.intf;
 
 
 import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import org.junit.Test;
-import com.drgarbage.commandlinetool.impl.ByteCodeConfiguration;
-import com.drgarbage.commandlinetool.impl.GraphConfiguration;
+import com.drgarbage.asm.render.impl.ClassFileDocument;
+import com.drgarbage.asm.render.intf.IClassFileDocument;
+import com.drgarbage.asm.render.intf.IMethodSection;
+import com.drgarbage.commandlinetool.impl.MethodPair;
 import com.drgarbage.commandlinetool.intf.CommandLineToolFactory;
 import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
 import com.drgarbage.commandlinetool.intf.ICommandLineTool;
@@ -24,18 +26,17 @@ public class ICommandLineToolTest {
 	String _packageName = "testjar";
 	String _className = "main";
     ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
-    IByteCodeConfiguration byteCodeConf = new ByteCodeConfiguration();
-    IGraphConfiguration graphConf = new GraphConfiguration();
-	
+    IByteCodeConfiguration byteCodeConf = CommandLineToolFactory.createByteCodeConfigurationInterface();
+    IGraphConfiguration graphConf = CommandLineToolFactory.createGraphConfigurationInterface();
+    GraphOutputTypes outputType;
+
     /**
 	 * Test the GetInputStream method {@link ICommandLineTool}
 	 */
     @Test
 	public final void testGetInputStream() throws IOException {
-		
 		InputStream output = cc.getInputStream(_classPath, _packageName, _className);
-		assertNotNull(output);
-		
+		assertNotNull(output);	
 	}
     
     /**
@@ -53,18 +54,31 @@ public class ICommandLineToolTest {
       */
 	@Test
 	public final void testVisualizeGraph() throws IOException {
-		fail("Not yet implemented"); //TODO
-		
+        graphConf.setOutputType(outputType.ExportFormat_GraphXML_XML_Based);
+		Map<IMethodPair, String> result = cc.visualizeGraphs(_classPath, _packageName, _className, graphConf);
+		assertNotNull(result);
 	}
 
+	/**
+     * Test the VisualizeGraphs method and IMethodpair in {@link ICommandLineTool}
+     */
 	@Test
-	public final void testVisualizeGraphs() {
-		fail("Not yet implemented"); // TODO
-	}
+	public final void testVisualizeGraphsAndMethodPair() throws IOException {
+		graphConf.setOutputType(outputType.ExportFormat_SourceCodeGraph);
+		InputStream in = cc.getInputStream(_classPath, _packageName, _className);	 
 
-	@Test
-	public final void testCompareClassFiles() {
-		fail("Not yet implemented"); // TODO
-	}
+		IClassFileDocument classFileDoc = ClassFileDocument.readClass(in);
+		java.util.List<IMethodSection> methodSelectionList = classFileDoc.getMethodSections();
 
+		for (IMethodSection methodSelection : methodSelectionList) {
+			in = cc.getInputStream(_classPath, _packageName, _className);
+			String result = cc.visualizeGraph(in, methodSelection.getName(), methodSelection.getDescriptor(), graphConf);
+			MethodPair methodPair = new MethodPair(methodSelection.getName(), methodSelection.getDescriptor());
+			assertNotNull(result);
+			assertNotNull(methodPair.getMethodName());
+			assertNotNull(methodPair.getMethodSignature());
+		}		
+	}
 }
+
+
