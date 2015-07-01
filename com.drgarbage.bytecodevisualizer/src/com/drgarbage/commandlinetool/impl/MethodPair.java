@@ -26,10 +26,17 @@ import com.drgarbage.commandlinetool.intf.IMethodPair;
 public class MethodPair implements IMethodPair{
 	private String methodName;
 	private String methodSignature;
+	
+	/**
+	 * Creates an object.
+	 * @param name Method name
+	 * @param descriptor Method signature
+	 */
 	public MethodPair(String name, String descriptor) {
 		this.methodName = name;
 		this.methodSignature = descriptor;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IMethodPair#getMethodName()
 	 */

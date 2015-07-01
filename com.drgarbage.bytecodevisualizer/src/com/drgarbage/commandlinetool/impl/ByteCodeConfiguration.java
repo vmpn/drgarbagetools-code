@@ -39,42 +39,49 @@ public class ByteCodeConfiguration implements IByteCodeConfiguration{
 	public boolean isShowConstantPool() {
 		return showConstantPool;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#setShowConstantPool(boolean)
 	 */
 	public void setShowConstantPool(boolean showConstantPool) {
 		this.showConstantPool = showConstantPool;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#isShowLineNumberTable()
 	 */
 	public boolean isShowLineNumberTable() {
 		return showLineNumberTable;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#setShowLineNumberTable(boolean)
 	 */
 	public void setShowLineNumberTable(boolean showLineNumberTable) {
 		this.showLineNumberTable = showLineNumberTable;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#isShowLocalVariableTable()
 	 */
 	public boolean isShowLocalVariableTable() {
 		return showLocalVariableTable;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#setShowLocalVariableTable(boolean)
 	 */
 	public void setShowLocalVariableTable(boolean showLocalVariableTable) {
 		this.showLocalVariableTable = showLocalVariableTable;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#isShowExceptionTable()
 	 */
 	public boolean isShowExceptionTable() {
 		return showExceptionTable;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#setShowExceptionTable(boolean)
 	 */
@@ -87,6 +94,7 @@ public class ByteCodeConfiguration implements IByteCodeConfiguration{
 	public boolean isShowRelativeBranchTargetOffsets() {
 		return showRelativeBranchTargetOffsets;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#setShowRelativeBranchTargetOffsets(boolean)
 	 */
@@ -94,6 +102,7 @@ public class ByteCodeConfiguration implements IByteCodeConfiguration{
 			boolean showRelativeBranchTargetOffsets) {
 		this.showRelativeBranchTargetOffsets = showRelativeBranchTargetOffsets;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#isShowSourceLineNumbers()
 	 */
@@ -106,12 +115,14 @@ public class ByteCodeConfiguration implements IByteCodeConfiguration{
 	public void setShowSourceLineNumbers(boolean showSourceLineNumbers) {
 		this.showSourceLineNumbers = showSourceLineNumbers;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#isShowMaxs()
 	 */
 	public boolean isShowMaxs() {
 		return showMaxs;
 	}
+	
 	/* (non-Javadoc)
 	 * @see com.drgarbage.commandlinetool.intf.IByteCodeConfiguration#setShowMaxs(boolean)
 	 */
