@@ -17,7 +17,7 @@ Features Overview
 * [General](#general)
 * [Bytecode Method Viewer](#bytecode-method-viewer)
 * [JavaDoc](#java-doc)
-* [Limitations](#limitations)
+* [ToDo](#todo)
 
 
 
@@ -56,10 +56,9 @@ JavaDoc  <a name="java-doc"></a>
 
 
 
-Limitations  <a name="limitations"></a>
+ToDo  <a name="todo"></a>
 -------
 * No Comments from the sourcecode will be shown
 * Differencer not working properly
 	+ Does not shows differences line by line
-	+ more...
-* more
+* Syntax highlighting do not function properly
