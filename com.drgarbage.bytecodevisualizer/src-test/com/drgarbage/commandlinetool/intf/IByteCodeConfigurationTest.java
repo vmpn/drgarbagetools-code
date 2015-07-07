@@ -1,6 +1,5 @@
 package com.drgarbage.commandlinetool.intf;
 
-
 import static org.junit.Assert.*;
 import org.junit.Test;
 import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
@@ -11,30 +10,32 @@ import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
  * @author Baris Atas
  */
 public class IByteCodeConfigurationTest {
-	
-	IByteCodeConfiguration bytecodeconfiguration= CommandLineToolFactory.createByteCodeConfigurationInterface();
 
-	 /**
-	  * Test the IsShowConstantPool method in {@link IByteCodeConfiguration}
-	  * @param "c" 
-	  */
+	IByteCodeConfiguration bytecodeconfiguration = CommandLineToolFactory.createByteCodeConfigurationInterface();
+
+	/**
+	 * Test the IsShowConstantPool method in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "c"
+	 */
 	@Test
 	public final void testIsShowConstantPool() {
-		
-	    bytecodeconfiguration.setShowConstantPool(true);
+
+		bytecodeconfiguration.setShowConstantPool(true);
 		assertTrue(bytecodeconfiguration.isShowConstantPool());
 		assertFalse(bytecodeconfiguration.isShowExceptionTable());
 		assertFalse(bytecodeconfiguration.isShowLineNumberTable());
 		assertFalse(bytecodeconfiguration.isShowLocalVariableTable());
 		assertFalse(bytecodeconfiguration.isShowMaxs());
 		assertFalse(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
-		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());				
+		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
 	}
 
-	 /**
-	  * Test the IsShowLineNumber method in {@link IByteCodeConfiguration}
-	  * @param "l" 
-	  */
+	/**
+	 * Test the IsShowLineNumber method in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "l"
+	 */
 	@Test
 	public final void testIsShowLineNumberTable() {
 
@@ -48,13 +49,15 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
 	}
 
-	 /**
-	  * Test the IsShowLocalVariableTable method in {@link IByteCodeConfiguration}
-	  * @param "v" 
-	  */
+	/**
+	 * Test the IsShowLocalVariableTable method in
+	 * {@link IByteCodeConfiguration}
+	 * 
+	 * @param "v"
+	 */
 	@Test
 	public final void testIsShowLocalVariableTable() {
-		
+
 		bytecodeconfiguration.setShowLocalVariableTable(true);
 		assertFalse(bytecodeconfiguration.isShowConstantPool());
 		assertFalse(bytecodeconfiguration.isShowExceptionTable());
@@ -65,13 +68,14 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
 	}
 
-	 /**
-	  * Test the IsShowExceptionTable method in {@link IByteCodeConfiguration}
-	  * @param "e" 
-	  */
+	/**
+	 * Test the IsShowExceptionTable method in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "e"
+	 */
 	@Test
 	public final void testIsShowExceptionTable() {
-		
+
 		bytecodeconfiguration.setShowExceptionTable(true);
 		assertFalse(bytecodeconfiguration.isShowConstantPool());
 		assertTrue(bytecodeconfiguration.isShowExceptionTable());
@@ -80,16 +84,18 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowMaxs());
 		assertFalse(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
 		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
-	
+
 	}
-    
-	 /**
-	  * Test the IsShowRelativeBranchTargetOffsets method in {@link IByteCodeConfiguration}
-	  * @param "r" 
-	  */
+
+	/**
+	 * Test the IsShowRelativeBranchTargetOffsets method in
+	 * {@link IByteCodeConfiguration}
+	 * 
+	 * @param "r"
+	 */
 	@Test
 	public final void testIsShowRelativeBranchTargetOffsets() {
-		
+
 		bytecodeconfiguration.setShowRelativeBranchTargetOffsets(true);
 		assertFalse(bytecodeconfiguration.isShowConstantPool());
 		assertFalse(bytecodeconfiguration.isShowExceptionTable());
@@ -98,16 +104,17 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowMaxs());
 		assertTrue(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
 		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
-	
+
 	}
 
-	 /**
-	  * Test the IsShowSourceLineNumbers method in {@link IByteCodeConfiguration}
-	  * @param "s" 
-	  */
+	/**
+	 * Test the IsShowSourceLineNumbers method in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "s"
+	 */
 	@Test
 	public final void testIsShowSourceLineNumbers() {
-		
+
 		bytecodeconfiguration.setShowSourceLineNumbers(true);
 		assertFalse(bytecodeconfiguration.isShowConstantPool());
 		assertFalse(bytecodeconfiguration.isShowExceptionTable());
@@ -115,16 +122,17 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowLocalVariableTable());
 		assertFalse(bytecodeconfiguration.isShowMaxs());
 		assertFalse(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
-		assertTrue(bytecodeconfiguration.isShowSourceLineNumbers());	
+		assertTrue(bytecodeconfiguration.isShowSourceLineNumbers());
 	}
 
-	 /**
-	  * Test the IsShowMaxs() method in {@link IByteCodeConfiguration}
-	  * @param "m" 
-	  */
+	/**
+	 * Test the IsShowMaxs() method in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "m"
+	 */
 	@Test
 	public final void testIsShowMaxs() {
-		
+
 		bytecodeconfiguration.setShowMaxs(true);
 		assertFalse(bytecodeconfiguration.isShowConstantPool());
 		assertFalse(bytecodeconfiguration.isShowExceptionTable());
@@ -132,13 +140,14 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowLocalVariableTable());
 		assertTrue(bytecodeconfiguration.isShowMaxs());
 		assertFalse(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
-		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());	
+		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
 	}
-	
-	 /**
-	  * Test with EmptyArguments in {@link IByteCodeConfiguration}
-	  * @param "null" 
-	  */
+
+	/**
+	 * Test with EmptyArguments in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "null"
+	 */
 	@Test
 	public final void testEmptyArg() {
 
@@ -148,13 +157,14 @@ public class IByteCodeConfigurationTest {
 		assertFalse(bytecodeconfiguration.isShowLocalVariableTable());
 		assertFalse(bytecodeconfiguration.isShowMaxs());
 		assertFalse(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
-		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());	
+		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
 	}
-	
-	 /**
-	  * Test with Multiple Arguments in {@link IByteCodeConfiguration}
-	  * @param "mre" 
-	  */
+
+	/**
+	 * Test with Multiple Arguments in {@link IByteCodeConfiguration}
+	 * 
+	 * @param "mre"
+	 */
 	@Test
 	public final void testMultipleArgs() {
 
@@ -168,6 +178,6 @@ public class IByteCodeConfigurationTest {
 		assertTrue(bytecodeconfiguration.isShowMaxs());
 		assertTrue(bytecodeconfiguration.isShowRelativeBranchTargetOffsets());
 		assertFalse(bytecodeconfiguration.isShowSourceLineNumbers());
-	
+
 	}
 }

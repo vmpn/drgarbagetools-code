@@ -2,10 +2,16 @@ package com.drgarbage.commandlinetool.intf;
 
 
 import static org.junit.Assert.*;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+
+import javax.print.DocFlavor.URL;
+
 import org.junit.Test;
+
 import com.drgarbage.asm.render.impl.ClassFileDocument;
 import com.drgarbage.asm.render.intf.IClassFileDocument;
 import com.drgarbage.asm.render.intf.IMethodSection;
@@ -22,7 +28,10 @@ import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
  */
 public class ICommandLineToolTest {
 	
-	String _classPath = "C:/Users/Barico/Desktop/IT-Project/Test.jar";
+	java.net.URL testClass = ICommandLineToolTest.class.getResource("Test.jar");
+	File path = new File(testClass.getPath());
+	
+	String _classPath = testClass.getPath();
 	String _packageName = "testjar";
 	String _className = "main";
     ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();

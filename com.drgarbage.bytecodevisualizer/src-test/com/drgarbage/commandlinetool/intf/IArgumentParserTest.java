@@ -1,7 +1,10 @@
 package com.drgarbage.commandlinetool.intf;
 
 import static org.junit.Assert.*;
+
+import java.io.File;
 import java.io.IOException;
+
 import org.junit.Test;
 
 /**
@@ -10,53 +13,52 @@ import org.junit.Test;
  * @author Baris Atas
  */
 public class IArgumentParserTest {
-	
+	java.net.URL testClass = ICommandLineToolTest.class.getResource("Test.jar");
+	File path = new File(testClass.getPath());
+
+	String _classPath = testClass.getPath();
+
 	/**
-	  * Test the GraphConfigurationParsing method in {@link IArgumentParser}
-	  * @param "all variations"
-	  */
+	 * Test the GraphConfigurationParsing method in {@link IArgumentParser}
+	 * 
+	 * @param "all variations"
+	 */
 	@Test
 	public final void testGraphConfigurationParsing() throws IOException {
-		
-		String[][] array ={{"-XML:c"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-XML:d"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-XML:g"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-ML:l"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-DOT:e"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-DOT:m"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-NODES:v"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-NODES:s"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-NODES:b"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-BYTEGRAPH:M"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-BYTEGRAPH:X"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-BYTEGRAPH:D"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-		                   {"-BYTEGRAPH:N"," C:/Users/Barico/Desktop/IT-Project/Test.jar"}};
-		
-		for(int i= 0;i<array.length;i++){            
-		IArgumentParser argumentPars = CommandLineToolFactory.createArgumentParser(array[i]);
-		assertNotNull( argumentPars.getGraphConfiguration());
-		}            
+
+		String[][] array = { { "-XML:c" + _classPath },
+				{ "-XML:d" + _classPath }, { "-XML:g" + _classPath },
+				{ "-ML:l" + _classPath }, { "-DOT:e" + _classPath },
+				{ "-DOT:m" + _classPath }, { "-NODES:v" + _classPath },
+				{ "-NODES:s" + _classPath }, { "-NODES:b" + _classPath },
+				{ "-BYTEGRAPH:M" + _classPath },
+				{ "-BYTEGRAPH:X" + _classPath },
+				{ "-BYTEGRAPH:D" + _classPath },
+				{ "-BYTEGRAPH:N" + _classPath } };
+
+		for (int i = 0; i < array.length; i++) {
+			IArgumentParser argumentPars = CommandLineToolFactory
+					.createArgumentParser(array[i]);
+			assertNotNull(argumentPars.getGraphConfiguration());
+		}
 	}
-	
+
 	/**
-	  * Test the ByteCodeParsing method in {@link IArgumentPaser}
-	  * @param "all variations"
-	  */
+	 * Test the ByteCodeParsing method in {@link IArgumentPaser}
+	 * 
+	 * @param "all variations"
+	 */
 	@Test
 	public final void testByteCodeParsing() throws IOException {
-		String[][] array ={{"-BC:c"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-				          {"-BC:e"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-				          {"-BC:l"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-				          {"-BC:v"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-				          {"-BC:m"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-				          {"-BC:r"," C:/Users/Barico/Desktop/IT-Project/Test.jar"},
-				          {"-BC:s"," C:/Users/Barico/Desktop/IT-Project/Test.jar"}};
-		
-		for(int i = 0; i < array.length;i++){
-		IArgumentParser argumentPars = CommandLineToolFactory.createArgumentParser(array[i]);
-		assertNotNull( argumentPars.getByteCodeConfiguration());
-	    }
-    }    
+		String[][] array = { { "-BC:c" + _classPath },
+				{ "-BC:e" + _classPath }, { "-BC:l" + _classPath },
+				{ "-BC:v" + _classPath }, { "-BC:m" + _classPath },
+				{ "-BC:r" + _classPath }, { "-BC:s" + _classPath } };
+
+		for (int i = 0; i < array.length; i++) {
+			IArgumentParser argumentPars = CommandLineToolFactory
+					.createArgumentParser(array[i]);
+			assertNotNull(argumentPars.getByteCodeConfiguration());
+		}
+	}
 }
-
-
