@@ -27,13 +27,10 @@ import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
  * @author Baris Atas
  */
 public class ICommandLineToolTest {
-	
-	java.net.URL testClass = ICommandLineToolTest.class.getResource("Test.jar");
-	File path = new File(testClass.getPath());
-	
-	String _classPath = testClass.getPath();
-	String _packageName = "testjar";
-	String _className = "main";
+		
+	String _classPath = "CommandLineToolExample.jar";
+	String _packageName = "com.drgarbage.example";
+	String _className = "CommandLineToolExample";
     ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
     IByteCodeConfiguration byteCodeConf = CommandLineToolFactory.createByteCodeConfigurationInterface();
     IGraphConfiguration graphConf = CommandLineToolFactory.createGraphConfigurationInterface();
