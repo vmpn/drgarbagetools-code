@@ -50,10 +50,7 @@ import com.drgarbage.bytecodevisualizer.BytecodeVisualizerPlugin;
  * @version $Revision$
  * $Id$
  */
-/**
- * @author Lars
- *
- */
+
 public class CompareElementMethodHex extends BufferedContent implements ITypedElement, IStructureComparator {
 
     private final IJavaElement javaElement;
