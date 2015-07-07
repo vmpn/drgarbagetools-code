@@ -15,11 +15,14 @@
  */
 package com.drgarbage.commandlinetool;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import com.drgarbage.commandlinetool.intf.CommandLineToolFactory;
 import com.drgarbage.commandlinetool.intf.GraphOutputTypes;
+import com.drgarbage.commandlinetool.intf.IByteCodeConfiguration;
 import com.drgarbage.commandlinetool.intf.ICommandLineTool;
 import com.drgarbage.commandlinetool.intf.IGraphConfiguration;
 import com.drgarbage.commandlinetool.intf.IMethodPair;
@@ -39,25 +42,85 @@ public class CommandLineTool {
 	 * @throws IOException
 	 * @throws ControlFlowGraphException
 	 */
-	public static void main(String[] args) throws IOException, ControlFlowGraphException{
+	public static void main(String[] args) throws IOException, ControlFlowGraphException{	
+		XmlGraph();
+		MlGraph();
+		printGraphs();
+		printGraph();
+	}
 
-		String _classPath = "/Users/cihanaydin/Desktop/jxl.jar";
-		String _packageName = "jxl.biff";
-		String _className = "AutoFilter";
-
-		ICommandLineTool cc = CommandLineToolFactory.createCommandLineToolInterface();
+	private static void XmlGraph() throws IOException {
+		String classPath = "CommandLineToolExample.jar";
+		String packageName = "com.drgarbage.example";
+		String className = "CommandLineToolExample";
 		
-		IGraphConfiguration graphConfiguration = CommandLineToolFactory.createGraphConfigurationInterface();
-		graphConfiguration.setBackEdge(true);
-		graphConfiguration.setOutputType(GraphOutputTypes.ExportFormat_GraphXML_XML_Based);
-
+		String methodName = "sqrt";
+		String methodSignatur = "(I)D";
 		
-		Map<IMethodPair, String> map = cc.visualizeGraphs(_classPath, _packageName, _className, graphConfiguration);
-		for (IMethodPair m : map.keySet()) {
-			System.out.println(map.get(m));
-			
+		ICommandLineTool meinInterface = CommandLineToolFactory.createCommandLineToolInterface();
+		IGraphConfiguration configuration = CommandLineToolFactory.createGraphConfigurationInterface();
+		
+		InputStream inputStream;
+		inputStream = meinInterface.getInputStream(classPath, packageName, className);
+		
+		configuration.setOutputType(GraphOutputTypes.ExportFormat_GraphXML_XML_Based);
+		
+		String visualizedClassFile = meinInterface.visualizeGraph(inputStream, methodName, methodSignatur, configuration);
+		System.out.println(visualizedClassFile);
+	}
+	
+	private static void MlGraph() throws IOException {
+		String classPath = "CommandLineToolExample.jar";
+		String packageName = "com.drgarbage.example";
+		String className = "CommandLineToolExample";
+		
+		String methodName = "sqrt";
+		String methodSignatur = "(I)D";
+		
+		ICommandLineTool meinInterface = CommandLineToolFactory.createCommandLineToolInterface();
+		IGraphConfiguration configuration = CommandLineToolFactory.createGraphConfigurationInterface();
+		
+		InputStream inputStream;
+		inputStream = meinInterface.getInputStream(classPath, packageName, className);
+		
+		configuration.setOutputType(GraphOutputTypes.ExportFormat_GraphML_XML_Based);
+		
+		String etwas = meinInterface.visualizeGraph(inputStream, methodName, methodSignatur, configuration);
+		System.out.println(etwas);
+		
+	}
+
+	private static void printGraphs() throws IOException {
+		String classPath = "CommandLineToolExample.jar";
+		String packageName = "com.drgarbage.example";
+		String className = "CommandLineToolExample";
+		
+		ICommandLineTool meinInterface = CommandLineToolFactory.createCommandLineToolInterface();
+		IGraphConfiguration configuration = CommandLineToolFactory.createGraphConfigurationInterface();
+		
+		configuration.setOutputType(GraphOutputTypes.ExportFormat_GraphXML_XML_Based);		
+		
+		Map<IMethodPair, String> myMap = meinInterface.visualizeGraphs(classPath, packageName, className, configuration);
+		
+		for (IMethodPair mp: myMap.keySet()) {
+			System.out.println("Jetzt kommt der XML-Graph zur Methode: " + mp.getMethodName() + " mit der Signatur: " + mp.getMethodSignature() + "\n");
+			System.out.println(myMap.get(mp));	
 		}
-				
+	}
+	
+	private static void printGraph() throws IOException {
+		String classPath = "CommandLineToolExample.jar";
+		String packageName = "com.drgarbage.example";
+		String className = "CommandLineToolExample";
 		
+		
+		ICommandLineTool meinInterface = CommandLineToolFactory.createCommandLineToolInterface();
+		
+		InputStream inputStream = meinInterface.getInputStream(classPath, packageName, className);
+		
+		IByteCodeConfiguration configuration = CommandLineToolFactory.createByteCodeConfigurationInterface();
+		
+		String visualizedClassFile = meinInterface.visualizeClassFile(inputStream, configuration);
+		System.out.println(visualizedClassFile);
 	}
 }
