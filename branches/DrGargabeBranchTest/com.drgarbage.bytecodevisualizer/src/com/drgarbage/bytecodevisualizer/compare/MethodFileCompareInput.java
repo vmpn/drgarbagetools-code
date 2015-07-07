@@ -70,7 +70,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
      */
     protected CompareElementMethod left;
     protected CompareElementMethodHex left1;
-    public static CompareElementMethod test1;
+    public static CompareElementMethod leftsave;
     
     
     /** 
@@ -78,7 +78,7 @@ public class MethodFileCompareInput extends CompareEditorInput {
     */
     protected CompareElementMethod right;
     protected CompareElementMethodHex right1;
-    public static CompareElementMethod test2;
+    public static CompareElementMethod rightsave;
     /**
      * Reference to the editor instance. 
      */
@@ -138,8 +138,8 @@ public class MethodFileCompareInput extends CompareEditorInput {
     protected void switchViewerhex() {
     	left.discardBuffer();
     	right.discardBuffer();
-        test1=left;
-    	test2=right;
+        leftsave=left;
+    	rightsave=right;
         CompareConfiguration cc = new CompareConfiguration();
         CompareUI.reuseCompareEditor(new MethodFileCompareInputHex(left1, right1, cc), compareEditor);
 
@@ -188,15 +188,15 @@ public class MethodFileCompareInput extends CompareEditorInput {
    public Viewer findContentViewer(Viewer newViewer, ICompareInput input, Composite parent) {
     	Viewer viewer = null;    		
     	
-    	if(left.getType().equals("class") && 
-    			right.getType().equals("class")){
+    	if(left.getType().equals("java") && 
+    			right.getType().equals("java")){
 
 			ViewerDescriptor[] descriptors = 
     				CompareUIPlugin.getDefault().findContentViewerDescriptor(newViewer, input, getCompareConfiguration());
 				
     		for(ViewerDescriptor vd: descriptors){
     			String s = vd.getExtension();
-    			if(s.equals("class, class_drgarbage")){ //$NON-NLS-1$
+    			if(s.equals("java")){ //$NON-NLS-1$
     				setContentViewerDescriptor(vd);	
     				break;
     			}
