@@ -13,10 +13,8 @@ import org.junit.Test;
  * @author Baris Atas
  */
 public class IArgumentParserTest {
-	java.net.URL testClass = ICommandLineToolTest.class.getResource("Test.jar");
-	File path = new File(testClass.getPath());
-
-	String _classPath = testClass.getPath();
+	
+	String _classPath = "CommandLineToolExample.jar";
 
 	/**
 	 * Test the GraphConfigurationParsing method in {@link IArgumentParser}
